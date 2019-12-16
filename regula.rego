@@ -55,6 +55,22 @@ judgement_from_allow_denies(resource, allows, denies) = ret {
   }
 }
 
+# Construct judgements from a multi-resource rule that has a `policy` set.
+judgements_from_policies(policies) = ret {
+  count(policies) >= 0
+  is_set(policies[0])
+  ret = policies[0]
+}
+
+# Create a report for a rule.
+rule_report(pkg, judgements) = ret {
+  ret = {
+    "package": pkg,
+    "resources": judgements,
+    "valid": all([j.valid | judgements[j]])
+  }
+}
+
 # Evaluate a single rule -- this can be either a single- or a multi-resource
 # rule.
 evaluate_rule(rule) = ret {
@@ -62,17 +78,14 @@ evaluate_rule(rule) = ret {
   resource_type = rule["resource_type"]
   resource_type != "MULTIPLE"
 
-  resources = [ j |
+  judgements = { j |
     resource = planned_resources[_]
     allows = [a | a = data["rules"][pkg]["allow"] with input as resource]
     denies = [d | d = data["rules"][pkg]["deny"]  with input as resource]
     j = judgement_from_allow_denies(resource, allows, denies)
-  ]
-
-  ret = {
-    "package": pkg,
-    "resources": resources
   }
+
+  ret = rule_report(pkg, judgements)
 } else = ret {
   # Note that `rule["resource_type"]` is not specified so we're dealing with a
   # multi-resource type validation.
@@ -84,12 +97,16 @@ evaluate_rule(rule) = ret {
     }
   ]
 
-  ret = {
-    "package": pkg,
-    "resources": policies
-  }
+  judgements = judgements_from_policies(policies)
+  ret = rule_report(pkg, judgements)
 }
 
 index(rules) = ret {
-  ret = [evaluate_rule(rule) | rule = rules[_]]
+  results = [evaluate_rule(rule) | rule = rules[_]]
+  ret = {
+    "rules": results,
+    "passed": count([r | r = results[_]; r.valid]),
+    "failed": count([r | r = results[_]; not r.valid]),
+    "valid": all([r.valid | r = results[_]])
+  }
 }

@@ -128,8 +128,10 @@ report = ret {
   # Produce the report.
   ret = {
     "rules": results,
-    "passed": count([r | r = results[_]; r.valid]),
-    "failed": count([r | r = results[_]; not r.valid]),
+    "passed": [r.package | r = results[_]; r.valid],
+    "failed": [r.package | r = results[_]; not r.valid],
+    "num_passed": count([r | r = results[_]; r.valid]),
+    "num_failed": count([r | r = results[_]; not r.valid]),
     "valid": all([r.valid | r = results[_]])
   }
 }

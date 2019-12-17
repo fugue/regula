@@ -51,7 +51,8 @@ judgement_from_allow_denies(resource, allows, denies) = ret {
 } else = ret {
   # Malformed single-resource rule.
   ret = {
-    "error": "The rule does not specify allow or deny."
+    "error": "The rule does not specify allow or deny.",
+    "valid": false
   }
 }
 

@@ -101,16 +101,7 @@ evaluate_rule(rule) = ret {
   ret = rule_report(pkg, judgements)
 }
 
-index(rules) = ret {
-  results = [evaluate_rule(rule) | rule = rules[_]]
-  ret = {
-    "rules": results,
-    "passed": count([r | r = results[_]; r.valid]),
-    "failed": count([r | r = results[_]; not r.valid]),
-    "valid": all([r.valid | r = results[_]])
-  }
-}
-
+# The full report.
 report = ret {
   # We look at all packages inside `data.rules` that have a `resource_type`
   # declared and construct a list of rules based on that.

@@ -1,12 +1,14 @@
-package rules.kms_rotate_allow_deny
+package rules.simple_allow_deny
+
+resource_type = "aws_ebs_volume"
 
 default allow = false
 default deny = false
 
 allow {
-  input.enable_key_rotation == true
+  input.encrypted == true
 }
 
 deny {
-  input.id = "aws_kms_key.valid"
+  input.size > 10
 }

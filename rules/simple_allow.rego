@@ -1,7 +1,9 @@
-package rules.kms_rotate_allow
+package rules.simple_allow
+
+resource_type = "aws_ebs_volume"
 
 default allow = false
 
 allow {
-  input.enable_key_rotation == true
+  input.encrypted == true
 }

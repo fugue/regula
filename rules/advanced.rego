@@ -1,19 +1,21 @@
-package rules.kms_rotate_advanced
+package rules.advanced
 
 import data.fugue
 
-keys = fugue.resources("aws_kms_key")
+resource_type = "MULTIPLE"
 
-invalid_key(key) {
-  key.enable_key_rotation != true
+volumes = fugue.resources("aws_ebs_volume")
+
+valid_volume(volume) {
+  volume.encrypted == true
 }
 
 policy[p] {
-  key = keys[_]
-  invalid_key(key)
-  p = fugue.deny_resource(key)
+  volume = volumes[_]
+  valid_volume(volume)
+  p = fugue.allow_resource(volume)
 } {
-  key = keys[_]
-  not invalid_key(key)
-  p = fugue.allow_resource(key)
+  volume = volumes[_]
+  not valid_volume(volume)
+  p = fugue.deny_resource(volume)
 }

@@ -1,7 +1,13 @@
-package rules.kms_rotate_deny
+package rules.simple_deny
+
+resource_type = "aws_ebs_volume"
 
 default deny = false
 
+valid_volume(volume) {
+  volume.encrypted == true
+}
+
 deny {
-  input.enable_key_rotation != true
+  not valid_volume(input)
 }

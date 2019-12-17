@@ -110,3 +110,26 @@ index(rules) = ret {
     "valid": all([r.valid | r = results[_]])
   }
 }
+
+report = ret {
+  # We look at all packages inside `data.rules` that have a `resource_type`
+  # declared and construct a list of rules based on that.
+  rules = [ rule |
+    resource_type = data["rules"][pkg]["resource_type"]
+    rule = {
+      "package": pkg,
+      "resource_type": resource_type
+    }
+  ]
+
+  # Evaluate all these rules.
+  results = [evaluate_rule(rule) | rule = rules[_]]
+
+  # Produce the report.
+  ret = {
+    "rules": results,
+    "passed": count([r | r = results[_]; r.valid]),
+    "failed": count([r | r = results[_]; not r.valid]),
+    "valid": all([r.valid | r = results[_]])
+  }
+}

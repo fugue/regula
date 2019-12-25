@@ -1,5 +1,13 @@
 # Regula
 
+## Intoduction
+
+TODO
+
+## Adding rules
+
+TODO
+
 ## Running Regula as a GitHub Action
 
 See <https://github.com/jaspervdj-luminal/regula-action>.

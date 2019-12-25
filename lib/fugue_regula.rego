@@ -115,7 +115,7 @@ report = ret {
   ]
 
   # Evaluate all these rules.
-  results = [evaluate_rule(rule) | rule = rules[_]]
+  results = {rule["package"]: evaluate_rule(rule) | rule = rules[_]}
 
   # Produce the report.
   ret = {

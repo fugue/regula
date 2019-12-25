@@ -10,4 +10,4 @@ jobs:
       id: opa-test
       uses: jaspervdj-luminal/opa-test-action@master
       with:
-        path: 'lib:test'
+        args: 'lib test'

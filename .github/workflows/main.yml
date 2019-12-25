@@ -8,6 +8,6 @@ jobs:
     - uses: actions/checkout@master
     - name: OPA test
       id: opa-test
-      uses: jaspervdj-luminal/opa-test-action@master
+      uses: jaspervdj-luminal/opa-test-action@v0.0.1
       with:
         args: 'lib test'

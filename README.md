@@ -1,5 +1,9 @@
 # Regula
 
+## Running Regula as a GitHub Action
+
+See <https://github.com/jaspervdj-luminal/regula-action>.
+
 ## Locally producing a report
 
 We first need to obtain a JSON-formatted terraform plan.  In order to do get

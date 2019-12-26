@@ -1,0 +1,51 @@
+#!/bin/bash
+set -o nounset -o errexit -o pipefail
+
+# Basic command line argument handling.
+if [[ $# -lt 1 ]]; then
+  1>&2 echo "Usage: $0 TERRAFORM_DIR [REGO_DIRS..]"
+  1>&2 echo ""
+  1>&2 echo "Regula is a little wrapper to run Rego validations on terraform"
+  1>&2 echo "files.  It is meant to be used as a pre-flight check before"
+  1>&2 echo "deployment."
+  exit 1
+fi
+
+TERRAFORM_DIR="$1"
+
+# Setting this variable will cause terraform to print a little less information
+# on what to do next.
+TF_IN_AUTOMATION=true
+
+# Allow overriding terraform version.
+TERRAFORM="${TERRAFORM:-terraform-v0.12.18}"
+
+# Hide the output of a command only if it succeeds.
+function silently {
+  local log="$(mktemp --tmpdir silently.XXXXXXX)"
+  local exit_code=""
+  1>&2 echo "${1+$@}"
+  ${1+"$@"} >"$log" 2>&1 || exit_code=$?
+  if [[ ! -z $exit_code ]]; then
+    1>&2 echo "${1+$@} failed; output ($log):"
+    1>&2 cat "$log"
+    exit $exit_code
+  fi
+  rm "$log"
+}
+
+# Temporary files.
+TERRAFORM_PLAN="$(mktemp --tmpdir plan.XXXXXXX)"
+TERRAFORM_PLAN_JSON="$(mktemp --tmpdir plan.json.XXXXXXX)"
+function cleanup {
+    rm -f "$TERRAFORM_PLAN" "$TERRAFORM_PLAN_JSON"
+}
+trap cleanup exit
+
+# Run terraform to obtain the plan.
+silently "$TERRAFORM" init "$TERRAFORM_DIR"
+silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN" "$TERRAFORM_DIR"
+"$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON"
+
+# Finally, run OPA on the result to get out our report.
+opa eval -i "$TERRAFORM_PLAN_JSON" -d . 'data.fugue.regula.report'

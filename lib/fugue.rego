@@ -9,6 +9,7 @@ resources_by_type = {rt: rs |
   resource_types[rt]
   rs = {ri: r |
     r = input.resources[ri]
+    r._type == rt
   }
 }
 

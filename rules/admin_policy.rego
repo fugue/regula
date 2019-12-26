@@ -16,13 +16,17 @@ resource_type = "MULTIPLE"
 # All policy objects that have a name and a `policy` field containing a JSON
 # string.
 policies[name] = p {
-  p = fugue.resources_by_type["aws_iam_policy"][name]
+  iam_policies = fugue.resources("aws_iam_policy")
+  p = iam_policies[name]
 } {
-  p = fugue.resources_by_type["aws_iam_group_policy"][name]
+  group_policies = fugue.resources("aws_iam_group_policy")
+  p = group_policies[name]
 } {
-  p = fugue.resources_by_type["aws_iam_role_policy"][name]
+  role_policies = fugue.resources("aws_iam_role_policy")
+  p = role_policies[name]
 } {
-  p = fugue.resources_by_type["aws_iam_user_policy"][name]
+  user_policies = fugue.resources("aws_iam_user_policy")
+  p = user_policies[name]
 }
 
 # All wildcard policies.

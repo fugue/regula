@@ -67,7 +67,7 @@ judgements_from_policies(policies) = ret {
 rule_report(pkg, judgements) = ret {
   ret = {
     "package": pkg,
-    "resources": judgements,
+    "resources": {j.id: j | judgements[j]},
     "valid": all([j.valid | judgements[j]])
   }
 }

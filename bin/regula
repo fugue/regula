@@ -18,7 +18,7 @@ TERRAFORM_DIR="$1"
 TF_IN_AUTOMATION=true
 
 # Allow overriding terraform version.
-TERRAFORM="${TERRAFORM:-terraform-v0.12.18}"
+TERRAFORM="${TERRAFORM:-terraform}"
 
 # Hide the output of a command only if it succeeds.
 function silently {

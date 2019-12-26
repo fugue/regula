@@ -3,7 +3,7 @@ set -o nounset -o errexit -o pipefail
 
 # Basic command line argument handling.
 if [[ $# -lt 1 ]]; then
-  1>&2 echo "Usage: $0 TERRAFORM_DIR [REGO_DIRS..]"
+  1>&2 echo "Usage: $0 TERRAFORM_DIR [REGO_PATHS..]"
   1>&2 echo ""
   1>&2 echo "Regula is a little wrapper to run Rego validations on terraform"
   1>&2 echo "files.  It is meant to be used as a pre-flight check before"
@@ -12,6 +12,8 @@ if [[ $# -lt 1 ]]; then
 fi
 
 TERRAFORM_DIR="$1"
+shift 1
+REGO_PATHS=("$@")
 
 # Setting this variable will cause terraform to print a little less information
 # on what to do next.
@@ -47,5 +49,15 @@ silently "$TERRAFORM" init "$TERRAFORM_DIR"
 silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN" "$TERRAFORM_DIR"
 "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON"
 
+# Prepend `-d` to every argument because `opa` expects to see many `-d`
+# arguments.
+D_REGO_PATHS=()
+for p in "${REGO_PATHS[@]}"; do
+    D_REGO_PATHS+=('-d')
+    D_REGO_PATHS+=("$p")
+done
+
 # Finally, run OPA on the result to get out our report.
-opa eval -i "$TERRAFORM_PLAN_JSON" -d . 'data.fugue.regula.report'
+opa eval -i "$TERRAFORM_PLAN_JSON" \
+    "${D_REGO_PATHS[@]}" \
+    'data.fugue.regula.report'

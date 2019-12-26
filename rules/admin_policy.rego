@@ -37,8 +37,8 @@ wildcard_policies[name] = p {
 # - Effect: Allow
 # - Resource: "*"
 # - Action: "*"
-is_wildcard_policy(policy) {
-  json.unmarshal(policy.policy, doc)
+is_wildcard_policy(p) {
+  json.unmarshal(p.policy, doc)
   statements = as_array(doc.Statement)
   statement = statements[_]
 

@@ -7,6 +7,30 @@ need to use this) wrapper around [opa] and [terraform] that allows you to more
 easily implement pre-flight policy checks, by providing a rigid structure for
 rules.
 
+## Running Regula locally
+
+    ./bin/regula [TERRAFORM_PATH] [REGO_PATHS...]
+
+`TERRAFORM_PATH` is the directory where your terraform configuration files are
+located.
+
+`REGO_PATHS` are the directories that need to be searched for Rego code.  This
+should at least include `lib/`.
+
+Some examples:
+
+ -  `./bin/regula ../my-tf-infra .` conveniently check `../my-tf-infra` against
+    all rules in this main repository.
+ -  `./bin/regula ../my-tf-infra lib rules/t2_only.rego` run Regula using only
+    the specified rule.
+ -  `./bin/regula ../my-tf-infra lib ../custom-rules` run Regula using a
+    directory of custom rules.
+
+It is also possible to set the name of the `terraform` executable; which is
+useful if you have several versions installed:
+
+    env TERRAFORM=terraform-v0.12.18 ./bin/regula ../regula-action-example/ lib
+
 ## Running Regula as a GitHub Action
 
 See <https://github.com/jaspervdj-luminal/regula-action>.

@@ -81,6 +81,7 @@ evaluate_rule(rule) = ret {
 
   judgements = { j |
     resource = planned_resources[_]
+    resource._type == resource_type
     allows = [a | a = data["rules"][pkg]["allow"] with input as resource]
     denies = [d | d = data["rules"][pkg]["deny"]  with input as resource]
     j = judgement_from_allow_denies(resource, allows, denies)

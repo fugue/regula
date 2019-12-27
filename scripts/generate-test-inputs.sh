@@ -32,6 +32,10 @@ function generate_test_input {
 
 for tf_file in tests/rules/inputs/*.tf; do
   rego_file="$(dirname "$tf_file")/$(basename "$tf_file" .tf).rego"
-  1>&2 echo "$tf_file -> $rego_file"
-  generate_test_input "$tf_file" "$rego_file"
+  if [[ ! -f "$rego_file" ]] || [[ "$tf_file" -nt "$rego_file" ]]; then
+    1>&2 echo "$tf_file -> $rego_file"
+    generate_test_input "$tf_file" "$rego_file"
+  else
+    1>&2 echo "$rego_file is up to date.  Remove it to force re-generating."
+  fi
 done

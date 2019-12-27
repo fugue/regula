@@ -17,7 +17,7 @@ function generate_test_input {
   $TERRAFORM plan -refresh=false -out="$tfdir/plan.tfplan" "$tfdir"
   $TERRAFORM show -json "$tfdir/plan.tfplan" >"$tfdir/plan.json"
 
-  local package="rules.inputs.$(basename "$2" .rego)"
+  local package="tests.rules.$(basename "$2" .rego)"
   echo '# This package was automatically generated from:' >"$2"
   echo '#' >>"$2"
   echo "#     $1" >>"$2"
@@ -25,7 +25,7 @@ function generate_test_input {
   echo '# using `generate_test_inputs.sh` and should not be modified' >>"$2"
   echo '# directly.' >>"$2"
   echo "package $package" >>"$2"
-  echo "json = $(jq '.' <"$tfdir/plan.json")" >>"$2"
+  echo "mock_input = $(jq '.' <"$tfdir/plan.json")" >>"$2"
 
   1>&2 echo "Generated $2"
 }

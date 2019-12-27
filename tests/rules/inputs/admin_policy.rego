@@ -4,8 +4,8 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package rules.inputs.admin_policy
-json = {
+package tests.rules.admin_policy
+mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",
   "planned_values": {

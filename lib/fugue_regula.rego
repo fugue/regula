@@ -67,7 +67,7 @@ judgements_from_policies(policies) = ret {
 rule_report(pkg, judgements) = ret {
   ret = {
     "package": pkg,
-    "resources": judgements,
+    "resources": {j.id: j | judgements[j]},
     "valid": all([j.valid | judgements[j]])
   }
 }
@@ -115,7 +115,7 @@ report = ret {
   ]
 
   # Evaluate all these rules.
-  results = [evaluate_rule(rule) | rule = rules[_]]
+  results = {rule["package"]: evaluate_rule(rule) | rule = rules[_]}
 
   # Produce the report.
   ret = {

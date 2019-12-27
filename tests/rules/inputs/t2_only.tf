@@ -18,6 +18,11 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+resource "aws_instance" "invalid" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t2.nano"
+}
+
 resource "aws_instance" "valid_micro" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"

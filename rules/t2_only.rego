@@ -1,4 +1,4 @@
-package rules.regula_r00011
+package rules.t2_only
 
 import data.fugue
 

@@ -131,19 +131,26 @@ evaluate_rule(rule) = ret {
 report = ret {
   # We look at all packages inside `data.rules` that have a `resource_type`
   # declared and construct a list of rules based on that.
-  rules = [ rule |
-    resource_type = data["rules"][pkg]["resource_type"]
+  rules = [rule |
+    resource_type = data.rules[pkg].resource_type
     rule = {
       "package": pkg,
-      "resource_type": resource_type
+      "resource_type": resource_type,
+      "controls": {c | data.rules[pkg].controls[c]}
     }
   ]
+
+  rules_by_control = {c: rs |
+    rules[_].controls[c]
+    rs = {rule["package"] | rule = rules[_]; rule.controls[c]}
+  }
 
   # Evaluate all these rules.
   results = {rule["package"]: evaluate_rule(rule) | rule = rules[_]}
 
   # Produce the report.
   ret = {
+    "controls": rules_by_control,
     "rules": results,
     "passed": [pkg | r = results[_]; r.valid; pkg = r["package"]],
     "failed": [pkg | r = results[_]; not r.valid; pkg = r["package"]],

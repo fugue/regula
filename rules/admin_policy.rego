@@ -9,6 +9,7 @@ controls = {"CIS_1-22"}
 # IAM policies should not have full "*:*" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.
 #
 # CIS_1-22
+# REGULA_R00002
 #
 # aws_iam_group_policy
 # aws_iam_policy

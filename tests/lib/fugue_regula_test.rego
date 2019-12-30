@@ -1,8 +1,8 @@
 package fugue.regula
 
-# Test that planned_resources gives us the right shape.
-test_planned_resources {
-  pr = planned_resources with input as {
+# Test that resource_view gives us the right shape.
+test_resource_view {
+  rv = resource_view with input as {
     "planned_values": {
       "root_module": {
         "resources": [
@@ -23,7 +23,7 @@ test_planned_resources {
       }
     }
   }
-  pr == {
+  rv == {
     "aws_ebs_volume.bad": {
       "id": "aws_ebs_volume.bad",
       "_type": "aws_ebs_volume",

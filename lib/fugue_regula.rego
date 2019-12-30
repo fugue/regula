@@ -90,7 +90,6 @@ judgements_from_policies(policies) = ret {
 # Create a report for a rule.
 rule_report(pkg, judgements) = ret {
   ret = {
-    "package": pkg,
     "resources": {j.id: j | judgements[j]},
     "valid": all([j.valid | judgements[j]])
   }
@@ -146,16 +145,30 @@ report = ret {
   }
 
   # Evaluate all these rules.
-  results = {rule["package"]: evaluate_rule(rule) | rule = rules[_]}
+  rule_results = {rule["package"]: evaluate_rule(rule) | rule = rules[_]}
+
+  # Group rule results into control results.
+  control_results = {control: control_result |
+    pkgs = rules_by_control[control]
+    control_result = {
+      "valid": all([rule_results[pkg].valid | pkgs[pkg]]),
+      "rules": pkgs
+    }
+  }
+
+  # Create a summary as well.
+  summary = {
+    "valid": all([r.valid | r = rule_results[_]]),
+    "rules_passed": count([r | r = rule_results[_]; r.valid]),
+    "rules_failed": count([r | r = rule_results[_]; not r.valid]),
+    "controls_passed": count([r | r = control_results[_]; r.valid]),
+    "controls_failed": count([r | r = control_results[_]; not r.valid]),
+  }
 
   # Produce the report.
   ret = {
-    "controls": rules_by_control,
-    "rules": results,
-    "passed": [pkg | r = results[_]; r.valid; pkg = r["package"]],
-    "failed": [pkg | r = results[_]; not r.valid; pkg = r["package"]],
-    "num_passed": count([r | r = results[_]; r.valid]),
-    "num_failed": count([r | r = results[_]; not r.valid]),
-    "valid": all([r.valid | r = results[_]])
+    "controls": control_results,
+    "rules": rule_results,
+    "summary": summary
   }
 }

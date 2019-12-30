@@ -2,26 +2,23 @@ package rules.no_ingress_except_80_443
 
 import data.fugue
 
-resource_type = "MULTIPLE"
+resource_type = "aws_security_group"
 
-security_groups = fugue.resources("aws_security_group")
+whitelisted_ports = {80, 443}
 
-valid_ports(sg) {
-  sg.ingress[i].from_port == 80
-  sg.ingress[i].to_port == 80
-} {
-  sg.ingress[i].from_port == 443
-  sg.ingress[i].to_port == 443
+whitelisted_ingress_block(block) {
+  block.from_port == block.to_port
+  whitelisted_ports[block.from_port]
 }
 
-policy[p] {
-  security_group = security_groups[_]
-  security_group.ingress[i].cidr_blocks[_] == "0.0.0.0/0"
-  not valid_ports(security_group) 
-  p = fugue.deny_resource(security_group)
-} {
-  security_group = security_groups[_]
-  security_group.ingress[i].cidr_blocks[_] == "0.0.0.0/0"
-  valid_ports(security_group)
-  p = fugue.allow_resource(security_group)
+bad_ingress_block(block) {
+  block.cidr_blocks[_] == "0.0.0.0/0"
+  not whitelisted_ingress_block(block)
+}
+
+default deny = false
+
+deny {
+  block = input.ingress[_]
+  bad_ingress_block(block)
 }

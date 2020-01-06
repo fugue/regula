@@ -10,14 +10,15 @@
 -   [Regula as a GitHub Action](#regula-as-a-github-action)
 -   [Development](#development)
     -   [Directory structure](#directory-structure)
+    -   [Adding a test](#adding-a-test)
+    -   [Debugging a rule with fregot](#debugging-a-rule-with-fregot)
     -   [Locally producing a report](#locally-producing-a-report)
 
 ## Introduction
 
-Regula is a very light (less than 100 lines of bash; and you don't every really
-need to use this) framework around [opa] and [terraform] that allows you to more
-easily implement pre-flight policy checks, by providing a rigid structure for
-rules.
+Regula is a very light (less than 100 lines of bash) framework around [opa] and
+[terraform] that allows you to more easily implement pre-flight policy checks,
+by providing a rigid structure for rules.
 
 ## How does Regula work?
 
@@ -27,10 +28,10 @@ that generates a [terraform] plan in JSON format, ready for consumption by
 
 The second part is a Rego framework that:
 
- -  It merges resource info from `planned_values` and `configuration` in the
+-   It merges resource info from `planned_values` and `configuration` in the
     terrraform plan into a more conveniently accessible format.
- -  It looks for [rules](#regula-rules) and executes them.
- -  It creates a report with the results of all rules and a
+-   It looks for [rules](#regula-rules) and executes them.
+-   It creates a report with the results of all rules and a
     [control mapping](#control-mapping) in the output.
 
 ## Running Regula locally
@@ -45,11 +46,11 @@ should at least include `lib/`.
 
 Some examples:
 
- -  `./bin/regula ../my-tf-infra .` conveniently check `../my-tf-infra` against
+-   `./bin/regula ../my-tf-infra .`: conveniently check `../my-tf-infra` against
     all rules in this main repository.
- -  `./bin/regula ../my-tf-infra lib rules/t2_only.rego` run Regula using only
+-   `./bin/regula ../my-tf-infra lib rules/t2_only.rego`: run Regula using only
     the specified rule.
- -  `./bin/regula ../my-tf-infra lib ../custom-rules` run Regula using a
+-   `./bin/regula ../my-tf-infra lib ../custom-rules`: run Regula using a
     directory of custom rules.
 
 It is also possible to set the name of the `terraform` executable; which is
@@ -186,7 +187,46 @@ See <https://github.com/jaspervdj-luminal/regula-action>.
       *  `tests/rules/input`: terraform files that can be used to generate Rego
          files.
 
+### Adding a test
+
+If you would like to add a rule, we recommend starting with a test.
+Put your terraform code in a file in `tests/rules/inputs`; for example
+[t2_only.tf](/tests/rules/inputs/t2_only.tf). From this, you can generate a mock
+input by running:
+
+    bash scripts/generate-test-inputs.sh
+
+The mock input will then be placed in a `.rego` file with the same name, in our
+case [t2_only.rego](/tests/rules/inputs/t2_only.rego). It is then customary to
+add the actual tests in a name with the same file, but outside of the `inputs/`
+subdirectory. In this case, that would be [here](/tests/rules/t2_only.rego).
+
+### Debugging a rule with fregot
+
+Once you have generated the mock input, it is easy to debug a rule with
+[fregot].  Fire up `fregot` with the right directories and set a breakpoint on
+the rule you are trying to debug:
+
+    $ fregot repl lib rules tests
+    F u g u e   R E G O   T o o l k i t
+    fregot v0.7.2 repl - use :help for usage info
+    repl% :break data.rules.t2_only.allow
+
+Now, we can just evaluate the entire report with the mock input.  If your rule
+is triggered, that will drop you into a debug prompt:
+
+    repl% data.fugue.regula.report with input as data.tests.rules.t2_only.mock_input
+    19|   valid_instance_types[input.instance_type]
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+From here, you can evaluate anything in context; such as `input` to look at the
+resource, or any other auxiliary rules such as `valid_instance_types` in this
+example.
+
 ### Locally producing a report
+
+In some cases, you may want to produce the steps that Regula performs manually.
+If that is something you want to step through, this section is for you.
 
 We first need to obtain a JSON-formatted terraform plan.  In order to do get
 that, you can use:
@@ -211,3 +251,4 @@ If all goes well, you should now see the results for each rule.
 [terraform]: https://www.terraform.io/
 [Rego]: https://www.openpolicyagent.org/docs/latest/policy-language/
 [Fugue Custom Rules]: https://docs.fugue.co/rules.html
+[fregot]: https://github.com/fugue/fregot

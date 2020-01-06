@@ -13,9 +13,13 @@ function generate_test_input {
   local tfdir="$(mktemp -d)"
   trap "rm -rf "$tfdir"" return
   cp "$1" "$tfdir"
-  $TERRAFORM init "$tfdir"
-  $TERRAFORM plan -refresh=false -out="$tfdir/plan.tfplan" "$tfdir"
-  $TERRAFORM show -json "$tfdir/plan.tfplan" >"$tfdir/plan.json"
+
+  # For some reason running this from the current directory sometimes fails; we
+  # create a subshell and `cd` to where we copied the terraform configuration.
+  (cd "$tfdir" &&
+      $TERRAFORM init &&
+      $TERRAFORM plan -refresh=false -out="plan.tfplan" &&
+      $TERRAFORM show -json "plan.tfplan" >"plan.json")
 
   local package="tests.rules.$(basename "$2" .rego)"
   echo '# This package was automatically generated from:' >"$2"

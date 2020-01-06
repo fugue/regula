@@ -3,9 +3,23 @@
 ## Introduction
 
 Regula is a very light (less than 100 lines of bash; and you don't every really
-need to use this) wrapper around [opa] and [terraform] that allows you to more
+need to use this) framework around [opa] and [terraform] that allows you to more
 easily implement pre-flight policy checks, by providing a rigid structure for
 rules.
+
+## How does Regula work?
+
+There are two big parts to Regula. The first is a [shell script](/bin/regula)
+that generates a [terraform] plan in JSON format, ready for consumption by
+[opa].
+
+The second part is a Rego framework that:
+
+ -  It merges resource info from `planned_values` and `configuration` in the
+    terrraform plan into a more conveniently accessible format.
+ -  It looks for [rules][#regula-rules] and executes them.
+ -  It creates a report with the results of all rules and a
+    [control mapping][#control-mapping] in the output.
 
 ## Running Regula locally
 
@@ -30,6 +44,14 @@ It is also possible to set the name of the `terraform` executable; which is
 useful if you have several versions installed:
 
     env TERRAFORM=terraform-v0.12.18 ./bin/regula ../regula-action-example/ lib
+
+## Regula rules
+
+TODO
+
+## Control mapping
+
+TODO
 
 ## Running Regula as a GitHub Action
 

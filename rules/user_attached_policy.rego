@@ -4,14 +4,9 @@ import data.fugue
 
 resource_type = "MULTIPLE"
 
+controls = {"CIS_1-16", "REGULA_R00001"}
+
 # IAM policies should not be attached to users. Assigning privileges at the group or role level reduces the complexity of access management as the number of users grow. Reducing access management complexity may reduce opportunity for a principal to inadvertently receive or retain excessive privileges.
-#
-# CIS_1-16
-# REGULA_R00001
-#
-# aws_iam_policy_attachment
-# aws_iam_user_policy
-# aws_iam_user_policy_attachment
 
 user_policies = fugue.resources("aws_iam_user_policy")
 user_policy_attachments = fugue.resources("aws_iam_user_policy_attachment")

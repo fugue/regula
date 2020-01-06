@@ -17,9 +17,9 @@ The second part is a Rego framework that:
 
  -  It merges resource info from `planned_values` and `configuration` in the
     terrraform plan into a more conveniently accessible format.
- -  It looks for [rules][#regula-rules] and executes them.
+ -  It looks for [rules](#regula-rules) and executes them.
  -  It creates a report with the results of all rules and a
-    [control mapping][#control-mapping] in the output.
+    [control mapping](#control-mapping) in the output.
 
 ## Running Regula locally
 
@@ -56,18 +56,20 @@ simple rules and advanced rules.
 Simple rules are useful when the policy applies to a single resource type only,
 and you want to make simple yes/no decision.
 
-    # Rules mules always be located right below the `rules` package.
-    package rules.my_simple_rule
+```ruby
+# Rules mules always be located right below the `rules` package.
+package rules.my_simple_rule
 
-    # Simple rules must specify the resource type they will police.
-    resource_type = "aws_ebs_volume"
+# Simple rules must specify the resource type they will police.
+resource_type = "aws_ebs_volume"
 
-    # Simple rules must specify `allow` or `deny`.  For this example, we use
-    # an `allow` rule to check that the EBS volume is encrypted.
-    default allow = false
-    allow {
-      input.encrypted == true
-    }
+# Simple rules must specify `allow` or `deny`.  For this example, we use
+# an `allow` rule to check that the EBS volume is encrypted.
+default allow = false
+allow {
+  input.encrypted == true
+}
+```
 
 ### Advanced rules
 
@@ -75,36 +77,38 @@ Advanced rules are harder to write, but more powerful.  They allow you to
 observe different kinds of resource types and decide which specific resources
 are valid or invalid.
 
-    # Rules still must be located in the `rules` package.
-    package rules.user_attached_policy
+```ruby
+# Rules still must be located in the `rules` package.
+package rules.user_attached_policy
 
-    # Advanced rules typically use functions from the `fugue` library.
-    import data.fugue
+# Advanced rules typically use functions from the `fugue` library.
+import data.fugue
 
-    # We mark an advanced rule by setting `resource_type` to `MULTIPLE`.
-    resource_type = "MULTIPLE"
+# We mark an advanced rule by setting `resource_type` to `MULTIPLE`.
+resource_type = "MULTIPLE"
 
-    # `fugue.resources` is a function that allows querying for resources of a
-    # specific type.  In our case, we are just going to ask for the EBS volumes
-    # again.
-    ebs_volumes = fugue.resources("aws_ebs_volume")
+# `fugue.resources` is a function that allows querying for resources of a
+# specific type.  In our case, we are just going to ask for the EBS volumes
+# again.
+ebs_volumes = fugue.resources("aws_ebs_volume")
 
-    # Auxiliary function.
-    is_encrypted(resource) {
-      resource.encrypted == true
-    }
+# Auxiliary function.
+is_encrypted(resource) {
+  resource.encrypted == true
+}
 
-    # Regula expects advanced rules to contain a `policy` rule that holds a set
-    # of _judgements_.
-    policy[p] {
-      resource = ebs_volumes[_]
-      is_encrypted(resource)
-      p = fugue.allow_resource(resource)
-    } {
-      resource = ebs_volumes[_]
-      not is_encrypted(resource)
-      p = fugue.deny_resource(resource)
-    }
+# Regula expects advanced rules to contain a `policy` rule that holds a set
+# of _judgements_.
+policy[p] {
+  resource = ebs_volumes[_]
+  is_encrypted(resource)
+  p = fugue.allow_resource(resource)
+} {
+  resource = ebs_volumes[_]
+  not is_encrypted(resource)
+  p = fugue.deny_resource(resource)
+}
+```
 
 The `fugue` API consists of four functions:
 
@@ -117,7 +121,38 @@ The `fugue` API consists of four functions:
 
 ## Control mapping
 
-TODO
+```ruby
+In Regula, _rules_ provide the lower-level implementation details, and
+_controls_ are policies that map to sets of rules.  Controls can
+be specified within the rules: just add `controls` set.
+
+# Rules mules always be located right below the `rules` package.
+package rules.my_simple_rule
+
+# Simple rules must specify the resource type they will police.
+resource_type = "aws_ebs_volume"
+
+# Controls.
+controls = {"CIS_1-16"}
+
+# Rule logic
+...
+```
+
+Regula's JSON output will then contain a controls section to show which
+rules passed and failed:
+
+```json
+"controls": {
+  "CIS_1-16": {
+    "rules": [
+      "user_attached_policy"
+    ],
+    "valid": true
+  },
+  ...
+}
+```
 
 ## Running Regula as a GitHub Action
 

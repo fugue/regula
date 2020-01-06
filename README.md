@@ -1,5 +1,17 @@
 # Regula
 
+-   [Introduction](#introduction)
+-   [How does Regula work?](#how-does-regula-work)
+-   [Running Regula locally](#running-regula-locally)
+-   [Regula rules](#regula-rules)
+    -   [Simple rules](#simple-rules)
+    -   [Advanced rules](#advanced-rules)
+-   [Control mapping](#control-mapping)
+-   [Regula as a GitHub Action](#regula-as-a-github-action)
+-   [Development](#development)
+    -   [Directory structure](#directory-structure)
+    -   [Locally producing a report](#locally-producing-a-report)
+
 ## Introduction
 
 Regula is a very light (less than 100 lines of bash; and you don't every really
@@ -154,7 +166,7 @@ rules passed and failed:
 }
 ```
 
-## Running Regula as a GitHub Action
+## Regula as a GitHub Action
 
 See <https://github.com/jaspervdj-luminal/regula-action>.
 

@@ -13,6 +13,10 @@ resources_by_type = {rt: rs |
   }
 }
 
+plan() = ret {
+  ret = input._plan
+}
+
 resources(rt) = ret {
   ret = resources_by_type[rt]
 }

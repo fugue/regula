@@ -13,7 +13,7 @@ resources_by_type = {rt: rs |
   }
 }
 
-plan() = ret {
+plan = ret {
   ret = input._plan
 }
 

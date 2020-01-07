@@ -13,9 +13,9 @@ invalid_ingress_block(block) {
   block.to_port >= invalid_port
 }
 
-default allow = false
+default deny = false
 
-allow {
+deny {
   block = input.ingress[_]
-  not invalid_ingress_block(block)
+  invalid_ingress_block(block)
 }

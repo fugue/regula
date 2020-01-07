@@ -116,9 +116,13 @@ evaluate_rule(rule) = ret {
   # multi-resource type validation.
   pkg = rule["package"]
 
+  # We're going to store the original input under `_plan`.
+  plan = input
+
   policies = [ policy |
     policy = data["rules"][pkg]["policy"] with input as {
-      "resources": resource_view
+      "resources": resource_view,
+      "_plan": plan
     }
   ]
 

@@ -167,6 +167,10 @@ rules passed and failed:
 }
 ```
 
+## Invoking your own rules
+
+TODO
+
 ## Regula as a GitHub Action
 
 See <https://github.com/jaspervdj-luminal/regula-action>.
@@ -179,6 +183,8 @@ See <https://github.com/jaspervdj-luminal/regula-action>.
  -  `lib/`: the OPA library code to evaluate rules and mangle input.
  -  `rules/`: a collection of rules.  We may split this up further as the number
     of rules increases.
+ -  `examples/`: a collection of example rules that you can use as inspiration
+     for your own rules.
  -  `scripts/`: scripts for development; currently only a script to generate
     test input.
  -  `tests/`:
@@ -186,6 +192,8 @@ See <https://github.com/jaspervdj-luminal/regula-action>.
       *  `tests/rules/`: tests for the various rules.
       *  `tests/rules/input`: terraform files that can be used to generate Rego
          files.
+      *  `tests/examples/`: tests for the example rules.
+      *  `tests/rules/input`: input files for the example rules.
 
 ### Adding a test
 

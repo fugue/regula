@@ -1,9 +1,9 @@
-package rules.REGULA_R00009
+package rules.REGULA_R00003
 
 import data.fugue
 
 resource_type = "MULTIPLE"
-controls = {"CIS_2-9", "REGULA_R00009"}
+controls = {"CIS_2-9", "REGULA_R00003"}
 
 # VPC flow logging should be enabled when VPCs are created. AWS VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows.
 

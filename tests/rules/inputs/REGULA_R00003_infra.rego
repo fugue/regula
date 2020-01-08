@@ -1,10 +1,10 @@
 # This package was automatically generated from:
 #
-#     tests/rules/inputs/REGULA_R00009_infra.tf
+#     tests/rules/inputs/REGULA_R00003_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.REGULA_R00009_infra
+package tests.rules.REGULA_R00003_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

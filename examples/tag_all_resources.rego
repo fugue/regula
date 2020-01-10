@@ -59,6 +59,11 @@ taggable_resources[id] = resource {
 
 is_improperly_tagged(resource) {
   count(resource.tags[_]) < 6
+} {
+  not is_tagged(resource)
+}
+is_tagged(resource) {
+  resource.tags[_]
 }
 
 policy[r] {

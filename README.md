@@ -147,11 +147,21 @@ The `fugue` API consists of four functions:
 | AWS      | KMS        | kms\_rotate                             | KMS CMK rotation should be enabled                                                                         |
 | AWS      | EBS        | ebs\_volume\_encrypted                   | EBS volume encryption should be enabled
 
+### Rule examples
+
+Whereas the rules included in the Regula rules library are generally applicable, we've built a rule examples that look at tags, region restrictions, and EC2 instance usage that should be modified to fit user/organization policies.
+
+| Provider | Service | Rule Name             | Rule Description                                                 |
+|----------|---------|-----------------------|------------------------------------------------------------------|
+| AWS      | Tags    | tag\_all\_resources   | Checks whether resources that are taggable have at least one tag |
+| AWS      | Regions | region\_useast1\_only | Restricts resources to a given AWS region                        |
+| AWS      | EC2     | region\_useast1\_only | Restricts instances to a whitelist of instance types             |
+
 ## Compliance controls
 
 ```ruby
 In Regula, _rules_ provide the lower-level implementation details, and
-_controls_ are compliance controls (e.g. CIS AWS Foundations Framework 4-1) that map to sets of rules.  Controls can
+_controls_ are compliance controls (e.g., CIS AWS Foundations Benchmark 4-1) that map to sets of rules.  Controls can
 be specified within the rules: just add `controls` set.
 
 # Rules mules always be located right below the `rules` package.

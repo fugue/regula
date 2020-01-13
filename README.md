@@ -19,7 +19,7 @@
 
 Regula is a tool that evaluates Terraform infrastructure-as-code for potential security misconfigurations and compliance violations prior to deployment.
 
-Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a GitHub Actions example so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS Foundations Benchmark so you can assess your compliance posture.
+Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS Foundations Benchmark so you can assess your compliance posture.
 
 ## How does Regula work?
 
@@ -31,8 +31,8 @@ The second part is a Rego framework that:
 
 -   Merges resource info from `planned_values` and `configuration` in the
     terrraform plan into a more conveniently accessible format.
--   It looks for [rules](#regula-rules) and executes them.
--   It creates a report with the results of all rules and a
+-   Looks for [rules](#regula-rules) and executes them.
+-   Creates a report with the results of all rules and a
     [control mapping](#control-mapping) in the output.
 
 ## Running Regula locally
@@ -54,7 +54,7 @@ Some examples:
 -   `./bin/regula ../my-tf-infra lib ../custom-rules`: run Regula using a
     directory of custom rules.
 
-It is also possible to set the name of the `terraform` executable; which is
+It is also possible to set the name of the `terraform` executable, which is
 useful if you have several versions installed:
 
     env TERRAFORM=terraform-v0.12.18 ./bin/regula ../regula-action-example/ lib
@@ -71,7 +71,7 @@ Simple rules are useful when the policy applies to a single resource type only,
 and you want to make simple yes/no decision.
 
 ```ruby
-# Rules mules always be located right below the `rules` package.
+# Rules must always be located right below the `rules` package.
 package rules.my_simple_rule
 
 # Simple rules must specify the resource type they will police.
@@ -135,6 +135,8 @@ The `fugue` API consists of four functions:
 
 ### Rule library
 
+See [rules](https://github.com/fugue/regula/tree/master/rules) directory.
+
 | Provider | Service    | Rule Name                              | Rule Summary                                                                                               |
 |----------|------------|----------------------------------------|------------------------------------------------------------------------------------------------------------|
 | AWS      | IAM        | iam\_user\_attached_policy              | IAM policies should not be attached directly to users                                                      |
@@ -149,22 +151,22 @@ The `fugue` API consists of four functions:
 
 ### Rule examples
 
-Whereas the rules included in the Regula rules library are generally applicable, we've built a rule examples that look at tags, region restrictions, and EC2 instance usage that should be modified to fit user/organization policies.
+Whereas the rules included in the Regula rules library are generally applicable, we've built rule [examples](https://github.com/fugue/regula/tree/master/examples) that look at tags, region restrictions, and EC2 instance usage that should be modified to fit user/organization policies.
 
-| Provider | Service | Rule Name             | Rule Description                                                 |
-|----------|---------|-----------------------|------------------------------------------------------------------|
-| AWS      | Tags    | tag\_all\_resources   | Checks whether resources that are taggable have at least one tag |
-| AWS      | Regions | region\_useast1\_only | Restricts resources to a given AWS region                        |
-| AWS      | EC2     | ec2\_t2\_only | Restricts instances to a whitelist of instance types             |
+| Provider | Service | Rule Name             | Rule Description                                                                                |
+|----------|---------|-----------------------|-------------------------------------------------------------------------------------------------|
+| AWS      | Tags    | tag\_all\_resources   | Checks whether resources that are taggable have at least one tag with a minimum of 6 characters |
+| AWS      | Regions | region\_useast1\_only | Restricts resources to a given AWS region                                                       |
+| AWS      | EC2     | ec2\_t2\_only         | Restricts instances to a whitelist of instance types                                            |
 
 ## Compliance controls
 
-```ruby
 In Regula, _rules_ provide the lower-level implementation details, and
 _controls_ are compliance controls (e.g., CIS AWS Foundations Benchmark 4-1) that map to sets of rules.  Controls can
 be specified within the rules: just add `controls` set.
 
-# Rules mules always be located right below the `rules` package.
+```ruby
+# Rules must always be located right below the `rules` package.
 package rules.my_simple_rule
 
 # Simple rules must specify the resource type they will police.
@@ -198,7 +200,7 @@ TODO
 
 ## Regula as a GitHub Action
 
-See <https://github.com/jaspervdj-luminal/regula-action>.
+See <https://github.com/fugue/regula-action>.
 
 ## Development
 
@@ -215,10 +217,10 @@ See <https://github.com/jaspervdj-luminal/regula-action>.
  -  `tests/`:
       *  `tests/lib`: internal tests for the library.
       *  `tests/rules/`: tests for the various rules.
-      *  `tests/rules/input`: terraform files that can be used to generate Rego
+      *  `tests/rules/inputs`: terraform files that can be used to generate Rego
          files.
       *  `tests/examples/`: tests for the example rules.
-      *  `tests/rules/input`: input files for the example rules.
+      *  `tests/examples/inputs`: input files for the example rules.
 
 ### Adding a test
 

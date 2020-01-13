@@ -7,6 +7,7 @@
     -   [Simple rules](#simple-rules)
     -   [Advanced rules](#advanced-rules)
     -   [Rule library](#rule-library)
+    -   [Rule examples](#rule-examples)
 -   [Compliance controls](#compliance-controls)
 -   [Regula as a GitHub Action](#regula-as-a-github-action)
 -   [Development](#development)
@@ -192,13 +193,9 @@ rules passed and failed:
 }
 ```
 
-## Invoking your own rules
-
-TODO
-
 ## Regula as a GitHub Action
 
-See <https://github.com/jaspervdj-luminal/regula-action>.
+See <https://github.com/fugue/regula-action>.
 
 ## Development
 

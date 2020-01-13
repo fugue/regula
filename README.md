@@ -155,7 +155,7 @@ Whereas the rules included in the Regula rules library are generally applicable,
 |----------|---------|-----------------------|------------------------------------------------------------------|
 | AWS      | Tags    | tag\_all\_resources   | Checks whether resources that are taggable have at least one tag |
 | AWS      | Regions | region\_useast1\_only | Restricts resources to a given AWS region                        |
-| AWS      | EC2     | region\_useast1\_only | Restricts instances to a whitelist of instance types             |
+| AWS      | EC2     | ec2\_t2\_only | Restricts instances to a whitelist of instance types             |
 
 ## Compliance controls
 

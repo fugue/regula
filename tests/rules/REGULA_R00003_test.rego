@@ -1,4 +1,4 @@
-package tests.rules.REGULA_R00003_infra
+package tests.rules.REGULA_R00003
 
 import data.fugue.regula
 

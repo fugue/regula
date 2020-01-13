@@ -4,7 +4,7 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.kms_rotate_infra
+package tests.rules.kms_rotate
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

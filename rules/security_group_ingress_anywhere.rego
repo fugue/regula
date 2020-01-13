@@ -1,4 +1,4 @@
-package rules.no_ingress_except_80_443
+package rules.security_group_ingress_anywhere
 
 import data.fugue
 
@@ -11,8 +11,14 @@ whitelisted_ingress_block(block) {
   whitelisted_ports[block.from_port]
 }
 
+anywhere_cidr(cidr) {
+  cidr == "0.0.0.0/0"
+} {
+  cidr == "::/0"
+}
+
 bad_ingress_block(block) {
-  block.cidr_blocks[_] == "0.0.0.0/0"
+  anywhere_cidr(block.cidr_blocks[_])
   not whitelisted_ingress_block(block)
 }
 

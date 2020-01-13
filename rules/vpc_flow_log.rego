@@ -1,4 +1,4 @@
-package rules.REGULA_R00003
+package rules.vpc_flow_log
 
 import data.fugue
 

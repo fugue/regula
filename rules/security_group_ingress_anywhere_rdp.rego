@@ -1,4 +1,4 @@
-package rules.REGULA_R00005
+package rules.security_group_ingress_anywhere_rdp
 
 resource_type = "aws_security_group"
 controls = {"CIS_4-2", "REGULA_R00005"}

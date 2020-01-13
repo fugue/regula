@@ -1,10 +1,10 @@
-package tests.rules.REGULA_R00005
+package tests.rules.security_group_ingress_anywhere_ssh
 
 import data.fugue.regula
 
-test_REGULA_R00005 {
+test_security_group_ingress_anywhere_ssh {
   report := regula.report with input as mock_input
-  resources := report.rules.REGULA_R00005.resources
+  resources := report.rules.security_group_ingress_anywhere_ssh.resources
 
   resources["aws_security_group.valid_sg_1"].valid == true
   resources["aws_security_group.valid_sg_2"].valid == true

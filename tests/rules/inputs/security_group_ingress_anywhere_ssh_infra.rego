@@ -1,10 +1,10 @@
 # This package was automatically generated from:
 #
-#     tests/rules/inputs/REGULA_R00005_infra.tf
+#     tests/rules/inputs/security_group_ingress_anywhere_ssh_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.REGULA_R00005
+package tests.rules.security_group_ingress_anywhere_ssh
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",
@@ -26,13 +26,13 @@ mock_input = {
                   "0.0.0.0/0"
                 ],
                 "description": "",
-                "from_port": 3389,
+                "from_port": 22,
                 "ipv6_cidr_blocks": [],
                 "prefix_list_ids": [],
                 "protocol": "tcp",
                 "security_groups": [],
                 "self": false,
-                "to_port": 3389
+                "to_port": 22
               }
             ],
             "name": "invalid_sg_1",
@@ -57,13 +57,13 @@ mock_input = {
                   "0.0.0.0/0"
                 ],
                 "description": "",
-                "from_port": 3380,
+                "from_port": 20,
                 "ipv6_cidr_blocks": [],
                 "prefix_list_ids": [],
                 "protocol": "tcp",
                 "security_groups": [],
                 "self": false,
-                "to_port": 3390
+                "to_port": 25
               }
             ],
             "name": "invalid_sg_2",
@@ -88,13 +88,13 @@ mock_input = {
                   "0.0.0.0/0"
                 ],
                 "description": "",
-                "from_port": 22,
+                "from_port": 443,
                 "ipv6_cidr_blocks": [],
                 "prefix_list_ids": [],
                 "protocol": "tcp",
                 "security_groups": [],
                 "self": false,
-                "to_port": 22
+                "to_port": 443
               }
             ],
             "name": "valid_sg_1",
@@ -119,13 +119,13 @@ mock_input = {
                   "10.10.0.0/16"
                 ],
                 "description": "",
-                "from_port": 3389,
+                "from_port": 22,
                 "ipv6_cidr_blocks": [],
                 "prefix_list_ids": [],
                 "protocol": "tcp",
                 "security_groups": [],
                 "self": false,
-                "to_port": 3389
+                "to_port": 22
               }
             ],
             "name": "valid_sg_2",
@@ -158,13 +158,13 @@ mock_input = {
                 "0.0.0.0/0"
               ],
               "description": "",
-              "from_port": 3389,
+              "from_port": 22,
               "ipv6_cidr_blocks": [],
               "prefix_list_ids": [],
               "protocol": "tcp",
               "security_groups": [],
               "self": false,
-              "to_port": 3389
+              "to_port": 22
             }
           ],
           "name": "invalid_sg_1",
@@ -211,13 +211,13 @@ mock_input = {
                 "0.0.0.0/0"
               ],
               "description": "",
-              "from_port": 3380,
+              "from_port": 20,
               "ipv6_cidr_blocks": [],
               "prefix_list_ids": [],
               "protocol": "tcp",
               "security_groups": [],
               "self": false,
-              "to_port": 3390
+              "to_port": 25
             }
           ],
           "name": "invalid_sg_2",
@@ -264,13 +264,13 @@ mock_input = {
                 "0.0.0.0/0"
               ],
               "description": "",
-              "from_port": 22,
+              "from_port": 443,
               "ipv6_cidr_blocks": [],
               "prefix_list_ids": [],
               "protocol": "tcp",
               "security_groups": [],
               "self": false,
-              "to_port": 22
+              "to_port": 443
             }
           ],
           "name": "valid_sg_1",
@@ -317,13 +317,13 @@ mock_input = {
                 "10.10.0.0/16"
               ],
               "description": "",
-              "from_port": 3389,
+              "from_port": 22,
               "ipv6_cidr_blocks": [],
               "prefix_list_ids": [],
               "protocol": "tcp",
               "security_groups": [],
               "self": false,
-              "to_port": 3389
+              "to_port": 22
             }
           ],
           "name": "valid_sg_2",

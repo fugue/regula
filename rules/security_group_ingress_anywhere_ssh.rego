@@ -1,4 +1,4 @@
-package rules.REGULA_R00004
+package rules.security_group_ingress_anywhere_ssh
 
 resource_type = "aws_security_group"
 controls = {"CIS_4-1", "REGULA_R00004"}

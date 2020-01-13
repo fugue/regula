@@ -137,17 +137,17 @@ The `fugue` API consists of four functions:
 
 See [rules](https://github.com/fugue/regula/tree/master/rules) directory.
 
-| Provider | Service    | Rule Name                              | Rule Summary                                                                                               |
-|----------|------------|----------------------------------------|------------------------------------------------------------------------------------------------------------|
-| AWS      | IAM        | iam\_user\_attached_policy              | IAM policies should not be attached directly to users                                                      |
-| AWS      | IAM        | iam\_admin\_policy                       | IAM policies should not have full "*:*" administrative privileges                                          |
-| AWS      | VPC        | vpc\_flow\_logging_enabled               | VPC flow logging should be enabled                                                                         |
-| AWS      | VPC        | security\_group\_no\_ingress_22           | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                       |
-| AWS      | VPC        | security\_group\_no\_ingress\_3389         | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol) |
-| AWS      | VPC        | security\_group\_ingress\_only\_80\_443     | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
-| AWS      | CloudTrail | cloudtrail\_log\_file\_validation\_enabled | CloudTrail log file validation should be enabled                                                           |
+| Provider | Service    | Rule Name                               | Rule Summary                                                                                               |
+|----------|------------|-----------------------------------------|------------------------------------------------------------------------------------------------------------|
+| AWS      | CloudTrail | cloudtrail\_log\_file\_validation       | CloudTrail log file validation should be enabled                                                           |
+| AWS      | EBS        | ebs\_volume\_encrypted                  | EBS volume encryption should be enabled                                                                    |
+| AWS      | IAM        | iam\_admin\_policy                      | IAM policies should not have full "*:*" administrative privileges                                          |
+| AWS      | IAM        | iam\_user\_attached\_policy             | IAM policies should not be attached directly to users                                                      |
 | AWS      | KMS        | kms\_rotate                             | KMS CMK rotation should be enabled                                                                         |
-| AWS      | EBS        | ebs\_volume\_encrypted                   | EBS volume encryption should be enabled
+| AWS      | VPC        | security\_group\_ingress\_anywhere      | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
+| AWS      | VPC        | security\_group\_ingress\_anywhere\_rdp | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol) |
+| AWS      | VPC        | security\_group\_ingress\_anywhere\_ssh | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                       |
+| AWS      | VPC        | vpc\_flow\_log                          | VPC flow logging should be enabled                                                                         |
 
 ### Rule examples
 
@@ -155,9 +155,9 @@ Whereas the rules included in the Regula rules library are generally applicable,
 
 | Provider | Service | Rule Name             | Rule Description                                                                                |
 |----------|---------|-----------------------|-------------------------------------------------------------------------------------------------|
-| AWS      | Tags    | tag\_all\_resources   | Checks whether resources that are taggable have at least one tag with a minimum of 6 characters |
-| AWS      | Regions | region\_useast1\_only | Restricts resources to a given AWS region                                                       |
 | AWS      | EC2     | ec2\_t2\_only         | Restricts instances to a whitelist of instance types                                            |
+| AWS      | Tags    | tag\_all\_resources   | Checks whether resources that are taggable have at least one tag with a minimum of 6 characters |
+| AWS      | Regions | useast1\_only         | Restricts resources to a given AWS region                                                       |
 
 ## Compliance controls
 

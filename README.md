@@ -6,7 +6,7 @@
 -   [Regula rules](#regula-rules)
     -   [Simple rules](#simple-rules)
     -   [Advanced rules](#advanced-rules)
-    -   [Rule library](rule-library)
+    -   [Rule library](#rule-library)
 -   [Compliance controls](#compliance-controls)
 -   [Regula as a GitHub Action](#regula-as-a-github-action)
 -   [Development](#development)

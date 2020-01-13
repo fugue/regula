@@ -1,10 +1,10 @@
 # This package was automatically generated from:
 #
-#     tests/rules/inputs/t2_only.tf
+#     tests/examples/inputs/ec2_t2_only_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.t2_only
+package tests.rules.ec2_t2_only
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

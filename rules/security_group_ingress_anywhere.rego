@@ -1,6 +1,6 @@
 package rules.security_group_ingress_anywhere
 
-import data.fugue
+import data.fugue.regula.aws.security_group as sglib
 
 resource_type = "aws_security_group"
 
@@ -11,14 +11,9 @@ whitelisted_ingress_block(block) {
   whitelisted_ports[block.from_port]
 }
 
-anywhere_cidr(cidr) {
-  cidr == "0.0.0.0/0"
-} {
-  cidr == "::/0"
-}
-
 bad_ingress_block(block) {
-  anywhere_cidr(block.cidr_blocks[_])
+  sglib.ingress_zero_cidr(block)
+  not sglib.ingress_self_only(block)
   not whitelisted_ingress_block(block)
 }
 

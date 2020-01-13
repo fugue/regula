@@ -1,6 +1,5 @@
-# The following multi-resource type validation checks ALL supported taggable
-# AWS resources for a tag named Stage with a value Prod. Comment out the
-# resources you don't use in any environment.
+# The following rule checks that "taggable" resource types have tag
+# values with at least 6 characters.
 package rules.tag_all_resources
 
 import data.fugue
@@ -9,45 +8,45 @@ resource_type = "MULTIPLE"
 
 taggable_resource_types = {
   "aws_cloudfront_distribution",
-  "aws_cloudwatch_metric_alarm",
   "aws_cloudwatch_event_rule",
   "aws_cloudwatch_log_group",
+  "aws_cloudwatch_metric_alarm",
   "aws_cognito_user_pool",
   "aws_config_config_rule",
-  "aws_dynamodb_table",
   "aws_customer_gateway",
-  "aws_vpc_dhcp_options",
+  "aws_db_event_subscription",
+  "aws_db_instance",
+  "aws_db_option_group",
+  "aws_db_parameter_group",
+  "aws_db_subnet_group",
+  "aws_dynamodb_table",
+  "aws_ebs_volume",
   "aws_eip",
+  "aws_elasticache_cluster",
+  "aws_elb",
   "aws_instance",
   "aws_internet_gateway",
-  "aws_network_acl",
-  "aws_network_interface",
-  "aws_route_table",
-  "aws_security_group",
-  "aws_subnet",
-  "aws_ebs_volume",
-  "aws_vpc",
-  "aws_vpn_connection",
-  "aws_vpn_gateway",
-  "aws_elb",
-  "aws_lb",
-  "aws_lb_target_group",
-  "aws_elasticache_cluster",
   "aws_kms_key",
   "aws_lambda_function",
+  "aws_lb",
+  "aws_lb_target_group",
+  "aws_network_acl",
+  "aws_network_interface",
   "aws_redshift_cluster",
   "aws_redshift_parameter_group",
   "aws_redshift_subnet_group",
-  "aws_db_instance",
-  "aws_db_parameter_group",
-  "aws_db_subnet_group",
-  "aws_db_event_subscription",
-  "aws_db_option_group",
   "aws_route53_health_check",
   "aws_route53_zone",
-   "aws_s3_bucket",
-   "aws_vpc",
-  "aws_sfn_state_machine"
+  "aws_route_table",
+  "aws_s3_bucket",
+  "aws_security_group",
+  "aws_sfn_state_machine",
+  "aws_subnet",
+  "aws_vpc",
+  "aws_vpc",
+  "aws_vpc_dhcp_options",
+  "aws_vpn_connection",
+  "aws_vpn_gateway",
 }
 
 taggable_resources[id] = resource {
@@ -57,13 +56,16 @@ taggable_resources[id] = resource {
   resource = resources[id]
 }
 
+is_tagged(resource) {
+  resource.tags[_] = _
+}
+
 is_improperly_tagged(resource) {
+  # Any tag value has less than 6 characters.
   count(resource.tags[_]) < 6
 } {
+  # The resource is not tagged at all.
   not is_tagged(resource)
-}
-is_tagged(resource) {
-  resource.tags[_]
 }
 
 policy[r] {

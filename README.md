@@ -6,7 +6,8 @@
 -   [Regula rules](#regula-rules)
     -   [Simple rules](#simple-rules)
     -   [Advanced rules](#advanced-rules)
--   [Control mapping](#control-mapping)
+    -   [Rule library](#rule-library)
+-   [Compliance controls](#compliance-controls)
 -   [Regula as a GitHub Action](#regula-as-a-github-action)
 -   [Development](#development)
     -   [Directory structure](#directory-structure)
@@ -16,19 +17,19 @@
 
 ## Introduction
 
-Regula is a very light (less than 100 lines of bash) framework around [opa] and
-[terraform] that allows you to more easily implement pre-flight policy checks,
-by providing a rigid structure for rules.
+Regula is a tool that evaluates Terraform infrastructure-as-code for potential security misconfigurations and compliance violations prior to deployment.
+
+Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a GitHub Actions example so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS Foundations Benchmark so you can assess your compliance posture.
 
 ## How does Regula work?
 
-There are two big parts to Regula. The first is a [shell script](/bin/regula)
+There are two parts to Regula. The first is a [shell script](/bin/regula)
 that generates a [terraform] plan in JSON format, ready for consumption by
 [opa].
 
 The second part is a Rego framework that:
 
--   It merges resource info from `planned_values` and `configuration` in the
+-   Merges resource info from `planned_values` and `configuration` in the
     terrraform plan into a more conveniently accessible format.
 -   It looks for [rules](#regula-rules) and executes them.
 -   It creates a report with the results of all rules and a
@@ -132,11 +133,35 @@ The `fugue` API consists of four functions:
 -   `fugue.missing_resource(resource_type)` marks a resource as **missing**.
     This is useful if you for example _require_ a log group to be present.
 
-## Control mapping
+### Rule library
+
+| Provider | Service    | Rule Name                              | Rule Summary                                                                                               |
+|----------|------------|----------------------------------------|------------------------------------------------------------------------------------------------------------|
+| AWS      | IAM        | iam\_user\_attached_policy              | IAM policies should not be attached directly to users                                                      |
+| AWS      | IAM        | iam\_admin\_policy                       | IAM policies should not have full "*:*" administrative privileges                                          |
+| AWS      | VPC        | vpc\_flow\_logging_enabled               | VPC flow logging should be enabled                                                                         |
+| AWS      | VPC        | security\_group\_no\_ingress_22           | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                       |
+| AWS      | VPC        | security\_group\_no\_ingress\_3389         | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol) |
+| AWS      | VPC        | security\_group\_ingress\_only\_80\_443     | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
+| AWS      | CloudTrail | cloudtrail\_log\_file\_validation\_enabled | CloudTrail log file validation should be enabled                                                           |
+| AWS      | KMS        | kms\_rotate                             | KMS CMK rotation should be enabled                                                                         |
+| AWS      | EBS        | ebs\_volume\_encrypted                   | EBS volume encryption should be enabled
+
+### Rule examples
+
+Whereas the rules included in the Regula rules library are generally applicable, we've built a rule examples that look at tags, region restrictions, and EC2 instance usage that should be modified to fit user/organization policies.
+
+| Provider | Service | Rule Name             | Rule Description                                                 |
+|----------|---------|-----------------------|------------------------------------------------------------------|
+| AWS      | Tags    | tag\_all\_resources   | Checks whether resources that are taggable have at least one tag |
+| AWS      | Regions | region\_useast1\_only | Restricts resources to a given AWS region                        |
+| AWS      | EC2     | ec2\_t2\_only | Restricts instances to a whitelist of instance types             |
+
+## Compliance controls
 
 ```ruby
 In Regula, _rules_ provide the lower-level implementation details, and
-_controls_ are policies that map to sets of rules.  Controls can
+_controls_ are compliance controls (e.g., CIS AWS Foundations Benchmark 4-1) that map to sets of rules.  Controls can
 be specified within the rules: just add `controls` set.
 
 # Rules mules always be located right below the `rules` package.
@@ -256,7 +281,7 @@ Or using `fregot`:
 If all goes well, you should now see the results for each rule.
 
 [opa]: https://www.openpolicyagent.org/
+[fregot]: https://github.com/fugue/fregot
 [terraform]: https://www.terraform.io/
 [Rego]: https://www.openpolicyagent.org/docs/latest/policy-language/
 [Fugue Custom Rules]: https://docs.fugue.co/rules.html
-[fregot]: https://github.com/fugue/fregot

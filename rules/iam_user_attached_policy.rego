@@ -1,4 +1,4 @@
-package rules.user_attached_policy
+package rules.iam_user_attached_policy
 
 import data.fugue
 

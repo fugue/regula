@@ -1,10 +1,10 @@
-package tests.rules.no_ingress_except_80_443
+package tests.rules.security_group_ingress_anywhere
 
 import data.fugue.regula
 
 test_no_ingress_except_80_443 {
   report := regula.report with input as mock_input
-  resources := report.rules.no_ingress_except_80_443.resources
+  resources := report.rules.security_group_ingress_anywhere.resources
 
   resources["aws_security_group.invalid_allow_all"].valid == false
   resources["aws_security_group.invalid_include_443"].valid == false

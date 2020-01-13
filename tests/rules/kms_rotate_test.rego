@@ -1,4 +1,4 @@
-package tests.rules.kms_rotate_infra
+package tests.rules.kms_rotate
 
 import data.fugue.regula
 

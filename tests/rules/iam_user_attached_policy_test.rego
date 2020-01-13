@@ -1,10 +1,10 @@
-package tests.rules.user_attached_policy
+package tests.rules.iam_user_attached_policy
 
 import data.fugue.regula
 
 test_user_attached_policy {
   report := regula.report with input as mock_input
-  resources := report.rules.user_attached_policy.resources
+  resources := report.rules.iam_user_attached_policy.resources
 
   resources["aws_iam_policy_attachment.invalid_normal_policy_attachment"].valid == false
   resources["aws_iam_user_policy.invalid_user_policy"].valid == false

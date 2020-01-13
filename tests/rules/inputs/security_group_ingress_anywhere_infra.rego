@@ -1,13 +1,13 @@
 # This package was automatically generated from:
 #
-#     tests/rules/inputs/no_ingress_except_80_443.tf
+#     tests/rules/inputs/security_group_ingress_anywhere_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.no_ingress_except_80_443
+package tests.rules.security_group_ingress_anywhere
 mock_input = {
   "format_version": "0.1",
-  "terraform_version": "0.12.15",
+  "terraform_version": "0.12.18",
   "planned_values": {
     "root_module": {
       "resources": [

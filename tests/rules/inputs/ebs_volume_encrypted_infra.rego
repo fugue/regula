@@ -1,6 +1,6 @@
 # This package was automatically generated from:
 #
-#     tests/rules/inputs/ebs_volume_encrypted.tf
+#     tests/rules/inputs/ebs_volume_encrypted_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.

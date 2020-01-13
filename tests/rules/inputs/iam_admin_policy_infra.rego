@@ -1,10 +1,10 @@
 # This package was automatically generated from:
 #
-#     tests/rules/inputs/admin_policy.tf
+#     tests/rules/inputs/iam_admin_policy_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.admin_policy
+package tests.rules.iam_admin_policy
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

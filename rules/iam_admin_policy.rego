@@ -1,4 +1,4 @@
-package rules.admin_policy
+package rules.iam_admin_policy
 
 import data.fugue
 

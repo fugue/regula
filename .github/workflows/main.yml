@@ -7,7 +7,8 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: OPA test
-      id: opa-test
       uses: jaspervdj-luminal/opa-test-action@v0.0.1
       with:
         args: 'lib rules examples tests'
+    - name: Check file naming
+      run: ./scripts/check-naming.rego

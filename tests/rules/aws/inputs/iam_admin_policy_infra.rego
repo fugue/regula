@@ -1,6 +1,6 @@
 # This package was automatically generated from:
 #
-#     tests/rules/inputs/iam_admin_policy_infra.tf
+#     tests/rules/aws/inputs/iam_admin_policy_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.

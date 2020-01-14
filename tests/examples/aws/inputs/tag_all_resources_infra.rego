@@ -1,10 +1,10 @@
 # This package was automatically generated from:
 #
-#     tests/examples/inputs/tag_all_resources_infra.tf
+#     tests/examples/aws/inputs/tag_all_resources_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.tag_all_resources_infra
+package tests.rules.tag_all_resources
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

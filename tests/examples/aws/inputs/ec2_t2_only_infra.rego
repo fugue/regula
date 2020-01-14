@@ -1,6 +1,6 @@
 # This package was automatically generated from:
 #
-#     tests/examples/inputs/ec2_t2_only_infra.tf
+#     tests/examples/aws/inputs/ec2_t2_only_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.

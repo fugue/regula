@@ -1,6 +1,6 @@
 # This package was automatically generated from:
 #
-#     tests/rules/inputs/vpc_flow_log_infra.tf
+#     tests/rules/aws/inputs/vpc_flow_log_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.

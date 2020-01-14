@@ -1,4 +1,4 @@
-package tests.rules.tag_all_resources_infra
+package tests.rules.tag_all_resources
 
 import data.fugue.regula
 

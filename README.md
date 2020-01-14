@@ -195,7 +195,12 @@ rules passed and failed:
 
 ## Regula as a GitHub Action
 
-See <https://github.com/fugue/regula-action>.
+Currently, we provide an example of using Regula in CI/CD with GitHub actions:
+
+<https://github.com/fugue/regula-action>
+
+Setting up Regula with different CI/CD solutions such as Jenkins, CodePipeline,
+CircleCI, TravisCI and others would follow a similar pattern.
 
 ## Development
 

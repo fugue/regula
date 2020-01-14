@@ -228,16 +228,16 @@ CircleCI, TravisCI, and others would follow a similar pattern.
 
 If you would like to add a rule, we recommend starting with a test.
 Put your terraform code in a file in `tests/rules/inputs`; for example
-[kms\_rotate\_infra.tf](tests/rules/inputs/kms_rotate_infra.tf).
+[kms\_rotate\_infra.tf](tests/rules/aws/inputs/kms_rotate_infra.tf).
 From this, you can generate a mock input by running:
 
     bash scripts/generate-test-inputs.sh
 
 The mock input will then be placed in a `.rego` file with the same name,
-in our case [kms\_rotate\_infra.tf](tests/rules/inputs/kms_rotate_infra.tf).
+in our case [kms\_rotate\_infra.tf](tests/rules/aws/inputs/kms_rotate_infra.tf).
 It is then customary to add the actual tests in a name with the same file,
 but outside of the `inputs/` subdirectory.  In this case, that would be
-[here](/tests/rules/kms_rotate_test.rego).
+[here](/tests/rules/aws/kms_rotate_test.rego).
 
 ### Debugging a rule with fregot
 

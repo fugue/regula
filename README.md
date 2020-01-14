@@ -34,7 +34,7 @@ The second part is a Rego framework that:
     terrraform plan into a more conveniently accessible format.
 -   Looks for [rules](#regula-rules) and executes them.
 -   Creates a report with the results of all rules and a
-    [control mapping](#control-mapping) in the output.
+    [control mapping](#compliance-controls) in the output.
 
 ## Running Regula locally
 

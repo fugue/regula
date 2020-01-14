@@ -1,4 +1,4 @@
-package rules.t2_only
+package rules.ec2_t2_only
 
 resource_type = "aws_instance"
 

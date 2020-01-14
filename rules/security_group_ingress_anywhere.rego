@@ -1,6 +1,6 @@
-package rules.no_ingress_except_80_443
+package rules.security_group_ingress_anywhere
 
-import data.fugue
+import data.fugue.regula.aws.security_group as sglib
 
 resource_type = "aws_security_group"
 
@@ -12,7 +12,8 @@ whitelisted_ingress_block(block) {
 }
 
 bad_ingress_block(block) {
-  block.cidr_blocks[_] == "0.0.0.0/0"
+  sglib.ingress_zero_cidr(block)
+  not sglib.ingress_self_only(block)
   not whitelisted_ingress_block(block)
 }
 

@@ -7,6 +7,7 @@
     -   [Simple rules](#simple-rules)
     -   [Advanced rules](#advanced-rules)
     -   [Rule library](#rule-library)
+    -   [Rule examples](#rule-examples)
 -   [Compliance controls](#compliance-controls)
 -   [Regula as a GitHub Action](#regula-as-a-github-action)
 -   [Development](#development)
@@ -194,13 +195,14 @@ rules passed and failed:
 }
 ```
 
-## Invoking your own rules
-
-TODO
-
 ## Regula as a GitHub Action
 
-See <https://github.com/fugue/regula-action>.
+Currently, we provide an example of using Regula in CI/CD with GitHub Actions:
+
+<https://github.com/fugue/regula-action>
+
+Setting up Regula with different CI/CD solutions such as Jenkins, CodePipeline,
+CircleCI, TravisCI, and others would follow a similar pattern.
 
 ## Development
 
@@ -226,15 +228,16 @@ See <https://github.com/fugue/regula-action>.
 
 If you would like to add a rule, we recommend starting with a test.
 Put your terraform code in a file in `tests/rules/inputs`; for example
-[t2_only.tf](/tests/rules/inputs/t2_only.tf). From this, you can generate a mock
-input by running:
+[kms\_rotate\_infra.tf](tests/rules/inputs/kms_rotate_infra.tf).
+From this, you can generate a mock input by running:
 
     bash scripts/generate-test-inputs.sh
 
-The mock input will then be placed in a `.rego` file with the same name, in our
-case [t2_only.rego](/tests/rules/inputs/t2_only.rego). It is then customary to
-add the actual tests in a name with the same file, but outside of the `inputs/`
-subdirectory. In this case, that would be [here](/tests/rules/t2_only.rego).
+The mock input will then be placed in a `.rego` file with the same name,
+in our case [kms\_rotate\_infra.tf](tests/rules/inputs/kms_rotate_infra.tf).
+It is then customary to add the actual tests in a name with the same file,
+but outside of the `inputs/` subdirectory.  In this case, that would be
+[here](/tests/rules/kms_rotate_test.rego).
 
 ### Debugging a rule with fregot
 

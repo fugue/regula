@@ -1,10 +1,10 @@
 # This package was automatically generated from:
 #
-#     tests/rules/inputs/cloudtrail_log_file_validation_enabled.tf
+#     tests/rules/inputs/cloudtrail_log_file_validation_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.cloudtrail_log_file_validation_enabled
+package tests.rules.cloudtrail_log_file_validation
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

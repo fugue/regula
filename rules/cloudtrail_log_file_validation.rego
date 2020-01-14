@@ -1,4 +1,4 @@
-package rules.cloudtrail_log_file_validation_enabled
+package rules.cloudtrail_log_file_validation
 
 resource_type = "aws_cloudtrail"
 

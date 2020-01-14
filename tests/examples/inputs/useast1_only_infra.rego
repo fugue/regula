@@ -1,6 +1,6 @@
 # This package was automatically generated from:
 #
-#     tests/rules/inputs/useast1_only.tf
+#     tests/examples/inputs/useast1_only_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.

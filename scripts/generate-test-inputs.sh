@@ -21,7 +21,7 @@ function generate_test_input {
       $TERRAFORM plan -refresh=false -out="plan.tfplan" &&
       $TERRAFORM show -json "plan.tfplan" >"plan.json")
 
-  local package="tests.rules.$(basename "$2" .rego)"
+  local package="tests.rules.$(basename "$2" _infra.rego)"
   echo '# This package was automatically generated from:' >"$2"
   echo '#' >>"$2"
   echo "#     $1" >>"$2"

@@ -25,7 +25,9 @@
 
 Regula is a tool that evaluates Terraform infrastructure-as-code for potential security misconfigurations and compliance violations prior to deployment.
 
-Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS Foundations Benchmark so you can assess your compliance posture.
+![Regula diagram](regula.png)
+
+Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS Foundations Benchmark so you can assess your compliance posture. We'll be adding more rules over time, sourced from [Fugue](https://fugue.co).
 
 ## How does Regula work?
 

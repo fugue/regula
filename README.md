@@ -38,7 +38,7 @@ that generates a [terraform] plan in JSON format, ready for consumption by
 The second part is a Rego framework that:
 
 -   Merges resource info from `planned_values` and `configuration` in the
-    terrraform plan into a more conveniently accessible format.
+    terraform plan into a more conveniently accessible format.
 -   Looks for [rules](#regula-rules) and executes them.
 -   Creates a report with the results of all rules and a
     [control mapping](#compliance-controls-vs-rules) in the output.

@@ -8,7 +8,12 @@
     -   [Advanced rules](#advanced-rules)
     -   [Rule library](#rule-library)
     -   [Rule examples](#rule-examples)
--   [Compliance controls](#compliance-controls)
+-   [Compliance controls vs. rules](#compliance-controls-vs-rules)
+    -   [Specifying compliance controls](#specifying-compliance-controls)
+-   [Interpreting the results](#interpreting-the-results)
+    -   [Summary](#summary)
+    -   [Controls](#controls)
+    -   [Rules](#rules)
 -   [Running Regula in CI](#running-regula-in-ci)
 -   [Development](#development)
     -   [Directory structure](#directory-structure)
@@ -20,7 +25,9 @@
 
 Regula is a tool that evaluates Terraform infrastructure-as-code for potential security misconfigurations and compliance violations prior to deployment.
 
-Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS Foundations Benchmark so you can assess your compliance posture.
+![Regula diagram](regula.png)
+
+Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS Foundations Benchmark so you can assess your compliance posture. We'll be adding more rules in the coming weeks, sourced from [Fugue](https://fugue.co).
 
 ## How does Regula work?
 
@@ -34,7 +41,7 @@ The second part is a Rego framework that:
     terrraform plan into a more conveniently accessible format.
 -   Looks for [rules](#regula-rules) and executes them.
 -   Creates a report with the results of all rules and a
-    [control mapping](#compliance-controls) in the output.
+    [control mapping](#compliance-controls-vs-rules) in the output.
 
 ## Running Regula locally
 
@@ -160,10 +167,16 @@ Whereas the rules included in the Regula rules library are generally applicable,
 | AWS      | Tags    | tag\_all\_resources   | Checks whether resources that are taggable have at least one tag with a minimum of 6 characters |
 | AWS      | Regions | useast1\_only         | Restricts resources to a given AWS region                                                       |
 
-## Compliance controls
+## Compliance controls vs. rules
 
-In Regula, _rules_ provide the lower-level implementation details, and
-_controls_ are compliance controls (e.g., CIS AWS Foundations Benchmark 4-1) that map to sets of rules.  Controls can
+What's the difference between controls and rules? A **control** represents an individual recommendation within a compliance standard, such as "IAM policies should not have full `"*:*"` administrative privileges" (CIS AWS Foundations Benchmark 1-22).
+
+In Regula, a **rule** is a Rego policy that validates whether a cloud resource violates a control (or multiple controls). One example of a rule is [`iam_admin_policy`](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego), which checks whether an IAM policy in a Terraform file has `"*:*"` privileges. If it does not, the resource fails validation.
+
+Controls map to sets of rules, and rules can map to multiple controls. For example, control `CIS_1-22` and `REGULA_R00002` [both map to](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego#L7) the rule `iam_admin_policy`.
+
+### Specifying compliance controls
+Controls can
 be specified within the rules: just add `controls` set.
 
 ```ruby
@@ -180,20 +193,87 @@ controls = {"CIS_1-16"}
 ...
 ```
 
-Regula's JSON output will then contain a controls section to show which
-rules passed and failed:
+## Interpreting the results
 
-```json
-"controls": {
-  "CIS_1-16": {
-    "rules": [
-      "user_attached_policy"
-    ],
-    "valid": true
-  },
-  ...
-}
+Here's a snippet of test results from a Regula report. The output is from an example [GitHub Action](https://github.com/fugue/regula-ci-example/runs/389223751#step:4:12): 
+
 ```
+{
+  "result": [
+    {
+      "expressions": [
+        {
+          "value": {
+            "controls": {
+              "CIS_1-22": {
+                "rules": [
+                  "iam_admin_policy"
+                ],
+                "valid": false
+              },
+            },
+            "rules": {
+              "iam_admin_policy": {
+                "resources": {
+                  "aws_iam_policy.basically_allow_all": {
+                    "id": "aws_iam_policy.basically_allow_all",
+                    "message": "invalid",
+                    "type": "aws_iam_policy",
+                    "valid": false
+                  },
+                  "aws_iam_policy.basically_deny_all": {
+                    "id": "aws_iam_policy.basically_deny_all",
+                    "message": "",
+                    "type": "aws_iam_policy",
+                    "valid": true
+                  }
+                },
+                "valid": false
+              },
+            "summary": {
+              "controls_failed": 2,
+              "controls_passed": 12,
+              "rules_failed": 2,
+              "rules_passed": 8,
+              "valid": false
+            }
+          },
+          "text": "data.fugue.regula.report",
+          "location": {
+            "row": 1,
+            "col": 1
+          }
+        }
+      ]
+    }
+  ]
+}
+
+8 rules passed, 2 rules failed
+12 controls passed, 2 controls failed
+##[error] 2 rules failed
+##[error]Docker run failed with exit code 1
+```
+
+**These are the important bits:**
+
+- Summary
+- Controls
+- Rules
+
+### Summary
+
+The `summary` block contains a breakdown of the compliance state of your Terraform files. In the output above, the Terraform violated 2 rules and 2 controls, so the CI/CD test as a whole failed. You'll also see this information in the last few lines of the output.
+
+### Controls
+
+Regula shows you compliance results for both controls and rules, in addition to which specific resources failed. Above, in the `controls` block, you can see that the Terraform in the example is noncompliant with `CIS_1-22`, and the mapped rules that failed are listed underneath (in this case, `iam_admin_policy`).
+
+### Rules
+
+In the `rules` block further down from `controls`, each rule lists the resources that failed. Above, you'll see that the resource `aws_iam_policy.basically_allow_all` was the one that failed the mapped rule -- as noted by `"valid": false`. In contrast, `aws_iam_policy.basically_deny_all` passed.
+
+You can see the full example report in this [GitHub Action log](https://github.com/fugue/regula-ci-example/runs/389223751#step:4:12). For a detailed explanation of the report, see the [regula-ci-example README](https://github.com/fugue/regula-ci-example).
 
 ## Running Regula in CI
 

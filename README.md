@@ -9,7 +9,7 @@
     -   [Rule library](#rule-library)
     -   [Rule examples](#rule-examples)
 -   [Compliance controls](#compliance-controls)
--   [Regula as a GitHub Action](#regula-as-a-github-action)
+-   [Running Regula in CI](#running-regula-in-ci)
 -   [Development](#development)
     -   [Directory structure](#directory-structure)
     -   [Adding a test](#adding-a-test)
@@ -195,14 +195,18 @@ rules passed and failed:
 }
 ```
 
-## Regula as a GitHub Action
+## Running Regula in CI
 
-Currently, we provide an example of using Regula in CI/CD with GitHub Actions:
+Regula is designed to be easy to run in CI.  We provide a GitHub Action that can
+be easily added to your repository:
 
 <https://github.com/fugue/regula-action>
 
 Setting up Regula with different CI/CD solutions such as Jenkins, CodePipeline,
-CircleCI, TravisCI, and others would follow a similar pattern.
+CircleCI, TravisCI, and others would follow a similar pattern.  This repository
+contains an example:
+
+<https://github.com/fugue/regula-ci-example>
 
 ## Development
 

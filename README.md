@@ -143,7 +143,7 @@ The `fugue` API consists of four functions:
 
 ### Rule library
 
-See [rules](https://github.com/fugue/regula/tree/master/rules) directory.
+See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue is currently working on open sourcing more rules from [our product](https://www.fugue.co/) to Regula.
 
 | Provider | Service    | Rule Name                               | Rule Summary                                                                                               |
 |----------|------------|-----------------------------------------|------------------------------------------------------------------------------------------------------------|

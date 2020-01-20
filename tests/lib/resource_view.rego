@@ -7,6 +7,7 @@ test_mock_resource_view {
   rv["aws_vpc.valid_vpc"].cidr_block == "10.0.0.0/16"
   rv["aws_flow_log.valid_vpc_flow_log"].vpc_id == "aws_vpc.valid_vpc"
   rv["aws_flow_log.valid_vpc_flow_log"].log_destination == "aws_cloudwatch_log_group.example"
+  rv["module.iam.aws_iam_role.admin"].max_session_duration == 28800
 }
 
 mock_resource_view = ret {
@@ -95,7 +96,32 @@ mock_input = {
                   "tags":null
                }
             }
-         ]
+         ],
+         "child_modules": [
+        {
+          "resources": [
+            {
+              "address": "module.iam.aws_iam_role.admin",
+              "mode": "managed",
+              "type": "aws_iam_role",
+              "name": "admin",
+              "provider_name": "aws",
+              "schema_version": 0,
+              "values": {
+                "description": null,
+                "force_detach_policies": false,
+                "max_session_duration": 28800,
+                "name": "Admin",
+                "name_prefix": null,
+                "path": "/",
+                "permissions_boundary": null,
+                "tags": null
+              }
+            },
+        ],
+        "address": "module.iam"
+        }
+        ]
       }
    },
    "resource_changes":[

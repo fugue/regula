@@ -19,6 +19,31 @@ test_resource_view {
               "tags": null
             }
           }
+        ],
+        "child_modules": [
+        {
+          "resources": [
+            {
+              "address": "module.iam.aws_iam_role.admin",
+              "mode": "managed",
+              "type": "aws_iam_role",
+              "name": "admin",
+              "provider_name": "aws",
+              "schema_version": 0,
+              "values": {
+                "description": null,
+                "force_detach_policies": false,
+                "max_session_duration": 28800,
+                "name": "Admin",
+                "name_prefix": null,
+                "path": "/",
+                "permissions_boundary": null,
+                "tags": null
+              }
+            },
+        ],
+        "address": "module.iam"
+        }
         ]
       }
     }
@@ -29,6 +54,18 @@ test_resource_view {
       "_type": "aws_ebs_volume",
       "availability_zone": "us-west-2a",
       "size": 8,
+      "tags": null
+    },
+    "module.iam.aws_iam_role.admin": {
+      "id": "module.iam.aws_iam_role.admin",
+      "_type": "aws_iam_role",
+      "description": null,
+      "force_detach_policies": false,
+      "max_session_duration": 28800,
+      "name": "Admin",
+      "name_prefix": null,
+      "path": "/",
+      "permissions_boundary": null,
       "tags": null
     }
   }

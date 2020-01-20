@@ -9,6 +9,11 @@ planned_values_resources[id] = ret {
   id = resource.address
   ret = merge.merge(resource.values, {"id": id, "_type": resource.type})
 }
+planned_values_resources[id] = ret {
+  resource = input.planned_values[_].child_modules[_].resources[_]
+  id = resource.address
+  ret = merge.merge(resource.values, {"id": id, "_type": resource.type})
+}
 
 # Grab resources from the configuration.  The only thing we're currently
 # interested in are `references` to other resources.  You can find some more

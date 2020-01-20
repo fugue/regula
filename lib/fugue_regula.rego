@@ -3,9 +3,33 @@ package fugue.regula
 import data.util.merge
 import data.fugue
 
+# Grab all modules inside the `planned_values` section.
+planned_values_module_resources[path] = val {
+  walk(input.planned_values.root_module, [path, val])
+  planned_values_module_resources_valid_path(path)
+}
+
+# Is this path a valid reference to resources in the root or a submodule?
+planned_values_module_resources_valid_path(path) {
+  path == ["resources"]
+} {
+  # Paths to child modules will have the following shape:
+  #
+  #     ["child_modules", NUM, "child_modules", NUM, "resources"]
+  #
+  # so we could do further checks here to make sure we are correct (odd
+  # indices must be numbers, etc).
+  len = count(path)
+  len >= 3
+  path[len - 1] == "resources"
+  is_number(path[len - 2])
+  path[len - 3] == "child_modules"
+}
+
 # Grab resources from planned values.  Add "id" and "_type" keys.
 planned_values_resources[id] = ret {
-  resource = input.planned_values[_].resources[_]
+  planned_values_module_resources[_] = resource_section
+  resource = resource_section[_]
   id = resource.address
   ret = merge.merge(resource.values, {"id": id, "_type": resource.type})
 }

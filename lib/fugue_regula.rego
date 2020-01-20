@@ -4,13 +4,13 @@ import data.util.merge
 import data.fugue
 
 # Grab all modules inside the `planned_values` section.
-planned_values_module_resources[path] = val {
-  walk(input.planned_values.root_module, [path, val])
-  planned_values_module_resources_valid_path(path)
+planned_values_module_resources[path] = ret {
+  walk(input.planned_values.root_module, [path, ret])
+  planned_values_module_resources_walk_path(path)
 }
 
 # Is this path a valid reference to resources in the root or a submodule?
-planned_values_module_resources_valid_path(path) {
+planned_values_module_resources_walk_path(path) {
   path == ["resources"]
 } {
   # Paths to child modules will have the following shape:
@@ -34,12 +34,36 @@ planned_values_resources[id] = ret {
   ret = merge.merge(resource.values, {"id": id, "_type": resource.type})
 }
 
+# Grab all modules inside the `configuration` section.
+configuration_module_resources[path] = ret {
+  walk(input.configuration.root_module, [path, ret])
+  configuration_module_resources_walk_path(path)
+}
+
+# Is this path a valid reference to the resources in the root or a submodule?
+configuration_module_resources_walk_path(path) {
+  path == ["resources"]
+} {
+  # Paths to the child modules here will have the following shape:
+  #
+  #     [..., "module_calls", CHILD_NAME, "module", "resources"]
+  #
+  # Just as in `planned_values_module_resources_walk_path`, there are probably
+  # some more constraints that we can enforce below.
+  len = count(path)
+  len >= 4
+  path[len - 1] == "resources"
+  path[len - 2] == "module"
+  path[len - 4] == "module_calls"
+}
+
 # Grab resources from the configuration.  The only thing we're currently
 # interested in are `references` to other resources.  You can find some more
 # details about this format here:
 # <https://www.terraform.io/docs/internals/json-format.html>.
 configuration_resources[id] = ret {
-  resource = input.configuration[_].resources[_]
+  configuration_module_resources[_] = resource_section
+  resource = resource_section[_]
   id = resource.address
   ret = {key: refs[0] |
     expr = resource.expressions[key]

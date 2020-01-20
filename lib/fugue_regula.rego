@@ -35,26 +35,33 @@ planned_values_resources[id] = ret {
 }
 
 # Grab all modules inside the `configuration` section.
-configuration_module_resources[path] = ret {
+configuration_modules[path] = ret {
   walk(input.configuration.root_module, [path, ret])
-  configuration_module_resources_walk_path(path)
-}
-
-# Is this path a valid reference to the resources in the root or a submodule?
-configuration_module_resources_walk_path(path) {
-  path == ["resources"]
-} {
   # Paths to the child modules here will have the following shape:
   #
-  #     [..., "module_calls", CHILD_NAME, "module", "resources"]
+  #     [..., "module_calls", CHILD_NAME, "module"]
   #
   # Just as in `planned_values_module_resources_walk_path`, there are probably
   # some more constraints that we can enforce below.
-  len = count(path)
-  len >= 4
-  path[len - 1] == "resources"
-  path[len - 2] == "module"
-  path[len - 4] == "module_calls"
+  is_object(ret)
+  _ = ret.module
+  all([string_is_module_calls(k) | path[i] = k; i % 3 == 0])
+}
+
+# Utility to work around a fregot parsing bug.  Try inlining this and see what
+# happens.
+string_is_module_calls(k) {k == "module_calls"}
+
+# Calculate vars (`expressions`) per module.
+configuration_module_vars[module_path] = ret {
+  configuration_modules[module_path] = module
+  ret = {k: v | module.expressions[k].references = v}
+}
+
+# Calculate outputs per module.
+configuration_module_outputs[module_path] = ret {
+  configuration_modules[module_path] = module
+  ret = {k: v | module.module.outputs[k].expression.references = v}
 }
 
 # Grab resources from the configuration.  The only thing we're currently
@@ -62,7 +69,7 @@ configuration_module_resources_walk_path(path) {
 # details about this format here:
 # <https://www.terraform.io/docs/internals/json-format.html>.
 configuration_resources[id] = ret {
-  configuration_module_resources[_] = resource_section
+  configuration_modules[_].module.resources = resource_section
   resource = resource_section[_]
   id = resource.address
   ret = {key: refs[0] |

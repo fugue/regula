@@ -85,10 +85,10 @@ module_qualify(module_path, unqualified) = ret {
 # interested in are `references` to other resources.  You can find some more
 # details about this format here:
 # <https://www.terraform.io/docs/internals/json-format.html>.
-configuration_resources[id] = ret {
-  configuration_modules[_][1].resources = resource_section
+configuration_resources[qualified_address] = ret {
+  configuration_modules[module_path][1].resources = resource_section
   resource = resource_section[_]
-  id = resource.address
+  qualified_address = module_qualify(module_path, resource.address)
   ret = {key: refs[0] |
     expr = resource.expressions[key]
     is_object(expr)

@@ -106,6 +106,7 @@ configuration_resources = ret {
   }
 }
 
+# Resolve a reference inside a a configuration resource.
 configuration_resolve_ref(outputs, module_path, vars, ref) = ret {
   # A variable that then references an output.
   startswith(ref, "var.")

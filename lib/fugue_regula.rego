@@ -35,7 +35,7 @@ planned_values_resources[id] = ret {
 }
 
 # Grab all modules inside the `configuration` section.
-configuration_modules[path] = ret {
+configuration_modules[module_path] = ret {
   walk(input.configuration, [path, val])
   # Paths to the child modules here will have the following shape:
   #
@@ -48,7 +48,14 @@ configuration_modules[path] = ret {
   is_object(module)
   _ = module.resources
   all([string_is_module_calls(k) | path[i] = k; i % 3 == 0])
-  vars = {k: v | val.expressions[k].references = v}
+  module_path = [k | path[i] = k; i % 3 == 2]
+
+  # Calculate input variables used in this module.
+  vars = {k: module_qualify(module_path, ref) |
+     val.expressions[k].references = refs
+     ref = refs[_]
+  }
+
   ret = [vars, module]
 }
 
@@ -56,10 +63,22 @@ configuration_modules[path] = ret {
 # happens.
 string_is_module_calls(k) {k == "module_calls"}
 
-# Calculate outputs per module.
-configuration_module_outputs[module_path] = ret {
+# Calculate outputs into a globally qualified map.
+configuration_module_outputs[qualified_var] = qualified_val {
   configuration_modules[module_path] = [_, module]
-  ret = {k: v | module.outputs[k].expression.references = v}
+  module.outputs[var].expression.references = refs
+  count(refs) == 1
+  val = refs[0]
+  qualified_val = module_qualify(module_path, val)
+  qualified_var = module_qualify(module_path, var)
+}
+
+# Qualify using a module path.
+module_qualify(module_path, unqualified) = ret {
+  module_path == []
+  ret = unqualified
+} else = ret {
+  ret = concat(".", ["module", concat(".module.", module_path), unqualified])
 }
 
 # Grab resources from the configuration.  The only thing we're currently

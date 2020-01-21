@@ -1,6 +1,7 @@
 package fugue.regula
 
 import data.util.merge
+import data.util.resolve
 import data.fugue
 
 # Grab all modules inside the `planned_values` section.
@@ -51,7 +52,7 @@ configuration_modules[module_path] = ret {
   module_path = [k | path[i] = k; i % 3 == 2]
 
   # Calculate input variables used in this module.
-  vars = {k: module_qualify(module_path, ref) |
+  vars = {k: ref |
      val.expressions[k].references = refs
      ref = refs[_]
   }
@@ -85,16 +86,41 @@ module_qualify(module_path, unqualified) = ret {
 # interested in are `references` to other resources.  You can find some more
 # details about this format here:
 # <https://www.terraform.io/docs/internals/json-format.html>.
-configuration_resources[qualified_address] = ret {
-  configuration_modules[module_path][1].resources = resource_section
-  resource = resource_section[_]
-  qualified_address = module_qualify(module_path, resource.address)
-  ret = {key: refs[0] |
-    expr = resource.expressions[key]
-    is_object(expr)
-    refs = expr.references
-    count(refs) == 1
+configuration_resources = ret {
+  # Make sure output variables are resolved first, since we end up with a global
+  # map of qualified names.
+  outputs := resolve.resolve(configuration_module_outputs)
+
+  ret := {qualified_address: resolved_references |
+    configuration_modules[module_path] = [vars, module]
+    resource = module.resources[_]
+    qualified_address = module_qualify(module_path, resource.address)
+    resolved_references = {key: resolved |
+      expr = resource.expressions[key]
+      is_object(expr)
+      refs = expr.references
+      count(refs) == 1
+      ref = refs[0]
+      resolved = configuration_resolve_ref(outputs, module_path, vars, ref)
+    }
   }
+}
+
+configuration_resolve_ref(outputs, module_path, vars, ref) = ret {
+  # A variable that then references an output.
+  startswith(ref, "var.")
+  ret = outputs[vars[substring(ref, 4, -1)]]
+} else = ret {
+  # A variable that doesn't reference an output.
+  startswith(ref, "var.")
+  ret = vars[substring(ref, 4, -1)]
+} else = ret {
+  # A reference to an output.  Needs to be qualified before we look in
+  # `outputs`.
+  ret = outputs[module_qualify(module_path, ref)]
+} else = ret {
+  # A local resource.
+  ret = module_qualify(module_path, ref)
 }
 
 # In our final resource view available to the rules, we merge an optional

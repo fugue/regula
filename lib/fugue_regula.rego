@@ -36,32 +36,30 @@ planned_values_resources[id] = ret {
 
 # Grab all modules inside the `configuration` section.
 configuration_modules[path] = ret {
-  walk(input.configuration.root_module, [path, ret])
+  walk(input.configuration, [path, val])
   # Paths to the child modules here will have the following shape:
   #
   #     [..., "module_calls", CHILD_NAME, "module"]
   #
   # Just as in `planned_values_module_resources_walk_path`, there are probably
   # some more constraints that we can enforce below.
-  is_object(ret)
-  _ = ret.module
+  is_object(val)
+  module = val[module_name]
+  is_object(module)
+  _ = module.resources
   all([string_is_module_calls(k) | path[i] = k; i % 3 == 0])
+  vars = {k: v | val.expressions[k].references = v}
+  ret = [vars, module]
 }
 
 # Utility to work around a fregot parsing bug.  Try inlining this and see what
 # happens.
 string_is_module_calls(k) {k == "module_calls"}
 
-# Calculate vars (`expressions`) per module.
-configuration_module_vars[module_path] = ret {
-  configuration_modules[module_path] = module
-  ret = {k: v | module.expressions[k].references = v}
-}
-
 # Calculate outputs per module.
 configuration_module_outputs[module_path] = ret {
-  configuration_modules[module_path] = module
-  ret = {k: v | module.module.outputs[k].expression.references = v}
+  configuration_modules[module_path] = [_, module]
+  ret = {k: v | module.outputs[k].expression.references = v}
 }
 
 # Grab resources from the configuration.  The only thing we're currently
@@ -69,7 +67,7 @@ configuration_module_outputs[module_path] = ret {
 # details about this format here:
 # <https://www.terraform.io/docs/internals/json-format.html>.
 configuration_resources[id] = ret {
-  configuration_modules[_].module.resources = resource_section
+  configuration_modules[_][1].resources = resource_section
   resource = resource_section[_]
   id = resource.address
   ret = {key: refs[0] |

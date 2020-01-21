@@ -117,7 +117,8 @@ configuration_resolve_ref(outputs, module_path, vars, ref) = ret {
 } else = ret {
   # A reference to an output.  Needs to be qualified before we look in
   # `outputs`.
-  ret = outputs[module_qualify(module_path, ref)]
+  qual = module_qualify(module_path, ref)
+  ret = outputs[qual]
 } else = ret {
   # A local resource.
   ret = module_qualify(module_path, ref)

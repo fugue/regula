@@ -59,8 +59,8 @@ Some examples:
 
 -   `./bin/regula ../my-tf-infra .`: conveniently check `../my-tf-infra` against
     all rules in this main repository.
--   `./bin/regula ../my-tf-infra lib rules/t2_only.rego`: run Regula using only
-    the specified rule.
+-   `./bin/regula ../my-tf-infra lib examples/aws/t2_only.rego`: run Regula
+    using only the specified rule.
 -   `./bin/regula ../my-tf-infra lib ../custom-rules`: run Regula using a
     directory of custom rules.
 

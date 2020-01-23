@@ -1,16 +1,16 @@
 # This provides a fairly complex test of the resources view, based on this
 # Terraform configuration:
 # <https://github.com/jaspervdj-luminal/example-terraform-modules>.
-package fugue.regula.resource_view_modules
+package fugue.resource_view_modules
 
-import data.fugue.regula
+import data.fugue.resource_view
 
 test_mock_resource_view {
   expected_resource_view == mock_resource_view
 }
 
 mock_resource_view = ret {
-  ret = regula.resource_view with input as mock_input
+  ret = resource_view.resource_view with input as mock_input
 }
 
 mock_input = {

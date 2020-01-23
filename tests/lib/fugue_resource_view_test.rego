@@ -1,6 +1,41 @@
 # There are some more involved tests for the resource view here.
-package fugue.regula
+package fugue.resource_view
 
+# Test that resource_view gives us the right shape.
+test_resource_view {
+  rv = resource_view with input as {
+    "planned_values": {
+      "root_module": {
+        "resources": [
+          {
+            "address": "aws_ebs_volume.bad",
+            "mode": "managed",
+            "type": "aws_ebs_volume",
+            "name": "bad",
+            "provider_name": "aws",
+            "schema_version": 0,
+            "values": {
+              "availability_zone": "us-west-2a",
+              "size": 8,
+              "tags": null
+            }
+          }
+        ]
+      }
+    }
+  }
+  rv == {
+    "aws_ebs_volume.bad": {
+      "id": "aws_ebs_volume.bad",
+      "_type": "aws_ebs_volume",
+      "availability_zone": "us-west-2a",
+      "size": 8,
+      "tags": null
+    }
+  }
+}
+
+# A more involved test, see input below.
 test_mock_resource_view {
   rv = mock_resource_view
   rv["aws_cloudwatch_log_group.example"].retention_in_days == 0

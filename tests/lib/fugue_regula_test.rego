@@ -1,39 +1,5 @@
 package fugue.regula
 
-# Test that resource_view gives us the right shape.
-test_resource_view {
-  rv = resource_view with input as {
-    "planned_values": {
-      "root_module": {
-        "resources": [
-          {
-            "address": "aws_ebs_volume.bad",
-            "mode": "managed",
-            "type": "aws_ebs_volume",
-            "name": "bad",
-            "provider_name": "aws",
-            "schema_version": 0,
-            "values": {
-              "availability_zone": "us-west-2a",
-              "size": 8,
-              "tags": null
-            }
-          }
-        ]
-      }
-    }
-  }
-  rv == {
-    "aws_ebs_volume.bad": {
-      "id": "aws_ebs_volume.bad",
-      "_type": "aws_ebs_volume",
-      "availability_zone": "us-west-2a",
-      "size": 8,
-      "tags": null
-    }
-  }
-}
-
 # Simple resource used for testing.
 testutil_resource = {
   "id": "testutil_resource",

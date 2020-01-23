@@ -1,38 +1,7 @@
 package fugue.regula
 
-import data.util.merge
 import data.fugue
-
-# Grab resources from planned values.  Add "id" and "_type" keys.
-planned_values_resources[id] = ret {
-  resource = input.planned_values[_].resources[_]
-  id = resource.address
-  ret = merge.merge(resource.values, {"id": id, "_type": resource.type})
-}
-
-# Grab resources from the configuration.  The only thing we're currently
-# interested in are `references` to other resources.  You can find some more
-# details about this format here:
-# <https://www.terraform.io/docs/internals/json-format.html>.
-configuration_resources[id] = ret {
-  resource = input.configuration[_].resources[_]
-  id = resource.address
-  ret = {key: refs[0] |
-    expr = resource.expressions[key]
-    is_object(expr)
-    refs = expr.references
-    count(refs) == 1
-  }
-}
-
-# In our final resource view available to the rules, we merge an optional
-# `configuration_resources` and `planned_values_resources` with a bias for
-# `planned_values_resources`.
-resource_view[id] = ret {
-  planned_values_resource = planned_values_resources[id]
-  configuration_resource = {k: v | r = configuration_resources[id]; r[k] = v}
-  ret = merge.merge(configuration_resource, planned_values_resource)
-}
+import data.fugue.resource_view
 
 # Construct a judgement using results from a single- resource rule.
 judgement_from_allow_denies(resource, allows, denies) = ret {
@@ -103,7 +72,7 @@ evaluate_rule(rule) = ret {
   resource_type != "MULTIPLE"
 
   judgements = { j |
-    resource = resource_view[_]
+    resource = resource_view.resource_view[_]
     resource._type == resource_type
     allows = [a | a = data["rules"][pkg]["allow"] with input as resource]
     denies = [d | d = data["rules"][pkg]["deny"]  with input as resource]
@@ -121,7 +90,7 @@ evaluate_rule(rule) = ret {
 
   policies = [ policy |
     policy = data["rules"][pkg]["policy"] with input as {
-      "resources": resource_view,
+      "resources": resource_view.resource_view,
       "_plan": plan
     }
   ]

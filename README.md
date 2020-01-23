@@ -39,6 +39,8 @@ The second part is a Rego framework that:
 
 -   Merges resource info from `planned_values` and `configuration` in the
     terraform plan into a more conveniently accessible format.
+-   Walks through the imported terraform modules and merges them into a flat
+    format.
 -   Looks for [rules](#regula-rules) and executes them.
 -   Creates a report with the results of all rules and a
     [control mapping](#compliance-controls-vs-rules) in the output.

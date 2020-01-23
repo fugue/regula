@@ -11,4 +11,4 @@ jobs:
       with:
         args: 'lib rules examples tests'
     - name: Check file naming
-      run: ./scripts/check-naming.rego
+      run: ./scripts/check-naming.sh

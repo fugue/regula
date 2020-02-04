@@ -38,8 +38,8 @@ that generates a [terraform] plan in JSON format, ready for consumption by
 The second part is a Rego framework that:
 
 -   Merges resource info from `planned_values` and `configuration` in the
-    terraform plan into a more conveniently accessible format.
--   Walks through the imported terraform modules and merges them into a flat
+    Terraform plan into a more conveniently accessible format.
+-   Walks through the imported Terraform modules and merges them into a flat
     format.
 -   Looks for [rules](#regula-rules) and executes them.
 -   Creates a report with the results of all rules and a
@@ -49,7 +49,7 @@ The second part is a Rego framework that:
 
     ./bin/regula [TERRAFORM_PATH] [REGO_PATHS...]
 
-`TERRAFORM_PATH` is the directory where your terraform configuration files are
+`TERRAFORM_PATH` is the directory where your Terraform configuration files are
 located.
 
 `REGO_PATHS` are the directories that need to be searched for Rego code.  This
@@ -72,7 +72,7 @@ useful if you have several versions installed:
 ## Regula rules
 
 Regula rules are written in standard [Rego] and use a similar format to
-[Fugue Custom Rules].  This means there are (currently) two kinds of rules:
+[Fugue Custom Rules]. This means there are (currently) two kinds of rules:
 simple rules and advanced rules.
 
 ### Simple rules
@@ -97,7 +97,7 @@ allow {
 
 ### Advanced rules
 
-Advanced rules are harder to write, but more powerful.  They allow you to
+Advanced rules are harder to write, but more powerful. They allow you to
 observe different kinds of resource types and decide which specific resources
 are valid or invalid.
 
@@ -178,8 +178,7 @@ In Regula, a **rule** is a Rego policy that validates whether a cloud resource v
 Controls map to sets of rules, and rules can map to multiple controls. For example, control `CIS_1-22` and `REGULA_R00002` [both map to](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego#L7) the rule `iam_admin_policy`.
 
 ### Specifying compliance controls
-Controls can
-be specified within the rules: just add `controls` set.
+Controls can be specified within the rules: just add `controls` set.
 
 ```ruby
 # Rules must always be located right below the `rules` package.

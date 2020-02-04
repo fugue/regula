@@ -178,7 +178,7 @@ In Regula, a **rule** is a Rego policy that validates whether a cloud resource v
 Controls map to sets of rules, and rules can map to multiple controls. For example, control `CIS_1-22` and `REGULA_R00002` [both map to](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego#L7) the rule `iam_admin_policy`.
 
 ### Specifying compliance controls
-Controls can be specified within the rules: just add `controls` set.
+Controls can be specified within the rules: just add a `controls` set.
 
 ```ruby
 # Rules must always be located right below the `rules` package.

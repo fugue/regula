@@ -1,4 +1,4 @@
-package tests.rules.gcp_kms_cryptokey_rotate_test
+package tests.rules.gcp_kms_cryptokey_rotate
 
 import data.fugue.regula
 

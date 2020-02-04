@@ -10,5 +10,6 @@ default allow = false
 allow {
   rotation_per = input.rotation_period
   trimmed_rotation_per = trim_right(rotation_per, "s")
-  trimmed_rotation_per <= "31536000"
+  num_rotation_per = to_number(trimmed_rotation_per)
+  num_rotation_per <= 31536000
 }

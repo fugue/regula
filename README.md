@@ -149,16 +149,21 @@ See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue
 
 | Provider | Service    | Rule Name                               | Rule Summary                                                                                               |
 |----------|------------|-----------------------------------------|------------------------------------------------------------------------------------------------------------|
-| AWS      | CloudTrail | cloudtrail\_log\_file\_validation       | CloudTrail log file validation should be enabled                                                           |
-| AWS      | EBS        | ebs\_volume\_encrypted                  | EBS volume encryption should be enabled                                                                    |
-| AWS      | IAM        | iam\_admin\_policy                      | IAM policies should not have full "*:*" administrative privileges                                          |
-| AWS      | IAM        | iam\_user\_attached\_policy             | IAM policies should not be attached directly to users                                                      |
-| AWS      | KMS        | kms\_rotate                             | KMS CMK rotation should be enabled                                                                         |
-| AWS      | VPC        | security\_group\_ingress\_anywhere      | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
-| AWS      | VPC        | security\_group\_ingress\_anywhere\_rdp | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol) |
-| AWS      | VPC        | security\_group\_ingress\_anywhere\_ssh | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                       |
-| AWS      | VPC        | vpc\_flow\_log                          | VPC flow logging should be enabled                                                                         |
-| GCP      | KMS        | gcp\_kms\_cryptokey_rotate              | KMS crypto keys should be rotated at least once every 365 days                                                                         |
+| AWS      | CloudTrail | cloudtrail\_log\_file\_validation             | CloudTrail log file validation should be enabled                                                              |
+| AWS      | EBS        | ebs\_volume\_encrypted                        | EBS volume encryption should be enabled                                                                       |
+| AWS      | IAM        | iam\_admin\_policy                            | IAM policies should not have full "*:*" administrative privileges                                             |
+| AWS      | IAM        | iam\_user\_attached\_policy                   | IAM policies should not be attached directly to users                                                         |
+| AWS      | KMS        | kms\_rotate                                   | KMS CMK rotation should be enabled                                                                            |
+| AWS      | VPC        | security\_group\_ingress\_anywhere            | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
+| AWS      | VPC        | security\_group\_ingress\_anywhere\_rdp       | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)    |
+| AWS      | VPC        | security\_group\_ingress\_anywhere\_ssh       | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                          |
+| AWS      | VPC        | vpc\_flow\_log                                | VPC flow logging should be enabled                                                                            |
+| GCP      | KMS        | gcp\_kms\_cryptokey\_rotate                   | KMS crypto keys should be rotated at least once every 365 days                                                |
+| GCP      | Compute        | gcp\_compute\_firewall\_no\_ingress\_22       | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                               |
+| GCP      | Compute        | gcp\_compute\_firewall\_no\_ingress\_3389     | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                             |
+| GCP      | Compute        | gcp\_compute\_subnet\_private\_google\_access | VPC subnet 'Private Google Access' should be enabled                                                          |
+| GCP      | Compute        | gcp\_compute\_subnet\_flow\_log\_enabled      | VPC subnet flow logging should be enabled                                                                     |
+
 ### Rule examples
 
 Whereas the rules included in the Regula rules library are generally applicable, we've built rule [examples](https://github.com/fugue/regula/tree/master/examples) that look at tags, region restrictions, and EC2 instance usage that should be modified to fit user/organization policies.

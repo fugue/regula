@@ -23,11 +23,11 @@
 
 ## Introduction
 
-Regula is a tool that evaluates Terraform infrastructure-as-code for potential security misconfigurations and compliance violations prior to deployment.
+Regula is a tool that evaluates Terraform infrastructure-as-code for potential AWS and Google Cloud security misconfigurations and compliance violations prior to deployment.
 
 ![Regula diagram](regula.png)
 
-Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS Foundations Benchmark so you can assess your compliance posture. We'll be adding more rules in the coming weeks, sourced from [Fugue](https://fugue.co).
+Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS and GCP Foundations Benchmarks so you can assess your compliance posture. We'll be adding more rules in the coming weeks, sourced from [Fugue](https://fugue.co).
 
 ## How does Regula work?
 
@@ -149,15 +149,20 @@ See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue
 
 | Provider | Service    | Rule Name                               | Rule Summary                                                                                               |
 |----------|------------|-----------------------------------------|------------------------------------------------------------------------------------------------------------|
-| AWS      | CloudTrail | cloudtrail\_log\_file\_validation       | CloudTrail log file validation should be enabled                                                           |
-| AWS      | EBS        | ebs\_volume\_encrypted                  | EBS volume encryption should be enabled                                                                    |
-| AWS      | IAM        | iam\_admin\_policy                      | IAM policies should not have full "*:*" administrative privileges                                          |
-| AWS      | IAM        | iam\_user\_attached\_policy             | IAM policies should not be attached directly to users                                                      |
-| AWS      | KMS        | kms\_rotate                             | KMS CMK rotation should be enabled                                                                         |
-| AWS      | VPC        | security\_group\_ingress\_anywhere      | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
-| AWS      | VPC        | security\_group\_ingress\_anywhere\_rdp | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol) |
-| AWS      | VPC        | security\_group\_ingress\_anywhere\_ssh | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                       |
-| AWS      | VPC        | vpc\_flow\_log                          | VPC flow logging should be enabled                                                                         |
+| AWS      | CloudTrail | cloudtrail\_log\_file\_validation             | CloudTrail log file validation should be enabled                                                              |
+| AWS      | EBS        | ebs\_volume\_encrypted                        | EBS volume encryption should be enabled                                                                       |
+| AWS      | IAM        | iam\_admin\_policy                            | IAM policies should not have full "*:*" administrative privileges                                             |
+| AWS      | IAM        | iam\_user\_attached\_policy                   | IAM policies should not be attached directly to users                                                         |
+| AWS      | KMS        | kms\_rotate                                   | KMS CMK rotation should be enabled                                                                            |
+| AWS      | VPC        | security\_group\_ingress\_anywhere            | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
+| AWS      | VPC        | security\_group\_ingress\_anywhere\_rdp       | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)    |
+| AWS      | VPC        | security\_group\_ingress\_anywhere\_ssh       | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                          |
+| AWS      | VPC        | vpc\_flow\_log                                | VPC flow logging should be enabled                                                                            |
+| GCP      | KMS        | kms\_cryptokey\_rotate                        | KMS crypto keys should be rotated at least once every 365 days                                                |
+| GCP      | Compute        | compute\_firewall\_no\_ingress\_22            | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                               |
+| GCP      | Compute        | compute\_firewall\_no\_ingress\_3389          | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                             |
+| GCP      | Compute        | compute\_subnet\_private\_google\_access      | VPC subnet 'Private Google Access' should be enabled                                                          |
+| GCP      | Compute        | compute\_subnet\_flow\_log\_enabled           | VPC subnet flow logging should be enabled                                                                     |
 
 ### Rule examples
 
@@ -320,8 +325,9 @@ From this, you can generate a mock input by running:
 
 The mock input will then be placed in a `.rego` file with the same name,
 in our case [kms\_rotate\_infra.tf](tests/rules/aws/inputs/kms_rotate_infra.tf).
-It is then customary to add the actual tests in a name with the same file,
-but outside of the `inputs/` subdirectory.  In this case, that would be
+
+Next, add the actual tests to a Rego file with the same name,
+but outside of the `inputs/` subdirectory.  Using this example, that would this file
 [here](/tests/rules/aws/kms_rotate_test.rego).
 
 ### Debugging a rule with fregot

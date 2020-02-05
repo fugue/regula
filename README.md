@@ -158,11 +158,11 @@ See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue
 | AWS      | VPC        | security\_group\_ingress\_anywhere\_rdp       | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)    |
 | AWS      | VPC        | security\_group\_ingress\_anywhere\_ssh       | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                          |
 | AWS      | VPC        | vpc\_flow\_log                                | VPC flow logging should be enabled                                                                            |
-| GCP      | KMS        | gcp\_kms\_cryptokey\_rotate                   | KMS crypto keys should be rotated at least once every 365 days                                                |
-| GCP      | Compute        | gcp\_compute\_firewall\_no\_ingress\_22       | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                               |
-| GCP      | Compute        | gcp\_compute\_firewall\_no\_ingress\_3389     | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                             |
-| GCP      | Compute        | gcp\_compute\_subnet\_private\_google\_access | VPC subnet 'Private Google Access' should be enabled                                                          |
-| GCP      | Compute        | gcp\_compute\_subnet\_flow\_log\_enabled      | VPC subnet flow logging should be enabled                                                                     |
+| GCP      | KMS        | kms\_cryptokey\_rotate                        | KMS crypto keys should be rotated at least once every 365 days                                                |
+| GCP      | Compute        | compute\_firewall\_no\_ingress\_22            | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                               |
+| GCP      | Compute        | compute\_firewall\_no\_ingress\_3389          | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                             |
+| GCP      | Compute        | compute\_subnet\_private\_google\_access      | VPC subnet 'Private Google Access' should be enabled                                                          |
+| GCP      | Compute        | compute\_subnet\_flow\_log\_enabled           | VPC subnet flow logging should be enabled                                                                     |
 
 ### Rule examples
 

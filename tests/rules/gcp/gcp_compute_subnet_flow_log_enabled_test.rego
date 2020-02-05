@@ -8,5 +8,5 @@ test_gcp_compute_subnet_flow_log_enabled {
 
   resources["google_compute_subnetwork.valid-subnet-1"].valid == true
   resources["google_compute_subnetwork.valid-subnet-2"].valid == true
-  resources["google_compute_subnetwork.valid-subnet-1"].valid == false
+  resources["google_compute_subnetwork.invalid-subnet-1"].valid == false
 }

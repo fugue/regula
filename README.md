@@ -254,11 +254,6 @@ Here's a snippet of test results from a Regula report. The output is from an exa
     }
   ]
 }
-
-8 rules passed, 2 rules failed
-12 controls passed, 2 controls failed
-##[error] 2 rules failed
-##[error]Docker run failed with exit code 1
 ```
 
 **These are the important bits:**
@@ -269,7 +264,7 @@ Here's a snippet of test results from a Regula report. The output is from an exa
 
 ### Summary
 
-The `summary` block contains a breakdown of the compliance state of your Terraform files. In the output above, the Terraform violated 2 rules and 2 controls, so the CI/CD test as a whole failed. You'll also see this information in the last few lines of the output.
+The `summary` block contains a breakdown of the compliance state of your Terraform files. In the output above, the Terraform violated 2 rules and 2 controls, so the test as a whole failed.
 
 ### Controls
 

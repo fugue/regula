@@ -67,7 +67,7 @@ Some examples:
 It is also possible to set the name of the `terraform` executable, which is
 useful if you have several versions installed:
 
-    env TERRAFORM=terraform-v0.12.18 ./bin/regula ../regula-action-example/ lib
+    env TERRAFORM=terraform-v0.12.18 ./bin/regula ../regula-ci-example/ lib
 
 ## Regula rules
 
@@ -312,18 +312,17 @@ contains an example:
 ### Adding a test
 
 If you would like to add a rule, we recommend starting with a test.
-Put your terraform code in a file in `tests/rules/inputs`; for example
-[kms\_rotate\_infra.tf](tests/rules/aws/inputs/kms_rotate_infra.tf).
+Put your terraform code in a file in `tests/rules/<provider>/inputs`; for example
+[tests/rules/aws/inputs/kms\_rotate\_infra.tf](tests/rules/aws/inputs/kms_rotate_infra.tf).
 From this, you can generate a mock input by running:
 
     bash scripts/generate-test-inputs.sh
 
 The mock input will then be placed in a `.rego` file with the same name,
-in our case [kms\_rotate\_infra.tf](tests/rules/aws/inputs/kms_rotate_infra.tf).
+in our case [tests/rules/aws/inputs/kms\_rotate\_infra.rego](tests/rules/aws/inputs/kms_rotate_infra.rego).
 
-Next, add the actual tests to a Rego file with the same name,
-but outside of the `inputs/` subdirectory.  Using this example, that would this file
-[here](/tests/rules/aws/kms_rotate_test.rego).
+Next, add the actual tests to a Rego file with the same name (appended with `_test` instead of `_infra`),
+but outside of the `inputs/` subdirectory.  Using this example, that would be [tests/rules/aws/kms\_rotate\_test.rego](tests/rules/aws/kms_rotate_test.rego).
 
 ### Debugging a rule with fregot
 

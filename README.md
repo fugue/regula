@@ -78,6 +78,8 @@ useful if you have several versions installed:
 
     env TERRAFORM=terraform-v0.12.18 ./bin/regula ../regula-ci-example/ lib
 
+Note that Regula requires Terraform 0.12+ in order to generate the JSON-formatted plan.
+
 ### Windows
 
 Because Regula uses a bash script to automatically generate a plan, convert it to JSON, and run the Rego validations, Windows users should manually run the steps that Regula performs. See those steps [here](#locally-producing-a-report-windows).

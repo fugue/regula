@@ -47,6 +47,15 @@ The second part is a Rego framework that:
 
 ## Running Regula locally
 
+Install the prerequisites:
+
+- [OPA](https://www.openpolicyagent.org/docs/latest/#1-download-opa)
+- [Terraform 0.12+](https://www.terraform.io/downloads.html)
+
+### macOS and Linux
+
+Run the following command:
+
     ./bin/regula [TERRAFORM_PATH] [REGO_PATHS...]
 
 `TERRAFORM_PATH` is the directory where your Terraform configuration files are
@@ -68,6 +77,10 @@ It is also possible to set the name of the `terraform` executable, which is
 useful if you have several versions installed:
 
     env TERRAFORM=terraform-v0.12.18 ./bin/regula ../regula-ci-example/ lib
+
+### Windows
+
+Because Regula uses a bash script to automatically generate a plan, convert it to JSON, and run the Rego validations, Windows users should manually run the steps that Regula performs. See those steps [here](#locally-producing-a-report-windows).
 
 ## Regula rules
 
@@ -348,7 +361,7 @@ example.
 
 ### Locally producing a report
 
-In some cases, you may want to produce the steps that Regula performs manually.
+In some cases (such as development and testing), you may want to manually reproduce the steps that Regula performs automatically.
 If that is something you want to step through, this section is for you.
 
 We first need to obtain a JSON-formatted terraform plan.  In order to do get
@@ -369,6 +382,26 @@ Or using `fregot`:
     fregot eval --input input.json 'data.fugue.regula.report' . | jq
 
 If all goes well, you should now see the results for each rule.
+
+### Locally producing a report -- Windows
+
+To locally produce a Regula report on Windows, take the following steps:
+
+1.  Generate a JSON-based terraform plan:
+
+    ```
+    .\terraform.exe init .\regula-ci-example
+    .\terraform.exe plan -refresh=false -out=infra .\regula-ci-example
+    .\terraform.exe show -json infra >infra.json
+    ```
+
+2. Run OPA against this input file:
+
+    ```
+    .\opa_windows_amd64.exe eval -i .\infra.json -d .\regula\lib\ -d .\regula\rules\ 'data.fugue.regula.report'
+    ```
+
+
 
 [opa]: https://www.openpolicyagent.org/
 [fregot]: https://github.com/fugue/fregot

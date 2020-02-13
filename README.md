@@ -20,6 +20,7 @@
     -   [Adding a test](#adding-a-test)
     -   [Debugging a rule with fregot](#debugging-a-rule-with-fregot)
     -   [Locally producing a report](#locally-producing-a-report)
+    -   [Locally producing a report on Windows](#locally-producing-a-report-on-windows)
 
 ## Introduction
 
@@ -82,7 +83,7 @@ Note that Regula requires Terraform 0.12+ in order to generate the JSON-formatte
 
 ### Windows
 
-Because Regula uses a bash script to automatically generate a plan, convert it to JSON, and run the Rego validations, Windows users should manually run the steps that Regula performs. See those steps [here](#locally-producing-a-report-windows).
+Because Regula uses a bash script to automatically generate a plan, convert it to JSON, and run the Rego validations, Windows users should manually run the steps that Regula performs. See those steps [here](#locally-producing-a-report-on-windows).
 
 ## Regula rules
 
@@ -385,7 +386,7 @@ Or using `fregot`:
 
 If all goes well, you should now see the results for each rule.
 
-### Locally producing a report -- Windows
+### Locally producing a report on Windows
 
 To locally produce a Regula report on Windows, take the following steps and replace `.\regula-ci-example` with the directory containing your Terraform:
 

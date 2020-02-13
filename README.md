@@ -83,7 +83,7 @@ Note that Regula requires Terraform 0.12+ in order to generate the JSON-formatte
 
 ### Windows
 
-Because Regula uses a bash script to automatically generate a plan, convert it to JSON, and run the Rego validations, Windows users should manually run the steps that Regula performs. See those steps [here](#locally-producing-a-report-on-windows).
+Because Regula uses a bash script to automatically generate a plan, convert it to JSON, and run the Rego validations, Windows users can instead manually run the steps that Regula performs. See those steps [here](#locally-producing-a-report-on-windows).  Alternatively, you can run the script using [WSL](https://docs.microsoft.com/en-us/windows/wsl/about).
 
 ## Regula rules
 

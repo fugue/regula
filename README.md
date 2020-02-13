@@ -387,7 +387,7 @@ If all goes well, you should now see the results for each rule.
 
 ### Locally producing a report -- Windows
 
-To locally produce a Regula report on Windows, take the following steps:
+To locally produce a Regula report on Windows, take the following steps and replace `.\regula-ci-example` with the directory containing your Terraform:
 
 1.  Generate a JSON-based terraform plan:
 
@@ -402,8 +402,6 @@ To locally produce a Regula report on Windows, take the following steps:
     ```
     .\opa_windows_amd64.exe eval -i .\infra.json -d .\regula\lib\ -d .\regula\rules\ 'data.fugue.regula.report'
     ```
-
-
 
 [opa]: https://www.openpolicyagent.org/
 [fregot]: https://github.com/fugue/fregot

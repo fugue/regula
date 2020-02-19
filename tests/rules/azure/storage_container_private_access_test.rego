@@ -8,5 +8,5 @@ test_storage_container_private_access {
 
   resources["azurerm_storage_container.validcontainer1"].valid == true
   resources["azurerm_storage_container.validcontainer2"].valid == true
-  resources["azurerm_storage_container.invalidcontainer2"].valid == false
+  resources["azurerm_storage_container.invalidcontainer1"].valid == false
 }

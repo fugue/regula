@@ -1,10 +1,10 @@
 # This package was automatically generated from:
 #
-#     tests/rules/azure/inputs/network_security_group_no_ingress_3389_infra.tf
+#     tests/rules/azure/inputs/network_security_group_no_inbound_3389_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.network_security_group_no_ingress_3389
+package tests.rules.network_security_group_no_inbound_3389
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

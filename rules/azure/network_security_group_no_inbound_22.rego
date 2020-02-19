@@ -1,7 +1,7 @@
 # Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH).
 # Removing unfettered connectivity to remote console services, such as SSH,
 # reduces a server's exposure to risk.
-package rules.network_security_group_no_ingress_22
+package rules.network_security_group_no_inbound_22
 
 import data.fugue.azure.network_security_group
 

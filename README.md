@@ -167,10 +167,10 @@ See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue
 | Azure    | Storage Account | storage\_account\_microsoft\_services       | Storage accounts 'Trusted Microsoft Services' access should be enabled                                     |
 | Azure    | Storage Account | storage\_account\_secure\_transfer          | Storage accounts 'Secure transfer required' should be enabled                                              |
 | Azure    | Blob Storage    | storage\_container\_private\_access         | Storage containers should have access set to 'private'                                                     |
-| Azure    | Virtual Network | network\_security\_group\_no\_ingress\_22   | Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                   |
-|          |                 | network\_security\_rule\_no\_ingress\_22    |                                                                                                            |
-| Azure    | Virtual Network | network\_security\_group\_no\_ingress\_3389 | Network security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                 |
-|          |                 | network\_security\_rule\_no\_ingress\_3389  |                                                                                                            |
+| Azure    | Virtual Network | network\_security\_group\_no\_inbound\_22   | Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                   |
+|          |                 | network\_security\_rule\_no\_inbound\_22    |                                                                                                            |
+| Azure    | Virtual Network | network\_security\_group\_no\_inbound\_3389 | Network security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                 |
+|          |                 | network\_security\_rule\_no\_inbound\_3389  |                                                                                                            |
 | Azure    | SQL Server      | sql\_server\_firewall\_no\_inbound\_all     | SQL Server firewall rules should not permit ingress from 0.0.0.0/0 to all ports and protocols              |
 
 ### Rule examples

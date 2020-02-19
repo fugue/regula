@@ -154,22 +154,24 @@ See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue
 | AWS      | IAM        | iam\_admin\_policy                            | IAM policies should not have full "*:*" administrative privileges                                             |
 | AWS      | IAM        | iam\_user\_attached\_policy                   | IAM policies should not be attached directly to users                                                         |
 | AWS      | KMS        | kms\_rotate                                   | KMS CMK rotation should be enabled                                                                            |
-| AWS      | VPC        | security\_group\_ingress\_anywhere            | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
+| AWS      | VPC        | security\_group\_ingress\_anywhere            | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443                |
 | AWS      | VPC        | security\_group\_ingress\_anywhere\_rdp       | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)    |
 | AWS      | VPC        | security\_group\_ingress\_anywhere\_ssh       | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                          |
 | AWS      | VPC        | vpc\_flow\_log                                | VPC flow logging should be enabled                                                                            |
 | GCP      | KMS        | kms\_cryptokey\_rotate                        | KMS crypto keys should be rotated at least once every 365 days                                                |
-| GCP      | Compute        | compute\_firewall\_no\_ingress\_22            | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                               |
-| GCP      | Compute        | compute\_firewall\_no\_ingress\_3389          | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                             |
-| GCP      | Compute        | compute\_subnet\_private\_google\_access      | VPC subnet 'Private Google Access' should be enabled                                                          |
-| GCP      | Compute        | compute\_subnet\_flow\_log\_enabled           | VPC subnet flow logging should be enabled                                                                     |
-| Azure    | Storage Account| storage\_account\_deny\_access           | Storage accounts should deny access from all networks by default                                                                     |
-| Azure    | Storage Account| storage\_account\_microsoft\_services          | Storage accounts 'Trusted Microsoft Services' access should be enabled                                                                     |
-| Azure    | Storage Account| storage\_account\_secure\_transfer          | Storage accounts 'Secure transfer required' should be enabled                                                                     |
-| Azure    | Blob Storage   | storage\_container\_private\_access          | Storage containers should have access set to 'private'                                                                     |
-| Azure    | Virtual Network| network\_security\_group\_no\_ingress\_22      | Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                                                    |
-| Azure    | Virtual Network| network\_security\_group\_no\_ingress\_3389      | Network security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                                                    |
-| Azure    | SQL Server   | sql\_server\_firewall\_no\_inbound\_all          | SQL Server firewall rules should not permit ingress from 0.0.0.0/0 to all ports and protocols                                                                     |
+| GCP      | Compute        | compute\_firewall\_no\_ingress\_22            | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                            |
+| GCP      | Compute        | compute\_firewall\_no\_ingress\_3389          | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                          |
+| GCP      | Compute        | compute\_subnet\_private\_google\_access      | VPC subnet 'Private Google Access' should be enabled                                                      |
+| GCP      | Compute        | compute\_subnet\_flow\_log\_enabled           | VPC subnet flow logging should be enabled                                                                 |
+| Azure    | Storage Account | storage\_account\_deny\_access              | Storage accounts should deny access from all networks by default                                           |
+| Azure    | Storage Account | storage\_account\_microsoft\_services       | Storage accounts 'Trusted Microsoft Services' access should be enabled                                     |
+| Azure    | Storage Account | storage\_account\_secure\_transfer          | Storage accounts 'Secure transfer required' should be enabled                                              |
+| Azure    | Blob Storage    | storage\_container\_private\_access         | Storage containers should have access set to 'private'                                                     |
+| Azure    | Virtual Network | network\_security\_group\_no\_ingress\_22   | Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                   |
+|          |                 | network\_security\_rule\_no\_ingress\_22    |                                                                                                            |
+| Azure    | Virtual Network | network\_security\_group\_no\_ingress\_3389 | Network security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                 |
+|          |                 | network\_security\_rule\_no\_ingress\_3389  |                                                                                                            |
+| Azure    | SQL Server      | sql\_server\_firewall\_no\_inbound\_all     | SQL Server firewall rules should not permit ingress from 0.0.0.0/0 to all ports and protocols              |
 
 ### Rule examples
 

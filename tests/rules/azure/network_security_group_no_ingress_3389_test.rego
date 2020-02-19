@@ -9,9 +9,4 @@ test_network_security_group_no_ingress_3389 {
   resources["azurerm_network_security_group.validnsg1"].valid == true
   resources["azurerm_network_security_group.invalidnsg1"].valid == false
   resources["azurerm_network_security_group.invalidnsg2"].valid == false
-  resources["azurerm_network_security_rule.validrule1"].valid == true
-  resources["azurerm_network_security_rule.validrule2"].valid == true
-  resources["azurerm_network_security_rule.invalidrule1"].valid == false
-  resources["azurerm_network_security_rule.invalidrule2"].valid == false
-  resources["azurerm_network_security_rule.invalidrule3"].valid == false
 }

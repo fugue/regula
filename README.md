@@ -23,11 +23,11 @@
 
 ## Introduction
 
-Regula is a tool that evaluates Terraform infrastructure-as-code for potential AWS and Google Cloud security misconfigurations and compliance violations prior to deployment.
+Regula is a tool that evaluates Terraform infrastructure-as-code for potential AWS, Azure, and Google Cloud security misconfigurations and compliance violations prior to deployment.
 
 ![Regula diagram](regula.png)
 
-Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly (see our blog post [here](https://www.fugue.co/blog/predeployment-compliance-checks-with-regula-and-terraform-blog)). Where relevant, we’ve mapped Regula policies to the CIS AWS and GCP Foundations Benchmarks so you can assess your compliance posture. We'll be adding more rules in the coming weeks, sourced from [Fugue](https://fugue.co).
+Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly (see our blog post [here](https://www.fugue.co/blog/predeployment-compliance-checks-with-regula-and-terraform-blog)). Where relevant, we’ve mapped Regula policies to the CIS AWS, Azure, and GCP Foundations Benchmarks so you can assess your compliance posture. We'll be adding more rules in the coming weeks, sourced from [Fugue](https://fugue.co).
 
 ## How does Regula work?
 
@@ -163,6 +163,13 @@ See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue
 | GCP      | Compute        | compute\_firewall\_no\_ingress\_3389          | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                             |
 | GCP      | Compute        | compute\_subnet\_private\_google\_access      | VPC subnet 'Private Google Access' should be enabled                                                          |
 | GCP      | Compute        | compute\_subnet\_flow\_log\_enabled           | VPC subnet flow logging should be enabled                                                                     |
+| Azure    | Storage Account| storage\_account\_deny\_access           | Storage accounts should deny access from all networks by default                                                                     |
+| Azure    | Storage Account| storage\_account\_microsoft\_services          | Storage accounts 'Trusted Microsoft Services' access should be enabled                                                                     |
+| Azure    | Storage Account| storage\_account\_secure\_transfer          | Storage accounts 'Secure transfer required' should be enabled                                                                     |
+| Azure    | Blob Storage   | storage\_container\_private\_access          | Storage containers should have access set to 'private'                                                                     |
+| Azure    | Virtual Network| network\_security\_group\_no\_ingress\_22      | Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                                                    |
+| Azure    | Virtual Network| network\_security\_group\_no\_ingress\_3389      | Network security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                                                    |
+| Azure    | SQL Server   | sql\_server\_firewall\_no\_inbound\_all          | SQL Server firewall rules should not permit ingress from 0.0.0.0/0 to all ports and protocols                                                                     |
 
 ### Rule examples
 

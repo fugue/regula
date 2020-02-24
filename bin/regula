@@ -45,11 +45,11 @@ function cleanup {
 trap cleanup exit
 
 # Run terraform to obtain the plan.
-cd "$TERRAFORM_DIR"
+pushd "$TERRAFORM_DIR" >/dev/null 2>&1
 silently "$TERRAFORM" init
 silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN"
 "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON"
-cd ..
+popd >/dev/null 2>&1
 
 # Prepend `-d` to every argument because `opa` expects to see many `-d`
 # arguments.

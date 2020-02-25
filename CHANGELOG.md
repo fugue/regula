@@ -1,7 +1,10 @@
 # CHANGELOG
 
  -  0.2.0 (2020-02-25)
-     * Work around terraform issue with subdirectories & remote backends
+     *  Work around terraform issue with subdirectories & remote backends.
+     *  Add initial set of Azure rules.
+     *  Add initial set of GCP rules.
+     *  Minor README.md and SECURITY.md fixes and improvements.
 
  -  0.1.0 (2020-01-23)
      *  Add support for terraform modules.

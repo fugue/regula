@@ -398,13 +398,13 @@ If all goes well, you should now see the results for each rule.
 
 ### Locally producing a report on Windows
 
-To locally produce a Regula report on Windows, take the following steps and replace `.\regula-ci-example` with the directory containing your Terraform:
+To locally produce a Regula report on Windows, use the following steps:
 
 1.  Generate a JSON-based terraform plan:
 
     ```
-    .\terraform.exe init .\regula-ci-example
-    .\terraform.exe plan -refresh=false -out=infra .\regula-ci-example
+    .\terraform.exe init
+    .\terraform.exe plan -refresh=false -out=infra
     .\terraform.exe show -json infra >infra.json
     ```
 

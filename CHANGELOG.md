@@ -1,7 +1,7 @@
 # CHANGELOG
 
  -  0.2.0 (2020-02-25)
-     * Add support for subdirectories
+     * Work around terraform issue with subdirectories & remote backends
 
  -  0.1.0 (2020-01-23)
      *  Add support for terraform modules.

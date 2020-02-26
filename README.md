@@ -348,19 +348,7 @@ To use Regula with Conftest:
 
     And of course you can pull in your own Regula rules as well.
 
-3.  We'll add a policy file that simply forwards messages from the
-    `regula.conftest` integration.
-
-        # policy/regula.rego
-        package main
-
-        import data.fugue.regula.conftest as regula
-
-        deny[msg] {
-          regula.deny[msg]
-        }
-
-4.  As this point, it's simply a matter of running conftest!
+3.  As this point, it's simply a matter of running conftest!
 
         conftest test plan.json
 

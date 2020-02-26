@@ -356,7 +356,7 @@ To use Regula with Conftest:
 
 4.  As this point, it's simply a matter of running conftest!
 
-        conftest test input.json
+        conftest test plan.json
 
 ## Development
 

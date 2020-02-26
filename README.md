@@ -336,11 +336,17 @@ To use Regula with Conftest:
         terraform plan -refresh=false -out=plan.tfplan
         terraform show -json plan.tfplan >plan.json
 
-2.  Now, we'll pull the Regula library (and optionally rules) into the policy
-    directory:
+2.  Now, we'll pull the conftest support for Regula and the Regula library in.
 
+        conftest pull -p policy/ github.com/fugue/regula/conftest
         conftest pull -p policy/regula/lib github.com/fugue/regula/lib
+
+    If we want to use the [rules](#rule-library) that come with regula, we can
+    use:
+
         conftest pull -p policy/regula/rules github.com/fugue/regula/rules
+
+    And of course you can pull in your own Regula rules as well.
 
 3.  We'll add a policy file that simply forwards messages from the
     `regula.conftest` integration.

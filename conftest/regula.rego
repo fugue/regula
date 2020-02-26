@@ -1,5 +1,5 @@
 # Conftest integration package for Regula.
-package fugue.regula.conftest
+package main
 
 import data.fugue.regula
 

@@ -16,6 +16,7 @@
     -   [Controls](#controls)
     -   [Rules](#rules)
 -   [Running Regula in CI](#running-regula-in-ci)
+-   [Running Regula with Conftest](#running-regula-with-conftest)
 -   [Development](#development)
     -   [Directory structure](#directory-structure)
     -   [Adding a test](#adding-a-test)
@@ -315,6 +316,42 @@ contains an example:
 
 <https://github.com/fugue/regula-ci-example>
 
+## Running Regula with Conftest
+
+[Conftest] is a test runner for configuration files that uses Rego for
+policy-as-code.  Conftest supports Terraform; but policies need to be written
+directly against the plan file which is often inconvenient and tricky.
+
+Since Regula is just a Rego library; it works works seamlessly with Conftest.
+This way you get the advantages of both projects, in particular:
+
+ -  Easy CI integration and policy retrieval from Conftest
+ -  Terraform plan parsing & the rule set from Regula
+
+To use Regula with Conftest:
+
+1.  Generate a `plan.json` using the following terraform commands:
+
+        terraform init
+        terraform plan -refresh=false -out=plan.tfplan
+        terraform show -json plan.tfplan >plan.json
+
+2.  Now, we'll pull the conftest support for Regula and the Regula library in.
+
+        conftest pull -p policy/ github.com/fugue/regula/conftest
+        conftest pull -p policy/regula/lib github.com/fugue/regula/lib
+
+    If we want to use the [rules](#rule-library) that come with regula, we can
+    use:
+
+        conftest pull -p policy/regula/rules github.com/fugue/regula/rules
+
+    And of course you can pull in your own Regula rules as well.
+
+3.  As this point, it's simply a matter of running conftest!
+
+        conftest test plan.json
+
 ## Development
 
 ### Directory structure
@@ -419,3 +456,4 @@ To locally produce a Regula report on Windows, use the following steps:
 [terraform]: https://www.terraform.io/
 [Rego]: https://www.openpolicyagent.org/docs/latest/policy-language/
 [Fugue Custom Rules]: https://docs.fugue.co/rules.html
+[Conftest]: https://github.com/instrumenta/conftest

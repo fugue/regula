@@ -150,12 +150,21 @@ report = ret {
 # Summarize the rule_results into a textual message.
 report_message(summary, rule_results) = ret {
   summary.valid
-  ret = "All rules passed!"
+  ret = sprintf(
+    "%d rules and %d controls passed!",
+    [summary.rules_passed, summary.controls_passed]
+  )
 } {
   not summary.valid
-  ret = concat("", [msg |
-    rule_results[rule_name].resources[resource_name].valid == false
-    msg = report_rule_message(rule_name, resource_name)
+  ret = concat("", [
+    sprintf("%d rules passed, %d rules failed\n",
+      [summary.rules_passed, summary.rules_failed]),
+    sprintf("%d controls passed, %d controls failed\n",
+      [summary.controls_passed, summary.controls_failed]),
+    concat("", [msg |
+      rule_results[rule_name].resources[resource_name].valid == false
+      msg = report_rule_message(rule_name, resource_name)
+    ])
   ])
 }
 

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+ -  0.3.0 (2020-03-11)
+     *  Add conftest integration.
+     *  Add a human-readable message to the report.
+
  -  0.2.0 (2020-02-25)
      *  Work around terraform issue with subdirectories & remote backends.
      *  Add initial set of Azure rules.

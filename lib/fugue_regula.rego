@@ -142,6 +142,36 @@ report = ret {
   ret = {
     "controls": control_results,
     "rules": rule_results,
-    "summary": summary
+    "summary": summary,
+    "message": report_message(summary, rule_results),
   }
+}
+
+# Summarize the rule_results into a textual message.
+report_message(summary, rule_results) = ret {
+  summary.valid
+  ret = sprintf(
+    "%d rules and %d controls passed!",
+    [summary.rules_passed, summary.controls_passed]
+  )
+} {
+  not summary.valid
+  ret = concat("", [
+    sprintf("%d rules passed, %d rules failed\n",
+      [summary.rules_passed, summary.rules_failed]),
+    sprintf("%d controls passed, %d controls failed\n",
+      [summary.controls_passed, summary.controls_failed]),
+    concat("", [msg |
+      rule_results[rule_name].resources[resource_name].valid == false
+      msg = report_rule_message(rule_name, resource_name)
+    ])
+  ])
+}
+
+# Generate a textual message for a single failure.
+report_rule_message(rule_name, resource_name) = ret {
+  resource_name = ""
+  ret = sprintf("Rule %s failed\n", [rule_name])
+} else = ret {
+  ret = sprintf("Rule %s failed for resource %s\n", [rule_name, resource_name])
 }

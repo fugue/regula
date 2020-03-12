@@ -31,7 +31,7 @@ allow_resource(resource) = ret {
 }
 
 deny_resource(resource) = ret {
-  ret = deny_resource_with_message(resource, "invalid")
+  ret = deny_resource_with_message(resource, "")
 }
 
 deny_resource_with_message(resource, message) = ret {
@@ -44,7 +44,7 @@ deny_resource_with_message(resource, message) = ret {
 }
 
 missing_resource(resource_type) = ret {
-  ret = missing_resource_with_message(resource_type, "invalid")
+  ret = missing_resource_with_message(resource_type, "")
 }
 
 missing_resource_with_message(resource_type, message) = ret {

@@ -60,18 +60,20 @@ is_tagged(resource) {
   resource.tags[_] = _
 }
 
-is_improperly_tagged(resource) {
+is_improperly_tagged(resource) = msg {
   # Any tag value has less than 6 characters.
-  count(resource.tags[_]) < 6
-} {
+  resource.tags[key] = val
+  count(val) < 6
+  msg = sprintf("Tag %s is too short", [key])
+} else = "No tags found" {
   # The resource is not tagged at all.
   not is_tagged(resource)
 }
 
 policy[r] {
    resource = taggable_resources[_]
-   is_improperly_tagged(resource)
-   r = fugue.deny_resource(resource)
+   msg = is_improperly_tagged(resource)
+   r = fugue.deny_resource_with_message(resource, msg)
 } {
    resource = taggable_resources[_]
    not is_improperly_tagged(resource)

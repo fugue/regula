@@ -26,3 +26,7 @@ resource "aws_s3_bucket" "invalid" {
     Environment = "Dev"
   }
 }
+
+resource "aws_vpc" "untagged" {
+  cidr_block       = "10.0.0.0/16"
+}

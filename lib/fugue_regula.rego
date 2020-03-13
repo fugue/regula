@@ -162,16 +162,26 @@ report_message(summary, rule_results) = ret {
     sprintf("%d controls passed, %d controls failed\n",
       [summary.controls_passed, summary.controls_failed]),
     concat("", [msg |
-      rule_results[rule_name].resources[resource_name].valid == false
-      msg = report_rule_message(rule_name, resource_name)
+      resource_result = rule_results[rule_name].resources[resource_name]
+      resource_result.valid == false
+      msg = report_rule_message(
+        rule_name, resource_name, resource_result.message)
     ])
   ])
 }
 
 # Generate a textual message for a single failure.
-report_rule_message(rule_name, resource_name) = ret {
+report_rule_message(rule_name, resource_name, message) = ret {
   resource_name = ""
+  message = ""
   ret = sprintf("Rule %s failed\n", [rule_name])
 } else = ret {
+  resource_name = ""
+  ret = sprintf("Rule %s failed: %s\n", [rule_name, message])
+} else = ret {
+  message = ""
   ret = sprintf("Rule %s failed for resource %s\n", [rule_name, resource_name])
+} else = ret {
+  ret = sprintf("Rule %s failed for resource %s: %s\n",
+    [rule_name, resource_name, message])
 }

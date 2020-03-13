@@ -24,6 +24,7 @@ mock_input = {
             "bucket_prefix": null,
             "cors_rule": [],
             "force_destroy": false,
+            "grant": [],
             "lifecycle_rule": [],
             "logging": [],
             "object_lock_configuration": [],
@@ -52,6 +53,21 @@ mock_input = {
             "tags": {
               "Name": "12345"
             }
+          }
+        },
+        {
+          "address": "aws_vpc.untagged",
+          "mode": "managed",
+          "type": "aws_vpc",
+          "name": "untagged",
+          "provider_name": "aws",
+          "schema_version": 1,
+          "values": {
+            "assign_generated_ipv6_cidr_block": false,
+            "cidr_block": "10.0.0.0/16",
+            "enable_dns_support": true,
+            "instance_tenancy": "default",
+            "tags": null
           }
         },
         {
@@ -92,6 +108,7 @@ mock_input = {
           "bucket_prefix": null,
           "cors_rule": [],
           "force_destroy": false,
+          "grant": [],
           "lifecycle_rule": [],
           "logging": [],
           "object_lock_configuration": [],
@@ -110,6 +127,7 @@ mock_input = {
           "bucket_domain_name": true,
           "bucket_regional_domain_name": true,
           "cors_rule": [],
+          "grant": [],
           "hosted_zone_id": true,
           "id": true,
           "lifecycle_rule": [],
@@ -162,6 +180,41 @@ mock_input = {
           "main_route_table_id": true,
           "owner_id": true,
           "tags": {}
+        }
+      }
+    },
+    {
+      "address": "aws_vpc.untagged",
+      "mode": "managed",
+      "type": "aws_vpc",
+      "name": "untagged",
+      "provider_name": "aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "assign_generated_ipv6_cidr_block": false,
+          "cidr_block": "10.0.0.0/16",
+          "enable_dns_support": true,
+          "instance_tenancy": "default",
+          "tags": null
+        },
+        "after_unknown": {
+          "arn": true,
+          "default_network_acl_id": true,
+          "default_route_table_id": true,
+          "default_security_group_id": true,
+          "dhcp_options_id": true,
+          "enable_classiclink": true,
+          "enable_classiclink_dns_support": true,
+          "enable_dns_hostnames": true,
+          "id": true,
+          "ipv6_association_id": true,
+          "ipv6_cidr_block": true,
+          "main_route_table_id": true,
+          "owner_id": true
         }
       }
     },
@@ -253,6 +306,19 @@ mock_input = {
               "constant_value": {
                 "Name": "12345"
               }
+            }
+          },
+          "schema_version": 1
+        },
+        {
+          "address": "aws_vpc.untagged",
+          "mode": "managed",
+          "type": "aws_vpc",
+          "name": "untagged",
+          "provider_config_key": "aws",
+          "expressions": {
+            "cidr_block": {
+              "constant_value": "10.0.0.0/16"
             }
           },
           "schema_version": 1

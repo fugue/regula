@@ -198,6 +198,7 @@ Whereas the rules included in the Regula rules [library](#rule-library) are gene
 | Provider | Service | Rule Name             | Rule Description                                                                                |
 |----------|---------|-----------------------|-------------------------------------------------------------------------------------------------|
 | AWS      | EC2     | ec2\_t2\_only         | Restricts instances to a whitelist of instance types                                            |
+| AWS      | IAM     | iam_password_length   | Requires IAM Password Policies with a certain minimum password length                           |
 | AWS      | Tags    | tag\_all\_resources   | Checks whether resources that are taggable have at least one tag with a minimum of 6 characters |
 | AWS      | Regions | useast1\_only         | Restricts resources to a given AWS region                                                       |
 

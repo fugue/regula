@@ -16,6 +16,9 @@ exists_password_policy {
 
 # Is the password policy in compliance?
 valid_password_policy(pol) {
+  # If you want to make any changes to these check, this helper function is
+  # the only thing that needs to be edited.  `aws_iam_account_password_policy`
+  # has a large number of useful fields!
   pol.minimum_password_length >= 8
 }
 

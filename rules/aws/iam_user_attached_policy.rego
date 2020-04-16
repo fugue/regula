@@ -3,8 +3,11 @@ package rules.iam_user_attached_policy
 import data.fugue
 
 resource_type = "MULTIPLE"
-
-controls = {"CIS_1-16", "REGULA_R00001"}
+controls = {
+  "CIS_1-16",
+  "NIST-800-53_AC-2 (7)(b)",
+  "REGULA_R00001",
+}
 
 # IAM policies should not be attached to users. Assigning privileges at the group or role level reduces the complexity of access management as the number of users grow. Reducing access management complexity may reduce opportunity for a principal to inadvertently receive or retain excessive privileges.
 

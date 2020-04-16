@@ -6,7 +6,13 @@ package rules.network_security_rule_no_inbound_22
 import data.fugue.azure.network_security_group
 
 resource_type = "azurerm_network_security_rule"
-controls = {"CIS_Azure_1.1.0_6-1", "REGULA_R00019"}
+controls = {
+  "CIS_Azure_1.1.0_6-1",
+  "NIST‌-800-53_AC‌-4",
+  "NIST‌-800-53_SC‌-7a",
+  "NIST‌-800-53_SI‌-4a.2",
+  "REGULA_R00019",
+}
 
 default deny = false
 

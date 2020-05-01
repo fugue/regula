@@ -244,7 +244,7 @@ Here's a snippet of test results from a Regula report. The output is from an exa
                   "iam_admin_policy"
                 ],
                 "valid": false
-              },
+              }
             },
             "rules": {
               "iam_admin_policy": {
@@ -263,7 +263,8 @@ Here's a snippet of test results from a Regula report. The output is from an exa
                   }
                 },
                 "valid": false
-              },
+              }
+            },
             "summary": {
               "controls_failed": 2,
               "controls_passed": 12,

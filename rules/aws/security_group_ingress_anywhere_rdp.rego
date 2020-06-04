@@ -7,7 +7,12 @@ package rules.security_group_ingress_anywhere_rdp
 import data.fugue.regula.aws.security_group as sglib
 
 resource_type = "aws_security_group"
-controls = {"CIS_4-2", "REGULA_R00005"}
+controls = {
+  "CIS_4-2",
+  "NIST-800-53_AC-4",
+  "NIST-800-53_AC-17 (3)",
+  "REGULA_R00005",
+}
 
 default deny = false
 

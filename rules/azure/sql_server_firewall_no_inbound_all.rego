@@ -5,8 +5,12 @@
 
 package rules.sql_server_firewall_no_inbound_all
 
-controls = {"CIS_Azure_1.1.0_6-3", "REGULA_R00021"}
 resource_type = "azurerm_sql_firewall_rule"
+controls = {
+  "CIS_Azure_1.1.0_6-3",
+  "NIST-800-53_SC-7 (5)",
+  "REGULA_R00021",
+}
 
 default deny = false
 

@@ -64,7 +64,8 @@ configuration_modules[module_path] = ret {
   # Calculate input variables used in this module.
   vars = {k: ref |
      val.expressions[k].references = refs
-     ref = refs[_]
+     count(refs) == 1
+     ref = refs[0]
   }
 
   ret = [vars, module]

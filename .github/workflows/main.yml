@@ -7,7 +7,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: OPA test
-      uses: jaspervdj-luminal/opa-test-action@v0.0.1
+      uses: jaspervdj-luminal/opa-test-action@v0.0.2
       with:
         args: 'lib rules examples tests'
     - name: Check file naming

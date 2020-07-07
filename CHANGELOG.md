@@ -1,5 +1,14 @@
 # CHANGELOG
 
+ -  0.4.0 (2020-07-07)
+     *  Relicense under Apache 2.0 rather than AGPL.
+     *  Add `NIST_800-53` mapping to existing rules.
+     *  Add support for `fugue.deny_resource_with_message` and
+        `fugue.missing_resource_with_message` to return custom messages from
+        rules.
+     *  Add a workaround for a bug in OPA >= 0.20 that prevented simple
+        `allow`/`deny` rules from working.
+
  -  0.3.0 (2020-03-11)
      *  Add conftest integration.
      *  Add a human-readable message to the report.

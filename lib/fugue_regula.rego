@@ -64,6 +64,18 @@ rule_report(pkg, judgements) = ret {
   }
 }
 
+
+# Evaluate `allow` rules for a single resource.  This is a workaround for
+# <https://github.com/open-policy-agent/opa/issues/2497>.
+evaluate_allows(pkg, resource) = ret {
+  ret = [a | a = data["rules"][pkg]["allow"] with input as resource]
+}
+
+# See `evaluate_denies`.
+evaluate_denies(pkg, resource) = ret {
+  ret = [a | a = data["rules"][pkg]["deny"] with input as resource]
+}
+
 # Evaluate a single rule -- this can be either a single- or a multi-resource
 # rule.
 evaluate_rule(rule) = ret {
@@ -74,8 +86,8 @@ evaluate_rule(rule) = ret {
   judgements = { j |
     resource = resource_view.resource_view[_]
     resource._type == resource_type
-    allows = [a | a = data["rules"][pkg]["allow"] with input as resource]
-    denies = [d | d = data["rules"][pkg]["deny"]  with input as resource]
+    allows = evaluate_allows(pkg, resource)
+    denies = evaluate_denies(pkg, resource)
     j = judgement_from_allow_denies(resource, allows, denies)
   }
 

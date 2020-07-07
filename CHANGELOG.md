@@ -8,6 +8,8 @@
         rules.
      *  Add a workaround for a bug in OPA >= 0.20 that prevented simple
         `allow`/`deny` rules from working.
+     *  Fix an issue where multiple terraform refs would cause an
+        `object keys must be unique` error.
 
  -  0.3.0 (2020-03-11)
      *  Add conftest integration.

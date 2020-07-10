@@ -1,20 +1,25 @@
 package rules.https_cloudfront_distribution
+
 resource_type = "aws_cloudfront_distribution"
-# NOT SURE ABOUT THE FBP AND NIST CONTROLS
-# controls = {"NIST-800-53_SC-13"}
+
+controls = {
+  "NIST-800-53_AC-17 (2)",
+  "NIST-800-53_SC-8",
+}
 
 # Explicitly allow only https or redirection to https.
-valid_traffic = {
+valid_protocols = {
   "redirect-to-https",
   "https-only"
 }
 
-used_traffic_protocols ( protocol ) {
-   valid_traffic[protocol]
+used_traffic_protocols[protocol] {
+  protocol = input.default_cache_behavior[_].viewer_protocol_policy
 }
 
 default allow = false
+
 allow {
-  count(input.default_cache_behavior[_].viewer_protocol_policy) > 0
-  used_traffic_protocols(input.default_cache_behavior[_].viewer_protocol_policy)
+  # Difference of used_traffic_protocols and valid_protocols must be empty.
+  count(used_traffic_protocols - valid_protocols) == 0
 }

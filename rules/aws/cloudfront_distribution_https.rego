@@ -1,4 +1,4 @@
-package rules.https_cloudfront_distribution
+package rules.cloudfront_distribution_https
 
 resource_type = "aws_cloudfront_distribution"
 

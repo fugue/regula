@@ -54,6 +54,7 @@ See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue
 
 | Provider | Service         | Rule Name                                   | Rule Summary                                                                                               |
 |----------|-----------------|---------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| AWS      | CloudFront      | cloudfront\_distribution\_https             | CloudFront distributions should use HTTPS traffic                                                          |
 | AWS      | CloudTrail      | cloudtrail\_log\_file\_validation           | CloudTrail log file validation should be enabled                                                           |
 | AWS      | EBS             | ebs\_volume\_encrypted                      | EBS volume encryption should be enabled                                                                    |
 | AWS      | IAM             | iam\_admin\_policy                          | IAM policies should not have full "*:*" administrative privileges                                          |

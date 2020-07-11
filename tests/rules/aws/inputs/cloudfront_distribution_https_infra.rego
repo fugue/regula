@@ -1,10 +1,10 @@
 # This package was automatically generated from:
 #
-#     tests/rules/aws/inputs/https_cloudfront_distribution_infra.tf
+#     tests/rules/aws/inputs/cloudfront_distribution_https_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.https_cloudfront_distribution
+package tests.rules.cloudfront_distribution_https
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

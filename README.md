@@ -60,6 +60,7 @@ See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue
 | AWS      | IAM             | iam\_admin\_policy                          | IAM policies should not have full "*:*" administrative privileges                                          |
 | AWS      | IAM             | iam\_user\_attached\_policy                 | IAM policies should not be attached directly to users                                                      |
 | AWS      | KMS             | kms\_rotate                                 | KMS CMK rotation should be enabled                                                                         |
+| AWS      | S3              | s3\_bucket\_sse                             | Server Side Encryption by default should be set for S3 buckets                                             |                                                                         |
 | AWS      | VPC             | security\_group\_ingress\_anywhere          | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
 | AWS      | VPC             | security\_group\_ingress\_anywhere\_rdp     | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol) |
 | AWS      | VPC             | security\_group\_ingress\_anywhere\_ssh     | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                       |

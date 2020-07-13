@@ -1,4 +1,5 @@
-package rules.encrypted_s3_bucket
+package rules.s3_bucket_sse
+
 resource_type = "aws_s3_bucket"
 controls = {"NIST-800-53_SC-13"}
 

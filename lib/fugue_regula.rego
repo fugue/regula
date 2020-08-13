@@ -87,12 +87,13 @@ evaluate_denies(pkg, resource) = ret {
 
 # Evaluate the judgement for a simple rule.
 evaluate_rule_judgement(pkg, resource) = ret {
+  # Specifies `deny[msg]` as a set.
   denies = evaluate_denies(pkg, resource)
-  count(denies) > 0
-  all([is_set(d) | d = denies[_]])
+  any([is_set(d) | d = denies[_]])
   msgs = [msg | d = denies[_]; d[msg]]
   ret = judgement_from_deny_messages(resource, msgs)
 } else = ret {
+  # Specifies allow / deny as a boolean rule.
   allows = evaluate_allows(pkg, resource)
   denies = evaluate_denies(pkg, resource)
   ret = judgement_from_allow_denies(resource, allows, denies)

@@ -45,3 +45,14 @@ test_judgement_from_allow_denies_08 {
   j = judgement_from_allow_denies(testutil_resource, [false], [true])
   not j.valid
 }
+
+test_judgement_from_deny_messages_01 {
+  j = judgement_from_deny_messages(testutil_resource, [])
+  j.valid
+}
+
+test_judgement_from_deny_messages_02 {
+  j = judgement_from_deny_messages(testutil_resource, ["bad"])
+  not j.valid
+  j.message == "bad"
+}

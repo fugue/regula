@@ -49,6 +49,15 @@ judgement_from_allow_denies(resource, allows, denies) = ret {
   }
 }
 
+# Construct judgements from simple `deny[msg]` style rules.
+judgement_from_deny_messages(resource, messages) = ret {
+  count(messages) == 0
+  ret = fugue.allow_resource(resource)
+} else = ret {
+  msg = concat(", ", messages)
+  ret = fugue.deny_resource_with_message(resource, msg)
+}
+
 # Construct judgements from a multi-resource rule that has a `policy` set.
 judgements_from_policies(policies) = ret {
   count(policies) >= 0
@@ -71,9 +80,22 @@ evaluate_allows(pkg, resource) = ret {
   ret = [a | a = data["rules"][pkg]["allow"] with input as resource]
 }
 
-# See `evaluate_denies`.
+# See `evaluate_allows`.
 evaluate_denies(pkg, resource) = ret {
   ret = [a | a = data["rules"][pkg]["deny"] with input as resource]
+}
+
+# Evaluate the judgement for a simple rule.
+evaluate_rule_judgement(pkg, resource) = ret {
+  denies = evaluate_denies(pkg, resource)
+  count(denies) > 0
+  all([is_set(d) | d = denies[_]])
+  msgs = [msg | d = denies[_]; d[msg]]
+  ret = judgement_from_deny_messages(resource, msgs)
+} else = ret {
+  allows = evaluate_allows(pkg, resource)
+  denies = evaluate_denies(pkg, resource)
+  ret = judgement_from_allow_denies(resource, allows, denies)
 }
 
 # Evaluate a single rule -- this can be either a single- or a multi-resource
@@ -83,12 +105,10 @@ evaluate_rule(rule) = ret {
   resource_type = rule["resource_type"]
   resource_type != "MULTIPLE"
 
-  judgements = { j |
+  judgements = {j |
     resource = resource_view.resource_view[_]
     resource._type == resource_type
-    allows = evaluate_allows(pkg, resource)
-    denies = evaluate_denies(pkg, resource)
-    j = judgement_from_allow_denies(resource, allows, denies)
+    j = evaluate_rule_judgement(pkg, resource)
   }
 
   ret = rule_report(pkg, judgements)

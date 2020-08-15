@@ -6,6 +6,7 @@
 -   [Running Regula locally](#running-regula-locally)
 -   [Regula rules](#regula-rules)
     -   [Simple rules](#simple-rules)
+    -   [Custom error messages](#custom-error-messages)
     -   [Advanced rules](#advanced-rules)
     -   [Rule library](#rule-library)
     -   [Rule examples](#rule-examples)
@@ -142,6 +143,21 @@ resource_type = "aws_ebs_volume"
 default allow = false
 allow {
   input.encrypted == true
+}
+```
+
+### Custom error messages
+
+If you want to return more information to the user, you can also define a
+custom error message.  This is done by writing a `deny[msg]` style rule.
+
+```ruby
+package rules.simple_rule_custom_message
+resource_type = "aws_ebs_volume"
+
+deny[msg] {
+  not input.encrypted
+  msg = "EBS volumes should be encrypted"
 }
 ```
 

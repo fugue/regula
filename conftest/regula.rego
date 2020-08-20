@@ -3,7 +3,7 @@ package main
 
 import data.fugue.regula
 
-deny[msg] {
+deny[{"msg": msg, "rule_name": rule_name, "resource": resource_name}] {
   # Our information comes from the report.  We select all invalid resources
   # and will generate a deny message for each of them.
   resource = regula.report.rules[rule_name].resources[resource_name]

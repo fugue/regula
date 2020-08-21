@@ -1,5 +1,11 @@
 # CHANGELOG
 
+ -  0.5.0 (2020-08-21)
+     *  New rule: Ensure AWS S3 Buckets are encrypted.
+     *  New rule: Ensure AWS CloudFront uses HTTPS.
+     *  Allow `deny[msg]` style simple rules.
+     *  Enable structured output for `conftest` integration.
+
  -  0.4.0 (2020-07-07)
      *  Relicense under Apache 2.0 rather than AGPL.
      *  Add `NIST_800-53` mapping to existing rules.

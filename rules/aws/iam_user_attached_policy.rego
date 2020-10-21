@@ -15,14 +15,24 @@ package rules.iam_user_attached_policy
 
 import data.fugue
 
-resource_type = "MULTIPLE"
-controls = {
-  "CIS_1-16",
-  "NIST-800-53_AC-2 (7)(b)",
-  "REGULA_R00001",
+__rego__metadoc__ := {
+  "id": "FG_R00007",
+  "title": "IAM policies should not be attached directly to users",
+  "description": "IAM policies should not be attached to users. Assigning privileges at the group or role level reduces the complexity of access management as the number of users grow. Reducing access management complexity may reduce opportunity for a principal to inadvertently receive or retain excessive privileges.",
+  "custom": {
+    "controls": {
+      "CIS": [
+        "CIS_1-16"
+      ],
+      "NIST": [
+        "NIST-800-53_AC-2 (7)(b)"
+      ]
+    },
+    "severity": "Low"
+  }
 }
 
-# IAM policies should not be attached to users. Assigning privileges at the group or role level reduces the complexity of access management as the number of users grow. Reducing access management complexity may reduce opportunity for a principal to inadvertently receive or retain excessive privileges.
+resource_type = "MULTIPLE"
 
 user_policies = fugue.resources("aws_iam_user_policy")
 user_policy_attachments = fugue.resources("aws_iam_user_policy_attachment")

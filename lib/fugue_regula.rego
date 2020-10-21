@@ -82,8 +82,22 @@ judgements_from_policies(policies) = ret {
 rule_report(pkg, judgements) = ret {
   ret = {
     "resources": {j.id: j | judgements[j]},
-    "valid": all([j.valid | judgements[j]])
+    "valid": all([j.valid | judgements[j]]),
+    "metadata": rule_metadata(pkg)
   }
+}
+
+rule_metadata(pkg) = ret {
+  ret = data["rules"][pkg]["__rego__metadoc__"]
+} else = ret {
+  ret = {}
+}
+
+controls(pkg) = ret {
+  metadata = rule_metadata(pkg)
+  ret = { c | c = metadata["custom"]["controls"][_][_] }
+} else = ret {
+  ret = set()
 }
 
 
@@ -152,7 +166,7 @@ report = ret {
     rule = {
       "package": pkg,
       "resource_type": resource_type,
-      "controls": {c | data.rules[pkg].controls[c]}
+      "controls": controls(pkg)
     }
   ]
 

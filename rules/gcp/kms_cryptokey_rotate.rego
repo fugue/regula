@@ -15,7 +15,19 @@
 # KMS crypto keys should be rotated at least once every 365 days
 package rules.gcp_kms_cryptokey_rotate
 
-controls = {"CIS_GCP_1-8", "REGULA_R00010"}
+__rego__metadoc__ := {
+  "id": "FG_R00352",
+  "title": "KMS crypto keys should be rotated at least once every 365 days",
+  "description": "Key rotation is a security best practice that helps reduce the potential impact of a compromised key, as users cannot use deprecated/older keys.",
+  "custom": {
+    "controls": {
+      "CIS-GCP": [
+        "CIS-GCP_1.0.0_1-8"
+      ]
+    }
+  }
+}
+
 resource_type = "google_kms_crypto_key"
 
 default allow = false

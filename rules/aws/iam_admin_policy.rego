@@ -15,11 +15,21 @@ package rules.iam_admin_policy
 
 import data.fugue
 
+__rego__metadoc__ := {
+  "id": "FG_R00092",
+  "title": "IAM policies should not have full \"*:*\" administrative privileges",
+  "description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
+  "custom": {
+    "controls": {
+      "CIS": [
+        "CIS_1-22"
+      ]
+    },
+    "severity": "High"
+  }
+}
+
 resource_type = "MULTIPLE"
-
-controls = {"CIS_1-22", "REGULA_R00002"}
-
-# IAM policies should not have full "*:*" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.
 
 # All policy objects that have a name and a `policy` field containing a JSON
 # string.

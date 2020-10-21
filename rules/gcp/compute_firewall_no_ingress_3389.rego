@@ -19,7 +19,19 @@ package rules.gcp_compute_firewall_no_ingress_3389
 
 import data.fugue.gcp.compute_firewall
 
-controls = {"CIS_GCP_3-7", "REGULA_R00012"}
+__rego__metadoc__ := {
+  "id": "FG_R00354",
+  "title": "VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)",
+  "description": "VPC firewall rules should not permit unrestricted access from the internet to port 3389 (RDP). Removing unfettered connectivity to remote console services, such as Remote Desktop Protocol, reduces a server's exposure to risk.",
+  "custom": {
+    "controls": {
+      "CIS-GCP": [
+        "CIS-GCP_1.0.0_3-7"
+      ]
+    }
+  }
+}
+
 resource_type = "google_compute_firewall"
 
 default deny = false

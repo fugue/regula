@@ -11,15 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# Storage Accounts 'Secure transfer required' should be enabled.
-# The secure transfer option enhances the security of a storage account
-# by only allowing requests to the storage account by a secure connection.
-# This control does not apply for custom domain names since Azure storage does not support HTTPS for custom domain names.
-
 package rules.storage_account_secure_transfer
 
-controls = {"CIS_Azure_1.1.0_3-1", "REGULA_R00015"}
+__rego__metadoc__ := {
+  "id": "FG_R00152",
+  "title": "Storage Accounts 'Secure transfer required' should be enabled",
+  "description": "Storage Accounts 'Secure transfer required' should be enabled. The secure transfer option enhances the security of a storage account by only allowing requests to the storage account by a secure connection. This control does not apply for custom domain names since Azure storage does not support HTTPS for custom domain names.",
+  "custom": {
+    "controls": {
+      "CISAZURE": [
+        "CISAZURE_3.1"
+      ]
+    },
+    "severity": "Medium"
+  }
+}
+
 resource_type = "azurerm_storage_account"
 
 default allow = false

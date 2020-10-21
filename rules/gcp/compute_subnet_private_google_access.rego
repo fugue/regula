@@ -17,7 +17,19 @@
 # access Google APIs and services by using Private Google Access.
 package rules.gcp_compute_subnet_private_google_access
 
-controls = {"CIS_GCP_3-8", "REGULA_R00013"}
+__rego__metadoc__ := {
+  "id": "REGULA_R00013",
+  "title": "VPC subnet 'Private Google Access' should be enabled",
+  "description": "Enabling \"Private Google Access\" for VPC subnets allows virtual machines to connect to the external IP addresses used by Google APIs and services.",
+  "custom": {
+    "controls": {
+      "CIS-GCP": [
+        "CIS-GCP_1.0.0_3-8"
+      ]
+    }
+  }
+}
+
 resource_type = "google_compute_subnetwork"
 
 default allow = false

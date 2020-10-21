@@ -13,8 +13,21 @@
 # limitations under the License.
 package rules.ebs_volume_encrypted
 
+__rego__metadoc__ := {
+  "id": "FG_R00016",
+  "title": "EBS volume encryption should be enabled",
+  "description": "EBS volume encryption should be enabled. Enabling encryption on EBS volumes protects data at rest inside the volume, data in transit between the volume and the instance, snapshots created from the volume, and volumes created from those snapshots. EBS volumes are encrypted using KMS keys.",
+  "custom": {
+    "controls": {
+      "NIST": [
+        "NIST-800-53_SC-13"
+      ]
+    },
+    "severity": "High"
+  }
+}
+
 resource_type = "aws_ebs_volume"
-controls = {"NIST-800-53_SC-13"}
 
 default allow = false
 

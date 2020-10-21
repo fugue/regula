@@ -11,13 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# Storage containers should have access set to 'private'.
-# Anonymous, public read access to a container and its blobs can be
-# enabled in Azure Blob storage. This is only recommended if absolutely necessary.
 package rules.storage_container_private_access
 
-controls = {"CIS_Azure_1.1.0_3-6", "REGULA_R00016"}
+__rego__metadoc__ := {
+  "id": "FG_R00207",
+  "title": "Blob Storage containers should have public access disabled",
+  "description": "Anonymous, public read access to a container and its blobs can be enabled in Azure Blob storage. It grants read-only access to these resources without sharing the account key, and without requiring a shared access signature. It is recommended not to provide anonymous access to blob containers until, and unless, it is strongly desired. A shared access signature token should be used for providing controlled and timed access to blob containers.",
+  "custom": {
+    "controls": {
+      "CISAZURE": [
+        "CISAZURE_3.6"
+      ]
+    }
+  }
+}
+
 resource_type = "azurerm_storage_container"
 
 default allow = false

@@ -14,8 +14,21 @@
 # limitations under the License.
 package rules.s3_bucket_sse
 
+__rego__metadoc__ := {
+  "id": "FG_R00099",
+  "title": "S3 bucket server side encryption should be enabled",
+  "description": "S3 bucket server side encryption should be enabled. Enabling server-side encryption (SSE) on S3 buckets at the object level protects data at rest and helps prevent the breach of sensitive information assets. Objects can be encrypted with S3-Managed Keys (SSE-S3), KMS-Managed Keys (SSE-KMS), or Customer-Provided Keys (SSE-C).",
+  "custom": {
+    "controls": {
+      "NIST": [
+        "NIST-800-53_SC-13"
+      ]
+    },
+    "severity": "High"
+  }
+}
+
 resource_type = "aws_s3_bucket"
-controls = {"NIST-800-53_SC-13"}
 
 # Explicitly allow AES256 or aws:kms server side SSE algorithms.
 valid_sse_algorithms = {

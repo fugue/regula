@@ -36,7 +36,7 @@ function generate_test_input {
   echo '# See the License for the specific language governing permissions and' >>"$2"
   echo '# limitations under the License.' >>"$2"
   echo '' >>"$2"
-  echo '# This package was automatically generated from:' >"$2"
+  echo '# This package was automatically generated from:' >>"$2"
   echo '#' >>"$2"
   echo "#     $1" >>"$2"
   echo '#' >>"$2"

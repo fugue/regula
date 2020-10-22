@@ -48,12 +48,24 @@ function generate_test_input {
   1>&2 echo "Generated $2"
 }
 
-for tf_file in tests/{rules,examples}/*/inputs/*.tf; do
+if [[ $# -eq 0 ]]; then
+  for tf_file in tests/{rules,examples}/*/inputs/*.tf; do
+    rego_file="$(dirname "$tf_file")/$(basename "$tf_file" .tf).rego"
+    if [[ ! -f "$rego_file" ]] || [[ "$tf_file" -nt "$rego_file" ]]; then
+      1>&2 echo "$tf_file -> $rego_file"
+      generate_test_input "$tf_file" "$rego_file"
+    else
+      1>&2 echo "$rego_file is up to date.  Remove it to force re-generating."
+    fi
+  done
+elif [[ "$1" == "-h" || $# -gt 1 ]]; then
+  1>&2 echo "Usage:"
+  1>&2 echo "  $0          # Regenerates all test outputs"
+  1>&2 echo "  $0 TF_FILE  # Regenerates a specific test output"
+  exit 1
+else
+  tf_file="$1"
   rego_file="$(dirname "$tf_file")/$(basename "$tf_file" .tf).rego"
-  if [[ ! -f "$rego_file" ]] || [[ "$tf_file" -nt "$rego_file" ]]; then
-    1>&2 echo "$tf_file -> $rego_file"
-    generate_test_input "$tf_file" "$rego_file"
-  else
-    1>&2 echo "$rego_file is up to date.  Remove it to force re-generating."
-  fi
-done
+  1>&2 echo "$tf_file -> $rego_file"
+  generate_test_input "$tf_file" "$rego_file"
+fi

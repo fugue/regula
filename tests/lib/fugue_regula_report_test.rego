@@ -20,7 +20,7 @@ import data.fugue.regula
 import data.tests.rules.aws.inputs.ebs_volume_encrypted_infra
 
 # We reuse the mock input from another test case.
-mock_input = ebs_volume_encrypted_infra.mock_input
+mock_plan_input = ebs_volume_encrypted_infra.mock_plan_input
 
 # We construct some mock rules as well.
 mock_rules = {
@@ -37,7 +37,7 @@ mock_rules = {
 
 # Produce a report.
 report = ret {
-  ret = regula.report with input as mock_input with data.rules as mock_rules
+  ret = regula.report with input as mock_plan_input with data.rules as mock_rules
 }
 
 # Test the report.

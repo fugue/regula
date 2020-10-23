@@ -19,6 +19,13 @@ package fugue.resource_view
 import data.util.merge
 import data.util.resolve
 
+# This constructs the input for the rules, with most importantly the
+# `resource_view` in `resources`.
+resource_view_input = {
+  "resources": resource_view,
+  "_plan": input
+}
+
 # In our final resource view available to the rules, we merge an optional
 # `configuration_resources` and `planned_values_resources` with a bias for
 # `planned_values_resources`.

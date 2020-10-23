@@ -135,10 +135,8 @@ evaluate_rule(rule) = ret {
   plan = input
 
   policies = [ policy |
-    policy = data["rules"][pkg]["policy"] with input as {
-      "resources": resource_view.resource_view,
-      "_plan": plan
-    }
+    policy = data["rules"][pkg]["policy"]
+        with input as resource_view.resource_view_input
   ]
 
   judgements = judgements_from_policies(policies)

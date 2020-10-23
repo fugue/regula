@@ -14,10 +14,10 @@
 package tests.rules.iam_user_attached_policy
 
 import data.fugue.regula
-import data.tests.rules.aws.inputs.iam_user_attached_policy_infra.mock_input
+import data.tests.rules.aws.inputs.iam_user_attached_policy_infra.mock_plan_input
 
 test_user_attached_policy {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.iam_user_attached_policy.resources
 
   resources["aws_iam_policy_attachment.invalid_normal_policy_attachment"].valid == false

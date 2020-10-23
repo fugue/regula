@@ -14,10 +14,10 @@
 package tests.rules.gcp_compute_subnet_private_google_access
 
 import data.fugue.regula
-import data.tests.rules.gcp.inputs.compute_subnet_private_google_access_infra.mock_input
+import data.tests.rules.gcp.inputs.compute_subnet_private_google_access_infra.mock_plan_input
 
 test_gcp_compute_subnet_private_google_access {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.gcp_compute_subnet_private_google_access.resources
 
   resources["google_compute_subnetwork.valid-subnet-1"].valid == true

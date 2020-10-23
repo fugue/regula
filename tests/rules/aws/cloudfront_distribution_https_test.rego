@@ -14,10 +14,10 @@
 package tests.rules.cloudfront_distribution_https
 
 import data.fugue.regula
-import data.tests.rules.aws.inputs.cloudfront_distribution_https_infra.mock_input
+import data.tests.rules.aws.inputs.cloudfront_distribution_https_infra.mock_plan_input
 
 test_cloudfront_distribution_https {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.cloudfront_distribution_https.resources
 
   resources["aws_cloudfront_distribution.allow_all"].valid == false

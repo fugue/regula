@@ -14,10 +14,10 @@
 package tests.rules.security_group_ingress_anywhere
 
 import data.fugue.regula
-import data.tests.rules.aws.inputs.security_group_ingress_anywhere_infra.mock_input
+import data.tests.rules.aws.inputs.security_group_ingress_anywhere_infra.mock_plan_input
 
 test_no_ingress_except_80_443 {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.security_group_ingress_anywhere.resources
 
   resources["aws_security_group.invalid_allow_all"].valid == false

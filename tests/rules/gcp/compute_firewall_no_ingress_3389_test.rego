@@ -14,10 +14,10 @@
 package tests.rules.gcp_compute_firewall_no_ingress_3389
 
 import data.fugue.regula
-import data.tests.rules.gcp.inputs.compute_firewall_no_ingress_3389_infra.mock_input
+import data.tests.rules.gcp.inputs.compute_firewall_no_ingress_3389_infra.mock_plan_input
 
 test_gcp_compute_firewall_no_ingress_3389 {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.gcp_compute_firewall_no_ingress_3389.resources
 
   resources["google_compute_firewall.valid-rule-1"].valid == true

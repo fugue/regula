@@ -14,10 +14,10 @@
 package tests.rules.sql_server_firewall_no_inbound_all
 
 import data.fugue.regula
-import data.tests.rules.azure.inputs.sql_server_firewall_no_inbound_all_infra.mock_input
+import data.tests.rules.azure.inputs.sql_server_firewall_no_inbound_all_infra.mock_plan_input
 
 test_sql_server_firewall_no_inbound_all {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.sql_server_firewall_no_inbound_all.resources
 
   resources["azurerm_sql_firewall_rule.validrule1"].valid == true

@@ -14,10 +14,10 @@
 package tests.rules.iam_password_length
 
 import data.fugue.regula
-import data.tests.examples.aws.inputs.iam_password_length_infra.mock_input
+import data.tests.examples.aws.inputs.iam_password_length_infra.mock_plan_input
 
 test_iam_password_length {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.iam_password_length.resources
   resources["aws_iam_account_password_policy.valid"].valid == true
   resources["aws_iam_account_password_policy.invalid_1"].valid == false

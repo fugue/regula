@@ -14,10 +14,10 @@
 package tests.rules.tag_all_resources
 
 import data.fugue.regula
-import data.tests.examples.aws.inputs.tag_all_resources_infra.mock_input
+import data.tests.examples.aws.inputs.tag_all_resources_infra.mock_plan_input
 
 test_tag_all_resources {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.tag_all_resources.resources
 
   resources["aws_vpc.invalid"].valid == false

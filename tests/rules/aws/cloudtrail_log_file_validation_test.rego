@@ -14,10 +14,10 @@
 package tests.rules.cloudtrail_log_file_validation
 
 import data.fugue.regula
-import data.tests.rules.aws.inputs.cloudtrail_log_file_validation_infra.mock_input
+import data.tests.rules.aws.inputs.cloudtrail_log_file_validation_infra.mock_plan_input
 
 test_cloudtrail_log_file_validation {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.cloudtrail_log_file_validation.resources
 
   resources["aws_cloudtrail.invalid_trail"].valid == false

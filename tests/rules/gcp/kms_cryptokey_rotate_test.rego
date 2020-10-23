@@ -14,10 +14,10 @@
 package tests.rules.gcp_kms_cryptokey_rotate
 
 import data.fugue.regula
-import data.tests.rules.gcp.inputs.kms_cryptokey_rotate_infra.mock_input
+import data.tests.rules.gcp.inputs.kms_cryptokey_rotate_infra.mock_plan_input
 
 test_gcp_kms_cryptokey_rotate {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.gcp_kms_cryptokey_rotate.resources
 
   resources["google_kms_crypto_key.valid_key_1"].valid == true

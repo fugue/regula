@@ -14,10 +14,10 @@
 package tests.rules.iam_admin_policy
 
 import data.fugue.regula
-import data.tests.rules.aws.inputs.iam_admin_policy_infra.mock_input
+import data.tests.rules.aws.inputs.iam_admin_policy_infra.mock_plan_input
 
 test_admin_policy {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.iam_admin_policy.resources
   resources["aws_iam_group_policy.invalid_group_policy"].valid == false
   resources["aws_iam_group_policy.valid_group_policy"].valid == true

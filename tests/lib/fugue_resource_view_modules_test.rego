@@ -24,10 +24,10 @@ test_mock_resource_view {
 }
 
 mock_resource_view = ret {
-  ret = resource_view.resource_view with input as mock_input
+  ret = resource_view.resource_view with input as mock_plan_input
 }
 
-mock_input = {
+mock_plan_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",
   "variables": {

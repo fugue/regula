@@ -14,10 +14,10 @@
 package tests.rules.security_group_ingress_anywhere_ssh
 
 import data.fugue.regula
-import data.tests.rules.aws.inputs.security_group_ingress_anywhere_ssh_infra.mock_input
+import data.tests.rules.aws.inputs.security_group_ingress_anywhere_ssh_infra.mock_plan_input
 
 test_security_group_ingress_anywhere_ssh {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.security_group_ingress_anywhere_ssh.resources
 
   resources["aws_security_group.valid_sg_1"].valid == true

@@ -14,10 +14,10 @@
 package tests.rules.network_security_rule_no_inbound_3389
 
 import data.fugue.regula
-import data.tests.rules.azure.inputs.network_security_rule_no_inbound_3389_infra.mock_input
+import data.tests.rules.azure.inputs.network_security_rule_no_inbound_3389_infra.mock_plan_input
 
 test_network_security_rule_no_inbound_3389 {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.network_security_rule_no_inbound_3389.resources
 
   resources["azurerm_network_security_rule.validrule1"].valid == true

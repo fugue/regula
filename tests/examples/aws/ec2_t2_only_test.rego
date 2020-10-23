@@ -14,10 +14,10 @@
 package tests.rules.ec2_t2_only
 
 import data.fugue.regula
-import data.tests.examples.aws.inputs.ec2_t2_only_infra.mock_input
+import data.tests.examples.aws.inputs.ec2_t2_only_infra.mock_plan_input
 
 test_t2_only {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.ec2_t2_only.resources
   resources["aws_instance.invalid"].valid == false
   resources["aws_instance.valid_micro"].valid == true

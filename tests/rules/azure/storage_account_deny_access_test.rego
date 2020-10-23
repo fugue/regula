@@ -14,10 +14,10 @@
 package tests.rules.storage_account_deny_access
 
 import data.fugue.regula
-import data.tests.rules.azure.inputs.storage_account_deny_access_infra.mock_input
+import data.tests.rules.azure.inputs.storage_account_deny_access_infra.mock_plan_input
 
 test_storage_account_deny_access {
-  report := regula.report with input as mock_input
+  report := regula.report with input as mock_plan_input
   resources := report.rules.storage_account_deny_access.resources
 
   resources["azurerm_storage_account.validstorageaccount1"].valid == true

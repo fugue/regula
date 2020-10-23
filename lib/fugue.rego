@@ -68,3 +68,10 @@ missing_resource_with_message(resource_type, message) = ret {
     "type": resource_type
   }
 }
+
+# Provided for backward-compatibility with older Fugue rules only.
+report_v0(message, policy) = ret {
+  ok := all([p.valid | policy[p]])
+  msg := {true: "", false: message}
+  ret := {"valid": ok, "message": msg[ok], "resources": policy}
+}

@@ -18,7 +18,7 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.security_group_ingress_anywhere_rdp
+package tests.rules.aws.inputs.security_group_ingress_anywhere_rdp_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

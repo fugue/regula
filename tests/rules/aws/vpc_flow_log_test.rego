@@ -14,6 +14,7 @@
 package tests.rules.vpc_flow_log
 
 import data.fugue.regula
+import data.tests.rules.aws.inputs.vpc_flow_log_infra.mock_input
 
 test_vpc_flow_log {
   report := regula.report with input as mock_input

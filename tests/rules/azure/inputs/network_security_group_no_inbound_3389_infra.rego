@@ -18,7 +18,7 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.network_security_group_no_inbound_3389
+package tests.rules.azure.inputs.network_security_group_no_inbound_3389_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",
@@ -81,7 +81,8 @@ mock_input = {
             ],
             "tags": {
               "environment": "Production"
-            }
+            },
+            "timeouts": null
           }
         },
         {
@@ -117,7 +118,8 @@ mock_input = {
             ],
             "tags": {
               "environment": "Production"
-            }
+            },
+            "timeouts": null
           }
         },
         {
@@ -176,7 +178,8 @@ mock_input = {
             ],
             "tags": {
               "environment": "Production"
-            }
+            },
+            "timeouts": null
           }
         },
         {
@@ -188,7 +191,9 @@ mock_input = {
           "schema_version": 0,
           "values": {
             "location": "westus",
-            "name": "acceptanceTestResourceGroup1"
+            "name": "acceptanceTestResourceGroup1",
+            "tags": null,
+            "timeouts": null
           }
         }
       ]
@@ -255,7 +260,8 @@ mock_input = {
           ],
           "tags": {
             "environment": "Production"
-          }
+          },
+          "timeouts": null
         },
         "after_unknown": {
           "id": true,
@@ -323,7 +329,8 @@ mock_input = {
           ],
           "tags": {
             "environment": "Production"
-          }
+          },
+          "timeouts": null
         },
         "after_unknown": {
           "id": true,
@@ -401,7 +408,8 @@ mock_input = {
           ],
           "tags": {
             "environment": "Production"
-          }
+          },
+          "timeouts": null
         },
         "after_unknown": {
           "id": true,
@@ -445,16 +453,27 @@ mock_input = {
         "before": null,
         "after": {
           "location": "westus",
-          "name": "acceptanceTestResourceGroup1"
+          "name": "acceptanceTestResourceGroup1",
+          "tags": null,
+          "timeouts": null
         },
         "after_unknown": {
-          "id": true,
-          "tags": true
+          "id": true
         }
       }
     }
   ],
   "configuration": {
+    "provider_config": {
+      "azurerm": {
+        "name": "azurerm",
+        "expressions": {
+          "features": [
+            {}
+          ]
+        }
+      }
+    },
     "root_module": {
       "resources": [
         {

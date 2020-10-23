@@ -14,6 +14,7 @@
 package tests.rules.security_group_ingress_anywhere
 
 import data.fugue.regula
+import data.tests.rules.aws.inputs.security_group_ingress_anywhere_infra.mock_input
 
 test_no_ingress_except_80_443 {
   report := regula.report with input as mock_input

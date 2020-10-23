@@ -18,10 +18,10 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.sql_server_firewall_no_inbound_all
+package tests.rules.azure.inputs.sql_server_firewall_no_inbound_all_infra
 mock_input = {
   "format_version": "0.1",
-  "terraform_version": "0.12.20",
+  "terraform_version": "0.12.18",
   "planned_values": {
     "root_module": {
       "resources": [
@@ -34,7 +34,9 @@ mock_input = {
           "schema_version": 0,
           "values": {
             "location": "westus",
-            "name": "acceptanceTestResourceGroup1"
+            "name": "acceptanceTestResourceGroup1",
+            "tags": null,
+            "timeouts": null
           }
         },
         {
@@ -49,7 +51,8 @@ mock_input = {
             "name": "invalidrule1",
             "resource_group_name": "acceptanceTestResourceGroup1",
             "server_name": "mysqlserver",
-            "start_ip_address": "0.0.0.0"
+            "start_ip_address": "0.0.0.0",
+            "timeouts": null
           }
         },
         {
@@ -64,7 +67,8 @@ mock_input = {
             "name": "invalidrule2",
             "resource_group_name": "acceptanceTestResourceGroup1",
             "server_name": "mysqlserver",
-            "start_ip_address": "0.0.0.0"
+            "start_ip_address": "0.0.0.0",
+            "timeouts": null
           }
         },
         {
@@ -79,7 +83,8 @@ mock_input = {
             "name": "invalidrule3",
             "resource_group_name": "acceptanceTestResourceGroup1",
             "server_name": "mysqlserver",
-            "start_ip_address": "0.0.0.0"
+            "start_ip_address": "0.0.0.0",
+            "timeouts": null
           }
         },
         {
@@ -94,7 +99,8 @@ mock_input = {
             "name": "invalidrule4",
             "resource_group_name": "acceptanceTestResourceGroup1",
             "server_name": "mysqlserver",
-            "start_ip_address": "10.0.17.62"
+            "start_ip_address": "10.0.17.62",
+            "timeouts": null
           }
         },
         {
@@ -109,7 +115,8 @@ mock_input = {
             "name": "validrule1",
             "resource_group_name": "acceptanceTestResourceGroup1",
             "server_name": "mysqlserver",
-            "start_ip_address": "10.0.17.62"
+            "start_ip_address": "10.0.17.62",
+            "timeouts": null
           }
         },
         {
@@ -122,10 +129,13 @@ mock_input = {
           "values": {
             "administrator_login": "4dm1n157r470r",
             "administrator_login_password": "4-v3ry-53cr37-p455w0rd",
+            "connection_policy": "Default",
             "identity": [],
             "location": "westus",
             "name": "mysqlserver",
             "resource_group_name": "acceptanceTestResourceGroup1",
+            "tags": null,
+            "timeouts": null,
             "version": "12.0"
           }
         }
@@ -146,11 +156,12 @@ mock_input = {
         "before": null,
         "after": {
           "location": "westus",
-          "name": "acceptanceTestResourceGroup1"
+          "name": "acceptanceTestResourceGroup1",
+          "tags": null,
+          "timeouts": null
         },
         "after_unknown": {
-          "id": true,
-          "tags": true
+          "id": true
         }
       }
     },
@@ -170,7 +181,8 @@ mock_input = {
           "name": "invalidrule1",
           "resource_group_name": "acceptanceTestResourceGroup1",
           "server_name": "mysqlserver",
-          "start_ip_address": "0.0.0.0"
+          "start_ip_address": "0.0.0.0",
+          "timeouts": null
         },
         "after_unknown": {
           "id": true
@@ -193,7 +205,8 @@ mock_input = {
           "name": "invalidrule2",
           "resource_group_name": "acceptanceTestResourceGroup1",
           "server_name": "mysqlserver",
-          "start_ip_address": "0.0.0.0"
+          "start_ip_address": "0.0.0.0",
+          "timeouts": null
         },
         "after_unknown": {
           "id": true
@@ -216,7 +229,8 @@ mock_input = {
           "name": "invalidrule3",
           "resource_group_name": "acceptanceTestResourceGroup1",
           "server_name": "mysqlserver",
-          "start_ip_address": "0.0.0.0"
+          "start_ip_address": "0.0.0.0",
+          "timeouts": null
         },
         "after_unknown": {
           "id": true
@@ -239,7 +253,8 @@ mock_input = {
           "name": "invalidrule4",
           "resource_group_name": "acceptanceTestResourceGroup1",
           "server_name": "mysqlserver",
-          "start_ip_address": "10.0.17.62"
+          "start_ip_address": "10.0.17.62",
+          "timeouts": null
         },
         "after_unknown": {
           "id": true
@@ -262,7 +277,8 @@ mock_input = {
           "name": "validrule1",
           "resource_group_name": "acceptanceTestResourceGroup1",
           "server_name": "mysqlserver",
-          "start_ip_address": "10.0.17.62"
+          "start_ip_address": "10.0.17.62",
+          "timeouts": null
         },
         "after_unknown": {
           "id": true
@@ -283,22 +299,35 @@ mock_input = {
         "after": {
           "administrator_login": "4dm1n157r470r",
           "administrator_login_password": "4-v3ry-53cr37-p455w0rd",
+          "connection_policy": "Default",
           "identity": [],
           "location": "westus",
           "name": "mysqlserver",
           "resource_group_name": "acceptanceTestResourceGroup1",
+          "tags": null,
+          "timeouts": null,
           "version": "12.0"
         },
         "after_unknown": {
+          "extended_auditing_policy": true,
           "fully_qualified_domain_name": true,
           "id": true,
-          "identity": [],
-          "tags": true
+          "identity": []
         }
       }
     }
   ],
   "configuration": {
+    "provider_config": {
+      "azurerm": {
+        "name": "azurerm",
+        "expressions": {
+          "features": [
+            {}
+          ]
+        }
+      }
+    },
     "root_module": {
       "resources": [
         {

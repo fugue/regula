@@ -14,6 +14,7 @@
 package tests.rules.gcp_compute_firewall_no_ingress_3389
 
 import data.fugue.regula
+import data.tests.rules.gcp.inputs.compute_firewall_no_ingress_3389_infra.mock_input
 
 test_gcp_compute_firewall_no_ingress_3389 {
   report := regula.report with input as mock_input

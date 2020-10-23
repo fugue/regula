@@ -14,6 +14,7 @@
 package tests.rules.ebs_volume_encrypted
 
 import data.fugue.regula
+import data.tests.rules.aws.inputs.ebs_volume_encrypted_infra.mock_input
 
 test_ebs_volume_encrypted {
   report := regula.report with input as mock_input

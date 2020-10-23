@@ -14,6 +14,7 @@
 package tests.rules.tag_all_resources
 
 import data.fugue.regula
+import data.tests.examples.aws.inputs.tag_all_resources_infra.mock_input
 
 test_tag_all_resources {
   report := regula.report with input as mock_input

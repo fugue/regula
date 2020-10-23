@@ -14,6 +14,7 @@
 package tests.rules.iam_user_attached_policy
 
 import data.fugue.regula
+import data.tests.rules.aws.inputs.iam_user_attached_policy_infra.mock_input
 
 test_user_attached_policy {
   report := regula.report with input as mock_input

@@ -18,10 +18,10 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.storage_account_deny_access
+package tests.rules.azure.inputs.storage_account_deny_access_infra
 mock_input = {
   "format_version": "0.1",
-  "terraform_version": "0.12.20",
+  "terraform_version": "0.12.18",
   "planned_values": {
     "root_module": {
       "resources": [
@@ -34,7 +34,9 @@ mock_input = {
           "schema_version": 0,
           "values": {
             "location": "westeurope",
-            "name": "example-resources"
+            "name": "example-resources",
+            "tags": null,
+            "timeouts": null
           }
         },
         {
@@ -45,23 +47,25 @@ mock_input = {
           "provider_name": "azurerm",
           "schema_version": 2,
           "values": {
-            "account_encryption_source": "Microsoft.Storage",
-            "account_kind": "Storage",
+            "account_kind": "StorageV2",
             "account_replication_type": "LRS",
             "account_tier": "Standard",
+            "allow_blob_public_access": false,
             "custom_domain": [],
-            "enable_blob_encryption": true,
-            "enable_file_encryption": true,
-            "enable_https_traffic_only": null,
+            "enable_https_traffic_only": true,
             "is_hns_enabled": false,
             "location": "westeurope",
+            "min_tls_version": "TLS1_0",
             "name": "invalidstorageaccount1",
             "network_rules": [
               {
                 "default_action": "Allow"
               }
             ],
-            "resource_group_name": "example-resources"
+            "resource_group_name": "example-resources",
+            "static_website": [],
+            "tags": null,
+            "timeouts": null
           }
         },
         {
@@ -72,18 +76,20 @@ mock_input = {
           "provider_name": "azurerm",
           "schema_version": 2,
           "values": {
-            "account_encryption_source": "Microsoft.Storage",
-            "account_kind": "Storage",
+            "account_kind": "StorageV2",
             "account_replication_type": "LRS",
             "account_tier": "Standard",
+            "allow_blob_public_access": false,
             "custom_domain": [],
-            "enable_blob_encryption": true,
-            "enable_file_encryption": true,
-            "enable_https_traffic_only": null,
+            "enable_https_traffic_only": true,
             "is_hns_enabled": false,
             "location": "westeurope",
+            "min_tls_version": "TLS1_0",
             "name": "invalidstorageaccount2",
-            "resource_group_name": "example-resources"
+            "resource_group_name": "example-resources",
+            "static_website": [],
+            "tags": null,
+            "timeouts": null
           }
         },
         {
@@ -94,16 +100,15 @@ mock_input = {
           "provider_name": "azurerm",
           "schema_version": 2,
           "values": {
-            "account_encryption_source": "Microsoft.Storage",
-            "account_kind": "Storage",
+            "account_kind": "StorageV2",
             "account_replication_type": "LRS",
             "account_tier": "Standard",
+            "allow_blob_public_access": false,
             "custom_domain": [],
-            "enable_blob_encryption": true,
-            "enable_file_encryption": true,
-            "enable_https_traffic_only": null,
+            "enable_https_traffic_only": true,
             "is_hns_enabled": false,
             "location": "westeurope",
+            "min_tls_version": "TLS1_0",
             "name": "validstorageaccount1",
             "network_rules": [
               {
@@ -113,7 +118,10 @@ mock_input = {
                 ]
               }
             ],
-            "resource_group_name": "example-resources"
+            "resource_group_name": "example-resources",
+            "static_website": [],
+            "tags": null,
+            "timeouts": null
           }
         },
         {
@@ -124,23 +132,25 @@ mock_input = {
           "provider_name": "azurerm",
           "schema_version": 2,
           "values": {
-            "account_encryption_source": "Microsoft.Storage",
-            "account_kind": "Storage",
+            "account_kind": "StorageV2",
             "account_replication_type": "LRS",
             "account_tier": "Standard",
+            "allow_blob_public_access": false,
             "custom_domain": [],
-            "enable_blob_encryption": true,
-            "enable_file_encryption": true,
-            "enable_https_traffic_only": null,
+            "enable_https_traffic_only": true,
             "is_hns_enabled": false,
             "location": "westeurope",
+            "min_tls_version": "TLS1_0",
             "name": "validstorageaccount2",
             "network_rules": [
               {
                 "default_action": "Deny"
               }
             ],
-            "resource_group_name": "example-resources"
+            "resource_group_name": "example-resources",
+            "static_website": [],
+            "tags": null,
+            "timeouts": null
           }
         },
         {
@@ -156,13 +166,12 @@ mock_input = {
             "enforce_private_link_endpoint_network_policies": false,
             "enforce_private_link_service_network_policies": false,
             "name": "subnetname",
-            "network_security_group_id": null,
             "resource_group_name": "example-resources",
-            "route_table_id": null,
             "service_endpoints": [
               "Microsoft.Sql",
               "Microsoft.Storage"
             ],
+            "timeouts": null,
             "virtual_network_name": "virtnetname"
           }
         },
@@ -181,7 +190,9 @@ mock_input = {
             "dns_servers": null,
             "location": "westeurope",
             "name": "virtnetname",
-            "resource_group_name": "example-resources"
+            "resource_group_name": "example-resources",
+            "tags": null,
+            "timeouts": null
           }
         }
       ]
@@ -201,11 +212,12 @@ mock_input = {
         "before": null,
         "after": {
           "location": "westeurope",
-          "name": "example-resources"
+          "name": "example-resources",
+          "tags": null,
+          "timeouts": null
         },
         "after_unknown": {
-          "id": true,
-          "tags": true
+          "id": true
         }
       }
     },
@@ -221,32 +233,33 @@ mock_input = {
         ],
         "before": null,
         "after": {
-          "account_encryption_source": "Microsoft.Storage",
-          "account_kind": "Storage",
+          "account_kind": "StorageV2",
           "account_replication_type": "LRS",
           "account_tier": "Standard",
+          "allow_blob_public_access": false,
           "custom_domain": [],
-          "enable_blob_encryption": true,
-          "enable_file_encryption": true,
-          "enable_https_traffic_only": null,
+          "enable_https_traffic_only": true,
           "is_hns_enabled": false,
           "location": "westeurope",
+          "min_tls_version": "TLS1_0",
           "name": "invalidstorageaccount1",
           "network_rules": [
             {
               "default_action": "Allow"
             }
           ],
-          "resource_group_name": "example-resources"
+          "resource_group_name": "example-resources",
+          "static_website": [],
+          "tags": null,
+          "timeouts": null
         },
         "after_unknown": {
           "access_tier": true,
-          "account_type": true,
           "blob_properties": true,
           "custom_domain": [],
-          "enable_advanced_threat_protection": true,
           "id": true,
           "identity": true,
+          "large_file_share_enabled": true,
           "network_rules": [
             {
               "bypass": true,
@@ -287,7 +300,7 @@ mock_input = {
           "secondary_table_host": true,
           "secondary_web_endpoint": true,
           "secondary_web_host": true,
-          "tags": true
+          "static_website": []
         }
       }
     },
@@ -303,27 +316,28 @@ mock_input = {
         ],
         "before": null,
         "after": {
-          "account_encryption_source": "Microsoft.Storage",
-          "account_kind": "Storage",
+          "account_kind": "StorageV2",
           "account_replication_type": "LRS",
           "account_tier": "Standard",
+          "allow_blob_public_access": false,
           "custom_domain": [],
-          "enable_blob_encryption": true,
-          "enable_file_encryption": true,
-          "enable_https_traffic_only": null,
+          "enable_https_traffic_only": true,
           "is_hns_enabled": false,
           "location": "westeurope",
+          "min_tls_version": "TLS1_0",
           "name": "invalidstorageaccount2",
-          "resource_group_name": "example-resources"
+          "resource_group_name": "example-resources",
+          "static_website": [],
+          "tags": null,
+          "timeouts": null
         },
         "after_unknown": {
           "access_tier": true,
-          "account_type": true,
           "blob_properties": true,
           "custom_domain": [],
-          "enable_advanced_threat_protection": true,
           "id": true,
           "identity": true,
+          "large_file_share_enabled": true,
           "network_rules": true,
           "primary_access_key": true,
           "primary_blob_connection_string": true,
@@ -358,7 +372,7 @@ mock_input = {
           "secondary_table_host": true,
           "secondary_web_endpoint": true,
           "secondary_web_host": true,
-          "tags": true
+          "static_website": []
         }
       }
     },
@@ -374,16 +388,15 @@ mock_input = {
         ],
         "before": null,
         "after": {
-          "account_encryption_source": "Microsoft.Storage",
-          "account_kind": "Storage",
+          "account_kind": "StorageV2",
           "account_replication_type": "LRS",
           "account_tier": "Standard",
+          "allow_blob_public_access": false,
           "custom_domain": [],
-          "enable_blob_encryption": true,
-          "enable_file_encryption": true,
-          "enable_https_traffic_only": null,
+          "enable_https_traffic_only": true,
           "is_hns_enabled": false,
           "location": "westeurope",
+          "min_tls_version": "TLS1_0",
           "name": "validstorageaccount1",
           "network_rules": [
             {
@@ -393,16 +406,18 @@ mock_input = {
               ]
             }
           ],
-          "resource_group_name": "example-resources"
+          "resource_group_name": "example-resources",
+          "static_website": [],
+          "tags": null,
+          "timeouts": null
         },
         "after_unknown": {
           "access_tier": true,
-          "account_type": true,
           "blob_properties": true,
           "custom_domain": [],
-          "enable_advanced_threat_protection": true,
           "id": true,
           "identity": true,
+          "large_file_share_enabled": true,
           "network_rules": [
             {
               "bypass": true,
@@ -445,7 +460,7 @@ mock_input = {
           "secondary_table_host": true,
           "secondary_web_endpoint": true,
           "secondary_web_host": true,
-          "tags": true
+          "static_website": []
         }
       }
     },
@@ -461,32 +476,33 @@ mock_input = {
         ],
         "before": null,
         "after": {
-          "account_encryption_source": "Microsoft.Storage",
-          "account_kind": "Storage",
+          "account_kind": "StorageV2",
           "account_replication_type": "LRS",
           "account_tier": "Standard",
+          "allow_blob_public_access": false,
           "custom_domain": [],
-          "enable_blob_encryption": true,
-          "enable_file_encryption": true,
-          "enable_https_traffic_only": null,
+          "enable_https_traffic_only": true,
           "is_hns_enabled": false,
           "location": "westeurope",
+          "min_tls_version": "TLS1_0",
           "name": "validstorageaccount2",
           "network_rules": [
             {
               "default_action": "Deny"
             }
           ],
-          "resource_group_name": "example-resources"
+          "resource_group_name": "example-resources",
+          "static_website": [],
+          "tags": null,
+          "timeouts": null
         },
         "after_unknown": {
           "access_tier": true,
-          "account_type": true,
           "blob_properties": true,
           "custom_domain": [],
-          "enable_advanced_threat_protection": true,
           "id": true,
           "identity": true,
+          "large_file_share_enabled": true,
           "network_rules": [
             {
               "bypass": true,
@@ -527,7 +543,7 @@ mock_input = {
           "secondary_table_host": true,
           "secondary_web_endpoint": true,
           "secondary_web_host": true,
-          "tags": true
+          "static_website": []
         }
       }
     },
@@ -548,19 +564,18 @@ mock_input = {
           "enforce_private_link_endpoint_network_policies": false,
           "enforce_private_link_service_network_policies": false,
           "name": "subnetname",
-          "network_security_group_id": null,
           "resource_group_name": "example-resources",
-          "route_table_id": null,
           "service_endpoints": [
             "Microsoft.Sql",
             "Microsoft.Storage"
           ],
+          "timeouts": null,
           "virtual_network_name": "virtnetname"
         },
         "after_unknown": {
+          "address_prefixes": true,
           "delegation": [],
           "id": true,
-          "ip_configurations": true,
           "service_endpoints": [
             false,
             false
@@ -587,21 +602,33 @@ mock_input = {
           "dns_servers": null,
           "location": "westeurope",
           "name": "virtnetname",
-          "resource_group_name": "example-resources"
+          "resource_group_name": "example-resources",
+          "tags": null,
+          "timeouts": null
         },
         "after_unknown": {
           "address_space": [
             false
           ],
           "ddos_protection_plan": [],
+          "guid": true,
           "id": true,
-          "subnet": true,
-          "tags": true
+          "subnet": true
         }
       }
     }
   ],
   "configuration": {
+    "provider_config": {
+      "azurerm": {
+        "name": "azurerm",
+        "expressions": {
+          "features": [
+            {}
+          ]
+        }
+      }
+    },
     "root_module": {
       "resources": [
         {

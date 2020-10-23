@@ -18,7 +18,7 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.kms_rotate
+package tests.rules.aws.inputs.kms_rotate_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",
@@ -33,10 +33,12 @@ mock_input = {
           "provider_name": "aws",
           "schema_version": 0,
           "values": {
+            "customer_master_key_spec": "SYMMETRIC_DEFAULT",
             "deletion_window_in_days": null,
             "description": "KMS key 3",
             "enable_key_rotation": false,
             "is_enabled": true,
+            "key_usage": "ENCRYPT_DECRYPT",
             "tags": null
           }
         },
@@ -48,10 +50,12 @@ mock_input = {
           "provider_name": "aws",
           "schema_version": 0,
           "values": {
+            "customer_master_key_spec": "SYMMETRIC_DEFAULT",
             "deletion_window_in_days": null,
             "description": "KMS key 2",
             "enable_key_rotation": false,
             "is_enabled": true,
+            "key_usage": "ENCRYPT_DECRYPT",
             "tags": null
           }
         },
@@ -63,10 +67,12 @@ mock_input = {
           "provider_name": "aws",
           "schema_version": 0,
           "values": {
+            "customer_master_key_spec": "SYMMETRIC_DEFAULT",
             "deletion_window_in_days": null,
             "description": "KMS key 1",
             "enable_key_rotation": true,
             "is_enabled": true,
+            "key_usage": "ENCRYPT_DECRYPT",
             "tags": null
           }
         }
@@ -86,17 +92,18 @@ mock_input = {
         ],
         "before": null,
         "after": {
+          "customer_master_key_spec": "SYMMETRIC_DEFAULT",
           "deletion_window_in_days": null,
           "description": "KMS key 3",
           "enable_key_rotation": false,
           "is_enabled": true,
+          "key_usage": "ENCRYPT_DECRYPT",
           "tags": null
         },
         "after_unknown": {
           "arn": true,
           "id": true,
           "key_id": true,
-          "key_usage": true,
           "policy": true
         }
       }
@@ -113,17 +120,18 @@ mock_input = {
         ],
         "before": null,
         "after": {
+          "customer_master_key_spec": "SYMMETRIC_DEFAULT",
           "deletion_window_in_days": null,
           "description": "KMS key 2",
           "enable_key_rotation": false,
           "is_enabled": true,
+          "key_usage": "ENCRYPT_DECRYPT",
           "tags": null
         },
         "after_unknown": {
           "arn": true,
           "id": true,
           "key_id": true,
-          "key_usage": true,
           "policy": true
         }
       }
@@ -140,17 +148,18 @@ mock_input = {
         ],
         "before": null,
         "after": {
+          "customer_master_key_spec": "SYMMETRIC_DEFAULT",
           "deletion_window_in_days": null,
           "description": "KMS key 1",
           "enable_key_rotation": true,
           "is_enabled": true,
+          "key_usage": "ENCRYPT_DECRYPT",
           "tags": null
         },
         "after_unknown": {
           "arn": true,
           "id": true,
           "key_id": true,
-          "key_usage": true,
           "policy": true
         }
       }

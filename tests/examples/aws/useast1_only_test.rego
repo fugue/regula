@@ -14,6 +14,7 @@
 package tests.rules.useast1_only
 
 import data.fugue.regula
+import data.tests.examples.aws.inputs.useast1_only_infra.mock_input
 
 test_useast1_only {
   report := regula.report with input as mock_input

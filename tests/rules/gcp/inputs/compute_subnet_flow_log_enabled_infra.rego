@@ -14,14 +14,14 @@
 
 # This package was automatically generated from:
 #
-#     tests/rules/gcp/inputs/gcp_compute_subnet_flow_log_enabled_infra.tf
+#     tests/rules/gcp/inputs/compute_subnet_flow_log_enabled_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.gcp_compute_subnet_flow_log_enabled
+package tests.rules.gcp.inputs.compute_subnet_flow_log_enabled_infra
 mock_input = {
   "format_version": "0.1",
-  "terraform_version": "0.12.20",
+  "terraform_version": "0.12.18",
   "planned_values": {
     "root_module": {
       "resources": [
@@ -70,8 +70,10 @@ mock_input = {
             "log_config": [
               {
                 "aggregation_interval": "INTERVAL_10_MIN",
+                "filter_expr": "true",
                 "flow_sampling": 0.5,
-                "metadata": "INCLUDE_ALL_METADATA"
+                "metadata": "INCLUDE_ALL_METADATA",
+                "metadata_fields": null
               }
             ],
             "name": "valid-subnet-1",
@@ -93,8 +95,10 @@ mock_input = {
             "log_config": [
               {
                 "aggregation_interval": "INTERVAL_10_MIN",
+                "filter_expr": "true",
                 "flow_sampling": 0.5,
-                "metadata": "INCLUDE_ALL_METADATA"
+                "metadata": "INCLUDE_ALL_METADATA",
+                "metadata_fields": null
               }
             ],
             "name": "valid-subnet-2",
@@ -128,7 +132,6 @@ mock_input = {
         "after_unknown": {
           "gateway_ipv4": true,
           "id": true,
-          "ipv4_range": true,
           "project": true,
           "routing_mode": true,
           "self_link": true
@@ -157,7 +160,6 @@ mock_input = {
         },
         "after_unknown": {
           "creation_timestamp": true,
-          "enable_flow_logs": true,
           "fingerprint": true,
           "gateway_address": true,
           "id": true,
@@ -186,8 +188,10 @@ mock_input = {
           "log_config": [
             {
               "aggregation_interval": "INTERVAL_10_MIN",
+              "filter_expr": "true",
               "flow_sampling": 0.5,
-              "metadata": "INCLUDE_ALL_METADATA"
+              "metadata": "INCLUDE_ALL_METADATA",
+              "metadata_fields": null
             }
           ],
           "name": "valid-subnet-1",
@@ -197,7 +201,6 @@ mock_input = {
         },
         "after_unknown": {
           "creation_timestamp": true,
-          "enable_flow_logs": true,
           "fingerprint": true,
           "gateway_address": true,
           "id": true,
@@ -228,8 +231,10 @@ mock_input = {
           "log_config": [
             {
               "aggregation_interval": "INTERVAL_10_MIN",
+              "filter_expr": "true",
               "flow_sampling": 0.5,
-              "metadata": "INCLUDE_ALL_METADATA"
+              "metadata": "INCLUDE_ALL_METADATA",
+              "metadata_fields": null
             }
           ],
           "name": "valid-subnet-2",
@@ -239,7 +244,6 @@ mock_input = {
         },
         "after_unknown": {
           "creation_timestamp": true,
-          "enable_flow_logs": true,
           "fingerprint": true,
           "gateway_address": true,
           "id": true,

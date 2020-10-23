@@ -18,7 +18,7 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.vpc_flow_log
+package tests.rules.aws.inputs.vpc_flow_log_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",
@@ -50,7 +50,9 @@ mock_input = {
           "values": {
             "eni_id": null,
             "log_destination_type": "cloud-watch-logs",
+            "max_aggregation_interval": 600,
             "subnet_id": null,
+            "tags": null,
             "traffic_type": "ALL"
           }
         },
@@ -158,10 +160,13 @@ mock_input = {
         "after": {
           "eni_id": null,
           "log_destination_type": "cloud-watch-logs",
+          "max_aggregation_interval": 600,
           "subnet_id": null,
+          "tags": null,
           "traffic_type": "ALL"
         },
         "after_unknown": {
+          "arn": true,
           "iam_role_arn": true,
           "id": true,
           "log_destination": true,

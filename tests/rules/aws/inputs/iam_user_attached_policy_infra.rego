@@ -18,7 +18,7 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.iam_user_attached_policy
+package tests.rules.aws.inputs.iam_user_attached_policy_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

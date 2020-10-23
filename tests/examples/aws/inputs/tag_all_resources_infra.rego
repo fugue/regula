@@ -18,7 +18,7 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.tag_all_resources
+package tests.examples.aws.inputs.tag_all_resources_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

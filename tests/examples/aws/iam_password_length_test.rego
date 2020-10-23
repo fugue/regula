@@ -14,6 +14,7 @@
 package tests.rules.iam_password_length
 
 import data.fugue.regula
+import data.tests.examples.aws.inputs.iam_password_length_infra.mock_input
 
 test_iam_password_length {
   report := regula.report with input as mock_input

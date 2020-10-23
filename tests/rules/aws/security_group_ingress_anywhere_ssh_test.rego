@@ -14,6 +14,7 @@
 package tests.rules.security_group_ingress_anywhere_ssh
 
 import data.fugue.regula
+import data.tests.rules.aws.inputs.security_group_ingress_anywhere_ssh_infra.mock_input
 
 test_security_group_ingress_anywhere_ssh {
   report := regula.report with input as mock_input

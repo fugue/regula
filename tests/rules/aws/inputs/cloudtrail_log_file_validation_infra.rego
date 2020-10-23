@@ -18,7 +18,7 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.cloudtrail_log_file_validation
+package tests.rules.aws.inputs.cloudtrail_log_file_validation_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",
@@ -39,6 +39,7 @@ mock_input = {
             "enable_logging": true,
             "event_selector": [],
             "include_global_service_events": true,
+            "insight_selector": [],
             "is_multi_region_trail": false,
             "is_organization_trail": false,
             "kms_key_id": null,
@@ -62,6 +63,7 @@ mock_input = {
             "enable_logging": true,
             "event_selector": [],
             "include_global_service_events": true,
+            "insight_selector": [],
             "is_multi_region_trail": false,
             "is_organization_trail": false,
             "kms_key_id": null,
@@ -83,6 +85,7 @@ mock_input = {
             "bucket_prefix": null,
             "cors_rule": [],
             "force_destroy": true,
+            "grant": [],
             "lifecycle_rule": [],
             "logging": [],
             "object_lock_configuration": [],
@@ -131,6 +134,7 @@ mock_input = {
           "enable_logging": true,
           "event_selector": [],
           "include_global_service_events": true,
+          "insight_selector": [],
           "is_multi_region_trail": false,
           "is_organization_trail": false,
           "kms_key_id": null,
@@ -144,6 +148,7 @@ mock_input = {
           "event_selector": [],
           "home_region": true,
           "id": true,
+          "insight_selector": [],
           "s3_bucket_name": true
         }
       }
@@ -166,6 +171,7 @@ mock_input = {
           "enable_logging": true,
           "event_selector": [],
           "include_global_service_events": true,
+          "insight_selector": [],
           "is_multi_region_trail": false,
           "is_organization_trail": false,
           "kms_key_id": null,
@@ -179,6 +185,7 @@ mock_input = {
           "event_selector": [],
           "home_region": true,
           "id": true,
+          "insight_selector": [],
           "s3_bucket_name": true
         }
       }
@@ -199,6 +206,7 @@ mock_input = {
           "bucket_prefix": null,
           "cors_rule": [],
           "force_destroy": true,
+          "grant": [],
           "lifecycle_rule": [],
           "logging": [],
           "object_lock_configuration": [],
@@ -215,6 +223,7 @@ mock_input = {
           "bucket_domain_name": true,
           "bucket_regional_domain_name": true,
           "cors_rule": [],
+          "grant": [],
           "hosted_zone_id": true,
           "id": true,
           "lifecycle_rule": [],

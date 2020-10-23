@@ -14,6 +14,7 @@
 package tests.rules.sql_server_firewall_no_inbound_all
 
 import data.fugue.regula
+import data.tests.rules.azure.inputs.sql_server_firewall_no_inbound_all_infra.mock_input
 
 test_sql_server_firewall_no_inbound_all {
   report := regula.report with input as mock_input

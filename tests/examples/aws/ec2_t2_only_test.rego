@@ -14,6 +14,7 @@
 package tests.rules.ec2_t2_only
 
 import data.fugue.regula
+import data.tests.examples.aws.inputs.ec2_t2_only_infra.mock_input
 
 test_t2_only {
   report := regula.report with input as mock_input

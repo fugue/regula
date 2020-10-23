@@ -14,6 +14,7 @@
 package tests.rules.s3_bucket_sse
 
 import data.fugue.regula
+import data.tests.rules.aws.inputs.s3_bucket_sse_infra.mock_input
 
 test_s3_bucket_sse {
   report := regula.report with input as mock_input

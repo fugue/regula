@@ -14,6 +14,7 @@
 package tests.rules.cloudfront_distribution_https
 
 import data.fugue.regula
+import data.tests.rules.aws.inputs.cloudfront_distribution_https_infra.mock_input
 
 test_cloudfront_distribution_https {
   report := regula.report with input as mock_input

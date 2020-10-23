@@ -14,11 +14,11 @@
 
 # This package was automatically generated from:
 #
-#     tests/rules/gcp/inputs/s3_bucket_sse_infra.tf
+#     tests/rules/aws/inputs/s3_bucket_sse_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.s3_bucket_sse
+package tests.rules.aws.inputs.s3_bucket_sse_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",

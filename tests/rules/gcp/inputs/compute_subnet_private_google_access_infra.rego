@@ -14,14 +14,14 @@
 
 # This package was automatically generated from:
 #
-#     tests/rules/gcp/inputs/gcp_compute_subnet_private_google_access_infra.tf
+#     tests/rules/gcp/inputs/compute_subnet_private_google_access_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.gcp_compute_subnet_private_google_access
+package tests.rules.gcp.inputs.compute_subnet_private_google_access_infra
 mock_input = {
   "format_version": "0.1",
-  "terraform_version": "0.12.20",
+  "terraform_version": "0.12.18",
   "planned_values": {
     "root_module": {
       "resources": [
@@ -116,7 +116,6 @@ mock_input = {
         "after_unknown": {
           "gateway_ipv4": true,
           "id": true,
-          "ipv4_range": true,
           "project": true,
           "routing_mode": true,
           "self_link": true
@@ -145,7 +144,6 @@ mock_input = {
         },
         "after_unknown": {
           "creation_timestamp": true,
-          "enable_flow_logs": true,
           "fingerprint": true,
           "gateway_address": true,
           "id": true,
@@ -179,7 +177,6 @@ mock_input = {
         },
         "after_unknown": {
           "creation_timestamp": true,
-          "enable_flow_logs": true,
           "fingerprint": true,
           "gateway_address": true,
           "id": true,
@@ -213,7 +210,6 @@ mock_input = {
         },
         "after_unknown": {
           "creation_timestamp": true,
-          "enable_flow_logs": true,
           "fingerprint": true,
           "gateway_address": true,
           "id": true,

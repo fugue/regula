@@ -14,14 +14,14 @@
 
 # This package was automatically generated from:
 #
-#     tests/rules/gcp/inputs/gcp_compute_firewall_no_ingress_3389_infra.tf
+#     tests/rules/gcp/inputs/compute_firewall_no_ingress_3389_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.gcp_compute_firewall_no_ingress_3389
+package tests.rules.gcp.inputs.compute_firewall_no_ingress_3389_infra
 mock_input = {
   "format_version": "0.1",
-  "terraform_version": "0.12.20",
+  "terraform_version": "0.12.18",
   "planned_values": {
     "root_module": {
       "resources": [
@@ -50,7 +50,7 @@ mock_input = {
             "deny": [],
             "description": null,
             "disabled": null,
-            "enable_logging": null,
+            "log_config": [],
             "name": "invalid-rule-1",
             "network": "test-network",
             "priority": 1000,
@@ -88,7 +88,7 @@ mock_input = {
             "deny": [],
             "description": null,
             "disabled": null,
-            "enable_logging": null,
+            "log_config": [],
             "name": "invalid-rule-2",
             "network": "test-network",
             "priority": 1000,
@@ -127,7 +127,7 @@ mock_input = {
             "deny": [],
             "description": null,
             "disabled": null,
-            "enable_logging": null,
+            "log_config": [],
             "name": "valid-rule-1",
             "network": "test-network",
             "priority": 1000,
@@ -162,7 +162,7 @@ mock_input = {
             "deny": [],
             "description": null,
             "disabled": null,
-            "enable_logging": null,
+            "log_config": [],
             "name": "valid-rule-2",
             "network": "test-network",
             "priority": 1000,
@@ -221,7 +221,7 @@ mock_input = {
           "deny": [],
           "description": null,
           "disabled": null,
-          "enable_logging": null,
+          "log_config": [],
           "name": "invalid-rule-1",
           "network": "test-network",
           "priority": 1000,
@@ -251,7 +251,9 @@ mock_input = {
           "deny": [],
           "destination_ranges": true,
           "direction": true,
+          "enable_logging": true,
           "id": true,
+          "log_config": [],
           "project": true,
           "self_link": true,
           "source_ranges": [
@@ -288,7 +290,7 @@ mock_input = {
           "deny": [],
           "description": null,
           "disabled": null,
-          "enable_logging": null,
+          "log_config": [],
           "name": "invalid-rule-2",
           "network": "test-network",
           "priority": 1000,
@@ -317,7 +319,9 @@ mock_input = {
           "deny": [],
           "destination_ranges": true,
           "direction": true,
+          "enable_logging": true,
           "id": true,
+          "log_config": [],
           "project": true,
           "self_link": true,
           "source_ranges": [
@@ -355,7 +359,7 @@ mock_input = {
           "deny": [],
           "description": null,
           "disabled": null,
-          "enable_logging": null,
+          "log_config": [],
           "name": "valid-rule-1",
           "network": "test-network",
           "priority": 1000,
@@ -387,7 +391,9 @@ mock_input = {
           "deny": [],
           "destination_ranges": true,
           "direction": true,
+          "enable_logging": true,
           "id": true,
+          "log_config": [],
           "project": true,
           "self_link": true,
           "source_ranges": [
@@ -422,7 +428,7 @@ mock_input = {
           "deny": [],
           "description": null,
           "disabled": null,
-          "enable_logging": null,
+          "log_config": [],
           "name": "valid-rule-2",
           "network": "test-network",
           "priority": 1000,
@@ -444,7 +450,9 @@ mock_input = {
           "deny": [],
           "destination_ranges": true,
           "direction": true,
+          "enable_logging": true,
           "id": true,
+          "log_config": [],
           "project": true,
           "self_link": true,
           "source_ranges": true
@@ -472,7 +480,6 @@ mock_input = {
         "after_unknown": {
           "gateway_ipv4": true,
           "id": true,
-          "ipv4_range": true,
           "project": true,
           "routing_mode": true,
           "self_link": true

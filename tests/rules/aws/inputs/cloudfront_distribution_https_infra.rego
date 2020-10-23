@@ -18,7 +18,7 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.cloudfront_distribution_https
+package tests.rules.aws.inputs.cloudfront_distribution_https_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",
@@ -34,7 +34,6 @@ mock_input = {
           "schema_version": 1,
           "values": {
             "aliases": null,
-            "cache_behavior": [],
             "comment": null,
             "custom_error_response": [],
             "default_cache_behavior": [
@@ -123,7 +122,6 @@ mock_input = {
           "schema_version": 1,
           "values": {
             "aliases": null,
-            "cache_behavior": [],
             "comment": null,
             "custom_error_response": [],
             "default_cache_behavior": [
@@ -212,7 +210,6 @@ mock_input = {
           "schema_version": 1,
           "values": {
             "aliases": null,
-            "cache_behavior": [],
             "comment": null,
             "custom_error_response": [],
             "default_cache_behavior": [
@@ -343,7 +340,6 @@ mock_input = {
         "before": null,
         "after": {
           "aliases": null,
-          "cache_behavior": [],
           "comment": null,
           "custom_error_response": [],
           "default_cache_behavior": [
@@ -423,9 +419,7 @@ mock_input = {
           "web_acl_id": null
         },
         "after_unknown": {
-          "active_trusted_signers": true,
           "arn": true,
-          "cache_behavior": [],
           "caller_reference": true,
           "custom_error_response": [],
           "default_cache_behavior": [
@@ -479,6 +473,7 @@ mock_input = {
             }
           ],
           "status": true,
+          "trusted_signers": true,
           "viewer_certificate": [
             {}
           ]
@@ -498,7 +493,6 @@ mock_input = {
         "before": null,
         "after": {
           "aliases": null,
-          "cache_behavior": [],
           "comment": null,
           "custom_error_response": [],
           "default_cache_behavior": [
@@ -578,9 +572,7 @@ mock_input = {
           "web_acl_id": null
         },
         "after_unknown": {
-          "active_trusted_signers": true,
           "arn": true,
-          "cache_behavior": [],
           "caller_reference": true,
           "custom_error_response": [],
           "default_cache_behavior": [
@@ -634,6 +626,7 @@ mock_input = {
             }
           ],
           "status": true,
+          "trusted_signers": true,
           "viewer_certificate": [
             {}
           ]
@@ -653,7 +646,6 @@ mock_input = {
         "before": null,
         "after": {
           "aliases": null,
-          "cache_behavior": [],
           "comment": null,
           "custom_error_response": [],
           "default_cache_behavior": [
@@ -733,9 +725,7 @@ mock_input = {
           "web_acl_id": null
         },
         "after_unknown": {
-          "active_trusted_signers": true,
           "arn": true,
-          "cache_behavior": [],
           "caller_reference": true,
           "custom_error_response": [],
           "default_cache_behavior": [
@@ -789,6 +779,7 @@ mock_input = {
             }
           ],
           "status": true,
+          "trusted_signers": true,
           "viewer_certificate": [
             {}
           ]

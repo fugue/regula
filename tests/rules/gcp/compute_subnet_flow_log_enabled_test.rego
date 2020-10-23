@@ -14,6 +14,7 @@
 package tests.rules.gcp_compute_subnet_flow_log_enabled
 
 import data.fugue.regula
+import data.tests.rules.gcp.inputs.compute_subnet_flow_log_enabled_infra.mock_input
 
 test_gcp_compute_subnet_flow_log_enabled {
   report := regula.report with input as mock_input

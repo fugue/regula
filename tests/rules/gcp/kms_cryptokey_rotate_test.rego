@@ -14,6 +14,7 @@
 package tests.rules.gcp_kms_cryptokey_rotate
 
 import data.fugue.regula
+import data.tests.rules.gcp.inputs.kms_cryptokey_rotate_infra.mock_input
 
 test_gcp_kms_cryptokey_rotate {
   report := regula.report with input as mock_input

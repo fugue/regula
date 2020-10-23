@@ -18,7 +18,7 @@
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.network_security_rule_no_inbound_22
+package tests.rules.azure.inputs.network_security_rule_no_inbound_22_infra
 mock_input = {
   "format_version": "0.1",
   "terraform_version": "0.12.18",
@@ -35,7 +35,9 @@ mock_input = {
           "values": {
             "location": "westus",
             "name": "testnsg",
-            "resource_group_name": "acceptanceTestResourceGroup1"
+            "resource_group_name": "acceptanceTestResourceGroup1",
+            "tags": null,
+            "timeouts": null
           }
         },
         {
@@ -66,7 +68,8 @@ mock_input = {
             ],
             "source_application_security_group_ids": null,
             "source_port_range": "*",
-            "source_port_ranges": null
+            "source_port_ranges": null,
+            "timeouts": null
           }
         },
         {
@@ -97,7 +100,8 @@ mock_input = {
             "source_address_prefixes": null,
             "source_application_security_group_ids": null,
             "source_port_range": "*",
-            "source_port_ranges": null
+            "source_port_ranges": null,
+            "timeouts": null
           }
         },
         {
@@ -128,7 +132,8 @@ mock_input = {
             "source_address_prefixes": null,
             "source_application_security_group_ids": null,
             "source_port_range": "*",
-            "source_port_ranges": null
+            "source_port_ranges": null,
+            "timeouts": null
           }
         },
         {
@@ -159,7 +164,8 @@ mock_input = {
             ],
             "source_application_security_group_ids": null,
             "source_port_range": "*",
-            "source_port_ranges": null
+            "source_port_ranges": null,
+            "timeouts": null
           }
         },
         {
@@ -189,7 +195,8 @@ mock_input = {
             ],
             "source_application_security_group_ids": null,
             "source_port_range": "*",
-            "source_port_ranges": null
+            "source_port_ranges": null,
+            "timeouts": null
           }
         },
         {
@@ -201,7 +208,9 @@ mock_input = {
           "schema_version": 0,
           "values": {
             "location": "westus",
-            "name": "acceptanceTestResourceGroup1"
+            "name": "acceptanceTestResourceGroup1",
+            "tags": null,
+            "timeouts": null
           }
         }
       ]
@@ -222,12 +231,13 @@ mock_input = {
         "after": {
           "location": "westus",
           "name": "testnsg",
-          "resource_group_name": "acceptanceTestResourceGroup1"
+          "resource_group_name": "acceptanceTestResourceGroup1",
+          "tags": null,
+          "timeouts": null
         },
         "after_unknown": {
           "id": true,
-          "security_rule": true,
-          "tags": true
+          "security_rule": true
         }
       }
     },
@@ -263,7 +273,8 @@ mock_input = {
           ],
           "source_application_security_group_ids": null,
           "source_port_range": "*",
-          "source_port_ranges": null
+          "source_port_ranges": null,
+          "timeouts": null
         },
         "after_unknown": {
           "id": true,
@@ -306,7 +317,8 @@ mock_input = {
           "source_address_prefixes": null,
           "source_application_security_group_ids": null,
           "source_port_range": "*",
-          "source_port_ranges": null
+          "source_port_ranges": null,
+          "timeouts": null
         },
         "after_unknown": {
           "destination_port_ranges": [
@@ -349,7 +361,8 @@ mock_input = {
           "source_address_prefixes": null,
           "source_application_security_group_ids": null,
           "source_port_range": "*",
-          "source_port_ranges": null
+          "source_port_ranges": null,
+          "timeouts": null
         },
         "after_unknown": {
           "destination_port_ranges": [
@@ -392,7 +405,8 @@ mock_input = {
           ],
           "source_application_security_group_ids": null,
           "source_port_range": "*",
-          "source_port_ranges": null
+          "source_port_ranges": null,
+          "timeouts": null
         },
         "after_unknown": {
           "id": true,
@@ -434,7 +448,8 @@ mock_input = {
           ],
           "source_application_security_group_ids": null,
           "source_port_range": "*",
-          "source_port_ranges": null
+          "source_port_ranges": null,
+          "timeouts": null
         },
         "after_unknown": {
           "id": true,
@@ -457,16 +472,27 @@ mock_input = {
         "before": null,
         "after": {
           "location": "westus",
-          "name": "acceptanceTestResourceGroup1"
+          "name": "acceptanceTestResourceGroup1",
+          "tags": null,
+          "timeouts": null
         },
         "after_unknown": {
-          "id": true,
-          "tags": true
+          "id": true
         }
       }
     }
   ],
   "configuration": {
+    "provider_config": {
+      "azurerm": {
+        "name": "azurerm",
+        "expressions": {
+          "features": [
+            {}
+          ]
+        }
+      }
+    },
     "root_module": {
       "resources": [
         {

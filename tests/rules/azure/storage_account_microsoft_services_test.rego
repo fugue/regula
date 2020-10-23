@@ -14,6 +14,7 @@
 package tests.rules.storage_account_microsoft_services
 
 import data.fugue.regula
+import data.tests.rules.azure.inputs.storage_account_microsoft_services_infra.mock_input
 
 test_storage_account_microsoft_services {
   report := regula.report with input as mock_input

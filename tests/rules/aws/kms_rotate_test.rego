@@ -14,6 +14,7 @@
 package tests.rules.kms_rotate
 
 import data.fugue.regula
+import data.tests.rules.aws.inputs.kms_rotate_infra.mock_input
 
 test_kms_rotate {
   report := regula.report with input as mock_input

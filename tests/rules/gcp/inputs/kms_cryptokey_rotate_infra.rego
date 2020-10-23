@@ -14,14 +14,14 @@
 
 # This package was automatically generated from:
 #
-#     tests/rules/gcp/inputs/gcp_kms_cryptokey_rotate_infra.tf
+#     tests/rules/gcp/inputs/kms_cryptokey_rotate_infra.tf
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.
-package tests.rules.gcp_kms_cryptokey_rotate
+package tests.rules.gcp.inputs.kms_cryptokey_rotate_infra
 mock_input = {
   "format_version": "0.1",
-  "terraform_version": "0.12.20",
+  "terraform_version": "0.12.18",
   "planned_values": {
     "root_module": {
       "resources": [

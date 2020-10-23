@@ -14,6 +14,7 @@
 package tests.rules.network_security_group_no_inbound_3389
 
 import data.fugue.regula
+import data.tests.rules.azure.inputs.network_security_group_no_inbound_3389_infra.mock_input
 
 test_network_security_group_no_inbound_3389 {
   report := regula.report with input as mock_input

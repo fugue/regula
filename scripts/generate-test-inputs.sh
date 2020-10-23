@@ -21,8 +21,8 @@ function generate_test_input {
       $TERRAFORM plan -refresh=false -out="plan.tfplan" &&
       $TERRAFORM show -json "plan.tfplan" >"plan.json")
 
-  local package="tests.rules.$(basename "$2" _infra.rego)"
-  echo '# Copyright 2020 Fugue, Inc.' >>"$2"
+  local package="$(echo "$(dirname "$2")"/"$(basename "$2" .rego)" | tr '/' '.')"
+  echo '# Copyright 2020 Fugue, Inc.' >"$2"
   echo '#' >>"$2"
   echo '# Licensed under the Apache License, Version 2.0 (the "License");' >>"$2"
   echo '# you may not use this file except in compliance with the License.' >>"$2"

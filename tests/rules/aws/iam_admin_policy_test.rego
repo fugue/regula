@@ -14,6 +14,7 @@
 package tests.rules.iam_admin_policy
 
 import data.fugue.regula
+import data.tests.rules.aws.inputs.iam_admin_policy_infra.mock_input
 
 test_admin_policy {
   report := regula.report with input as mock_input

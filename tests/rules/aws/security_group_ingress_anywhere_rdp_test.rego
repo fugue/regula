@@ -14,6 +14,7 @@
 package tests.rules.security_group_ingress_anywhere_rdp
 
 import data.fugue.regula
+import data.tests.rules.aws.inputs.security_group_ingress_anywhere_rdp_infra.mock_input
 
 test_security_group_ingress_anywhere_rdp {
   report := regula.report with input as mock_input

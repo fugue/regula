@@ -14,6 +14,7 @@
 package tests.rules.storage_container_private_access
 
 import data.fugue.regula
+import data.tests.rules.azure.inputs.storage_container_private_access_infra.mock_input
 
 test_storage_container_private_access {
   report := regula.report with input as mock_input

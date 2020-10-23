@@ -59,7 +59,7 @@ function generate_test_input {
 }
 
 if [[ $# -eq 0 ]]; then
-  for tf_file in tests/{rules,examples}/*/inputs/*.tf; do
+  for tf_file in $(find tests -name '*.tf'); do
     rego_file="$(dirname "$tf_file")/$(basename "$tf_file" .tf).rego"
     if [[ ! -f "$rego_file" ]] || [[ "$tf_file" -nt "$rego_file" ]]; then
       1>&2 echo "$tf_file -> $rego_file"

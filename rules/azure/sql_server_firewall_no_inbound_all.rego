@@ -11,20 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# SQL Server firewall rules should not permit ingress from 0.0.0.0/0 to
-# all ports and protocols. To reduce the potential attack surface for a
-# SQL server, firewall rules should be defined with more granular IP addresses
-# by referencing the range of addresses available from specific data centers.
-
 package rules.sql_server_firewall_no_inbound_all
 
-resource_type = "azurerm_sql_firewall_rule"
-controls = {
-  "CIS_Azure_1.1.0_6-3",
-  "NIST-800-53_SC-7 (5)",
-  "REGULA_R00021",
+__rego__metadoc__ := {
+  "id": "FG_R00192",
+  "title": "SQL Server firewall rules should not permit ingress from 0.0.0.0/0 to all ports and protocols",
+  "description": "Virtual Network security groups attached to SQL Server instances should not permit ingress from 0.0.0.0/0 to all ports and protocols. To reduce the potential attack surface for a SQL server, firewall rules should be defined with more granular IP addresses by referencing the range of addresses available from specific data centers.",
+  "custom": {
+    "controls": {
+      "CISAZURE": [
+        "CISAZURE_6.3"
+      ],
+      "NIST": [
+        "NIST-800-53_SC-7 (5)"
+      ]
+    },
+    "severity": "High"
+  }
 }
+
+resource_type = "azurerm_sql_firewall_rule"
 
 default deny = false
 

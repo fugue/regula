@@ -11,13 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# Storage accounts should deny access from all networks.
-# Restricting default network access helps to provide a new layer of security,
-# since storage accounts accept connections from clients on any network.
 package rules.storage_account_deny_access
 
-controls = {"CIS_Azure_1.1.0_3-7", "REGULA_R00017"}
+__rego__metadoc__ := {
+  "id": "FG_R00154",
+  "title": "Storage accounts should deny access from all networks by default",
+  "description": "Storage accounts should be configured to deny access to traffic from all networks. Access can be granted to traffic from specific Azure Virtual networks, allowing a secure network boundary for specific applications to be built. Access can also be granted to public internet IP address ranges, to enable connections from specific internet or on-premises clients. When network rules are configured, only applications from allowed networks can access a storage account. When calling from an allowed network, applications continue to require proper authorization (a valid access key or SAS token) to access the storage account.",
+  "custom": {
+    "controls": {
+      "CISAZURE": [
+        "CISAZURE_3.7"
+      ]
+    }
+  }
+}
+
 resource_type = "azurerm_storage_account"
 
 default allow = false

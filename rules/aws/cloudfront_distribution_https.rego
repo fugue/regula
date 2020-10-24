@@ -14,12 +14,22 @@
 # limitations under the License.
 package rules.cloudfront_distribution_https
 
-resource_type = "aws_cloudfront_distribution"
-
-controls = {
-  "NIST-800-53_AC-17 (2)",
-  "NIST-800-53_SC-8",
+__rego__metadoc__ := {
+  "id": "FG_R00011",
+  "title": "CloudFront viewer protocol policy should be set to https-only or redirect-to-https",
+  "description": "CloudFront viewer protocol policy should be set to https-only or redirect-to-https. CloudFront connections should be encrypted during transmission over networks that can be accessed by malicious individuals. A CloudFront distribution should only use HTTPS or Redirect HTTP to HTTPS for communication between viewers and CloudFront.",
+  "custom": {
+    "controls": {
+      "NIST": [
+        "NIST-800-53_AC-17 (2)",
+        "NIST-800-53_SC-8"
+      ]
+    },
+    "severity": "Medium"
+  }
 }
+
+resource_type = "aws_cloudfront_distribution"
 
 # Explicitly allow only https or redirection to https.
 valid_protocols = {

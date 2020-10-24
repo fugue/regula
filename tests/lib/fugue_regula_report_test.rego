@@ -25,7 +25,13 @@ mock_plan_input = ebs_volume_encrypted_infra.mock_plan_input
 # We construct some mock rules as well.
 mock_rules = {
   "always_pass": {
-    "controls": {"MOCK_1.2.3"},
+    "__rego__metadoc__": {
+      "custom": {
+        "controls": {
+          "MOCK": ["MOCK_1.2.3"]
+        }
+      }
+    },
     "resource_type": "aws_ebs_volume",
     "allow": true
   },

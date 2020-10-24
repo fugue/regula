@@ -13,13 +13,25 @@
 # limitations under the License.
 package rules.cloudtrail_log_file_validation
 
-resource_type = "aws_cloudtrail"
-controls = {
-  "CIS_2-2",
-  "NIST-800-53_AC-2g",
-  "NIST-800-53_AC-6 (9)",
-  "REGULA_R00006",
+__rego__metadoc__ := {
+  "id": "FG_R00027",
+  "title": "CloudTrail log file validation should be enabled",
+  "description": "CloudTrail log file validation should be enabled. It is recommended that file validation be enabled on all CloudTrail logs because it provides additional integrity checking of the log data.",
+  "custom": {
+    "controls": {
+      "CIS": [
+        "CIS_2-2"
+      ],
+      "NIST": [
+        "NIST-800-53_AC-2g",
+        "NIST-800-53_AC-6 (9)"
+      ]
+    },
+    "severity": "Medium"
+  }
 }
+
+resource_type = "aws_cloudtrail"
 
 default allow = false
 

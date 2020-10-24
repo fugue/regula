@@ -13,8 +13,21 @@
 # limitations under the License.
 package rules.kms_rotate
 
+__rego__metadoc__ := {
+  "id": "FG_R00036",
+  "title": "KMS CMK rotation should be enabled",
+  "description": "KMS CMK rotation should be enabled. It is recommended that users enable rotation for the customer created AWS Customer Master Key (CMK). Rotating encryption keys helps reduce the potential impact of a compromised key as users cannot use the old key to access the data.",
+  "custom": {
+    "controls": {
+      "CIS": [
+        "CIS_2-8"
+      ]
+    },
+    "severity": "Medium"
+  }
+}
+
 resource_type = "aws_kms_key"
-controls = {"CIS_2-8", "REGULA_R00007"}
 
 deny[msg] {
   not input.enable_key_rotation

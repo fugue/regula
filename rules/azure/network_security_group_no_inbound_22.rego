@@ -13,6 +13,7 @@
 # limitations under the License.
 package rules.network_security_group_no_inbound_22
 
+import data.fugue
 import data.fugue.azure.network_security_group
 
 __rego__metadoc__ := {
@@ -34,10 +35,28 @@ __rego__metadoc__ := {
   }
 }
 
-resource_type = "azurerm_network_security_group"
+resource_type = "MULTIPLE"
 
-default deny = false
+security_groups = fugue.resources("azurerm_network_security_group")
 
-deny {
-  network_security_group.group_allows_anywhere_to_port(input, 22)
+policy[p] {
+  security_group = security_groups[_]
+  network_security_group.group_allows_anywhere_to_port(security_group, 22)
+  p = fugue.deny_resource(security_group)
+} {
+  security_group = security_groups[_]
+  not network_security_group.group_allows_anywhere_to_port(security_group, 22)
+  p = fugue.allow_resource(security_group)
+}
+
+security_rules = fugue.resources("azurerm_network_security_rule")
+
+policy[p] {
+  security_rule = security_rules[_]
+  network_security_group.rule_allows_anywhere_to_port(security_rule, 22)
+  p = fugue.deny_resource(security_rule)
+} {
+  security_rule = security_rules[_]
+  not network_security_group.rule_allows_anywhere_to_port(security_rule, 22)
+  p = fugue.allow_resource(security_rule)
 }

@@ -75,3 +75,12 @@ report_v0(message, policy) = ret {
   msg := {true: "", false: message}
   ret := {"valid": ok, "message": msg[ok], "resources": policy}
 }
+
+# Provided for backward-compatibility with older Fugue rules only.
+resource_types_v0 = resource_types
+
+# Engine running the rule.  Will be one of:
+#
+#  -  "regula"
+#  -  "runtime"
+engine = "regula"

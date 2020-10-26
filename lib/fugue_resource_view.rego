@@ -130,12 +130,23 @@ configuration_resources = ret {
     resolved_references = {key: resolved |
       expr = resource.expressions[key]
       is_object(expr)
-      refs = expr.references
-      count(refs) == 1
-      ref = refs[0]
-      resolved = configuration_resolve_ref(outputs, module_path, vars, ref)
+      resolved = reference_as_singleton_or_array([
+        configuration_resolve_ref(outputs, module_path, vars, ref) |
+        ref = expr.references[_]
+      ])
     }
   }
+}
+
+# We don't have the schemas available (currently) so we don't know if a
+# reference is supposed to be a list or an single element.  We do a best-guess
+# and the rules will need to take both cases into account.
+reference_as_singleton_or_array(xs) = ret {
+  count(xs) == 1
+  ret = xs[0]
+} {
+  count(xs) > 1
+  ret = xs
 }
 
 # Resolve a reference inside a a configuration resource.

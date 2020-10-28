@@ -34,6 +34,12 @@ test_resource_view_01 {
       "_type": "aws_s3_bucket",
       "force_destroy": false
     },
+    "aws_s3_bucket_policy.example": {
+      "id": "aws_s3_bucket_policy.example",
+      "bucket": "aws_s3_bucket.example",
+      "policy": "data.aws_iam_policy_document.example",
+      "_type": "aws_s3_bucket_policy",
+    },
     "data.aws_iam_policy_document.example": {
       "id": "data.aws_iam_policy_document.example",
       "statement": [{

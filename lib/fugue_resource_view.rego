@@ -17,6 +17,7 @@
 package fugue.resource_view
 
 import data.util.merge
+import data.util.update
 import data.util.resolve
 
 # This constructs the input for the rules, with most importantly the
@@ -26,13 +27,12 @@ resource_view_input = {
   "_plan": input
 }
 
-# In our final resource view available to the rules, we merge an optional
-# `configuration_resources` and `planned_values_resources` with a bias for
-# `planned_values_resources`.
+# In our final resource view available to the rules, we merge optional
+# `configuration_resources` into `planned_values_resources`.
 resource_view[id] = ret {
-  planned_values_resource = planned_values_resources[id]
-  configuration_resource = {k: v | r = configuration_resources[id]; r[k] = v}
-  ret = merge.merge(configuration_resource, planned_values_resource)
+  planned_values_resource := planned_values_resources[id]
+  patches := object.get(configuration_patches, id, [])
+  ret := update.update(planned_values_resource, patches)
 }
 
 # Grab all modules inside the `planned_values` section.
@@ -121,11 +121,14 @@ module_qualify(module_path, unqualified) = ret {
   ret = concat(".", ["module", concat(".module.", module_path), unqualified])
 }
 
-# Grab resources from the configuration.  The only thing we're currently
+# Grab info from the configuration.  The only thing we're currently
 # interested in are `references` to other resources.  You can find some more
 # details about this format here:
 # <https://www.terraform.io/docs/internals/json-format.html>.
-configuration_resources = ret {
+#
+# The returned value is a format that can be easily applied using `util.update`
+# (or hopefully soon a shiny new OPA builtin).
+configuration_patches = ret {
   # Make sure output variables are resolved first, since we end up with a global
   # map of qualified names.
   outputs := resolve.resolve(configuration_module_outputs)
@@ -134,14 +137,24 @@ configuration_resources = ret {
     configuration_modules[module_path] = [vars, module]
     resource = module.resources[_]
     qualified_address = module_qualify(module_path, resource.address)
-    resolved_references = {key: resolved |
-      expr = resource.expressions[key]
-      is_object(expr)
+    resolved_references = [[keys, resolved] |
+      # Check recursively.
+      [keys, value] = walk(resource.expressions)
+
+      # Check shape.
+      refs = value.references
+      is_array(refs)
+      all([is_string(ref) | ref = refs[_]])
+
+      # Resolve and return.
       resolved = reference_as_singleton_or_array([
         configuration_resolve_ref(outputs, module_path, vars, ref) |
-        ref = expr.references[_]
+        ref = refs[_]
       ])
-    }
+    ]
+
+    # No need to return anything if the list is empty.
+    _ = resolved_references[_]
   }
 }
 
@@ -168,9 +181,11 @@ configuration_resolve_ref(outputs, module_path, vars, ref) = ret {
 } else = ret {
   # A reference to an output.  Needs to be qualified before we look in
   # `outputs`.
+  not startswith(ref, "var.")
   qual = module_qualify(module_path, ref)
   ret = outputs[qual]
 } else = ret {
   # A local resource.
+  not startswith(ref, "var.")
   ret = module_qualify(module_path, ref)
 }

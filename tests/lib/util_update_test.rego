@@ -81,3 +81,19 @@ test_update_4 {
     ]
   }
 }
+
+test_update_5 {
+  update(doc, [
+    [["name", "middle"], "Sr."],
+  ]) == {
+    "name": {
+      "first": "Tom",
+      "middle": "Sr.",
+      "last": "Nook",
+    },
+    "address": [
+      "Sunset ave 1",
+      "Tropical Island"
+    ]
+  }
+}

@@ -16,6 +16,8 @@
 # see `tests/lib/util_update_test.rego`.
 package util.update
 
+import data.util.merge
+
 update(obj, patches) = ret {
   # No patches needed.
   count(patches) == 0
@@ -34,11 +36,16 @@ update(obj, patches) = ret {
   ]
 } else = ret {
   is_object(obj)
-  ret := {obj_k: v |
+  ret := merge.merge({obj_k: v |
     obj_v := obj[obj_k]
     rec_patches := update_nested_patches(obj_k, patches)
     v := update_1(obj_v, rec_patches)
-  }
+  }, {path[0]: patch[1] |
+    patch := patches[_]
+    path := patch[0]
+    count(path) == 1
+    not merge.exists(obj, path[0])
+  })
 } else = ret {
   ret := obj
 }
@@ -61,11 +68,16 @@ update_1(obj, patches) = ret {
   ]
 } else = ret {
   is_object(obj)
-  ret := {obj_k: v |
+  ret := merge.merge({obj_k: v |
     obj_v := obj[obj_k]
     rec_patches := update_nested_patches(obj_k, patches)
     v := update_2(obj_v, rec_patches)
-  }
+  }, {path[0]: patch[1] |
+    patch := patches[_]
+    path := patch[0]
+    count(path) == 1
+    not merge.exists(obj, path[0])
+  })
 } else = ret {
   ret := obj
 }
@@ -88,11 +100,16 @@ update_2(obj, patches) = ret {
   ]
 } else = ret {
   is_object(obj)
-  ret := {obj_k: v |
+  ret := merge.merge({obj_k: v |
     obj_v := obj[obj_k]
     rec_patches := update_nested_patches(obj_k, patches)
     v := update_3(obj_v, rec_patches)
-  }
+  }, {path[0]: patch[1] |
+    patch := patches[_]
+    path := patch[0]
+    count(path) == 1
+    not merge.exists(obj, path[0])
+  })
 } else = ret {
   ret := obj
 }
@@ -115,11 +132,16 @@ update_3(obj, patches) = ret {
   ]
 } else = ret {
   is_object(obj)
-  ret := {obj_k: v |
+  ret := merge.merge({obj_k: v |
     obj_v := obj[obj_k]
     rec_patches := update_nested_patches(obj_k, patches)
     v := update_4(obj_v, rec_patches)
-  }
+  }, {path[0]: patch[1] |
+    patch := patches[_]
+    path := patch[0]
+    count(path) == 1
+    not merge.exists(obj, path[0])
+  })
 } else = ret {
   ret := obj
 }
@@ -142,11 +164,16 @@ update_4(obj, patches) = ret {
   ]
 } else = ret {
   is_object(obj)
-  ret := {obj_k: v |
+  ret := merge.merge({obj_k: v |
     obj_v := obj[obj_k]
     rec_patches := update_nested_patches(obj_k, patches)
     v := update_5(obj_v, rec_patches)
-  }
+  }, {path[0]: patch[1] |
+    patch := patches[_]
+    path := patch[0]
+    count(path) == 1
+    not merge.exists(obj, path[0])
+  })
 } else = ret {
   ret := obj
 }
@@ -169,11 +196,16 @@ update_5(obj, patches) = ret {
   ]
 } else = ret {
   is_object(obj)
-  ret := {obj_k: v |
+  ret := merge.merge({obj_k: v |
     obj_v := obj[obj_k]
     rec_patches := update_nested_patches(obj_k, patches)
     v := update_6(obj_v, rec_patches)
-  }
+  }, {path[0]: patch[1] |
+    patch := patches[_]
+    path := patch[0]
+    count(path) == 1
+    not merge.exists(obj, path[0])
+  })
 } else = ret {
   ret := obj
 }
@@ -196,11 +228,16 @@ update_6(obj, patches) = ret {
   ]
 } else = ret {
   is_object(obj)
-  ret := {obj_k: v |
+  ret := merge.merge({obj_k: v |
     obj_v := obj[obj_k]
     rec_patches := update_nested_patches(obj_k, patches)
     v := update_end(obj_v, rec_patches)
-  }
+  }, {path[0]: patch[1] |
+    patch := patches[_]
+    path := patch[0]
+    count(path) == 1
+    not merge.exists(obj, path[0])
+  })
 } else = ret {
   ret := obj
 }

@@ -58,12 +58,19 @@ planned_values_module_resources_walk_path(path) {
   path[len - 3] == "child_modules"
 }
 
+# Return an empty object for resources without values
+resource_values(resource) = ret {
+  ret = resource.values
+} else {
+  ret = {}
+}
+
 # Grab resources from planned values.  Add "id" and "_type" keys.
 planned_values_resources[id] = ret {
   planned_values_module_resources[_] = resource_section
   resource = resource_section[_]
   id = resource.address
-  ret = merge.merge(resource.values, {"id": id, "_type": resource.type})
+  ret = merge.merge(resource_values(resource), {"id": id, "_type": resource.type})
 }
 
 # Grab all modules inside the `configuration` section.

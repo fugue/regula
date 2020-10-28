@@ -32,6 +32,8 @@ plan = ret {
 
 resources(rt) = ret {
   ret = resources_by_type[rt]
+} else = {} {
+  true
 }
 
 allow_resource(resource) = ret {

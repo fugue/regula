@@ -20,10 +20,10 @@ test_user_attached_policy {
   resources := {p.id: p.valid | p := pol[_]}
 
   resources["aws_iam_policy_attachment.invalid_normal_policy_attachment"] == false
-  # resources["aws_iam_user_policy.invalid_user_policy"] == false
-  # resources["aws_iam_user_policy_attachment.invalid_user_policy_attachment"] == false
-  # resources["aws_iam_policy_attachment.valid_group_policy_attachment_blank_users"] == true
-  # resources["aws_iam_policy_attachment.valid_group_policy_attachment_missing_users"] == true
-  # resources["aws_iam_policy_attachment.valid_group_policy_attachment_empty_list_users"] == true
-  # resources["aws_iam_policy_attachment.valid_role_policy_attachment"] == true
+  resources["aws_iam_user_policy.invalid_user_policy"] == false
+  resources["aws_iam_user_policy_attachment.invalid_user_policy_attachment"] == false
+  resources["aws_iam_policy_attachment.valid_group_policy_attachment_blank_users"] == true
+  resources["aws_iam_policy_attachment.valid_group_policy_attachment_missing_users"] == true
+  resources["aws_iam_policy_attachment.valid_group_policy_attachment_empty_list_users"] == true
+  resources["aws_iam_policy_attachment.valid_role_policy_attachment"] == true
 }

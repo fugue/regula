@@ -58,10 +58,10 @@ test_resource_view_03 {
       "enable_https_traffic_only": true,
       "id": "azurerm_storage_account.main",
       "is_hns_enabled": false,
-      "location": "azurerm_resource_group.main",
+      "location": "westeurope",
       "min_tls_version": "TLS1_0",
       "name": "main",
-      "resource_group_name": "azurerm_resource_group.main",
+      "resource_group_name": "main",
       "static_website": [],
       "tags": null,
       "timeouts": null

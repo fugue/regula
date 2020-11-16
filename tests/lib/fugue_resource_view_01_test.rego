@@ -46,7 +46,7 @@ test_resource_view_01 {
         "actions": ["s3:*"],
         "sid": null,
         "not_resources": null,
-        "resources": "aws_s3_bucket.example",
+        "resources": ["aws_s3_bucket.example"],
         "effect": "Allow",
         "condition": [],
         "not_principals": [],

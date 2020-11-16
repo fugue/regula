@@ -31,8 +31,33 @@ resource_view_input = {
 # `configuration_resources` into `planned_values_resources`.
 resource_view[id] = ret {
   planned_values_resource := planned_values_resources[id]
-  patches := object.get(configuration_patches, id, [])
-  ret := update.update(planned_values_resource, patches)
+  patches := object.get(resource_view_patches, id, [])
+  ret := json.patch(planned_values_resource, patches)
+}
+
+# These are the patches applied to each resource in order to fill in
+# unknown references.
+resource_view_patches[id] = patches {
+  _ := planned_values_resources[id]
+  references := object.get(configuration_references, id, [])
+  after_unknowns := object.get(resource_changes_unknowns, id, [])
+  patches := [patch |
+    # Obtain the paths from the unknown values.
+    path = after_unknowns[_]
+
+    # The references can be anything that is a _prefix_ of this path.
+    [prefix, refs] := references[_]
+    array.slice(path, 0, count(prefix)) == prefix
+    count(prefix) > 0
+
+    # Turn the value into a singleton if possible.
+    value := reference_as_singleton_or_array(refs)
+
+    # Create a patch that works with json.patch.
+    patch := {"op": "add", "path": path, "value": value}
+  ]
+
+  _ = patches[_]
 }
 
 # Grab all modules inside the `planned_values` section.
@@ -126,9 +151,21 @@ module_qualify(module_path, unqualified) = ret {
 # details about this format here:
 # <https://www.terraform.io/docs/internals/json-format.html>.
 #
-# The returned value is a format that can be easily applied using `util.update`
-# (or hopefully soon a shiny new OPA builtin).
-configuration_patches = ret {
+# The returned value is an object that has the references for every resource.
+# The references are represented as an array of tuples where the first element
+# is the path to the key, and the second element are the references (or single
+# reference).  For example:
+#
+#     {
+#       "aws_iam_policy.example": [
+#         [["policy"], "data.aws_iam_policy_document.example"]
+#       ],
+#       "data.aws_iam_policy_document.example": [
+#         [["statement", 0, "resources"], "aws_s3_bucket.example"]
+#       ]
+#     }
+#
+configuration_references = ret {
   # Make sure output variables are resolved first, since we end up with a global
   # map of qualified names.
   outputs := resolve.resolve(configuration_module_outputs)
@@ -147,10 +184,10 @@ configuration_patches = ret {
       all([is_string(ref) | ref = refs[_]])
 
       # Resolve and return.
-      resolved = reference_as_singleton_or_array([
+      resolved = [
         configuration_resolve_ref(outputs, module_path, vars, ref) |
         ref = refs[_]
-      ])
+      ]
     ]
 
     # No need to return anything if the list is empty.
@@ -188,4 +225,17 @@ configuration_resolve_ref(outputs, module_path, vars, ref) = ret {
   # A local resource.
   not startswith(ref, "var.")
   ret = module_qualify(module_path, ref)
+}
+
+# resource_changes_unknown collects the unknown paths from the
+# `resource_changes` section of the plan.  This is used to know _where_ we
+# can plug in the values obtained in `configuration_references`.
+resource_changes_unknowns[address] = after_unknowns {
+  resource_change := input.resource_changes[_]
+  address := resource_change.address
+  block := resource_change.change.after_unknown
+  after_unknowns := [path |
+    walk(block, [path, unknown])
+    unknown == true
+  ]
 }

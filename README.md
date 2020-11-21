@@ -102,7 +102,7 @@ Some examples:
 
 -   `./bin/regula ../my-tf-infra .`: conveniently check `../my-tf-infra` against
     all rules in this main repository.
--   `./bin/regula ../my-tf-infra lib examples/aws/t2_only.rego`: run Regula
+-   `./bin/regula ../my-tf-infra lib examples/aws/ec2_t2_only.rego`: run Regula
     using only the specified rule.
 -   `./bin/regula ../my-tf-infra lib ../custom-rules`: run Regula using a
     directory of custom rules.
@@ -414,12 +414,12 @@ the rule you are trying to debug:
     $ fregot repl lib rules tests
     F u g u e   R E G O   T o o l k i t
     fregot v0.7.2 repl - use :help for usage info
-    repl% :break data.rules.t2_only.allow
+    repl% :break data.rules.ec2_t2_only.allow
 
 Now, we can just evaluate the entire report with the mock input.  If your rule
 is triggered, that will drop you into a debug prompt:
 
-    repl% data.fugue.regula.report with input as data.tests.rules.t2_only.mock_input
+    repl% data.fugue.regula.report with input as data.tests.rules.ec2_t2_only.mock_input
     19|   valid_instance_types[input.instance_type]
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

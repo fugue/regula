@@ -36,7 +36,7 @@ Regula includes a library of rules written in Rego, the policy language used by 
 ## How does Regula work?
 
 There are two parts to Regula. The first is a [shell script](/bin/regula)
-that generates a [terraform] plan in JSON format, ready for consumption by
+that generates a [terraform] plan or use existing in JSON format, ready for consumption by 
 [opa].
 
 The second part is a Rego framework that:
@@ -90,7 +90,7 @@ Install the prerequisites:
 
 Run the following command:
 
-    ./bin/regula [TERRAFORM_PATH] [REGO_PATHS...]
+    ./bin/regula --terraform-dir [TERRAFORM_PATH] --rego-paths REGO_PATH1 --rego-paths REGO_PATH2
 
 `TERRAFORM_PATH` is the directory where your Terraform configuration files are
 located.
@@ -100,17 +100,19 @@ should at least include `lib/`.
 
 Some examples:
 
--   `./bin/regula ../my-tf-infra .`: conveniently check `../my-tf-infra` against
+-   `./bin/regula --terraform-dir ../my-tf-infra  --rego-paths .`: conveniently check `../my-tf-infra` against
     all rules in this main repository.
--   `./bin/regula ../my-tf-infra lib examples/aws/ec2_t2_only.rego`: run Regula
+-   `./bin/regula --terraform-json ../my-tf-infra.json  --rego-paths .`: conveniently check `../my-tf-infra.json` terraform plan file in json against
+    all rules in this main repository.
+-   `./bin/regula --terraform-dir  ../my-tf-infra --rego-paths lib --rego-paths examples/aws/ec2_t2_only.rego`: run Regula
     using only the specified rule.
--   `./bin/regula ../my-tf-infra lib ../custom-rules`: run Regula using a
+-   `./bin/regula  --terraform-dir ../my-tf-infra  --rego-paths lib --rego-paths ../custom-rules`: run Regula using a
     directory of custom rules.
 
 It is also possible to set the name of the `terraform` executable, which is
 useful if you have several versions installed:
 
-    env TERRAFORM=terraform-v0.12.18 ./bin/regula ../regula-ci-example/ lib
+    env TERRAFORM=terraform-v0.12.18 ./bin/regula --terraform-dir regula-ci-example/ --rego-paths lib
 
 Note that Regula requires Terraform 0.12+ in order to generate the JSON-formatted plan.
 

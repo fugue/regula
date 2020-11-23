@@ -15,19 +15,61 @@
 set -o nounset -o errexit -o pipefail
 
 # Basic command line argument handling.
-if [[ $# -lt 1 ]]; then
-  1>&2 echo "Usage: $0 TERRAFORM_DIR [REGO_PATHS..]"
-  1>&2 echo ""
-  1>&2 echo "Regula is a little wrapper to run Rego validations on terraform"
-  1>&2 echo "files.  It is meant to be used as a pre-flight check before"
-  1>&2 echo "deployment."
-  exit 1
+function print_usage {
+  echo
+  echo "Usage: regula [options]"
+  echo
+  echo
+  echo "Options:"
+  echo
+  echo -e "  --terraform-dir\t terraform directory to run terraform plan"
+  echo -e "  --terraform-json\t Use terraform plan in json format instead of calling terraform plan to generate json file"
+  echo -e "  --rego-paths\t\t he directories that need to be searched for Rego code. This should at least include lib/. Can be called multiple times"
+  echo -e "  --help\t\t Show this help text and exit."
+  echo
+  echo "Example:"
+  echo
+  echo "  regula --terraform-dir ../my-tf-infra "
+   echo "  regula --terraform-json ../my-tf-infra.json --rego-paths lib  --rego-paths  examples/aws/ec2_t2_only.rego "
+}
+REGO_PATHS=()
+
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case "$key" in
+      --terraform-dir)
+        TERRAFORM_DIR="$2"
+        shift
+        ;;
+     
+      --terraform-json)
+        TERRAFORM_PLAN_JSON="$2"
+        shift
+        ;;
+      --rego-paths)
+        REGO_PATHS+=("$2")
+        echo "$2"
+        shift
+        ;;
+      --help)
+        print_usage
+        exit
+        ;;
+      *)
+        echo "ERROR: Unrecognized option: $key"
+        print_usage
+        exit 1
+        ;;
+    esac
+
+    shift
+  done
+
+if [[ ! -v TERRAFORM_DIR ]] && [[ ! -v TERRAFORM_PLAN_JSON ]] ; then
+    echo "You must specify --terraform-dir or --terraform-json. Both cannot be empty at the same time"
+    exit 1
 fi
-
-TERRAFORM_DIR="$1"
-shift 1
-REGO_PATHS=("$@")
-
 # Setting this variable will cause terraform to print a little less information
 # on what to do next.
 TF_IN_AUTOMATION=true
@@ -49,19 +91,24 @@ function silently {
   rm "$log"
 }
 
-# Temporary files.
-TERRAFORM_PLAN="$(mktemp -t plan.XXXXXXX)"
-TERRAFORM_PLAN_JSON="$(mktemp -t plan.json.XXXXXXX)"
-function cleanup {
-    rm -f "$TERRAFORM_PLAN" "$TERRAFORM_PLAN_JSON"
-}
-trap cleanup exit
+if [[ ! -v TERRAFORM_PLAN_JSON ]] ; then #TERRAFORM_PLAN_JSON provided as a parameter
 
-# Run terraform to obtain the plan.
-(cd "$TERRAFORM_DIR" &&
-    silently "$TERRAFORM" init &&
-    silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN" &&
-    "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON")
+  # Temporary files.
+  TERRAFORM_PLAN="$(mktemp -t plan.XXXXXXX)"
+  TERRAFORM_PLAN_JSON="$(mktemp -t plan.json.XXXXXXX)"
+  function cleanup {
+      rm -f "$TERRAFORM_PLAN" "$TERRAFORM_PLAN_JSON"
+  }
+  trap cleanup exit
+
+
+  # Run terraform to obtain the plan.
+  (cd "$TERRAFORM_DIR" &&
+      silently "$TERRAFORM" init &&
+      silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN" &&
+      "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON")
+
+fi
 
 # Prepend `-d` to every argument because `opa` expects to see many `-d`
 # arguments.

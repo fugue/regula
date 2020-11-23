@@ -112,7 +112,7 @@ Some examples:
 It is also possible to set the name of the `terraform` executable, which is
 useful if you have several versions installed:
 
-    env TERRAFORM=terraform-v0.12.18 ./bin/regula --terraform-dir regula-ci-example/ --rego-paths lib
+    env TERRAFORM=terraform-v0.12.18 ./bin/regula --terraform-dir ../regula-ci-example/ --rego-paths lib
 
 Note that Regula requires Terraform 0.12+ in order to generate the JSON-formatted plan.
 

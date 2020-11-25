@@ -10,6 +10,6 @@ jobs:
     - run: |
         go get github.com/open-policy-agent/opa
         go install github.com/open-policy-agent/opa
-    - run: echo "$GOPATH/bin" >> $GITHUB_PATH
+    - run: echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
     - run: opa test lib rules examples tests
     - run: ./scripts/check-naming.sh

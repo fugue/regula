@@ -17,7 +17,6 @@
 package fugue.resource_view
 
 import data.util.merge
-import data.util.update
 import data.util.resolve
 
 # This constructs the input for the rules, with most importantly the
@@ -46,7 +45,9 @@ resource_view_patches[id] = patches {
     path = after_unknowns[_]
 
     # The references can be anything that is a _prefix_ of this path.
-    [prefix, refs] := references[_]
+    prefix_and_refs := references[_]
+    prefix := prefix_and_refs[0]
+    refs := prefix_and_refs[1]
     array.slice(path, 0, count(prefix)) == prefix
     count(prefix) > 0
 

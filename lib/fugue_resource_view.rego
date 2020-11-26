@@ -27,7 +27,7 @@ resource_view_input = {
 
 # In our final resource view available to the rules, we merge optional
 # `configuration_resources` into `planned_values_resources`.
-resource_view[id] = ret {
+resource_view = {id: ret |
   planned_values_resource := planned_values_resources[id]
   patches := object.get(resource_view_patches, id, [])
   ret := json.patch(planned_values_resource, patches)
@@ -35,7 +35,7 @@ resource_view[id] = ret {
 
 # These are the patches applied to each resource in order to fill in
 # unknown references.
-resource_view_patches[id] = patches {
+resource_view_patches = {id: patches |
   _ := planned_values_resources[id]
   references := object.get(configuration_references, id, [])
   patches := [patch |
@@ -103,7 +103,7 @@ resource_values(resource) = ret {
 }
 
 # Grab resources from planned values.  Add "id" and "_type" keys.
-planned_values_resources[id] = ret {
+planned_values_resources = {id: ret |
   planned_values_module_resources[_] = resource_section
   resource = resource_section[_]
   id = resource.address
@@ -242,7 +242,7 @@ configuration_resolve_ref(outputs, module_path, vars, ref) = ret {
   ret = module_qualify(module_path, ref)
 }
 
-resource_changes_by_address[address] = resource_changes {
+resource_changes_by_address = {address: resource_changes |
   address := input.resource_changes[_].address
   resource_changes = [resource_change |
     resource_change := input.resource_changes[_]

@@ -23,14 +23,13 @@ if [[ $# -lt 1 ]]; then
   1>&2 echo "deployment."
   exit 1
 fi
-echo $1
 
 if [[ -d "$1" ]]; then
     TERRAFORM_DIR="$1"
 elif [[ -f "$1" ]]; then
     TERRAFORM_PLAN_JSON="$1"
 else
-    echo "Error: $1 should be a file or directory"
+    1>&2 echo "Error: $1 should be a file or directory"
     exit 1
 fi
 shift 1

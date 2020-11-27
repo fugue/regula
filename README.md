@@ -36,8 +36,7 @@ Regula includes a library of rules written in Rego, the policy language used by 
 ## How does Regula work?
 
 There are two parts to Regula. The first is a [shell script](/bin/regula)
-that generates a [terraform] plan in JSON format, ready for consumption by
-[opa].
+that generates a [terraform] plan or use existing in JSON format, ready for consumption by [opa].
 
 The second part is a Rego framework that:
 
@@ -101,6 +100,8 @@ should at least include `lib/`.
 Some examples:
 
 -   `./bin/regula ../my-tf-infra .`: conveniently check `../my-tf-infra` against
+    all rules in this main repository.
+-   `./bin/regula ../my-tf-infra.json .`: conveniently check `../my-tf-infra.json` terraform plan against
     all rules in this main repository.
 -   `./bin/regula ../my-tf-infra lib examples/aws/ec2_t2_only.rego`: run Regula
     using only the specified rule.

@@ -16,15 +16,23 @@ set -o nounset -o errexit -o pipefail
 
 # Basic command line argument handling.
 if [[ $# -lt 1 ]]; then
-  1>&2 echo "Usage: $0 TERRAFORM_DIR [REGO_PATHS..]"
+  1>&2 echo "Usage: $0 [TERRAFORM_DIR or TERRAFORM_PLAN_JSON] [REGO_PATHS..]"
   1>&2 echo ""
   1>&2 echo "Regula is a little wrapper to run Rego validations on terraform"
   1>&2 echo "files.  It is meant to be used as a pre-flight check before"
   1>&2 echo "deployment."
   exit 1
 fi
+echo $1
 
-TERRAFORM_DIR="$1"
+if [[ -d "$1" ]]; then
+    TERRAFORM_DIR="$1"
+elif [[ -f "$1" ]]; then
+    TERRAFORM_PLAN_JSON="$1"
+else
+    echo "Error: $1 should be a file or directory"
+    exit 1
+fi
 shift 1
 REGO_PATHS=("$@")
 
@@ -49,19 +57,24 @@ function silently {
   rm "$log"
 }
 
-# Temporary files.
-TERRAFORM_PLAN="$(mktemp -t plan.XXXXXXX)"
-TERRAFORM_PLAN_JSON="$(mktemp -t plan.json.XXXXXXX)"
-function cleanup {
-    rm -f "$TERRAFORM_PLAN" "$TERRAFORM_PLAN_JSON"
-}
-trap cleanup exit
+if [[ ! -v TERRAFORM_PLAN_JSON ]] ; then #TERRAFORM_PLAN_JSON provided as a parameter
 
-# Run terraform to obtain the plan.
-(cd "$TERRAFORM_DIR" &&
-    silently "$TERRAFORM" init &&
-    silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN" &&
-    "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON")
+  # Temporary files.
+  TERRAFORM_PLAN="$(mktemp -t plan.XXXXXXX)"
+  TERRAFORM_PLAN_JSON="$(mktemp -t plan.json.XXXXXXX)"
+  function cleanup {
+      rm -f "$TERRAFORM_PLAN" "$TERRAFORM_PLAN_JSON"
+  }
+  trap cleanup exit
+
+
+  # Run terraform to obtain the plan.
+  (cd "$TERRAFORM_DIR" &&
+      silently "$TERRAFORM" init &&
+      silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN" &&
+      "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON")
+
+fi
 
 # Prepend `-d` to every argument because `opa` expects to see many `-d`
 # arguments.

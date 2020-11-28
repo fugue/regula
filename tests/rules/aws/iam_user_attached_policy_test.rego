@@ -13,18 +13,17 @@
 # limitations under the License.
 package tests.rules.iam_user_attached_policy
 
-import data.fugue.regula
-import data.tests.rules.aws.inputs.iam_user_attached_policy_infra.mock_plan_input
+import data.tests.rules.aws.inputs.iam_user_attached_policy_infra.mock_input
 
 test_user_attached_policy {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.iam_user_attached_policy.resources
+  pol := data.rules.iam_user_attached_policy.policy with input as mock_input
+  resources := {p.id: p.valid | p := pol[_]}
 
-  resources["aws_iam_policy_attachment.invalid_normal_policy_attachment"].valid == false
-  resources["aws_iam_user_policy.invalid_user_policy"].valid == false
-  resources["aws_iam_user_policy_attachment.invalid_user_policy_attachment"].valid == false
-  resources["aws_iam_policy_attachment.valid_group_policy_attachment_blank_users"].valid == true
-  resources["aws_iam_policy_attachment.valid_group_policy_attachment_missing_users"].valid == true
-  resources["aws_iam_policy_attachment.valid_group_policy_attachment_empty_list_users"].valid == true
-  resources["aws_iam_policy_attachment.valid_role_policy_attachment"].valid == true  
+  resources["aws_iam_policy_attachment.invalid_normal_policy_attachment"] == false
+  resources["aws_iam_user_policy.invalid_user_policy"] == false
+  resources["aws_iam_user_policy_attachment.invalid_user_policy_attachment"] == false
+  resources["aws_iam_policy_attachment.valid_group_policy_attachment_blank_users"] == true
+  resources["aws_iam_policy_attachment.valid_group_policy_attachment_missing_users"] == true
+  resources["aws_iam_policy_attachment.valid_group_policy_attachment_empty_list_users"] == true
+  resources["aws_iam_policy_attachment.valid_role_policy_attachment"] == true
 }

@@ -26,13 +26,39 @@ resource_view_input = {
   "_plan": input
 }
 
-# In our final resource view available to the rules, we merge an optional
-# `configuration_resources` and `planned_values_resources` with a bias for
-# `planned_values_resources`.
+# In our final resource view available to the rules, we merge optional
+# `configuration_resources` into `planned_values_resources`.
 resource_view[id] = ret {
-  planned_values_resource = planned_values_resources[id]
-  configuration_resource = {k: v | r = configuration_resources[id]; r[k] = v}
-  ret = merge.merge(configuration_resource, planned_values_resource)
+  planned_values_resource := planned_values_resources[id]
+  patches := object.get(resource_view_patches, id, [])
+  ret := json.patch(planned_values_resource, patches)
+}
+
+# These are the patches applied to each resource in order to fill in
+# unknown references.
+resource_view_patches[id] = patches {
+  _ := planned_values_resources[id]
+  references := object.get(configuration_references, id, [])
+  after_unknowns := object.get(resource_changes_unknowns, id, [])
+  patches := [patch |
+    # Obtain the paths from the unknown values.
+    path = after_unknowns[_]
+
+    # The references can be anything that is a _prefix_ of this path.
+    prefix_and_refs := references[_]
+    prefix := prefix_and_refs[0]
+    refs := prefix_and_refs[1]
+    array.slice(path, 0, count(prefix)) == prefix
+    count(prefix) > 0
+
+    # Turn the value into a singleton if possible.
+    value := reference_as_singleton_or_array(refs)
+
+    # Create a patch that works with json.patch.
+    patch := {"op": "add", "path": path, "value": value}
+  ]
+
+  _ = patches[_]
 }
 
 # Grab all modules inside the `planned_values` section.
@@ -121,11 +147,26 @@ module_qualify(module_path, unqualified) = ret {
   ret = concat(".", ["module", concat(".module.", module_path), unqualified])
 }
 
-# Grab resources from the configuration.  The only thing we're currently
+# Grab info from the configuration.  The only thing we're currently
 # interested in are `references` to other resources.  You can find some more
 # details about this format here:
 # <https://www.terraform.io/docs/internals/json-format.html>.
-configuration_resources = ret {
+#
+# The returned value is an object that has the references for every resource.
+# The references are represented as an array of tuples where the first element
+# is the path to the key, and the second element are the references (or single
+# reference).  For example:
+#
+#     {
+#       "aws_iam_policy.example": [
+#         [["policy"], "data.aws_iam_policy_document.example"]
+#       ],
+#       "data.aws_iam_policy_document.example": [
+#         [["statement", 0, "resources"], "aws_s3_bucket.example"]
+#       ]
+#     }
+#
+configuration_references = ret {
   # Make sure output variables are resolved first, since we end up with a global
   # map of qualified names.
   outputs := resolve.resolve(configuration_module_outputs)
@@ -134,14 +175,24 @@ configuration_resources = ret {
     configuration_modules[module_path] = [vars, module]
     resource = module.resources[_]
     qualified_address = module_qualify(module_path, resource.address)
-    resolved_references = {key: resolved |
-      expr = resource.expressions[key]
-      is_object(expr)
-      resolved = reference_as_singleton_or_array([
+    resolved_references = [[keys, resolved] |
+      # Check recursively.
+      [keys, value] = walk(resource.expressions)
+
+      # Check shape.
+      refs = value.references
+      is_array(refs)
+      all([is_string(ref) | ref = refs[_]])
+
+      # Resolve and return.
+      resolved = [
         configuration_resolve_ref(outputs, module_path, vars, ref) |
-        ref = expr.references[_]
-      ])
-    }
+        ref = refs[_]
+      ]
+    ]
+
+    # No need to return anything if the list is empty.
+    _ = resolved_references[_]
   }
 }
 
@@ -168,9 +219,24 @@ configuration_resolve_ref(outputs, module_path, vars, ref) = ret {
 } else = ret {
   # A reference to an output.  Needs to be qualified before we look in
   # `outputs`.
+  not startswith(ref, "var.")
   qual = module_qualify(module_path, ref)
   ret = outputs[qual]
 } else = ret {
   # A local resource.
+  not startswith(ref, "var.")
   ret = module_qualify(module_path, ref)
+}
+
+# resource_changes_unknown collects the unknown paths from the
+# `resource_changes` section of the plan.  This is used to know _where_ we
+# can plug in the values obtained in `configuration_references`.
+resource_changes_unknowns[address] = after_unknowns {
+  resource_change := input.resource_changes[_]
+  address := resource_change.address
+  block := resource_change.change.after_unknown
+  after_unknowns := [path |
+    walk(block, [path, unknown])
+    unknown == true
+  ]
 }

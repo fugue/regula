@@ -52,31 +52,31 @@ The second part is a Rego framework that:
 
 See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue is currently working on open sourcing more rules from [our product](https://www.fugue.co/) to Regula.
 
-| Provider | Service         | Rule Name                                   | Rule Summary                                                                                               |
-|----------|-----------------|---------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| AWS      | CloudFront      | cloudfront\_distribution\_https             | CloudFront distributions should use HTTPS traffic                                                          |
-| AWS      | CloudTrail      | cloudtrail\_log\_file\_validation           | CloudTrail log file validation should be enabled                                                           |
-| AWS      | EBS             | ebs\_volume\_encrypted                      | EBS volume encryption should be enabled                                                                    |
-| AWS      | IAM             | iam\_admin\_policy                          | IAM policies should not have full "*:*" administrative privileges                                          |
-| AWS      | IAM             | iam\_user\_attached\_policy                 | IAM policies should not be attached directly to users                                                      |
-| AWS      | KMS             | kms\_rotate                                 | KMS CMK rotation should be enabled                                                                         |
-| AWS      | S3              | s3\_bucket\_sse                             | Server Side Encryption by default should be set for S3 buckets                                             |                                                                         |
-| AWS      | VPC             | security\_group\_ingress\_anywhere          | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
-| AWS      | VPC             | security\_group\_ingress\_anywhere\_rdp     | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol) |
-| AWS      | VPC             | security\_group\_ingress\_anywhere\_ssh     | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                       |
-| AWS      | VPC             | vpc\_flow\_log                              | VPC flow logging should be enabled                                                                         |
-| GCP      | KMS             | kms\_cryptokey\_rotate                      | KMS crypto keys should be rotated at least once every 365 days                                             |
-| GCP      | Compute         | compute\_firewall\_no\_ingress\_22          | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                             |
-| GCP      | Compute         | compute\_firewall\_no\_ingress\_3389        | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                           |
-| GCP      | Compute         | compute\_subnet\_private\_google\_access    | VPC subnet 'Private Google Access' should be enabled                                                       |
-| GCP      | Compute         | compute\_subnet\_flow\_log\_enabled         | VPC subnet flow logging should be enabled                                                                  |
-| Azure    | Storage Account | storage\_account\_deny\_access              | Storage accounts should deny access from all networks by default                                           |
-| Azure    | Storage Account | storage\_account\_microsoft\_services       | Storage accounts 'Trusted Microsoft Services' access should be enabled                                     |
-| Azure    | Storage Account | storage\_account\_secure\_transfer          | Storage accounts 'Secure transfer required' should be enabled                                              |
-| Azure    | Blob Storage    | storage\_container\_private\_access         | Storage containers should have access set to 'private'                                                     |
-| Azure    | Virtual Network | network\_security\_group\_no\_inbound\_22   | Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                   |
-| Azure    | Virtual Network | network\_security\_group\_no\_inbound\_3389 | Network security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                 |
-| Azure    | SQL Server      | sql\_server\_firewall\_no\_inbound\_all     | SQL Server firewall rules should not permit ingress from 0.0.0.0/0 to all ports and protocols              |
+| Provider | Service         | Rule ID|  Rule Name                                    | Rule Summary                                                                                               |
+|----------|-----------------|---|------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| AWS      | CloudFront      | FG_R00011|cloudfront\_distribution\_https              | CloudFront distributions should use HTTPS traffic                                                          |
+| AWS      | CloudTrail      | FG_R00027|cloudtrail\_log\_file\_validation            | CloudTrail log file validation should be enabled                                                           |
+| AWS      | EBS             | FG_R00016 | ebs\_volume\_encrypted                     | EBS volume encryption should be enabled                                                                    |
+| AWS      | IAM             | FG_R00092 |iam\_admin\_policy                          | IAM policies should not have full "*:*" administrative privileges                                          |
+| AWS      | IAM             | FG_R00007 |iam\_user\_attached\_policy                 | IAM policies should not be attached directly to users                                                      |
+| AWS      | KMS             |FG_R00036 | kms\_rotate                                 | KMS CMK rotation should be enabled                                                                         |
+| AWS      | VPC             | FG_R00351 | security\_group\_ingress\_anywhere         | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
+| AWS      | VPC             | FG_R00087 | security\_group\_ingress\_anywhere\_rdp    | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol) |
+| AWS      | VPC             | FG_R00085 | security\_group\_ingress\_anywhere\_ssh    | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                       |
+| AWS      | VPC             |  FG_R00054 |vpc\_flow\_log                             | VPC flow logging should be enabled                                                                         |
+| GCP      | KMS             | FG_R00352 | kms\_cryptokey\_rotate                     | KMS crypto keys should be rotated at least once every 365 days                                             |
+| GCP      | Compute         | FG_R00353 | compute\_firewall\_no\_ingress\_22         | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                             |
+| GCP      | Compute         | FG_R00354 | compute\_firewall\_no\_ingress\_3389       | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                           |
+| GCP      | Compute         | FG_R00354 | compute\_subnet\_private\_google\_access   | VPC subnet 'Private Google Access' should be enabled                                                       |
+| GCP      | Compute         | FG_R00356 | compute\_subnet\_flow\_log\_enabled        | VPC subnet flow logging should be enabled                                                                  |
+ GCP       | Compute         | REGULA_R00013 | ompute\_subnet\_private\_google_access | VPC subnet 'Private Google Access' should be enable
+| Azure    | Storage Account | FG_R00154 |storage\_account\_deny\_access              | Storage accounts should deny access from all networks by default                                           |
+| Azure    | Storage Account | FG_R00208 | storage\_account\_microsoft\_services      | Storage accounts 'Trusted Microsoft Services' access should be enabled                                     |
+| Azure    | Storage Account | FG_R00152 | storage\_account\_secure\_transfer         | Storage accounts 'Secure transfer required' should be enabled                                              |
+| Azure    | Blob Storage    |  FG_R00207 | storage\_container\_private\_access       | Storage containers should have access set to 'private'                                                     |
+| Azure    | Virtual Network | FG_R00190 | network\_security\_group\_no\_inbound\_22  | Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                   |
+| Azure    | Virtual Network | FG_R00191 | network\_security\_group\_no\_inbound\_3389| Network security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                 |
+| Azure    | SQL Server      | FG_R00192 | sql\_server\_firewall\_no\_inbound\_all    | SQL Server firewall rules should not permit ingress from 0.0.0.0/0 to all ports and protocols              |
 
 ## Running Regula locally
 

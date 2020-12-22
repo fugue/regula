@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Copyright 2020 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@ REGO_PATHS=("$@")
 
 # Setting this variable will cause terraform to print a little less information
 # on what to do next.
-TF_IN_AUTOMATION=true
+export TF_IN_AUTOMATION=true
 
 # Allow overriding terraform version.
 TERRAFORM="${TERRAFORM:-terraform}"
@@ -48,7 +48,7 @@ function silently {
   local exit_code=""
   1>&2 echo "${1+$@}"
   ${1+"$@"} >"$log" 2>&1 || exit_code=$?
-  if [[ ! -z $exit_code ]]; then
+  if [[ -n "$exit_code" ]]; then
     1>&2 echo "${1+$@} failed; output ($log):"
     1>&2 cat "$log"
     exit $exit_code
@@ -56,7 +56,7 @@ function silently {
   rm "$log"
 }
 
-if [[ ! -v TERRAFORM_PLAN_JSON ]] ; then #TERRAFORM_PLAN_JSON provided as a parameter
+if [[ -z "${TERRAFORM_PLAN_JSON:-}" ]]; then
 
   # Temporary files.
   TERRAFORM_PLAN="$(mktemp -t plan.XXXXXXX)"

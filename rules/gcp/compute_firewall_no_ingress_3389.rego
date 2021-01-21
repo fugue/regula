@@ -20,7 +20,7 @@ package rules.gcp_compute_firewall_no_ingress_3389
 import data.fugue.gcp.compute_firewall
 
 __rego__metadoc__ := {
-  "id": "FG_R00354",
+  "id": "FG_R00380",
   "title": "VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)",
   "description": "VPC firewall rules should not permit unrestricted access from the internet to port 3389 (RDP). Removing unfettered connectivity to remote console services, such as Remote Desktop Protocol, reduces a server's exposure to risk.",
   "custom": {

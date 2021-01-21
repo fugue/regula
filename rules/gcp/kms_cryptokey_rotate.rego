@@ -16,7 +16,7 @@
 package rules.gcp_kms_cryptokey_rotate
 
 __rego__metadoc__ := {
-  "id": "FG_R00352",
+  "id": "FG_R00378",
   "title": "KMS crypto keys should be rotated at least once every 365 days",
   "description": "Key rotation is a security best practice that helps reduce the potential impact of a compromised key, as users cannot use deprecated/older keys.",
   "custom": {

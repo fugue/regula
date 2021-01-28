@@ -17,7 +17,7 @@ import data.fugue
 import data.fugue.azure.network_security_group
 
 __rego__metadoc__ := {
-  "id": "FG_R00191",
+  "id": "FG_R00190",
   "title": "Network security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)",
   "description": "Virtual Network security groups should not permit ingress from '0.0.0.0/0' to TCP/UDP port 3389 (RDP). The potential security problem with using RDP over the Internet is that attackers can use various brute force techniques to gain access to Azure Virtual Machines. Once the attackers gain access, they can use a virtual machine as a launch point for compromising other machines on an Azure Virtual Network or even attack networked devices outside of Azure.",
   "custom": {

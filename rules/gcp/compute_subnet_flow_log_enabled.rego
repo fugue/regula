@@ -16,7 +16,7 @@
 package rules.gcp_compute_subnet_flow_log_enabled
 
 __rego__metadoc__ := {
-  "id": "FG_R00356",
+  "id": "FG_R00381",
   "title": "VPC subnet flow logging should be enabled",
   "description": "Flow logs provide visibility into network traffic that traverses a VPC, and can be used to detect anomalous traffic and additional insights.",
   "custom": {

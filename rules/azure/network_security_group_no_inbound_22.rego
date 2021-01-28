@@ -17,7 +17,7 @@ import data.fugue
 import data.fugue.azure.network_security_group
 
 __rego__metadoc__ := {
-  "id": "FG_R00190",
+  "id": "FG_R00191",
   "title": "Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)",
   "description": "Virtual Network security groups should not permit ingress from '0.0.0.0/0' to TCP/UDP port 22 (SSH). The potential security problem with using SSH over the internet is that attackers can use various brute force techniques to gain access to Azure Virtual Machines. Once the attackers gain access, they can use a virtual machine as a launch point for compromising other machines on the Azure Virtual Network or even attack networked devices outside of Azure.",
   "custom": {

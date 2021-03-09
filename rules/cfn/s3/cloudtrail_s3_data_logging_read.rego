@@ -36,6 +36,10 @@ resource_type = "MULTIPLE"
 trails = fugue.resources("AWS::CloudTrail::Trail")
 buckets = fugue.resources("AWS::S3::Bucket")
 
+has_trails {
+  count(trails) > 0
+}
+
 valid_selector_types = {
   "All",
   "ReadOnly"
@@ -57,11 +61,16 @@ valid_buckets[bucket_id] {
   cloudtrail.event_selector_applies_to_bucket(event_selector, bucket)
 }
 
+# TODO: We're skipping these rules when a template does not contain both S3 buckets
+# and CloudTrail trails. Another possible approach is to add a new type of "unknown"
+# result for resources and use that when the template only contains S3 buckets.
 policy[j] {
+  has_trails
   bucket := buckets[bucket_id]
   valid_buckets[bucket_id]
   j := fugue.allow_resource(bucket)
 } {
+  has_trails
   bucket := buckets[bucket_id]
   not valid_buckets[bucket_id]
   j := fugue.deny_resource(bucket)

@@ -76,10 +76,8 @@ test_invalid_cloudtrail_s3_data_logging_no_trails {
   report := regula.report with input as inputs.invalid_cloudtrail_s3_data_logging_no_trails_infra.mock_plan_input
   resources := report.rules.cfn_s3_cloudtrail_s3_data_logging_read.resources
 
-  count(resources) == 3
-  resources["Bucket1"].valid == false
-  resources["Bucket2"].valid == false
-  resources["Bucket3"].valid == false
+  # The rule shouldn't evaluate any of the buckets when there are no trails.
+  count(resources) == 0
 }
 
 test_invalid_cloudtrail_s3_data_logging_trail_no_data_events {

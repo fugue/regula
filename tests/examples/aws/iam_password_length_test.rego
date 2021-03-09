@@ -23,6 +23,6 @@ test_iam_password_length {
   resources["aws_iam_account_password_policy.invalid_1"].valid == false
   resources["aws_iam_account_password_policy.invalid_2"].valid == false
 
-  empty_report := regula.report with input as {}
+  empty_report := regula.report with input as {"terraform_version": "0.12.18"}
   empty_report.rules.iam_password_length.valid == false
 }

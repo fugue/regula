@@ -16,7 +16,10 @@ set -o nounset -o errexit -o pipefail
 
 # Basic command line argument handling.
 if [[ $# -lt 1 ]]; then
-  1>&2 echo "Usage: $0 [TERRAFORM_DIR or TERRAFORM_PLAN_JSON] [REGO_PATHS..]"
+  1>&2 echo "Usage: $0 [INPUT_PATH] [REGO_PATHS..]"
+  1>&2 echo ""
+  1>&2 echo "INPUT_PATH can be a terraform directory, a terraform plan in"
+  1>&2 echo "JSON format or a cloudformation template."
   1>&2 echo ""
   1>&2 echo "Regula is a little wrapper to run Rego validations on terraform"
   1>&2 echo "files.  It is meant to be used as a pre-flight check before"
@@ -24,14 +27,19 @@ if [[ $# -lt 1 ]]; then
   exit 1
 fi
 
-if [[ -d "$1" ]]; then
-    TERRAFORM_DIR="$1"
-elif [[ -f "$1" ]]; then
-    TERRAFORM_PLAN_JSON="$1"
-else
-    1>&2 echo "Error: $1 should be a file or directory"
-    exit 1
-fi
+
+function detect_input_type {
+  if [[ -d "$1" ]]; then
+    echo "terraform_dir"
+    return
+  fi
+
+  opa eval -d lib -i "$1" --format pretty 'data.fugue.input_type.input_type' | \
+    tr -d '"'  # Unquote the string, not great but avoids jq dependency.
+}
+
+INPUT_PATH="$1"
+INPUT_TYPE="$(detect_input_type "$1")"
 shift 1
 REGO_PATHS=("$@")
 
@@ -44,8 +52,10 @@ TERRAFORM="${TERRAFORM:-terraform}"
 
 # Hide the output of a command only if it succeeds.
 function silently {
-  local log="$(mktemp -t silently.XXXXXXX)"
-  local exit_code=""
+  local log
+  log="$(mktemp -t silently.XXXXXXX)"
+  local exit_code
+  exit_code=""
   1>&2 echo "${1+$@}"
   ${1+"$@"} >"$log" 2>&1 || exit_code=$?
   if [[ -n "$exit_code" ]]; then
@@ -56,23 +66,29 @@ function silently {
   rm "$log"
 }
 
-if [[ -z "${TERRAFORM_PLAN_JSON:-}" ]]; then
-
+# Preprocessing.
+if [[ "$INPUT_TYPE" == "terraform_dir" ]]; then
   # Temporary files.
   TERRAFORM_PLAN="$(mktemp -t plan.XXXXXXX)"
   TERRAFORM_PLAN_JSON="$(mktemp -t plan.json.XXXXXXX)"
   function cleanup {
-      rm -f "$TERRAFORM_PLAN" "$TERRAFORM_PLAN_JSON"
+    rm -f "$TERRAFORM_PLAN" "$TERRAFORM_PLAN_JSON"
   }
   trap cleanup exit
-
-
   # Run terraform to obtain the plan.
-  (cd "$TERRAFORM_DIR" &&
-      silently "$TERRAFORM" init &&
-      silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN" &&
-      "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON")
-
+  (cd "$INPUT_PATH" &&
+    silently "$TERRAFORM" init &&
+    silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN" &&
+    "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON")
+  INPUT_PATH="$TERRAFORM_PLAN_JSON"
+elif [[ "$INPUT_TYPE" == "cloudformation" ]]; then
+  CFN_JSON="$(mktemp -t plan.json.XXXXXXX)"
+  function cleanup {
+    rm -f "$CFN_JSON"
+  }
+  trap cleanup exit
+  silently cfn-flip -j "$INPUT_PATH" >"$CFN_JSON"
+  INPUT_PATH="$CFN_JSON"
 fi
 
 # Prepend `-d` to every argument because `opa` expects to see many `-d`
@@ -84,6 +100,6 @@ for p in "${REGO_PATHS[@]}"; do
 done
 
 # Finally, run OPA on the result to get out our report.
-opa eval -i "$TERRAFORM_PLAN_JSON" \
+opa eval -i "$INPUT_PATH" \
     "${D_REGO_PATHS[@]}" \
     'data.fugue.regula.report'

@@ -28,20 +28,34 @@ if [[ $# -lt 1 ]]; then
 fi
 
 
+INPUT_PATH="$1"
+if [[ "$INPUT_PATH" == "-" ]]; then
+  INPUT_PATH="$(mktemp -t input.XXXXXXX)"
+  cat - >"$INPUT_PATH"
+fi
+shift 1
+REGO_PATHS=("$@")
+
+# Prepend `-d` to every argument because `opa` expects to see many `-d`
+# arguments.
+D_REGO_PATHS=()
+for p in "${REGO_PATHS[@]}"; do
+  D_REGO_PATHS+=('-d')
+  D_REGO_PATHS+=("$p")
+done
+
 function detect_input_type {
   if [[ -d "$1" ]]; then
     echo "terraform_dir"
     return
   fi
 
-  opa eval -d lib -i "$1" --format pretty 'data.fugue.input_type.input_type' | \
+  opa eval "${D_REGO_PATHS[@]}" -i "$1" --format pretty \
+      'data.fugue.input_type.input_type' | \
     tr -d '"'  # Unquote the string, not great but avoids jq dependency.
 }
 
-INPUT_PATH="$1"
-INPUT_TYPE="$(detect_input_type "$1")"
-shift 1
-REGO_PATHS=("$@")
+INPUT_TYPE="$(detect_input_type "$INPUT_PATH")"
 
 # Setting this variable will cause terraform to print a little less information
 # on what to do next.
@@ -70,7 +84,7 @@ function silently {
 if [[ "$INPUT_TYPE" == "terraform_dir" ]]; then
   # Temporary files.
   TERRAFORM_PLAN="$(mktemp -t plan.XXXXXXX)"
-  TERRAFORM_PLAN_JSON="$(mktemp -t plan.json.XXXXXXX)"
+  TERRAFORM_PLAN_JSON="$TERRAFORM_PLAN.json"
   function cleanup {
     rm -f "$TERRAFORM_PLAN" "$TERRAFORM_PLAN_JSON"
   }
@@ -82,24 +96,16 @@ if [[ "$INPUT_TYPE" == "terraform_dir" ]]; then
     "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON")
   INPUT_PATH="$TERRAFORM_PLAN_JSON"
 elif [[ "$INPUT_TYPE" == "cloudformation" ]]; then
-  CFN_JSON="$(mktemp -t plan.json.XXXXXXX)"
+  CFN_JSON="$(mktemp -t cfn.XXXXXXX)"
   function cleanup {
     rm -f "$CFN_JSON"
   }
   trap cleanup exit
-  silently cfn-flip -j "$INPUT_PATH" >"$CFN_JSON"
+  cfn-flip -j "$INPUT_PATH" >"$CFN_JSON"
   INPUT_PATH="$CFN_JSON"
 fi
 
-# Prepend `-d` to every argument because `opa` expects to see many `-d`
-# arguments.
-D_REGO_PATHS=()
-for p in "${REGO_PATHS[@]}"; do
-    D_REGO_PATHS+=('-d')
-    D_REGO_PATHS+=("$p")
-done
-
 # Finally, run OPA on the result to get out our report.
-opa eval -i "$INPUT_PATH" \
+opa eval --input "$INPUT_PATH" \
     "${D_REGO_PATHS[@]}" \
     'data.fugue.regula.report'

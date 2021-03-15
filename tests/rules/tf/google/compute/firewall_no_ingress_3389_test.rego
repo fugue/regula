@@ -11,17 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_google_compute_firewall_no_ingress_3389
+package rules.tf_google_compute_firewall_no_ingress_3389
 
-import data.fugue.regula
-import data.tests.rules.tf.google.compute.inputs.firewall_no_ingress_3389_infra.mock_plan_input
+import data.tests.rules.tf.google.compute.inputs.firewall_no_ingress_3389_infra
 
 test_gcp_compute_firewall_no_ingress_3389 {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_google_compute_firewall_no_ingress_3389.resources
-
-  resources["google_compute_firewall.valid-rule-1"].valid == true
-  resources["google_compute_firewall.valid-rule-2"].valid == true
-  resources["google_compute_firewall.invalid-rule-1"].valid == false
-  resources["google_compute_firewall.invalid-rule-2"].valid == false
+  resources = firewall_no_ingress_3389_infra.mock_resources
+  not deny with input as resources["google_compute_firewall.valid-rule-1"]
+  not deny with input as resources["google_compute_firewall.valid-rule-2"]
+  deny with input as resources["google_compute_firewall.invalid-rule-1"]
+  deny with input as resources["google_compute_firewall.invalid-rule-2"]
 }

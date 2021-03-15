@@ -11,17 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_aws_security_group_ingress_anywhere_rdp
+package rules.tf_aws_security_group_ingress_anywhere_rdp
 
-import data.fugue.regula
-import data.tests.rules.tf.aws.security_group.inputs.ingress_anywhere_rdp_infra.mock_plan_input
+import data.tests.rules.tf.aws.security_group.inputs.ingress_anywhere_rdp_infra
 
 test_security_group_ingress_anywhere_rdp {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_aws_security_group_ingress_anywhere_rdp.resources
-
-  resources["aws_security_group.valid_sg_1"].valid == true
-  resources["aws_security_group.valid_sg_2"].valid == true
-  resources["aws_security_group.invalid_sg_1"].valid == false
-  resources["aws_security_group.invalid_sg_2"].valid == false
+  resources = ingress_anywhere_rdp_infra.mock_resources
+  not deny with input as resources["aws_security_group.valid_sg_1"]
+  not deny with input as resources["aws_security_group.valid_sg_2"]
+  deny with input as resources["aws_security_group.invalid_sg_1"]
+  deny with input as resources["aws_security_group.invalid_sg_2"]
 }

@@ -11,16 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_aws_cloudfront_distribution_https
+package rules.tf_aws_cloudfront_distribution_https
 
-import data.fugue.regula
-import data.tests.rules.tf.aws.cloudfront.inputs.distribution_https_infra.mock_plan_input
+import data.tests.rules.tf.aws.cloudfront.inputs.distribution_https_infra
 
 test_cloudfront_distribution_https {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_aws_cloudfront_distribution_https.resources
-
-  resources["aws_cloudfront_distribution.allow_all"].valid == false
-  resources["aws_cloudfront_distribution.redirect_to_https"].valid == true
-  resources["aws_cloudfront_distribution.https_only"].valid == true
+  resources = distribution_https_infra.mock_resources
+  not allow with input as resources["aws_cloudfront_distribution.allow_all"]
+  allow with input as resources["aws_cloudfront_distribution.redirect_to_https"]
+  allow with input as resources["aws_cloudfront_distribution.https_only"]
 }

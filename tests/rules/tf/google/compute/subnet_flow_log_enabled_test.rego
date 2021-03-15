@@ -11,16 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_google_compute_subnet_flow_log_enabled
+package rules.tf_google_compute_subnet_flow_log_enabled
 
-import data.fugue.regula
-import data.tests.rules.tf.google.compute.inputs.subnet_flow_log_enabled_infra.mock_plan_input
+import data.tests.rules.tf.google.compute.inputs.subnet_flow_log_enabled_infra
 
 test_gcp_compute_subnet_flow_log_enabled {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_google_compute_subnet_flow_log_enabled.resources
-
-  resources["google_compute_subnetwork.valid-subnet-1"].valid == true
-  resources["google_compute_subnetwork.valid-subnet-2"].valid == true
-  resources["google_compute_subnetwork.invalid-subnet-1"].valid == false
+  resources = subnet_flow_log_enabled_infra.mock_resources
+  not deny with input as resources["google_compute_subnetwork.valid-subnet-1"]
+  not deny with input as resources["google_compute_subnetwork.valid-subnet-2"]
+  deny with input as resources["google_compute_subnetwork.invalid-subnet-1"]
 }

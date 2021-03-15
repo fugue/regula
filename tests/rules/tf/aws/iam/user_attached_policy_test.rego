@@ -11,12 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_aws_iam_user_attached_policy
+package rules.tf_aws_iam_user_attached_policy
 
 import data.tests.rules.tf.aws.iam.inputs.user_attached_policy_infra.mock_input
 
 test_user_attached_policy {
-  pol := data.rules.tf_aws_iam_user_attached_policy.policy with input as mock_input
+  pol := policy with input as mock_input
   resources := {p.id: p.valid | p := pol[_]}
 
   resources["aws_iam_policy_attachment.invalid_normal_policy_attachment"] == false

@@ -11,18 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_azurerm_sql_firewall_no_inbound_all
+package rules.tf_azurerm_sql_firewall_no_inbound_all
 
-import data.fugue.regula
-import data.tests.rules.tf.azurerm.sql.inputs.firewall_no_inbound_all_infra.mock_plan_input
+import data.tests.rules.tf.azurerm.sql.inputs.firewall_no_inbound_all_infra
 
 test_sql_server_firewall_no_inbound_all {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_azurerm_sql_firewall_no_inbound_all.resources
-
-  resources["azurerm_sql_firewall_rule.validrule1"].valid == true
-  resources["azurerm_sql_firewall_rule.invalidrule1"].valid == false
-  resources["azurerm_sql_firewall_rule.invalidrule2"].valid == false
-  resources["azurerm_sql_firewall_rule.invalidrule3"].valid == false
-  resources["azurerm_sql_firewall_rule.invalidrule4"].valid == false
+  resources = firewall_no_inbound_all_infra.mock_resources
+  not deny with input as resources["azurerm_sql_firewall_rule.validrule1"]
+  deny with input as resources["azurerm_sql_firewall_rule.invalidrule1"]
+  deny with input as resources["azurerm_sql_firewall_rule.invalidrule2"]
+  deny with input as resources["azurerm_sql_firewall_rule.invalidrule3"]
+  deny with input as resources["azurerm_sql_firewall_rule.invalidrule4"]
 }

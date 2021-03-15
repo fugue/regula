@@ -11,17 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_azurerm_storage_account_microsoft_services
+package rules.tf_azurerm_storage_account_microsoft_services
 
-import data.fugue.regula
-import data.tests.rules.tf.azurerm.storage.inputs.account_microsoft_services_infra.mock_plan_input
+import data.tests.rules.tf.azurerm.storage.inputs.account_microsoft_services_infra
 
 test_storage_account_microsoft_services {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_azurerm_storage_account_microsoft_services.resources
-
-  resources["azurerm_storage_account.validstorageaccount1"].valid == true
-  resources["azurerm_storage_account.validstorageaccount2"].valid == true
-  resources["azurerm_storage_account.invalidstorageaccount1"].valid == false
-  resources["azurerm_storage_account.invalidstorageaccount2"].valid == false
+  resources = account_microsoft_services_infra.mock_resources
+  allow with input as resources["azurerm_storage_account.validstorageaccount1"]
+  allow with input as resources["azurerm_storage_account.validstorageaccount2"]
+  not allow with input as resources["azurerm_storage_account.invalidstorageaccount1"]
+  not allow with input as resources["azurerm_storage_account.invalidstorageaccount2"]
 }

@@ -11,15 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_aws_kms_key_rotation
+package rules.tf_aws_kms_key_rotation
 
-import data.fugue.regula
-import data.tests.rules.tf.aws.kms.inputs.key_rotation_infra.mock_plan_input
+import data.tests.rules.tf.aws.kms.inputs.key_rotation_infra
 
 test_kms_rotate {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_aws_kms_key_rotation.resources
-
-  resources["aws_kms_key.valid"].valid == true
-  resources["aws_kms_key.invalid"].valid == false
+  resources = key_rotation_infra.mock_resources
+  count(deny) == 0 with input as resources["aws_kms_key.valid"]
+  count(deny) == 1 with input as resources["aws_kms_key.invalid"]
 }

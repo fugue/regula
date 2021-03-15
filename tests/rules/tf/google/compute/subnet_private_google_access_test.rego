@@ -11,16 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_google_compute_subnet_private_google_access
+package rules.tf_google_compute_subnet_private_google_access
 
-import data.fugue.regula
-import data.tests.rules.tf.google.compute.inputs.subnet_private_google_access_infra.mock_plan_input
+import data.tests.rules.tf.google.compute.inputs.subnet_private_google_access_infra
 
 test_gcp_compute_subnet_private_google_access {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_google_compute_subnet_private_google_access.resources
-
-  resources["google_compute_subnetwork.valid-subnet-1"].valid == true
-  resources["google_compute_subnetwork.invalid-subnet-1"].valid == false
-  resources["google_compute_subnetwork.invalid-subnet-2"].valid == false
+  resources = subnet_private_google_access_infra.mock_resources
+  allow with input as resources["google_compute_subnetwork.valid-subnet-1"]
+  not allow with input as resources["google_compute_subnetwork.invalid-subnet-1"]
+  not allow with input as resources["google_compute_subnetwork.invalid-subnet-2"]
 }

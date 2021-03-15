@@ -11,15 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_aws_vpc_flow_log
+package rules.tf_aws_vpc_flow_log
 
-import data.fugue.regula
-import data.tests.rules.tf.aws.vpc.inputs.flow_log_infra.mock_plan_input
+import data.tests.rules.tf.aws.vpc.inputs.flow_log_infra
 
 test_vpc_flow_log {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_aws_vpc_flow_log.resources
-
-  resources["aws_vpc.valid_vpc"].valid == true
-  resources["aws_vpc.invalid_vpc"].valid == false
+  pol = policy with input as flow_log_infra.mock_input
+  by_resource_id = {p.id: p.valid | pol[p]}
+  by_resource_id["aws_vpc.valid_vpc"] == true
+  by_resource_id["aws_vpc.invalid_vpc"] == false
 }

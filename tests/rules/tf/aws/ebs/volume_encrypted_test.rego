@@ -11,16 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_aws_ebs_volume_encrypted
+package rules.tf_aws_ebs_volume_encrypted
 
-import data.fugue.regula
-import data.tests.rules.tf.aws.ebs.inputs.volume_encrypted_infra.mock_plan_input
+import data.tests.rules.tf.aws.ebs.inputs.volume_encrypted_infra
 
 test_ebs_volume_encrypted {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_aws_ebs_volume_encrypted.resources
-
-  resources["aws_ebs_volume.good"].valid == true
-  resources["aws_ebs_volume.missing"].valid == false
-  resources["aws_ebs_volume.bad"].valid == false
+  resources = volume_encrypted_infra.mock_resources
+  allow with input as resources["aws_ebs_volume.good"]
+  not allow with input as resources["aws_ebs_volume.missing"]
+  not allow with input as resources["aws_ebs_volume.bad"]
 }

@@ -11,18 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_aws_security_group_ingress_anywhere
+package rules.tf_aws_security_group_ingress_anywhere
 
-import data.fugue.regula
-import data.tests.rules.tf.aws.security_group.inputs.ingress_anywhere_infra.mock_plan_input
+import data.tests.rules.tf.aws.security_group.inputs.ingress_anywhere_infra
 
 test_no_ingress_except_80_443 {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_aws_security_group_ingress_anywhere.resources
-
-  resources["aws_security_group.invalid_allow_all"].valid == false
-  resources["aws_security_group.invalid_include_443"].valid == false
-  resources["aws_security_group.invalid_include_80"].valid == false
-  resources["aws_security_group.valid_exact_443"].valid == true
-  resources["aws_security_group.valid_exact_80"].valid == true
+  resources = ingress_anywhere_infra.mock_resources
+  deny with input as resources["aws_security_group.invalid_allow_all"]
+  deny with input as resources["aws_security_group.invalid_include_443"]
+  deny with input as resources["aws_security_group.invalid_include_80"]
+  not deny with input as resources["aws_security_group.valid_exact_443"]
+  not deny with input as resources["aws_security_group.valid_exact_80"]
 }

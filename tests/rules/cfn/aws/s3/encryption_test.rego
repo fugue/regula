@@ -11,32 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.cfn_aws_s3_encryption
+package rules.cfn_aws_s3_encryption
 
-import data.fugue.regula
 import data.tests.rules.cfn.aws.s3.inputs
 
 test_valid_encryption {
-    report := regula.report with input as inputs.valid_encryption_infra.mock_plan_input
-    resources := report.rules.cfn_aws_s3_encryption.resources
-
-    count(resources) == 1
-    resources["Bucket"].valid == true
+    resources = inputs.valid_encryption_infra.mock_resources
+    allow with input as resources["Bucket"]
 }
 
 test_invalid_encryption_missing {
-    report := regula.report with input as inputs.invalid_encryption_missing_infra.mock_plan_input
-    resources := report.rules.cfn_aws_s3_encryption.resources
-
-    count(resources) == 1
-    resources["Bucket"].valid == false
+    resources = inputs.invalid_encryption_missing_infra.mock_resources
+    not allow with input as resources["Bucket"]
 }
 
 test_invalid_encryption_with_valid {
-    report := regula.report with input as inputs.invalid_encryption_with_valid_infra.mock_plan_input
-    resources := report.rules.cfn_aws_s3_encryption.resources
-
-    count(resources) == 2
-    resources["Bucket"].valid == true
-    resources["InvalidBucket"].valid == false
+    resources = inputs.invalid_encryption_with_valid_infra.mock_resources
+    allow with input as resources["Bucket"]
+    not allow with input as resources["InvalidBucket"]
 }

@@ -11,16 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_google_kms_cryptokey_rotate
+package rules.tf_google_kms_cryptokey_rotate
 
-import data.fugue.regula
-import data.tests.rules.tf.google.kms.inputs.cryptokey_rotate_infra.mock_plan_input
+import data.tests.rules.tf.google.kms.inputs.cryptokey_rotate_infra
 
 test_gcp_kms_cryptokey_rotate {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_google_kms_cryptokey_rotate.resources
-
-  resources["google_kms_crypto_key.valid_key_1"].valid == true
-  resources["google_kms_crypto_key.invalid_key_1"].valid == false
-  resources["google_kms_crypto_key.invalid_key_2"].valid == false
+  resources = cryptokey_rotate_infra.mock_resources
+  allow with input as resources["google_kms_crypto_key.valid_key_1"]
+  not allow with input as resources["google_kms_crypto_key.invalid_key_1"]
+  not allow with input as resources["google_kms_crypto_key.invalid_key_2"]
 }

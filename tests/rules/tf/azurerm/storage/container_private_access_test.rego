@@ -11,16 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tf_azurerm_storage_container_private_access
+package rules.tf_azurerm_storage_container_private_access
 
-import data.fugue.regula
-import data.tests.rules.tf.azurerm.storage.inputs.container_private_access_infra.mock_plan_input
+import data.tests.rules.tf.azurerm.storage.inputs.container_private_access_infra
 
 test_storage_container_private_access {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tf_azurerm_storage_container_private_access.resources
-
-  resources["azurerm_storage_container.validcontainer1"].valid == true
-  resources["azurerm_storage_container.validcontainer2"].valid == true
-  resources["azurerm_storage_container.invalidcontainer1"].valid == false
+  resources = container_private_access_infra.mock_resources
+  allow with input as resources["azurerm_storage_container.validcontainer1"]
+  allow with input as resources["azurerm_storage_container.validcontainer2"]
+  not allow with input as resources["azurerm_storage_container.invalidcontainer1"]
 }

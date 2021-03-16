@@ -14,7 +14,7 @@
 
 # This package was automatically generated from:
 #
-#     ./tests/rules/cfn/cloudtrail/inputs/empty_template_infra.cfn
+#     tests/rules/cfn/cloudtrail/inputs/empty_template_infra.cfn
 #
 # using `generate_test_inputs.sh` and should not be modified
 # directly.

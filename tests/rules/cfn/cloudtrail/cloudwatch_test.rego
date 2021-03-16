@@ -11,39 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.cfn_cloudtrail_cloudwatch
+package rules.cfn_cloudtrail_cloudwatch
 
-import data.fugue.regula
 import data.tests.rules.cfn.cloudtrail.inputs
 
-test_valid_no_cloudtrails {
-    report := regula.report with input as inputs.empty_template_infra.mock_plan_input
-    resources := report.rules.cfn_cloudtrail_cloudwatch.resources
-
-    count(resources) == 0
-}
-
 test_valid_cloudwatch {
-    report := regula.report with input as inputs.valid_cloudwatch_infra.mock_plan_input
-    resources := report.rules.cfn_cloudtrail_cloudwatch.resources
-
-    count(resources) == 1
-    resources["CloudTrailLogging"].valid == true
+    resources = inputs.valid_cloudwatch_infra.mock_resources
+    allow with input as resources["CloudTrailLogging"]
 }
 
 test_invalid_cloudwatch {
-    report := regula.report with input as inputs.invalid_cloudwatch_infra.mock_plan_input
-    resources := report.rules.cfn_cloudtrail_cloudwatch.resources
-
-    count(resources) == 1
-    resources["CloudTrailLogging"].valid == false
+    resources = inputs.invalid_cloudwatch_infra.mock_resources
+    not allow with input as resources["CloudTrailLogging"]
 }
 
 test_invalid_cloudwatch_with_valid {
-    report := regula.report with input as inputs.invalid_cloudwatch_with_valid_infra.mock_plan_input
-    resources := report.rules.cfn_cloudtrail_cloudwatch.resources
-
-    count(resources) == 2
-    resources["InvalidCloudTrailLogging"].valid == false
-    resources["ValidCloudTrailLogging"].valid == true
+    resources = inputs.invalid_cloudwatch_with_valid_infra.mock_resources
+    not allow with input as resources["InvalidCloudTrailLogging"]
+    allow with input as resources["ValidCloudTrailLogging"]
 }

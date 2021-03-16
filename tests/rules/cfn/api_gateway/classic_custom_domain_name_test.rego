@@ -11,41 +11,36 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.cfn_api_gateway_classic_custom_domain_name
+package rules.cfn_api_gateway_classic_custom_domain_name
 
-import data.fugue.regula
 import data.tests.rules.cfn.api_gateway.inputs
 
 test_valid_classic_custom_domain_name {
-  report := regula.report with input as inputs.valid_classic_custom_domain_name_infra.mock_plan_input
-  resources := report.rules.cfn_api_gateway_classic_custom_domain_name.resources
-
-  count(resources) == 1
-  resources["CustomDomainName"].valid == true
+  pol = policy with input as inputs.valid_classic_custom_domain_name_infra.mock_input
+  by_resource_id = {p.id: p.valid | pol[p]}
+  count(by_resource_id) == 1
+  by_resource_id["CustomDomainName"] == true
 }
 
 test_valid_classic_custom_domain_name_sam {
-  report := regula.report with input as inputs.valid_classic_custom_domain_name_sam_infra.mock_plan_input
-  resources := report.rules.cfn_api_gateway_classic_custom_domain_name.resources
-
-  count(resources) == 1
-  resources["ServerlessAPI"].valid == true
+  pol = policy with input as inputs.valid_classic_custom_domain_name_sam_infra.mock_input
+  by_resource_id = {p.id: p.valid | pol[p]}
+  count(by_resource_id) == 1
+  by_resource_id["ServerlessAPI"] == true
 }
 
 test_invalid_classic_custom_domain_name {
-  report := regula.report with input as inputs.invalid_classic_custom_domain_name_infra.mock_plan_input
-  resources := report.rules.cfn_api_gateway_classic_custom_domain_name.resources
-
-  count(resources) == 2
-  resources["CustomDomainName"].valid == false
-  resources["CustomDomainName2"].valid == false
+  pol = policy with input as inputs.invalid_classic_custom_domain_name_infra.mock_input
+  by_resource_id = {p.id: p.valid | pol[p]}
+  count(by_resource_id) == 2
+  by_resource_id["CustomDomainName"] == false
+  by_resource_id["CustomDomainName2"] == false
 }
 
 test_invalid_classic_custom_domain_name_sam {
-  report := regula.report with input as inputs.invalid_classic_custom_domain_name_sam_infra.mock_plan_input
-  resources := report.rules.cfn_api_gateway_classic_custom_domain_name.resources
-
-  count(resources) == 2
-  resources["ServerlessAPI"].valid == false
-  resources["ServerlessAPI2"].valid == false
+  pol = policy with input as inputs.invalid_classic_custom_domain_name_sam_infra.mock_input
+  by_resource_id = {p.id: p.valid | pol[p]}
+  count(by_resource_id) == 2
+  by_resource_id["ServerlessAPI"] == false
+  by_resource_id["ServerlessAPI2"] == false
 }

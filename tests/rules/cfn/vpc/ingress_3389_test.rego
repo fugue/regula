@@ -13,7 +13,7 @@
 # limitations under the License.
 package rules.cfn_vpc_ingress_3389
 
-import data.tests.rules.cloudformation.vpc.inputs.ingress_3389_infra
+import data.tests.rules.cfn.vpc.inputs.ingress_3389_infra
 
 test_ingress_3389 {
   pol = policy with input as ingress_3389_infra.mock_input

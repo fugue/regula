@@ -13,7 +13,7 @@
 # limitations under the License.
 package rules.cfn_vpc_default_security_group
 
-import data.tests.rules.cloudformation.vpc.inputs.default_security_group_infra
+import data.tests.rules.cfn.vpc.inputs.default_security_group_infra
 
 test_default_security_group {
   pol = policy with input as default_security_group_infra.mock_input

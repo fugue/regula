@@ -3,9 +3,11 @@
 - [Regula](#regula)
   - [Introduction](#introduction)
   - [How does Regula work?](#how-does-regula-work)
-  - [Running Regula locally](#running-regula-locally)
-    - [macOS and Linux](#macos-and-linux)
-    - [Windows](#windows)
+  - [Getting Started with Regula](#getting-started-with-regula)
+    - [Running Regula locally](#running-regula-locally)
+      - [macOS and Linux](#macos-and-linux)
+      - [Windows](#windows)
+    - [Regula Docker image](#regula-docker-image)
   - [Regula rules](#regula-rules)
     - [Simple rules](#simple-rules)
     - [Custom error messages](#custom-error-messages)
@@ -32,9 +34,11 @@ Regula is a tool that evaluates CloudFormation and Terraform infrastructure-as-c
 
 Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly (see our blog post [here](https://www.fugue.co/blog/predeployment-compliance-checks-with-regula-and-terraform-blog)). Where relevant, we’ve mapped Regula policies to the CIS AWS, Azure, and Google Cloud Foundations Benchmarks so you can assess your compliance posture. Regula is maintained by engineers at [Fugue](https://fugue.co).
 
+Regula is available via source and Linux container image [here](https://hub.docker.com/r/fugue/regula).
+
 ## How does Regula work?
 
-There are two parts to Regula. The first is a [shell script](/bin/regula) that generates a JSON document for [opa] consumption from CloudFormation YAML/JSON, Terraform HCL, or a Terraform plan file.
+There are two parts to Regula. The first is a [shell script](/bin/regula) that generates a JSON document for [opa] consumption.
 
 The second part is a Rego framework that:
 
@@ -44,14 +48,16 @@ The second part is a Rego framework that:
 -   Looks for [rules](#regula-rules) and executes them.
 -   Generates a report with the results of all relevant rules and [control mappings](#compliance-controls-vs-rules).
 
-## Running Regula locally
+## Getting Started with Regula
+
+### Running Regula locally
 
 Install the prerequisites:
 
 - [OPA](https://www.openpolicyagent.org/docs/latest/#1-download-opa)
 - [Terraform 0.12+](https://www.terraform.io/downloads.html)
 
-### macOS and Linux
+#### macOS and Linux
 
 Run the following command:
 
@@ -81,13 +87,17 @@ useful if you have several versions installed:
 
 Note that Regula requires Terraform 0.12+ in order to generate the JSON-formatted plan.
 
-### Windows
+#### Windows
 
 Because Regula uses a bash script to automatically generate a plan, convert it to JSON, and run the Rego validations, Windows users can instead manually run the steps that Regula performs. See those steps [here](#locally-producing-a-report-on-windows).  Alternatively, you can run the script using [WSL](https://docs.microsoft.com/en-us/windows/wsl/about).
 
+### Regula Docker image
+
+Regula is available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
+
 ## Regula rules
 
-Regula rules are written in standard [Rego] and use a similar format to [Fugue Custom Rules]. This means there are (currently) two kinds of rules: simple rules and advanced rules.
+Regula rules are written in [Rego] and use the same format as [Fugue Custom Rules]. This means there are (currently) two kinds of rules: simple rules and advanced rules.
 
 See the [rules](https://github.com/fugue/regula/tree/master/rules) directory for rules that apply to CloudFormation and Terraform.
 
@@ -212,7 +222,7 @@ controls = {"CIS-AWS_v1.2.0_1.16"}
 
 ## Interpreting the results
 
-Here's a snippet of test results from a Regula report. The output is from an example [GitHub Action](https://github.com/fugue/regula-ci-example/runs/389223751#step:4:12): 
+Here's a snippet of test results from a Regula report: 
 
 ```
 {
@@ -222,7 +232,7 @@ Here's a snippet of test results from a Regula report. The output is from an exa
         {
           "value": {
             "controls": {
-              "CIS_1-22": {
+              "CIS-AWS_v1.2.0_1.22": {
                 "rules": [
                   "iam_admin_policy"
                 ],
@@ -230,7 +240,7 @@ Here's a snippet of test results from a Regula report. The output is from an exa
               }
             },
             "rules": {
-              "iam_admin_policy": {
+              "tf_aws_iam_admin_policy": {
                 "resources": {
                   "aws_iam_policy.basically_allow_all": {
                     "id": "aws_iam_policy.basically_allow_all",
@@ -280,13 +290,11 @@ The `summary` block contains a breakdown of the compliance state of your Terrafo
 
 ### Controls
 
-Regula shows you compliance results for both controls and rules, in addition to which specific resources failed. Above, in the `controls` block, you can see that the Terraform in the example is noncompliant with `CIS_1-22`, and the mapped rules that failed are listed underneath (in this case, `iam_admin_policy`).
+Regula shows you compliance results for both controls and rules, in addition to which specific resources failed. Above, in the `controls` block, you can see that the Terraform in the example is noncompliant with `CIS-AWS_v1.2.0_1.22`, and the mapped rules that failed are listed underneath (in this case, `tf_aws_iam_admin_policy`).
 
 ### Rules
 
-In the `rules` block further down from `controls`, each rule lists the resources that failed. Above, you'll see that the resource `aws_iam_policy.basically_allow_all` was the one that failed the mapped rule -- as noted by `"valid": false`. In contrast, `aws_iam_policy.basically_deny_all` passed.
-
-You can see the full example report in this [GitHub Action log](https://github.com/fugue/regula-ci-example/runs/389223751#step:4:12). For a detailed explanation of the report, see the [regula-ci-example README](https://github.com/fugue/regula-ci-example).
+In the `rules` block further down from `controls`, each rule lists the resources that failed. Above, you'll see that the resource `aws_iam_policy.basically_allow_all` was the one that failed the mapped rule -- as noted by `"valid": false`. In contrast, the `aws_iam_policy.basically_deny_all` resource passed.
 
 ## Running Regula in CI
 

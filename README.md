@@ -1,82 +1,48 @@
 # Regula
 
--   [Introduction](#introduction)
--   [How does Regula work?](#how-does-regula-work)
--   [Rule library](#rule-library)
--   [Running Regula locally](#running-regula-locally)
--   [Regula rules](#regula-rules)
-    -   [Simple rules](#simple-rules)
-    -   [Custom error messages](#custom-error-messages)
-    -   [Advanced rules](#advanced-rules)
-    -   [Rule library](#rule-library)
-    -   [Rule examples](#rule-examples)
--   [Compliance controls vs. rules](#compliance-controls-vs-rules)
-    -   [Specifying compliance controls](#specifying-compliance-controls)
--   [Interpreting the results](#interpreting-the-results)
-    -   [Summary](#summary)
-    -   [Controls](#controls)
-    -   [Rules](#rules)
--   [Running Regula in CI](#running-regula-in-ci)
--   [Running Regula with Conftest](#running-regula-with-conftest)
--   [Development](#development)
-    -   [Directory structure](#directory-structure)
-    -   [Adding a test](#adding-a-test)
-    -   [Debugging a rule with fregot](#debugging-a-rule-with-fregot)
-    -   [Locally producing a report](#locally-producing-a-report)
-    -   [Locally producing a report on Windows](#locally-producing-a-report-on-windows)
+- [Regula](#regula)
+  - [Introduction](#introduction)
+  - [How does Regula work?](#how-does-regula-work)
+  - [Running Regula locally](#running-regula-locally)
+    - [macOS and Linux](#macos-and-linux)
+    - [Windows](#windows)
+  - [Regula rules](#regula-rules)
+    - [Simple rules](#simple-rules)
+    - [Custom error messages](#custom-error-messages)
+    - [Advanced rules](#advanced-rules)
+    - [Rule examples](#rule-examples)
+  - [Compliance controls vs. rules](#compliance-controls-vs-rules)
+    - [Specifying compliance controls](#specifying-compliance-controls)
+  - [Interpreting the results](#interpreting-the-results)
+    - [Summary](#summary)
+    - [Controls](#controls)
+    - [Rules](#rules)
+  - [Running Regula in CI](#running-regula-in-ci)
+  - [Running Regula with Conftest](#running-regula-with-conftest)
+  - [Development](#development)
+    - [Directory structure](#directory-structure)
+    - [Adding a test](#adding-a-test)
+    - [Debugging a rule with fregot](#debugging-a-rule-with-fregot)
+    - [Locally producing a terraform report](#locally-producing-a-terraform-report)
+    - [Locally producing a report on Windows](#locally-producing-a-report-on-windows)
 
 ## Introduction
 
-Regula is a tool that evaluates Terraform infrastructure-as-code for potential AWS, Azure, and Google Cloud security misconfigurations and compliance violations prior to deployment.
+Regula is a tool that evaluates CloudFormation and Terraform infrastructure-as-code for potential AWS, Azure, and Google Cloud security misconfigurations and compliance violations prior to deployment.
 
-![Regula diagram](regula.png)
-
-Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly (see our blog post [here](https://www.fugue.co/blog/predeployment-compliance-checks-with-regula-and-terraform-blog)). Where relevant, we’ve mapped Regula policies to the CIS AWS, Azure, and GCP Foundations Benchmarks so you can assess your compliance posture. We'll be adding more rules in the coming weeks, sourced from [Fugue](https://fugue.co).
+Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly (see our blog post [here](https://www.fugue.co/blog/predeployment-compliance-checks-with-regula-and-terraform-blog)). Where relevant, we’ve mapped Regula policies to the CIS AWS, Azure, and Google Cloud Foundations Benchmarks so you can assess your compliance posture. Regula is maintained by engineers at [Fugue](https://fugue.co).
 
 ## How does Regula work?
 
-There are two parts to Regula. The first is a [shell script](/bin/regula)
-that generates a [terraform] plan or use existing in JSON format, ready for consumption by [opa].
+There are two parts to Regula. The first is a [shell script](/bin/regula) that generates a JSON document for [opa] consumption from CloudFormation YAML/JSON, Terraform HCL, or a Terraform plan file.
 
 The second part is a Rego framework that:
 
 -   Merges resource info from `planned_values` and `configuration` in the
     Terraform plan into a more conveniently accessible format.
--   Walks through the imported Terraform modules and merges them into a flat
-    format.
+-   Walks through the imported Terraform modules and merges them into a flat format.
 -   Looks for [rules](#regula-rules) and executes them.
--   Creates a report with the results of all rules and a
-    [control mapping](#compliance-controls-vs-rules) in the output.
-
-## Rule library
-
-See [rules](https://github.com/fugue/regula/tree/master/rules) directory.  Fugue is currently working on open sourcing more rules from [our product](https://www.fugue.co/) to Regula.
-
-| Provider | Service         | Rule Name                                   | Rule Summary                                                                                               |
-|----------|-----------------|---------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| AWS      | CloudFront      | cloudfront\_distribution\_https             | CloudFront distributions should use HTTPS traffic                                                          |
-| AWS      | CloudTrail      | cloudtrail\_log\_file\_validation           | CloudTrail log file validation should be enabled                                                           |
-| AWS      | EBS             | ebs\_volume\_encrypted                      | EBS volume encryption should be enabled                                                                    |
-| AWS      | IAM             | iam\_admin\_policy                          | IAM policies should not have full "*:*" administrative privileges                                          |
-| AWS      | IAM             | iam\_user\_attached\_policy                 | IAM policies should not be attached directly to users                                                      |
-| AWS      | KMS             | kms\_rotate                                 | KMS CMK rotation should be enabled                                                                         |
-| AWS      | S3              | s3\_bucket\_sse                             | Server Side Encryption by default should be set for S3 buckets                                             |                                                                         |
-| AWS      | VPC             | security\_group\_ingress\_anywhere          | VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443             |
-| AWS      | VPC             | security\_group\_ingress\_anywhere\_rdp     | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol) |
-| AWS      | VPC             | security\_group\_ingress\_anywhere\_ssh     | VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                       |
-| AWS      | VPC             | vpc\_flow\_log                              | VPC flow logging should be enabled                                                                         |
-| GCP      | KMS             | kms\_cryptokey\_rotate                      | KMS crypto keys should be rotated at least once every 365 days                                             |
-| GCP      | Compute         | compute\_firewall\_no\_ingress\_22          | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                             |
-| GCP      | Compute         | compute\_firewall\_no\_ingress\_3389        | VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                           |
-| GCP      | Compute         | compute\_subnet\_private\_google\_access    | VPC subnet 'Private Google Access' should be enabled                                                       |
-| GCP      | Compute         | compute\_subnet\_flow\_log\_enabled         | VPC subnet flow logging should be enabled                                                                  |
-| Azure    | Storage Account | storage\_account\_deny\_access              | Storage accounts should deny access from all networks by default                                           |
-| Azure    | Storage Account | storage\_account\_microsoft\_services       | Storage accounts 'Trusted Microsoft Services' access should be enabled                                     |
-| Azure    | Storage Account | storage\_account\_secure\_transfer          | Storage accounts 'Secure transfer required' should be enabled                                              |
-| Azure    | Blob Storage    | storage\_container\_private\_access         | Storage containers should have access set to 'private'                                                     |
-| Azure    | Virtual Network | network\_security\_group\_no\_inbound\_22   | Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                   |
-| Azure    | Virtual Network | network\_security\_group\_no\_inbound\_3389 | Network security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (RDP)                 |
-| Azure    | SQL Server      | sql\_server\_firewall\_no\_inbound\_all     | SQL Server firewall rules should not permit ingress from 0.0.0.0/0 to all ports and protocols              |
+-   Generates a report with the results of all relevant rules and [control mappings](#compliance-controls-vs-rules).
 
 ## Running Regula locally
 
@@ -89,9 +55,9 @@ Install the prerequisites:
 
 Run the following command:
 
-    ./bin/regula [TERRAFORM_PATH] [REGO_PATHS...]
+    ./bin/regula [IAC_PATH] [REGO_PATHS...]
 
-`TERRAFORM_PATH` is the directory where your Terraform configuration files are
+`IAC_PATH` is the directory where your CoudFormation or Terraform configuration files are
 located.
 
 `REGO_PATHS` are the directories that need to be searched for Rego code.  This
@@ -121,9 +87,9 @@ Because Regula uses a bash script to automatically generate a plan, convert it t
 
 ## Regula rules
 
-Regula rules are written in standard [Rego] and use a similar format to
-[Fugue Custom Rules]. This means there are (currently) two kinds of rules:
-simple rules and advanced rules.
+Regula rules are written in standard [Rego] and use a similar format to [Fugue Custom Rules]. This means there are (currently) two kinds of rules: simple rules and advanced rules.
+
+See the [rules](https://github.com/fugue/regula/tree/master/rules) directory for rules that apply to CloudFormation and Terraform.
 
 ### Simple rules
 
@@ -210,7 +176,7 @@ The `fugue` API consists of four functions:
 
 ### Rule examples
 
-Whereas the rules included in the Regula rules [library](#rule-library) are generally applicable, we've built rule [examples](https://github.com/fugue/regula/tree/master/examples) that look at tags, region restrictions, and EC2 instance usage that should be modified to fit user/organization policies.
+Whereas the rules included in the Regula rules are generally applicable, we've built rule [examples](https://github.com/fugue/regula/tree/master/examples) that look at tags, region restrictions, and EC2 instance usage that should be modified to fit user/organization policies.
 
 | Provider | Service | Rule Name             | Rule Description                                                                                |
 |----------|---------|-----------------------|-------------------------------------------------------------------------------------------------|
@@ -221,11 +187,11 @@ Whereas the rules included in the Regula rules [library](#rule-library) are gene
 
 ## Compliance controls vs. rules
 
-What's the difference between controls and rules? A **control** represents an individual recommendation within a compliance standard, such as "IAM policies should not have full `"*:*"` administrative privileges" (CIS AWS Foundations Benchmark 1-22).
+What's the difference between controls and rules? A **control** represents an individual recommendation within a compliance standard, such as "IAM policies should not have full `"*:*"` administrative privileges" (CIS AWS Foundations Benchmark v1.2.0 1.22).
 
 In Regula, a **rule** is a Rego policy that validates whether a cloud resource violates a control (or multiple controls). One example of a rule is [`iam_admin_policy`](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego), which checks whether an IAM policy in a Terraform file has `"*:*"` privileges. If it does not, the resource fails validation.
 
-Controls map to sets of rules, and rules can map to multiple controls. For example, control `CIS_1-22` and `REGULA_R00002` [both map to](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego#L7) the rule `iam_admin_policy`.
+Controls map to sets of rules, and rules can map to multiple controls. For example, control `CIS-AWS_v1.2.0_1.22` and `FG_R00092` [both map to](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego#L7) the rule `iam_admin_policy`.
 
 ### Specifying compliance controls
 Controls can be specified within the rules: just add a `controls` set.
@@ -238,7 +204,7 @@ package rules.my_simple_rule
 resource_type = "aws_ebs_volume"
 
 # Controls.
-controls = {"CIS_1-16"}
+controls = {"CIS-AWS_v1.2.0_1.16"}
 
 # Rule logic
 ...
@@ -375,10 +341,9 @@ To use Regula with Conftest:
 
 ### Directory structure
 
- -  `bin/`: the main Regula script that calls `terraform` & `opa`.
+ -  `bin/`: the main Regula script that, depending on the IaC platform, will call `opa` and `terraform` or convert CloudFormation YAML to JSON.
  -  `lib/`: the OPA library code to evaluate rules and mangle input.
- -  `rules/`: a collection of rules.  We may split this up further as the number
-    of rules increases.
+ -  `rules/`: a collection of rules.
  -  `examples/`: a collection of example rules that you can use as inspiration
      for your own rules.
  -  `scripts/`: scripts for development; currently only a script to generate
@@ -386,7 +351,7 @@ To use Regula with Conftest:
  -  `tests/`:
       *  `tests/lib`: internal tests for the library.
       *  `tests/rules/`: tests for the various rules.
-      *  `tests/rules/inputs`: terraform files that can be used to generate Rego
+      *  `tests/rules/inputs`: CloudFormation and terraform files that can be used to generate Rego
          files.
       *  `tests/examples/`: tests for the example rules.
       *  `tests/examples/inputs`: input files for the example rules.
@@ -394,7 +359,7 @@ To use Regula with Conftest:
 ### Adding a test
 
 If you would like to add a rule, we recommend starting with a test.
-Put your terraform code in a file in `tests/rules/<provider>/inputs`; for example
+Put your code in a file in `tests/rules/<provider>/inputs`; for example
 [tests/rules/aws/inputs/kms\_rotate\_infra.tf](tests/rules/aws/inputs/kms_rotate_infra.tf).
 From this, you can generate a mock input by running:
 
@@ -428,7 +393,7 @@ From here, you can evaluate anything in context; such as `input` to look at the
 resource, or any other auxiliary rules such as `valid_instance_types` in this
 example.
 
-### Locally producing a report
+### Locally producing a terraform report
 
 In some cases (such as development and testing), you may want to manually reproduce the steps that Regula performs automatically.
 If that is something you want to step through, this section is for you.
@@ -472,6 +437,7 @@ To locally produce a Regula report on Windows, use the following steps:
 
 [opa]: https://www.openpolicyagent.org/
 [fregot]: https://github.com/fugue/fregot
+[CloudFormation]: https://docs.aws.amazon.com/cloudformation/
 [terraform]: https://www.terraform.io/
 [Rego]: https://www.openpolicyagent.org/docs/latest/policy-language/
 [Fugue Custom Rules]: https://docs.fugue.co/rules.html

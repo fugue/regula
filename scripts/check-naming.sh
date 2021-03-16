@@ -13,23 +13,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -o nounset -o errexit -o pipefail
+shopt -s nullglob
+shopt -s globstar
 
 # Quick test that checks file naming.
+exit_code=0
 
-for rule_file in {rules,examples}/*/*.rego; do
+for rule_file in {rules,examples}/**/*.rego; do
   1>&2 echo "Checking $rule_file..."
+  rule_dirname=$(dirname "$rule_file")
+  rule_basename=$(basename "$rule_file" .rego)
 
-  test_file="tests/$(dirname "$rule_file")/$(basename "$rule_file" .rego)_test.rego"
+  test_file="tests/${rule_dirname}/${rule_basename}_test.rego"
   if [[ ! -f "$test_file" ]]; then
     1>&2 echo "Missing $test_file"
-    exit 1
+    exit_code=1
   fi
 
-  infra_file="tests/$(dirname "$rule_file")/inputs/$(basename "$rule_file" .rego)_infra.tf"
-  if [[ ! -f "$infra_file" ]]; then
-    1>&2 echo "Missing $infra_file"
-    exit 1
+  infra_files=(tests/${rule_dirname}/inputs/*${rule_basename}*_infra.rego)
+  if [[ ${#infra_files[@]} -lt 1 ]]; then
+    1>&2 echo "Missing infra files for ${rule_file}"
+    exit_code=1
   fi
 done
 
-1>&2 echo "All ok!"
+if [[ ${exit_code} == 0 ]]; then
+  1>&2 echo "All ok!"
+else
+  1>&2 echo "Failed to find expected tests and test inputs for all rules."
+fi
+
+exit ${exit_code}

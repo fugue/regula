@@ -22,14 +22,14 @@ test_valid_no_cloudtrail {
 }
 
 test_valid_access_logging {
-    pol = policy with input as inputs.s3_access_valid_cloud_trail_infra.mock_input
+    pol = policy with input as inputs.valid_s3_access_logging_infra.mock_input
     by_resource_id = {p.id: p.valid | pol[p]}
     count(by_resource_id) == 1
     by_resource_id["CloudTrailLogging"] == true
 }
 
 test_invalid_access_logging {
-    pol = policy with input as inputs.s3_access_invalid_no_logging_infra.mock_input
+    pol = policy with input as inputs.invalid_s3_access_logging_infra.mock_input
     by_resource_id = {p.id: p.valid | pol[p]}
     count(by_resource_id) == 1
     by_resource_id["CloudTrailLogging"] == false

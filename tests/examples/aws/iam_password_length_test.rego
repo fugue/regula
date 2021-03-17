@@ -11,18 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.iam_password_length
+package rules.iam_password_length
 
-import data.fugue.regula
-import data.tests.examples.aws.inputs.iam_password_length_infra.mock_plan_input
+import data.fugue.resource_view.resource_view_input
+import data.tests.examples.aws.inputs.iam_password_length_infra.mock_input
 
 test_iam_password_length {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.iam_password_length.resources
-  resources["aws_iam_account_password_policy.valid"].valid == true
-  resources["aws_iam_account_password_policy.invalid_1"].valid == false
-  resources["aws_iam_account_password_policy.invalid_2"].valid == false
+  pol = policy with input as mock_input
+  by_resource_id = {p.id: p.valid | pol[p]}
+  by_resource_id["aws_iam_account_password_policy.valid"] == true
+  by_resource_id["aws_iam_account_password_policy.invalid_1"] == false
+  by_resource_id["aws_iam_account_password_policy.invalid_2"] == false
 
-  empty_report := regula.report with input as {"terraform_version": "0.12.18"}
-  empty_report.rules.iam_password_length.valid == false
+  empty_policy = policy with input as empty_input
+  empty_policy[_].valid == false
+}
+
+empty_input = ret {
+  ret = resource_view_input with input as {"terraform_version": "0.12.18"}
 }

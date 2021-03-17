@@ -79,28 +79,6 @@ judgements_from_policies(policies) = ret {
   ret = policies[0]
 }
 
-# Create a report for a rule.
-rule_report(pkg, judgements) = ret {
-  ret = {
-    "resources": {j.id: j | judgements[j]},
-    "valid": all([j.valid | judgements[j]]),
-    "metadata": rule_metadata(pkg)
-  }
-}
-
-rule_metadata(pkg) = ret {
-  ret = data["rules"][pkg]["__rego__metadoc__"]
-} else = ret {
-  ret = {}
-}
-
-controls(pkg) = ret {
-  metadata = rule_metadata(pkg)
-  ret = { c | c = metadata["custom"]["controls"][_][_] }
-} else = ret {
-  ret = set()
-}
-
 # Evaluate `allow` rules for a single resource.  This is a workaround for
 # <https://github.com/open-policy-agent/opa/issues/2497>.
 evaluate_allows(pkg, resource) = ret {
@@ -126,6 +104,32 @@ evaluate_rule_judgement(pkg, resource) = ret {
   ret = judgement_from_allow_denies(resource, allows, denies)
 }
 
+# Stringify judgement
+result_string(judgement) = ret {
+  judgement.valid == true
+  ret = "pass"
+} else = ret {
+  ret = "fail"
+}
+
+# Create a rule-resource result from a judgement
+rule_resource_result(rule, judgement) = ret {
+  ret = {
+    "provider": judgement.provider,
+    "resource_id": judgement.id,
+    "resource_type": judgement.type,
+    "rule_message": judgement.message,
+    "rule_result": result_string(judgement),
+    "rule_name": rule["package"],
+    "platform": rule.input_type,
+    "rule_id": rule.metadata.id,
+    "rule_summary": rule.metadata.summary,
+    "rule_description": rule.metadata.description,
+    "rule_severity": rule.metadata.severity,
+    "controls": rule.metadata.controls,
+  }
+}
+
 # Evaluate a single rule -- this can be either a single- or a multi-resource
 # rule.
 evaluate_rule(rule) = ret {
@@ -139,7 +143,7 @@ evaluate_rule(rule) = ret {
     j = evaluate_rule_judgement(pkg, resource)
   }
 
-  ret = rule_report(pkg, judgements)
+  ret = [r | r = rule_resource_result(rule, judgements[_])]
 } else = ret {
   # Note that `rule["resource_type"]` is not specified so we're dealing with a
   # multi-resource type validation.
@@ -154,7 +158,27 @@ evaluate_rule(rule) = ret {
   ]
 
   judgements = judgements_from_policies(policies)
-  ret = rule_report(pkg, judgements)
+  ret = [r | r = rule_resource_result(rule, judgements[_])]
+}
+
+# Extract controls from custom block in rule metadoc
+controls(custom) = ret {
+  ret = { c | c = custom["controls"][_][_] }
+} else = ret {
+  ret = set()
+}
+
+# Extract rule metadata from metadoc if it exists
+rule_metadata(pkg) = ret {
+  metadoc = object.get(data["rules"][pkg], "__rego__metadoc__", {})
+  custom = object.get(metadoc, "custom", {})
+  ret = {
+    "description": object.get(metadoc, "description", ""),
+    "id": object.get(metadoc, "id", ""),
+    "summary": object.get(metadoc, "title", ""),
+    "severity": lower(object.get(custom, "severity", "unknown")),
+    "controls": controls(custom)
+  }
 }
 
 # The full report.
@@ -165,84 +189,41 @@ report = ret {
   # We filter down the applicable rules by input kind.
   rules = [rule |
     resource_type = data.rules[pkg].resource_type
-    input_type.rule_input_type(pkg) == input_type.input_type
+    rule_input_type = input_type.rule_input_type(pkg)
+    rule_input_type == input_type.input_type
     rule = {
       "package": pkg,
+      "input_type": rule_input_type,
       "resource_type": resource_type,
-      "controls": controls(pkg)
+      "metadata": rule_metadata(pkg)
     }
   ]
 
-  rules_by_control = {c: rs |
-    rules[_].controls[c]
-    rs = {rule["package"] | rule = rules[_]; rule.controls[c]}
-  }
-
   # Evaluate all these rules.
-  rule_results = {rule["package"]: evaluate_rule(rule) | rule = rules[_]}
-
-  # Group rule results into control results.
-  control_results = {control: control_result |
-    pkgs = rules_by_control[control]
-    control_result = {
-      "valid": all([rule_results[pkg].valid | pkgs[pkg]]),
-      "rules": pkgs
-    }
-  }
+  rule_results = [r | r = evaluate_rule(rules[_])[_]]
 
   # Create a summary as well.
+  all_severities = {"critical", "high", "medium", "low", "informational", "unknown"}
+  all_result_strings = {"pass", "fail"}
   summary = {
-    "valid": all([r.valid | r = rule_results[_]]),
-    "rules_passed": count([r | r = rule_results[_]; r.valid]),
-    "rules_failed": count([r | r = rule_results[_]; not r.valid]),
-    "controls_passed": count([r | r = control_results[_]; r.valid]),
-    "controls_failed": count([r | r = control_results[_]; not r.valid]),
+    "rule_results": {
+      rs: count([ r |
+        r = rule_results[_]
+        r.rule_result == rs
+      ]) | rs = all_result_strings[_]
+    },
+    "severities": {
+      s: count([r |
+        r = rule_results[_]
+        r.rule_severity == s
+        r.rule_result == "fail"
+      ]) | s = all_severities[_]
+    },
   }
 
   # Produce the report.
   ret = {
-    "controls": control_results,
-    "rules": rule_results,
+    "rule_results": rule_results,
     "summary": summary,
-    "message": report_message(summary, rule_results),
   }
-}
-
-# Summarize the rule_results into a textual message.
-report_message(summary, rule_results) = ret {
-  summary.valid
-  ret = sprintf(
-    "%d rules and %d controls passed!",
-    [summary.rules_passed, summary.controls_passed]
-  )
-} {
-  not summary.valid
-  ret = concat("", [
-    sprintf("%d rules passed, %d rules failed\n",
-      [summary.rules_passed, summary.rules_failed]),
-    sprintf("%d controls passed, %d controls failed\n",
-      [summary.controls_passed, summary.controls_failed]),
-    concat("", [msg |
-      resource_result = rule_results[rule_name].resources[resource_name]
-      resource_result.valid == false
-      msg = report_rule_message(
-        rule_name, resource_name, resource_result.message)
-    ])
-  ])
-}
-
-# Generate a textual message for a single failure.
-report_rule_message(rule_name, resource_name, message) = ret {
-  resource_name = ""
-  message = ""
-  ret = sprintf("Rule %s failed\n", [rule_name])
-} else = ret {
-  resource_name = ""
-  ret = sprintf("Rule %s failed: %s\n", [rule_name, message])
-} else = ret {
-  message = ""
-  ret = sprintf("Rule %s failed for resource %s\n", [rule_name, resource_name])
-} else = ret {
-  ret = sprintf("Rule %s failed for resource %s: %s\n",
-    [rule_name, resource_name, message])
 }

@@ -29,8 +29,12 @@ mock_rules = {
       "custom": {
         "controls": {
           "MOCK": ["MOCK_1.2.3"]
-        }
-      }
+        },
+        "severity": "High"
+      },
+      "id": "FG_R00001",
+      "title": "Always pass",
+      "description": "This rule always passes"
     },
     "resource_type": "aws_ebs_volume",
     "allow": true
@@ -46,23 +50,117 @@ report = ret {
   ret = regula.report with input as mock_plan_input with data.rules as mock_rules
 }
 
+contains_result(arr, result) {
+  r = arr[_]
+  result == r
+}
+
 # Test the report.
 test_report {
-  report.summary == {
-    "controls_failed": 0,
-    "controls_passed": 1,
-    "rules_failed": 1,
-    "rules_passed": 1,
-    "valid": false,
-  }
+  count(expected_report.rule_results) == count(report.rule_results)
+  all([c | r = expected_report.rule_results[_]; c = contains_result(report.rule_results, r)])
+  expected_report.summary == report.summary
+}
 
-  report.controls == {
-    "MOCK_1.2.3": {
-      "rules": {"always_pass"},
-      "valid": true,
+expected_report = {
+  "rule_results": [
+    {
+      "provider": "aws",
+      "resource_id": "aws_ebs_volume.good",
+      "resource_type": "aws_ebs_volume",
+      "rule_message": "",
+      "rule_result": "pass",
+      "rule_name": "always_pass",
+      "platform": "terraform",
+      "rule_id": "FG_R00001",
+      "rule_summary": "Always pass",
+      "rule_description": "This rule always passes",
+      "rule_severity": "high",
+      "controls": {"MOCK_1.2.3"}
+    },
+    {
+      "provider": "aws",
+      "resource_id": "aws_ebs_volume.missing",
+      "resource_type": "aws_ebs_volume",
+      "rule_message": "",
+      "rule_result": "pass",
+      "rule_name": "always_pass",
+      "platform": "terraform",
+      "rule_id": "FG_R00001",
+      "rule_summary": "Always pass",
+      "rule_description": "This rule always passes",
+      "rule_severity": "high",
+      "controls": {"MOCK_1.2.3"}
+    },
+    {
+      "provider": "aws",
+      "resource_id": "aws_ebs_volume.bad",
+      "resource_type": "aws_ebs_volume",
+      "rule_message": "",
+      "rule_result": "pass",
+      "rule_name": "always_pass",
+      "platform": "terraform",
+      "rule_id": "FG_R00001",
+      "rule_summary": "Always pass",
+      "rule_description": "This rule always passes",
+      "rule_severity": "high",
+      "controls": {"MOCK_1.2.3"}
+    },
+    {
+      "provider": "aws",
+      "resource_id": "aws_ebs_volume.good",
+      "resource_type": "aws_ebs_volume",
+      "rule_message": "",
+      "rule_result": "fail",
+      "rule_name": "always_fail",
+      "platform": "terraform",
+      "rule_id": "",
+      "rule_summary": "",
+      "rule_description": "",
+      "rule_severity": "unknown",
+      "controls": set()
+    },
+    {
+      "provider": "aws",
+      "resource_id": "aws_ebs_volume.missing",
+      "resource_type": "aws_ebs_volume",
+      "rule_message": "",
+      "rule_result": "fail",
+      "rule_name": "always_fail",
+      "platform": "terraform",
+      "rule_id": "",
+      "rule_summary": "",
+      "rule_description": "",
+      "rule_severity": "unknown",
+      "controls": set()
+    },
+    {
+      "provider": "aws",
+      "resource_id": "aws_ebs_volume.bad",
+      "resource_type": "aws_ebs_volume",
+      "rule_message": "",
+      "rule_result": "fail",
+      "rule_name": "always_fail",
+      "platform": "terraform",
+      "rule_id": "",
+      "rule_summary": "",
+      "rule_description": "",
+      "rule_severity": "unknown",
+      "controls": set()
+    }
+  ],
+  "summary": {
+    "rule_results": {
+      "pass": 3,
+      "fail": 3
+    },
+    "severities": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "informational": 0,
+      "unknown": 3,
     }
   }
-
-  re_match("1 rules passed, 1 rules failed", report.message)
-  re_match("Rule always_fail failed for resource", report.message)
 }

@@ -605,7 +605,8 @@ expected_resource_view = {
     "cidr_block": "10.0.0.0/16",
     "instance_tenancy": "default",
     "enable_dns_support": true,
-    "_type": "aws_vpc"
+    "_type": "aws_vpc",
+    "_provider": "aws",
   },
   "module.child1.module.grandchild1.aws_vpc.grandchild": {
     "id": "module.child1.module.grandchild1.aws_vpc.grandchild",
@@ -614,7 +615,8 @@ expected_resource_view = {
     "cidr_block": "10.0.0.0/16",
     "instance_tenancy": "default",
     "enable_dns_support": true,
-    "_type": "aws_vpc"
+    "_type": "aws_vpc",
+    "_provider": "aws",
   },
   "module.child2.aws_vpc.child": {
     "id": "module.child2.aws_vpc.child",
@@ -623,7 +625,8 @@ expected_resource_view = {
     "cidr_block": "10.0.0.0/16",
     "instance_tenancy": "default",
     "enable_dns_support": true,
-    "_type": "aws_vpc"
+    "_type": "aws_vpc",
+    "_provider": "aws",
   },
   "module.child2.aws_security_group.child": {
     "id": "module.child2.aws_security_group.child",
@@ -633,6 +636,7 @@ expected_resource_view = {
     "vpc_id": "module.child1.module.grandchild1.aws_vpc.grandchild",
     "timeouts": null,
     "_type": "aws_security_group",
+    "_provider": "aws",
     "name_prefix": null
   },
   "aws_security_group.parent": {
@@ -643,6 +647,7 @@ expected_resource_view = {
     "vpc_id": "module.child1.module.grandchild1.aws_vpc.grandchild",
     "timeouts": null,
     "_type": "aws_security_group",
+    "_provider": "aws",
     "name_prefix": null
   },
   "module.child1.aws_vpc.child": {
@@ -652,7 +657,8 @@ expected_resource_view = {
     "cidr_block": "10.0.0.0/16",
     "instance_tenancy": "default",
     "enable_dns_support": true,
-    "_type": "aws_vpc"
+    "_type": "aws_vpc",
+    "_provider": "aws",
   },
   "module.child1.module.grandchild1.aws_security_group.grandchild": {
     "id": "module.child1.module.grandchild1.aws_security_group.grandchild",
@@ -662,6 +668,7 @@ expected_resource_view = {
     "vpc_id": "module.child1.module.grandchild1.aws_vpc.grandchild",
     "timeouts": null,
     "_type": "aws_security_group",
+    "_provider": "aws",
     "name_prefix": null
   }
 }

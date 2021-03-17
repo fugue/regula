@@ -16,7 +16,8 @@ package fugue.regula
 # Simple resource used for testing.
 testutil_resource = {
   "id": "testutil_resource",
-  "_type": "aws_elb_volume"
+  "_type": "aws_elb_volume",
+  "_provider": "aws"
 }
 
 test_judgement_from_allow_denies_01 {

@@ -21,6 +21,7 @@ resource_view[id] = ret {
   ret := json.patch(properties, [
     {"op": "add", "path": ["id"], "value": id},
     {"op": "add", "path": ["_type"], "value": resource.Type},
+    {"op": "add", "path": ["_provider"], "value": "aws"},
   ])
 }
 

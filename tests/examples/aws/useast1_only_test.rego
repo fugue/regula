@@ -11,30 +11,33 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.useast1_only
+package rules.useast1_only
 
-import data.fugue.regula
-import data.tests.examples.aws.inputs.useast1_only_infra.mock_plan_input
+import data.fugue.resource_view.resource_view_input
+import data.tests.examples.aws.inputs.useast1_only_infra.mock_input
 
 test_useast1_only {
-  report := regula.report with input as mock_plan_input
-  report.rules.useast1_only.valid == true
+  pol = policy with input as mock_input
+  # We're only producing a result when provider region != "us-east-1"
+  pol == set()
 }
 
 test_useast2_only {
-  report := regula.report with input as mock_useast2_input
-  report.rules.useast1_only.valid == false
+  pol = policy with input as mock_useast2_input
+  pol[_].valid == false
 }
 
-mock_useast2_input = {
-  "terraform_version": "0.12.18",
-  "configuration": {
-    "provider_config": {
-      "aws": {
-        "name": "aws",
-        "expressions": {
-          "region": {
-            "constant_value": "us-east-2"
+mock_useast2_input = ret {
+  ret = resource_view_input with input as {
+    "terraform_version": "0.12.18",
+    "configuration": {
+      "provider_config": {
+        "aws": {
+          "name": "aws",
+          "expressions": {
+            "region": {
+              "constant_value": "us-east-2"
+            }
           }
         }
       }

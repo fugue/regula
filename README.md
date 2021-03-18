@@ -62,7 +62,7 @@ Run the following command:
 
     ./bin/regula [IAC_PATH] [REGO_PATHS...]
 
-`IAC_PATH` is the directory where your CoudFormation or Terraform configuration files are
+`IAC_PATH` is the directory where your CloudFormation or Terraform configuration files are
 located.
 
 `REGO_PATHS` are the directories that need to be searched for Rego code.  This

@@ -7,7 +7,7 @@
     - [Running Regula locally](#running-regula-locally)
       - [macOS and Linux](#macos-and-linux)
       - [Windows](#windows)
-    - [Regula Docker image](#regula-docker-image)
+    - [Running Regula with Docker](#running-regula-with-docker)
   - [Regula rules](#regula-rules)
     - [Simple rules](#simple-rules)
     - [Custom error messages](#custom-error-messages)
@@ -30,11 +30,11 @@
 
 ## Introduction
 
-Regula is a tool that evaluates CloudFormation and Terraform infrastructure-as-code for potential AWS, Azure, and Google Cloud security misconfigurations and compliance violations prior to deployment.
+Regula is a tool that evaluates CloudFormation and Terraform infrastructure-as-code for potential AWS, Azure, and Google Cloud security and compliance violations prior to deployment.
 
-Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly (see our blog post [here](https://www.fugue.co/blog/predeployment-compliance-checks-with-regula-and-terraform-blog)). Where relevant, we’ve mapped Regula policies to the CIS AWS, Azure, and Google Cloud Foundations Benchmarks so you can assess your compliance posture. Regula is maintained by engineers at [Fugue](https://fugue.co).
+Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly (see our blog post [here](https://www.fugue.co/blog/predeployment-compliance-checks-with-regula-and-terraform-blog)). Where relevant, we’ve mapped Regula policies to the CIS AWS, Azure, and Google Cloud Foundations Benchmarks so you can assess compliance posture. Regula is maintained by engineers at [Fugue](https://fugue.co).
 
-Regula is available via source and Linux container image [here](https://hub.docker.com/r/fugue/regula).
+Regula is is also available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
 
 ## How does Regula work?
 
@@ -52,8 +52,7 @@ The second part is a Rego framework that:
 
 ### Running Regula locally
 
-Install the prerequisites:
-
+Clone the repository and install the prerequisites:
 - [OPA](https://www.openpolicyagent.org/docs/latest/#1-download-opa)
 - [Terraform 0.12+](https://www.terraform.io/downloads.html)
 
@@ -71,9 +70,9 @@ should at least include `lib/`.
 
 Some examples:
 
--   `./bin/regula ../my-tf-infra .`: conveniently check `../my-tf-infra` against
+-   `./bin/regula ../my-tf-infra .`: check `../my-tf-infra` against
     all rules in this main repository.
--   `./bin/regula ../my-tf-infra.json .`: conveniently check `../my-tf-infra.json` terraform plan against
+-   `./bin/regula ../my-tf-infra.json .`: check `../my-tf-infra.json` terraform plan against
     all rules in this main repository.
 -   `./bin/regula ../my-tf-infra lib examples/aws/ec2_t2_only.rego`: run Regula
     using only the specified rule.
@@ -91,9 +90,21 @@ Note that Regula requires Terraform 0.12+ in order to generate the JSON-formatte
 
 Because Regula uses a bash script to automatically generate a plan, convert it to JSON, and run the Rego validations, Windows users can instead manually run the steps that Regula performs. See those steps [here](#locally-producing-a-report-on-windows).  Alternatively, you can run the script using [WSL](https://docs.microsoft.com/en-us/windows/wsl/about).
 
-### Regula Docker image
+### Running Regula with Docker
 
 Regula is available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
+
+To run Regula on a CloudFormation template or Terraform plan file, use the following command:
+
+    docker run -i fugue/regula [IAC_TEMPLATE]
+
+`IAC_TEMPLATE` is the specific code file you want Regula to check.
+
+To run Regula on Terraform HCL files, use the following command:
+
+    docker run -it --entrypoint regula --volume [HCL_LOCATION]:/workspace -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX fugue/regula /workspace /opt/regula
+
+`HCL_LOCATION` is the location of the Terraform HCL files you want Regula to check. This command creates a volume for the Docker container to access these files, so that a Terraform plan file can be generated.
 
 ## Regula rules
 

@@ -72,7 +72,7 @@ Some examples:
 
 -   `./bin/regula ../my-tf-infra .`: check `../my-tf-infra` against
     all rules in this main repository.
--   `./bin/regula ../my-tf-infra.json .`: check `../my-tf-infra.json` terraform plan against
+-   `./bin/regula ../my-tf-infra.json .`: check `../my-tf-infra.json` Terraform plan against
     all rules in this main repository.
 -   `./bin/regula ../my-tf-infra lib examples/aws/ec2_t2_only.rego`: run Regula
     using only the specified rule.
@@ -212,7 +212,7 @@ What's the difference between controls and rules? A **control** represents an in
 
 In Regula, a **rule** is a Rego policy that validates whether a cloud resource violates a control (or multiple controls). One example of a rule is [`iam_admin_policy`](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego), which checks whether an IAM policy in a Terraform file has `"*:*"` privileges. If it does not, the resource fails validation.
 
-Controls map to sets of rules, and rules can map to multiple controls. For example, control `CIS-AWS_v1.2.0_1.22` and `FG_R00092` [both map to](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego#L7) the rule `iam_admin_policy`.
+Controls map to sets of rules, and rules can map to multiple controls. For example, control `CIS-AWS_v1.2.0_1.22` and `FG_R00092` [both map to](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego) the rule `iam_admin_policy`.
 
 ### Specifying compliance controls
 Controls can be specified within the rules: just add a `controls` set.
@@ -370,7 +370,9 @@ To use Regula with Conftest:
  -  `tests/`:
       *  `tests/lib`: internal tests for the library.
       *  `tests/rules/`: tests for the various rules.
-      *  `tests/rules/inputs`: CloudFormation and terraform files that can be used to generate Rego
+      *  `tests/rules/tf/<provider>/<service>/inputs`: tests for Terraform rules
+      *  `tests/rules/cfn/<service>/inputs`: tests for CloudFormation rules
+      *  `tests/rules/inputs`: CloudFormation and Terraform files that can be used to generate Rego
          files.
       *  `tests/examples/`: tests for the example rules.
       *  `tests/examples/inputs`: input files for the example rules.
@@ -378,17 +380,17 @@ To use Regula with Conftest:
 ### Adding a test
 
 If you would like to add a rule, we recommend starting with a test.
-Put your code in a file in `tests/rules/<provider>/inputs`; for example
-[tests/rules/aws/inputs/kms\_rotate\_infra.tf](tests/rules/aws/inputs/kms_rotate_infra.tf).
+Put your code in a file in `tests/rules/tf/aws/kms/inputs`; for example
+[tests/rules/tf/aws/inputs/kms\_rotate\_infra.tf](tests/rules/tf/aws/inputs/kms_rotate_infra.tf).
 From this, you can generate a mock input by running:
 
     bash scripts/generate-test-inputs.sh
 
 The mock input will then be placed in a `.rego` file with the same name,
-in our case [tests/rules/aws/inputs/kms\_rotate\_infra.rego](tests/rules/aws/inputs/kms_rotate_infra.rego).
+in our case [tests/rules/tf/aws/inputs/kms\_rotate\_infra.rego](tests/rules/tf/aws/inputs/kms_rotate_infra.rego).
 
 Next, add the actual tests to a Rego file with the same name (appended with `_test` instead of `_infra`),
-but outside of the `inputs/` subdirectory.  Using this example, that would be [tests/rules/aws/kms\_rotate\_test.rego](tests/rules/aws/kms_rotate_test.rego).
+but outside of the `inputs/` subdirectory.  Using this example, that would be [tests/rules/tf/aws/kms\_rotate\_test.rego](tests/rules/tf/aws/kms_rotate_test.rego).
 
 ### Debugging a rule with fregot
 
@@ -457,7 +459,7 @@ To locally produce a Regula report on Windows, use the following steps:
 [opa]: https://www.openpolicyagent.org/
 [fregot]: https://github.com/fugue/fregot
 [CloudFormation]: https://docs.aws.amazon.com/cloudformation/
-[terraform]: https://www.terraform.io/
+[Terraform]: https://www.terraform.io/
 [Rego]: https://www.openpolicyagent.org/docs/latest/policy-language/
 [Fugue Custom Rules]: https://docs.fugue.co/rules.html
 [Conftest]: https://github.com/instrumenta/conftest

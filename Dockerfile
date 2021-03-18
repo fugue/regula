@@ -1,7 +1,8 @@
 FROM python:3.9.2-alpine3.13
 
 # We need bash for the main regula script since it uses arrays.
-RUN apk add --update bash && rm -rf /var/cache/apk/*
+# We need git to support terraform modules
+RUN apk add --update bash git && rm -rf /var/cache/apk/*
 
 # Install OPA.
 ARG OPA_VERSION=0.26.0

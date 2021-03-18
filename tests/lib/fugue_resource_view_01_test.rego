@@ -13,10 +13,10 @@
 # limitations under the License.
 package fugue.resource_view
 
-import data.tests.lib.inputs.resource_view_01
+import data.tests.lib.inputs.resource_view_01_infra
 
 test_resource_view_01 {
-  resource_view_01.mock_resources == {
+  resource_view_01_infra.mock_resources == {
     "aws_s3_bucket.example": {
       "id": "aws_s3_bucket.example",
       "acl": "private",
@@ -38,7 +38,7 @@ test_resource_view_01 {
       "id": "aws_s3_bucket_policy.example",
       "bucket": "aws_s3_bucket.example",
       "policy": "data.aws_iam_policy_document.example",
-      "_type": "aws_s3_bucket_policy",
+      "_type": "aws_s3_bucket_policy"
     },
     "data.aws_iam_policy_document.example": {
       "id": "data.aws_iam_policy_document.example",
@@ -57,6 +57,8 @@ test_resource_view_01 {
         "not_actions": null
       }],
       "override_json": null,
+      "override_policy_documents": null,
+      "source_policy_documents": null,
       "source_json": null,
       "version": null,
       "policy_id": null,

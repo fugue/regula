@@ -1,4 +1,9 @@
 # CHANGELOG
+ -  0.6.0 (2021-03-18)
+     *  Add support for CloudFormation templates.
+     *  Add 23 new CIS AWS rules for CloudFormation templates.
+     *  Reorganize rules and tests and standardize rule names.
+     *  Update control and compliance family names to new format.
 
  -  0.5.0 (2020-08-21)
      *  New rule: Ensure AWS S3 Buckets are encrypted.

@@ -1,4 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Copyright 2020-2021 Fugue, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 set -o nounset -o errexit -o pipefail
 
 # Allow overriding terraform version.
@@ -6,23 +19,34 @@ TERRAFORM="${TERRAFORM:-terraform}"
 
 function generate_test_input {
   if [[ $# -ne 2 ]]; then
-    1>&2 echo "Usage: $0 TF_FILE REGO_FILE"
+    1>&2 echo "Usage: $0 INFRA_FILE REGO_FILE"
     exit 1
   fi
 
-  local tfdir="$(mktemp -d)"
-  trap "rm -rf "$tfdir"" return
-  cp "$1" "$tfdir"
+  local workdir="$(mktemp -d)"
+  trap "rm -rf "$workdir"" return
+  cp "$1" "$workdir"
 
-  # For some reason running this from the current directory sometimes fails; we
-  # create a subshell and `cd` to where we copied the terraform configuration.
-  (cd "$tfdir" &&
-      $TERRAFORM init &&
-      $TERRAFORM plan -refresh=false -out="plan.tfplan" &&
-      $TERRAFORM show -json "plan.tfplan" >"plan.json")
+  # Switch based on extension.  The inner branches must generate
+  # `$workdir/infra.json` which will be spliced into the rego file.
+  local extension="${1##*.}"
+  if [[ "$extension" == "tf" ]]; then
+    # For some reason running this from the current directory sometimes fails; we
+    # create a subshell and `cd` to where we copied the terraform configuration.
+    (cd "$workdir" &&
+        $TERRAFORM init &&
+        $TERRAFORM plan -refresh=false -out="plan.tfplan" &&
+        $TERRAFORM show -json "plan.tfplan" >"infra.json")
+  elif [[ "$extension" == "cfn" ]]; then
+    # Convert to standard JSON format using `cfn-flip`.
+    cfn-flip -j "$1" >"$workdir/infra.json"
+  else
+    1>&2 echo "Unknown extension: $extension"
+    exit 1
+  fi
 
   local package="$(echo "$(dirname "$2")"/"$(basename "$2" .rego)" | tr '/' '.')"
-  echo '# Copyright 2020 Fugue, Inc.' >"$2"
+  echo '# Copyright 2020-2021 Fugue, Inc.' >"$2"
   echo '#' >>"$2"
   echo '# Licensed under the Apache License, Version 2.0 (the "License");' >>"$2"
   echo '# you may not use this file except in compliance with the License.' >>"$2"
@@ -53,29 +77,29 @@ function generate_test_input {
   echo "  ret = resource_view_input with input as mock_plan_input" >>"$2"
   echo "}" >>"$2"
   echo "mock_resources = mock_input.resources" >>"$2"
-  echo "mock_plan_input = $(jq '.' <"$tfdir/plan.json")" >>"$2"
+  echo "mock_plan_input = $(jq '.' <"$workdir/infra.json")" >>"$2"
 
   1>&2 echo "Generated $2"
 }
 
 if [[ $# -eq 0 ]]; then
-  for tf_file in $(find tests -name '*.tf'); do
-    rego_file="$(dirname "$tf_file")/$(basename "$tf_file" .tf).rego"
-    if [[ ! -f "$rego_file" ]] || [[ "$tf_file" -nt "$rego_file" ]]; then
-      1>&2 echo "$tf_file -> $rego_file"
-      generate_test_input "$tf_file" "$rego_file"
+  for infra_file in $(find tests -name '*_infra\.*'); do
+    rego_file="$(echo "$infra_file" | sed 's/\.[^.]*$/.rego/')"
+    if [[ ! -f "$rego_file" ]] || [[ "$infra_file" -nt "$rego_file" ]]; then
+      1>&2 echo "$infra_file-> $rego_file"
+      generate_test_input "$infra_file" "$rego_file"
     else
       1>&2 echo "$rego_file is up to date.  Remove it to force re-generating."
     fi
   done
 elif [[ "$1" == "-h" || $# -gt 1 ]]; then
   1>&2 echo "Usage:"
-  1>&2 echo "  $0          # Regenerates all test outputs"
-  1>&2 echo "  $0 TF_FILE  # Regenerates a specific test output"
+  1>&2 echo "  $0             # Regenerates all test outputs"
+  1>&2 echo "  $0 INFRA_FILE  # Regenerates a specific test output"
   exit 1
 else
-  tf_file="$1"
-  rego_file="$(dirname "$tf_file")/$(basename "$tf_file" .tf).rego"
-  1>&2 echo "$tf_file -> $rego_file"
-  generate_test_input "$tf_file" "$rego_file"
+  infra_file="$1"
+  rego_file="$(echo "$infra_file" | sed 's/\.[^.]*$/.rego/')"
+  1>&2 echo "$infra_file-> $rego_file"
+  generate_test_input "$infra_file" "$rego_file"
 fi

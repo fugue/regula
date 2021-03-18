@@ -27,6 +27,7 @@ test_useast2_only {
 }
 
 mock_useast2_input = {
+  "terraform_version": "0.12.18",
   "configuration": {
     "provider_config": {
       "aws": {

@@ -59,6 +59,7 @@ Regula requires the following:
 - [cfn-flip](https://github.com/awslabs/aws-cfn-template-flip)
 
 To install cfn-flip, create a virtualenv if you don't already have one (recommended), and install python requirements:
+
     python3 -m venv venv
     . ./venv/bin/activate
     pip install -r requirements.txt

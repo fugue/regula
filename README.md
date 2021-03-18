@@ -110,9 +110,14 @@ To run Regula on a CloudFormation template or Terraform plan file, use the follo
 
 To run Regula on Terraform HCL files, use the following command:
 
-    docker run --rm -it --entrypoint regula --volume [HCL_LOCATION]:/workspace -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX fugue/regula /workspace /opt/regula
+    docker run --rm --entrypoint regula \
+    --volume [HCL_DIRECTORY]:/workspace \
+    -e AWS_ACCESS_KEY_ID=XXXXXX \
+    -e AWS_SECRET_ACCESS_KEY=XXXXXX \
+    -e AWS_DEFAULT_REGION=xx-xxxx-x \
+    fugue/regula /workspace /opt/regula
 
-`HCL_LOCATION` is the location of the Terraform HCL files you want Regula to check. This command creates a volume for the Docker container to access these files, so that a Terraform plan file can be generated.
+`HCL_DIRECTORY` is the location of the Terraform HCL files you want Regula to check. This command creates a volume for the Docker container to access these files, so that a Terraform plan file can be generated.
 
 ## Regula rules
 

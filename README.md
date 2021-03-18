@@ -5,6 +5,7 @@
   - [How does Regula work?](#how-does-regula-work)
   - [Getting Started with Regula](#getting-started-with-regula)
     - [Running Regula locally](#running-regula-locally)
+      - [Install requirements](#install-requirements)
       - [macOS and Linux](#macos-and-linux)
       - [Windows](#windows)
     - [Running Regula with Docker](#running-regula-with-docker)
@@ -34,7 +35,7 @@ Regula is a tool that evaluates CloudFormation and Terraform infrastructure-as-c
 
 Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly (see our blog post [here](https://www.fugue.co/blog/predeployment-compliance-checks-with-regula-and-terraform-blog)). Where relevant, we’ve mapped Regula policies to the CIS AWS, Azure, and Google Cloud Foundations Benchmarks so you can assess compliance posture. Regula is maintained by engineers at [Fugue](https://fugue.co).
 
-Regula is is also available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
+Regula is also available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
 
 ## How does Regula work?
 
@@ -42,9 +43,7 @@ There are two parts to Regula. The first is a [shell script](/bin/regula) that g
 
 The second part is a Rego framework that:
 
--   Merges resource info from `planned_values` and `configuration` in the
-    Terraform plan into a more conveniently accessible format.
--   Walks through the imported Terraform modules and merges them into a flat format.
+-   Merges resource info from `planned_values` and `configuration` in the Terraform plan into a more conveniently accessible format, and walks through the imported Terraform modules and merges them into a flat format.
 -   Looks for [rules](#regula-rules) and executes them.
 -   Generates a report with the results of all relevant rules and [control mappings](#compliance-controls-vs-rules).
 
@@ -52,9 +51,17 @@ The second part is a Rego framework that:
 
 ### Running Regula locally
 
-Clone the repository and install the prerequisites:
+#### Install requirements
+
+Regula requires the following:
 - [OPA](https://www.openpolicyagent.org/docs/latest/#1-download-opa)
 - [Terraform 0.12+](https://www.terraform.io/downloads.html)
+- [cfn-flip](https://github.com/awslabs/aws-cfn-template-flip)
+
+To install cfn-flip, create a virtualenv if you don't already have one (recommended), and install python requirements:
+    python3 -m venv venv
+    . ./venv/bin/activate
+    pip install -r requirements.txt
 
 #### macOS and Linux
 
@@ -62,8 +69,7 @@ Run the following command:
 
     ./bin/regula [IAC_PATH] [REGO_PATHS...]
 
-`IAC_PATH` is the directory where your CloudFormation or Terraform configuration files are
-located.
+`IAC_PATH` should either be a single CloudFormation YAML/JSON template, or Terraform directory.
 
 `REGO_PATHS` are the directories that need to be searched for Rego code.  This
 should at least include `lib/`.
@@ -78,6 +84,7 @@ Some examples:
     using only the specified rule.
 -   `./bin/regula ../my-tf-infra lib ../custom-rules`: run Regula using a
     directory of custom rules.
+-   `./bin/regula ../my-cfn-infra/s3.yaml .`: check `../my-cfn-infra/s3.yaml` against all rules in the main repository. 
 
 It is also possible to set the name of the `terraform` executable, which is
 useful if you have several versions installed:
@@ -96,13 +103,13 @@ Regula is available as a Docker image on DockerHub [here](https://hub.docker.com
 
 To run Regula on a CloudFormation template or Terraform plan file, use the following command:
 
-    docker run -i fugue/regula [IAC_TEMPLATE]
+    docker run --rm -i fugue/regula < [IAC_TEMPLATE]
 
 `IAC_TEMPLATE` is the specific code file you want Regula to check.
 
 To run Regula on Terraform HCL files, use the following command:
 
-    docker run -it --entrypoint regula --volume [HCL_LOCATION]:/workspace -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX fugue/regula /workspace /opt/regula
+    docker run --rm -it --entrypoint regula --volume [HCL_LOCATION]:/workspace -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX fugue/regula /workspace /opt/regula
 
 `HCL_LOCATION` is the location of the Terraform HCL files you want Regula to check. This command creates a volume for the Docker container to access these files, so that a Terraform plan file can be generated.
 
@@ -380,17 +387,17 @@ To use Regula with Conftest:
 ### Adding a test
 
 If you would like to add a rule, we recommend starting with a test.
-Put your code in a file in `tests/rules/tf/aws/kms/inputs`; for example
-[tests/rules/tf/aws/inputs/kms\_rotate\_infra.tf](tests/rules/tf/aws/inputs/kms_rotate_infra.tf).
+Put your code in a file in the `inputs` folder within the appropriate `tests/rules` directory; for example
+[tests/rules/tf/aws/kms/inputs/\_rotate\_infra.tf](tests/rules/tf/aws/inputs/kms_rotate_infra.tf).
 From this, you can generate a mock input by running:
 
     bash scripts/generate-test-inputs.sh
 
 The mock input will then be placed in a `.rego` file with the same name,
-in our case [tests/rules/tf/aws/inputs/kms\_rotate\_infra.rego](tests/rules/tf/aws/inputs/kms_rotate_infra.rego).
+in our case [tests/rules/tf/aws/kms/inputs/kms\_rotate\_infra.rego](tests/rules/tf/aws/kms/inputs/kms_rotate_infra.rego).
 
 Next, add the actual tests to a Rego file with the same name (appended with `_test` instead of `_infra`),
-but outside of the `inputs/` subdirectory.  Using this example, that would be [tests/rules/tf/aws/kms\_rotate\_test.rego](tests/rules/tf/aws/kms_rotate_test.rego).
+but outside of the `inputs/` subdirectory.  Using this example, that would be [tests/rules/tf/aws/kms/key\_rotation\_test.rego](tests/rules/tf/aws/kms/key_rotation_test.rego).
 
 ### Debugging a rule with fregot
 

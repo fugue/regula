@@ -182,7 +182,7 @@ rule_metadata(pkg) = ret {
 }
 
 # The full report.
-report = ret {
+single_report = ret {
   # We look at all packages inside `data.rules` that have a `resource_type`
   # declared and construct a list of rules based on that.
   #
@@ -226,4 +226,15 @@ report = ret {
     "rule_results": rule_results,
     "summary": summary,
   }
+}
+
+report = ret {
+  is_array(input)
+  ret := {k: v |
+    item := input[_]
+    k := item.path
+    v := single_report with input as item.content
+  }
+} else = ret {
+  ret := single_report
 }

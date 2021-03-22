@@ -15,34 +15,43 @@
 set -o nounset -o errexit -o pipefail
 
 # Basic command line argument handling.
-if [[ $# -lt 1 ]]; then
-  1>&2 echo "Usage: $0 [INPUT_PATH] [REGO_PATHS..]"
-  1>&2 echo ""
-  1>&2 echo "INPUT_PATH can be a terraform directory, a terraform plan in"
-  1>&2 echo "JSON format or a cloudformation template."
-  1>&2 echo ""
+if [[ $# -lt 1 || "$1" == "-h" ]]; then
   1>&2 echo "Regula is a little wrapper to run Rego validations on terraform"
   1>&2 echo "files.  It is meant to be used as a pre-flight check before"
   1>&2 echo "deployment."
+  1>&2 echo ""
+  1>&2 echo "Usage: $0 [-d REGO_PATH] [INPUT_PATH]"
+  1>&2 echo ""
+  1>&2 echo "For example $0 -d /opt/regula/rules -d /opt/regula/lib infra_tf/"
+  1>&2 echo ""
+  1>&2 echo "INPUT_PATH can be a terraform directory, a terraform plan in"
+  1>&2 echo "JSON format or a cloudformation template."
   exit 1
 fi
 
-
-INPUT_PATH="$1"
-if [[ "$INPUT_PATH" == "-" ]]; then
-  INPUT_PATH="$(mktemp -t input.XXXXXXX)"
-  cat - >"$INPUT_PATH"
-fi
-shift 1
-REGO_PATHS=("$@")
-
-# Prepend `-d` to every argument because `opa` expects to see many `-d`
-# arguments.
+INPUT_PATHS=()
 D_REGO_PATHS=()
-for p in "${REGO_PATHS[@]}"; do
-  D_REGO_PATHS+=('-d')
-  D_REGO_PATHS+=("$p")
-done
+if [[ "$1" == "-d" ]]; then
+  # New way of parsing arguments: multiple -d rego paths followed by input
+  # files.
+  while [[ "$1" == "-d" ]]; do
+    D_REGO_PATHS+=("-d")
+    D_REGO_PATHS+=("$2")
+    shift 2
+  done
+  INPUT_PATHS=("$@")
+else
+  # Old way of parsing arguments: single input followed by multiple rego paths.
+  INPUT_PATHS+=("$1")
+  shift 1
+  REGO_PATHS=("$@")
+
+  # Prepend `-d` to every argument because `opa` expects to see many `-d`
+  for p in "${REGO_PATHS[@]}"; do
+    D_REGO_PATHS+=('-d')
+    D_REGO_PATHS+=("$p")
+  done
+fi
 
 function detect_input_type {
   if [[ -d "$1" ]]; then
@@ -54,8 +63,6 @@ function detect_input_type {
       'data.fugue.input_type.input_type' | \
     tr -d '"'  # Unquote the string, not great but avoids jq dependency.
 }
-
-INPUT_TYPE="$(detect_input_type "$INPUT_PATH")"
 
 # Setting this variable will cause terraform to print a little less information
 # on what to do next.
@@ -80,29 +87,78 @@ function silently {
   rm "$log"
 }
 
-# Preprocessing.
-if [[ "$INPUT_TYPE" == "terraform_dir" ]]; then
-  # Temporary files.
-  TERRAFORM_PLAN="$(mktemp -t plan.XXXXXXX)"
-  TERRAFORM_PLAN_JSON="$TERRAFORM_PLAN.json"
-  function cleanup {
-    rm -f "$TERRAFORM_PLAN" "$TERRAFORM_PLAN_JSON"
-  }
-  trap cleanup exit
-  # Run terraform to obtain the plan.
-  (cd "$INPUT_PATH" &&
-    silently "$TERRAFORM" init &&
-    silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN" &&
-    "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON")
-  INPUT_PATH="$TERRAFORM_PLAN_JSON"
-elif [[ "$INPUT_TYPE" == "cloudformation" ]]; then
-  CFN_JSON="$(mktemp -t cfn.XXXXXXX)"
-  function cleanup {
-    rm -f "$CFN_JSON"
-  }
-  trap cleanup exit
-  cfn-flip -j "$INPUT_PATH" >"$CFN_JSON"
-  INPUT_PATH="$CFN_JSON"
+# Prepare a function that will clean up all termporary files, that we'll store
+# in an array.
+CLEANUP_PATHS=()
+function cleanup {
+  rm -f "${CLEANUP_PATHS[@]}"
+}
+trap cleanup exit
+
+# Preprocessing happens per input file.
+PROCESSED_INPUT_PATHS=()
+for INPUT_PATH in "${INPUT_PATHS[@]}"; do
+  # Capture stdin.
+  if [[ "$INPUT_PATH" == "-" ]]; then
+    INPUT_PATH="$(mktemp -t input.XXXXXXX)"
+    CLEANUP_PATHS+=("$INPUT_PATH")
+    cat - >"$INPUT_PATH"
+  fi
+
+  # Determine input type.
+  INPUT_TYPE="$(detect_input_type "$INPUT_PATH")"
+
+  if [[ "$INPUT_TYPE" == "terraform_dir" ]]; then
+    # Temporary files.
+    TERRAFORM_PLAN="$(mktemp -t plan.XXXXXXX)"
+    CLEANUP_PATHS+=("$TERRAFORM_PLAN")
+    TERRAFORM_PLAN_JSON="$TERRAFORM_PLAN.json"
+    # Run terraform to obtain the plan.
+    (cd "$INPUT_PATH" &&
+      silently "$TERRAFORM" init &&
+      silently "$TERRAFORM" plan -refresh=false -out="$TERRAFORM_PLAN" &&
+      "$TERRAFORM" show -json "$TERRAFORM_PLAN" >"$TERRAFORM_PLAN_JSON")
+    INPUT_PATH="$TERRAFORM_PLAN_JSON"
+  elif [[ "$INPUT_TYPE" == "cloudformation" ]]; then
+    CFN_JSON="$(mktemp -t cfn.XXXXXXX)"
+    CLEANUP_PATHS+=("$CFN_JSON")
+    cfn-flip -j "$INPUT_PATH" >"$CFN_JSON"
+    INPUT_PATH="$CFN_JSON"
+  fi
+  PROCESSED_INPUT_PATHS+=("$INPUT_PATH")
+done
+
+# If there are multiple input paths, we want to merge them into a single JSON
+# file for OPA.  We merge them into a an array of the shape:
+#
+#   [
+#     {
+#       "path": "1.json",
+#       "contents": {...}
+#     },
+#     {
+#       "path": "2.json",
+#       "contents": {...}
+#     }
+#   ]
+#
+# This works because we know that all the processed input paths are valid JSON.
+if [[ "${#PROCESSED_INPUT_PATHS[@]}" == 1 ]]; then
+  INPUT_PATH="${PROCESSED_INPUT_PATHS[0]}"
+else
+  INPUT_PATH="$(mktemp -t merged.XXXXXXX)"
+  CLEANUP_PATHS+=("$INPUT_PATH")
+  echo "[" >"$INPUT_PATH"
+  for i in "${!PROCESSED_INPUT_PATHS[@]}"; do
+    path="${INPUT_PATHS[$i]}"
+    echo "{\"path\":\"$path\",\"content\":" >>"$INPUT_PATH"
+    cat "${PROCESSED_INPUT_PATHS[$i]}" >>"$INPUT_PATH"
+    if [[ $(("$i" + 1)) == "${#PROCESSED_INPUT_PATHS[@]}" ]]; then
+      echo "}]" >>"$INPUT_PATH"
+    else
+      echo "}," >>"$INPUT_PATH"
+    fi
+  done
 fi
 
 # Finally, run OPA on the result to get out our report.

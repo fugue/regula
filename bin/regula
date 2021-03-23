@@ -133,12 +133,12 @@ done
 #
 #   [
 #     {
-#       "path": "1.json",
-#       "contents": {...}
+#       "filename": "1.json",
+#       "content": {...}
 #     },
 #     {
-#       "path": "2.json",
-#       "contents": {...}
+#       "filename": "2.json",
+#       "content": {...}
 #     }
 #   ]
 #
@@ -150,8 +150,8 @@ else
   CLEANUP_PATHS+=("$INPUT_PATH")
   echo "[" >"$INPUT_PATH"
   for i in "${!PROCESSED_INPUT_PATHS[@]}"; do
-    path="${INPUT_PATHS[$i]}"
-    echo "{\"path\":\"$path\",\"content\":" >>"$INPUT_PATH"
+    filename="${INPUT_PATHS[$i]}"
+    echo "{\"filename\":\"$filename\",\"content\":" >>"$INPUT_PATH"
     cat "${PROCESSED_INPUT_PATHS[$i]}" >>"$INPUT_PATH"
     if [[ $(("$i" + 1)) == "${#PROCESSED_INPUT_PATHS[@]}" ]]; then
       echo "}]" >>"$INPUT_PATH"

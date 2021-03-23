@@ -41,7 +41,8 @@ allow_resource(resource) = ret {
     "valid": true,
     "id": resource.id,
     "message": "",
-    "type": resource._type
+    "type": resource._type,
+    "provider": resource._provider,
   }
 }
 
@@ -54,7 +55,8 @@ deny_resource_with_message(resource, message) = ret {
     "valid": false,
     "id": resource.id,
     "message": message,
-    "type": resource._type
+    "type": resource._type,
+    "provider": resource._provider,
   }
 }
 
@@ -67,7 +69,11 @@ missing_resource_with_message(resource_type, message) = ret {
     "valid": false,
     "id": "",
     "message": message,
-    "type": resource_type
+    "type": resource_type,
+    # TODO: We're falling back to a blank provider here to avoid breaking the API.
+    # We should aim to change the API for these result functions to take a single
+    # object. Then we can add new fields w/o breaking anyone's usage.
+    "provider": "",
   }
 }
 

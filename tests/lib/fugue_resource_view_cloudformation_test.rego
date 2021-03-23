@@ -29,12 +29,14 @@ Resources:
     "MySecurityGroup": {
       "id": "MySecurityGroup",
       "Vpc": "MyVpc",
-      "_type": "SecurityGroupId"
+      "_type": "SecurityGroupId",
+      "_provider": "aws",
     },
     "MyVpc": {
       "id": "MyVpc",
       "Name": "bar",
-      "_type": "Vpc"
+      "_type": "Vpc",
+      "_provider": "aws",
     }
   }
 }
@@ -60,7 +62,8 @@ Resources:
       "id": "MyServer",
       "TheHost": "0.0.0.0",
       "ThePort": 80,
-      "_type": "Server"
+      "_type": "Server",
+      "_provider": "aws",
     }
   }
 }
@@ -87,10 +90,12 @@ Resources:
   rv == {
     "LoggingBucket": {
       "_type": "AWS::S3::Bucket",
+      "_provider": "aws",
       "id": "LoggingBucket"
     },
     "CloudTrailLogging": {
       "_type": "AWS::CloudTrail::Trail",
+      "_provider": "aws",
       "EventSelectors": [
         {
           "DataResources": [
@@ -137,6 +142,7 @@ Resources:
   rv == {
     "CloudTrailLogging": {
       "_type": "AWS::CloudTrail::Trail",
+      "_provider": "aws",
       "EventSelectors": [
         {
           "DataResources": [

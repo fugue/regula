@@ -11,23 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.tag_all_resources
+package rules.tag_all_resources
 
-import data.fugue.regula
-import data.tests.examples.aws.inputs.tag_all_resources_infra.mock_plan_input
+import data.tests.examples.aws.inputs.tag_all_resources_infra.mock_input
 
 test_tag_all_resources {
-  report := regula.report with input as mock_plan_input
-  resources := report.rules.tag_all_resources.resources
+  pol = policy with input as mock_input
+  by_resource_id = {p.id: {"valid": p.valid, "message": p.message} | pol[p]}
 
-  resources["aws_vpc.invalid"].valid == false
-  re_match("too short", resources["aws_s3_bucket.invalid"].message)
+  by_resource_id["aws_vpc.invalid"].valid == false
+  re_match("too short", by_resource_id["aws_s3_bucket.invalid"].message)
 
-  resources["aws_s3_bucket.invalid"].valid == false
-  re_match("too short", resources["aws_s3_bucket.invalid"].message)
+  by_resource_id["aws_s3_bucket.invalid"].valid == false
+  re_match("too short", by_resource_id["aws_s3_bucket.invalid"].message)
 
-  resources["aws_vpc.untagged"].valid == false
-  re_match("No tags", resources["aws_vpc.untagged"].message)
+  by_resource_id["aws_vpc.untagged"].valid == false
+  re_match("No tags", by_resource_id["aws_vpc.untagged"].message)
 
-  resources["aws_vpc.valid"].valid == true
+  by_resource_id["aws_vpc.valid"].valid == true
 }

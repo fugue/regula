@@ -103,6 +103,7 @@ planned_values_resources = {id: ret |
   ret = json.patch(resource_values(resource), [
     {"op": "add", "path": ["id"], "value": id},
     {"op": "add", "path": ["_type"], "value": resource.type},
+    {"op": "add", "path": ["_provider"], "value": resource.provider_name},
   ])
 }
 

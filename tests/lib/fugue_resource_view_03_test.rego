@@ -19,6 +19,7 @@ test_resource_view_03 {
   resource_view_03_infra.mock_resources == {
      "azurerm_monitor_log_profile.main": {
       "_type": "azurerm_monitor_log_profile",
+      "_provider": "azurerm",
       "categories": [
         "Action",
         "Delete",
@@ -42,6 +43,7 @@ test_resource_view_03 {
     },
     "azurerm_resource_group.main": {
       "_type": "azurerm_resource_group",
+      "_provider": "azurerm",
       "id": "azurerm_resource_group.main",
       "location": "westeurope",
       "name": "main",
@@ -50,6 +52,7 @@ test_resource_view_03 {
     },
     "azurerm_storage_account.main": {
       "_type": "azurerm_storage_account",
+      "_provider": "azurerm",
       "account_kind": "StorageV2",
       "account_replication_type": "GRS",
       "account_tier": "Standard",

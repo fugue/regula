@@ -106,6 +106,6 @@ elif [[ "$INPUT_TYPE" == "cloudformation" ]]; then
 fi
 
 # Finally, run OPA on the result to get out our report.
-opa eval --input "$INPUT_PATH" \
+opa eval --format=pretty --input "$INPUT_PATH" \
     "${D_REGO_PATHS[@]}" \
     'data.fugue.regula.report'

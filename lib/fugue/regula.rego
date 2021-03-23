@@ -228,12 +228,44 @@ single_report = ret {
   }
 }
 
+# Update a report to add a path to the resource IDs, for example:
+#
+#     CustomDomainName -> template.yaml:CustomDomainName
+#
+# We may want to move this functionality closer to the core of the resource
+# views once we support running rules over multiple inputs at the same time.
+qualify_report(path, report_0) = report_1 {
+  rules_1 := {rule_key: rule_1 |
+    rule_0 := report_0.rules[rule_key]
+    rule_1 := {
+      "metadata": rule_0.metadata,
+      "valid": rule_0.valid,
+      "resources": {resource_id_1: resource_1 |
+        resource_0 := rule_0.resources[resource_id_0]
+        resource_id_1 := concat(":", [path, resource_id_0])
+        resource_1 := {
+          "id": resource_id_1,
+          "message": resource_0.message,
+          "type": resource_0.type,
+          "valid": resource_0.valid,
+        }
+      }
+    }
+  }
+  report_1 := {
+    "controls": report_0.controls,
+    "rules": rules_1,
+    "summary": report_0.summary,
+    "message": report_0.message,
+  }
+}
+
 report = ret {
   is_array(input)
   ret := {k: v |
     item := input[_]
     k := item.path
-    v := single_report with input as item.content
+    v := qualify_report(item.path, single_report) with input as item.content
   }
 } else = ret {
   ret := single_report

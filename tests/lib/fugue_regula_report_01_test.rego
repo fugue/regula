@@ -14,7 +14,7 @@
 
 # This is a larger test case that mocks the whole `data.rules` tree as well
 # as the `input`.
-package fugue.regula_report_test
+package fugue.regula_report_01_test
 
 import data.fugue.regula
 import data.tests.rules.tf.aws.ebs.inputs.volume_encrypted_infra

@@ -224,9 +224,11 @@ merge_reports(reports) = ret {
 
 # Summarize a report.
 report_summary(rule_results) = ret {
-  all_severities = {"critical", "high", "medium", "low", "informational", "unknown"}
-  all_result_strings = {"pass", "fail"}
+  all_severities := {"critical", "high", "medium", "low", "informational", "unknown"}
+  all_result_strings := {"pass", "fail"}
+  all_filenames := {fn | fn := rule_results[_].filename}
   ret := {
+    "filenames": [fn | fn := all_filenames[_]],
     "rule_results": {rs: total |
       rs := all_result_strings[_]
       total := count([r |

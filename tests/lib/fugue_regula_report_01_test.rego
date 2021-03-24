@@ -150,6 +150,7 @@ expected_report = {
     }
   ],
   "summary": {
+    "filenames": [],
     "rule_results": {
       "pass": 3,
       "fail": 3

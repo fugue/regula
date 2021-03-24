@@ -51,6 +51,9 @@ test_report {
   report.summary.rule_results.pass == 2
   report.summary.rule_results.fail == 1
 
+  report.summary.filenames[_] == "template1.yaml"
+  report.summary.filenames[_] == "template2.yaml"
+
   report.rule_results[i].filename == "template1.yaml"
   report.rule_results[i].resource_type == "AWS::CloudTrail::Trail"
   report.rule_results[i].rule_result == "fail"

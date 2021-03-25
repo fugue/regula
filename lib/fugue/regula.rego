@@ -181,8 +181,9 @@ rule_metadata(pkg) = ret {
   }
 }
 
+
 # The full report.
-report = ret {
+single_report = ret {
   # We look at all packages inside `data.rules` that have a `resource_type`
   # declared and construct a list of rules based on that.
   #
@@ -202,28 +203,73 @@ report = ret {
   # Evaluate all these rules.
   rule_results = [r | r = evaluate_rule(rules[_])[_]]
 
-  # Create a summary as well.
-  all_severities = {"critical", "high", "medium", "low", "informational", "unknown"}
-  all_result_strings = {"pass", "fail"}
-  summary = {
-    "rule_results": {
-      rs: count([ r |
-        r = rule_results[_]
-        r.rule_result == rs
-      ]) | rs = all_result_strings[_]
-    },
-    "severities": {
-      s: count([r |
-        r = rule_results[_]
-        r.rule_severity == s
-        r.rule_result == "fail"
-      ]) | s = all_severities[_]
-    },
-  }
-
   # Produce the report.
   ret = {
     "rule_results": rule_results,
-    "summary": summary,
+    "summary": report_summary(rule_results),
   }
+}
+
+# Merge several reports together.
+merge_reports(reports) = ret {
+  rule_results := [rr | rr := reports[_].rule_results[_]]
+  ret := {
+    "rule_results": rule_results,
+    # Recomputing is easier than summing but we could swap that out if we need
+    # the performance.
+    "summary": report_summary(rule_results),
+  }
+}
+
+
+# Summarize a report.
+report_summary(rule_results) = ret {
+  all_severities := {"critical", "high", "medium", "low", "informational", "unknown"}
+  all_result_strings := {"pass", "fail"}
+  all_filenames := {fn | fn := rule_results[_].filename}
+  ret := {
+    "filenames": [fn | fn := all_filenames[_]],
+    "rule_results": {rs: total |
+      rs := all_result_strings[_]
+      total := count([r |
+        r := rule_results[_]
+        r.rule_result == rs
+      ])
+    },
+    "severities": {s: total |
+      s := all_severities[_]
+      total := count([r |
+        r = rule_results[_]
+        r.rule_severity == s
+        r.rule_result == "fail"
+      ])
+    },
+  }
+}
+
+# Add filenames to a report.
+report_add_filename(report_0, filename) = report_1 {
+  report_1 := {
+    "rule_results": [rule_result_1 |
+      rule_result_0 := report_0.rule_results[_]
+      rule_result_1 := json.patch(rule_result_0, [
+        {"op": "add", "path": ["filename"], "value": filename}
+      ])
+    ],
+    "summary": report_0.summary
+  }
+}
+
+# This is the final report.
+# We either produce a merged report out of several files, or a single report.
+report = ret {
+  is_array(input)
+  ret := merge_reports([report_1 |
+    item := input[_]
+    k := item.filename
+    report_0 := single_report with input as item.content
+    report_1 := report_add_filename(report_0, item.filename)
+  ])
+} else = ret {
+  ret := single_report
 }

@@ -107,9 +107,9 @@ evaluate_rule_judgement(pkg, resource) = ret {
 # Stringify judgement
 result_string(judgement) = ret {
   judgement.valid == true
-  ret = "pass"
+  ret = "PASS"
 } else = ret {
-  ret = "fail"
+  ret = "FAIL"
 }
 
 # Create a rule-resource result from a judgement
@@ -168,6 +168,14 @@ controls(custom) = ret {
   ret = set()
 }
 
+# Transforms high -> High. Assumes input is a single word.
+title_case(str) = ret {
+  ret = concat("", [
+    upper(substring(str, 0, 1)),
+    lower(substring(str, 1, -1))
+  ])
+}
+
 # Extract rule metadata from metadoc if it exists
 rule_metadata(pkg) = ret {
   metadoc = object.get(data["rules"][pkg], "__rego__metadoc__", {})
@@ -176,7 +184,7 @@ rule_metadata(pkg) = ret {
     "description": object.get(metadoc, "description", ""),
     "id": object.get(metadoc, "id", ""),
     "summary": object.get(metadoc, "title", ""),
-    "severity": lower(object.get(custom, "severity", "unknown")),
+    "severity": title_case(object.get(custom, "severity", "Unknown")),
     "controls": controls(custom)
   }
 }
@@ -224,8 +232,8 @@ merge_reports(reports) = ret {
 
 # Summarize a report.
 report_summary(rule_results) = ret {
-  all_severities := {"critical", "high", "medium", "low", "informational", "unknown"}
-  all_result_strings := {"pass", "fail"}
+  all_severities := {"Critical", "High", "Medium", "Low", "Informational", "Unknown"}
+  all_result_strings := {"PASS", "FAIL"}
   all_filenames := {fn | fn := rule_results[_].filename}
   ret := {
     "filenames": [fn | fn := all_filenames[_]],
@@ -241,7 +249,7 @@ report_summary(rule_results) = ret {
       total := count([r |
         r = rule_results[_]
         r.rule_severity == s
-        r.rule_result == "fail"
+        r.rule_result == "FAIL"
       ])
     },
   }

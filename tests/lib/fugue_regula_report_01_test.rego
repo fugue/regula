@@ -30,7 +30,7 @@ mock_rules = {
         "controls": {
           "MOCK": ["MOCK_1.2.3"]
         },
-        "severity": "High"
+        "severity": "hIgH"
       },
       "id": "FG_R00001",
       "title": "Always pass",
@@ -69,13 +69,13 @@ expected_report = {
       "resource_id": "aws_ebs_volume.good",
       "resource_type": "aws_ebs_volume",
       "rule_message": "",
-      "rule_result": "pass",
+      "rule_result": "PASS",
       "rule_name": "always_pass",
       "platform": "terraform",
       "rule_id": "FG_R00001",
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
-      "rule_severity": "high",
+      "rule_severity": "High",
       "controls": {"MOCK_1.2.3"}
     },
     {
@@ -83,13 +83,13 @@ expected_report = {
       "resource_id": "aws_ebs_volume.missing",
       "resource_type": "aws_ebs_volume",
       "rule_message": "",
-      "rule_result": "pass",
+      "rule_result": "PASS",
       "rule_name": "always_pass",
       "platform": "terraform",
       "rule_id": "FG_R00001",
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
-      "rule_severity": "high",
+      "rule_severity": "High",
       "controls": {"MOCK_1.2.3"}
     },
     {
@@ -97,13 +97,13 @@ expected_report = {
       "resource_id": "aws_ebs_volume.bad",
       "resource_type": "aws_ebs_volume",
       "rule_message": "",
-      "rule_result": "pass",
+      "rule_result": "PASS",
       "rule_name": "always_pass",
       "platform": "terraform",
       "rule_id": "FG_R00001",
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
-      "rule_severity": "high",
+      "rule_severity": "High",
       "controls": {"MOCK_1.2.3"}
     },
     {
@@ -111,13 +111,13 @@ expected_report = {
       "resource_id": "aws_ebs_volume.good",
       "resource_type": "aws_ebs_volume",
       "rule_message": "",
-      "rule_result": "fail",
+      "rule_result": "FAIL",
       "rule_name": "always_fail",
       "platform": "terraform",
       "rule_id": "",
       "rule_summary": "",
       "rule_description": "",
-      "rule_severity": "unknown",
+      "rule_severity": "Unknown",
       "controls": set()
     },
     {
@@ -125,13 +125,13 @@ expected_report = {
       "resource_id": "aws_ebs_volume.missing",
       "resource_type": "aws_ebs_volume",
       "rule_message": "",
-      "rule_result": "fail",
+      "rule_result": "FAIL",
       "rule_name": "always_fail",
       "platform": "terraform",
       "rule_id": "",
       "rule_summary": "",
       "rule_description": "",
-      "rule_severity": "unknown",
+      "rule_severity": "Unknown",
       "controls": set()
     },
     {
@@ -139,29 +139,29 @@ expected_report = {
       "resource_id": "aws_ebs_volume.bad",
       "resource_type": "aws_ebs_volume",
       "rule_message": "",
-      "rule_result": "fail",
+      "rule_result": "FAIL",
       "rule_name": "always_fail",
       "platform": "terraform",
       "rule_id": "",
       "rule_summary": "",
       "rule_description": "",
-      "rule_severity": "unknown",
+      "rule_severity": "Unknown",
       "controls": set()
     }
   ],
   "summary": {
     "filenames": [],
     "rule_results": {
-      "pass": 3,
-      "fail": 3
+      "PASS": 3,
+      "FAIL": 3
     },
     "severities": {
-      "critical": 0,
-      "high": 0,
-      "medium": 0,
-      "low": 0,
-      "informational": 0,
-      "unknown": 3,
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 0,
+      "Informational": 0,
+      "Unknown": 3,
     }
   }
 }

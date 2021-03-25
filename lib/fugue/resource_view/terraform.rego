@@ -100,10 +100,12 @@ planned_values_resources = {id: ret |
   planned_values_module_resources[_] = resource_section
   resource = resource_section[_]
   id = resource.address
+  split_provider = split(resource.provider_name, "/")
+  provider = split_provider[count(split_provider)-1]
   ret = json.patch(resource_values(resource), [
     {"op": "add", "path": ["id"], "value": id},
     {"op": "add", "path": ["_type"], "value": resource.type},
-    {"op": "add", "path": ["_provider"], "value": resource.provider_name},
+    {"op": "add", "path": ["_provider"], "value": provider},
   ])
 }
 

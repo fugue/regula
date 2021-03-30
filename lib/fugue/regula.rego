@@ -211,10 +211,13 @@ single_report = ret {
   # Evaluate all these rules.
   rule_results = [r | r = evaluate_rule(rules[_])[_]]
 
+  # Apply waivers.
+  waived_rule_results := [waiver_patch_rule_result(r) | r := rule_results[_]]
+
   # Produce the report.
   ret = {
-    "rule_results": rule_results,
-    "summary": report_summary(rule_results),
+    "rule_results": waived_rule_results,
+    "summary": report_summary(waived_rule_results),
   }
 }
 
@@ -229,11 +232,41 @@ merge_reports(reports) = ret {
   }
 }
 
+# Waiver globbing.
+waiver_pattern_matches(pattern, value) {
+  pattern == "*"
+} {
+  pattern == value
+}
+
+# Should a rule-resource result be waived?
+waiver_matches_rule_result(rule_result) {
+  waiver := data.fugue.regula.config.waivers[_]
+  waiver_resource_id := object.get(waiver, "resource_id", "*")
+  waiver_rule_id := object.get(waiver, "rule_id", "*")
+  waiver_filename := object.get(waiver, "filename", "*")
+
+  rule_result_filename := object.get(rule_result, "filename", null)
+
+  waiver_pattern_matches(waiver_resource_id, rule_result.resource_id)
+  waiver_pattern_matches(waiver_rule_id, rule_result.rule_id)
+  waiver_pattern_matches(waiver_filename, rule_result_filename)
+}
+
+# Apply a waiver to a rule result
+waiver_patch_rule_result(rule_result) = ret {
+  waiver_matches_rule_result(rule_result)
+  ret := json.patch(rule_result,
+    [{"op": "add", "path": "rule_result", "value": "WAIVED"}]
+  )
+} else = ret {
+  ret := rule_result
+}
 
 # Summarize a report.
 report_summary(rule_results) = ret {
   all_severities := {"Critical", "High", "Medium", "Low", "Informational", "Unknown"}
-  all_result_strings := {"PASS", "FAIL"}
+  all_result_strings := {"PASS", "FAIL", "WAIVED"}
   all_filenames := {fn | fn := rule_results[_].filename}
   ret := {
     "filenames": [fn | fn := all_filenames[_]],

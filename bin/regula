@@ -153,7 +153,7 @@ else
     filename="${INPUT_PATHS[$i]}"
     echo "{\"filename\":\"$filename\",\"content\":" >>"$INPUT_PATH"
     cat "${PROCESSED_INPUT_PATHS[$i]}" >>"$INPUT_PATH"
-    if [[ $(("$i" + 1)) == "${#PROCESSED_INPUT_PATHS[@]}" ]]; then
+    if [[ $(($i + 1)) == "${#PROCESSED_INPUT_PATHS[@]}" ]]; then
       echo "}]" >>"$INPUT_PATH"
     else
       echo "}," >>"$INPUT_PATH"

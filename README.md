@@ -67,25 +67,25 @@ To install cfn-flip, create a virtualenv if you don't already have one (recommen
 
 Regula requires two types of inputs to run:
 - `REGO_PATH`: A directory that contains rules written in Rego. At a minimum, this should include `lib`
-- `IAC_PATH`: Either a CloudFormation YAML/JSON template, Terraform plan file, or Terraform directory
+- `IAC_PATH`: Either a CloudFormation YAML/JSON template, Terraform plan file, or Terraform directory with HCL files
 
 This command evaluates a single Rego rule directory on a single `IAC_PATH`:
 
     ./bin/regula -d [REGO_PATH] [IAC_PATH]
 
-This command evaluates multiple Rego rule directories on multiple IaC files and directions. Please note that a single Regula run can evaluate multiple CloudFormation templates, Terraform plan files, and Terraform directories:
+This command evaluates multiple Rego rule directories on multiple `IAC_PATH`s. Please note that a single Regula run can evaluate multiple CloudFormation templates, Terraform plan files, and Terraform HCL directories:
 
     ./bin/regula -d [REGO_PATH_1] -d [REGO_PATH_2] [IAC_PATH_1] [IAC_PATH_2]
 
 Some examples:
 
--   `./bin/regula -d . ../my-tf-infra`: check the `../my-tf-infra` Terraform directory against
+-   `./bin/regula -d . ../my-tf-infra`: Check the `../my-tf-infra` Terraform directory against
     all rules in the main repository.
--   `./bin/regula -d . ../my-tf-infra.json`: check the `../my-tf-infra.json` Terraform plan file against
+-   `./bin/regula -d . ../my-tf-infra.json`: Check the `../my-tf-infra.json` Terraform plan file against
     all rules in the main repository.
--   `./bin/regula -d . ../test_infra/cfn/cfntest1.yaml`: check the `../test_infra/cfn/cfntest1.yaml` CloudFormation template against all rules in the main repository.
--   `./bin/regula -d lib examples/aws/ec2_t2_only.rego ../my-tf-infra`: check the `../my-tf-infra` Terraform directory against the `examples/aws/ec2_t2_only.rego` rule.
--   `./bin/regula -d lib ../custom-rules ../test_infra/cfn/cfntest1.yaml`: check the `../test_infra/cfn/cfntest1.yaml` CloudFormation template against a directory of custom rules.
+-   `./bin/regula -d . ../test_infra/cfn/cfntest1.yaml`: Check the `../test_infra/cfn/cfntest1.yaml` CloudFormation template against all rules in the main repository.
+-   `./bin/regula -d lib examples/aws/ec2_t2_only.rego ../my-tf-infra`: Check the `../my-tf-infra` Terraform directory against the `examples/aws/ec2_t2_only.rego` rule.
+-   `./bin/regula -d lib ../custom-rules ../test_infra/cfn/cfntest1.yaml`: Check the `../test_infra/cfn/cfntest1.yaml` CloudFormation template against a directory of custom rules.
 
 It is also possible to set the name of the `terraform` executable, which is useful if you have several versions of Terraform installed:
 
@@ -109,8 +109,6 @@ To run Regula on one or more CloudFormation templates or Terraform plan files, u
     --entrypoint /bin/bash \
     fugue/regula:v0.7.0 \
     -c 'regula -d /opt/regula template1.yaml template2.yaml tfdirectory1/*.json'
-
-`IAC_TEMPLATE` is the specific code file you want Regula to check.
 
 To run Regula on Terraform HCL directories, use the following command:
 
@@ -327,7 +325,6 @@ Here's a snippet of test results from a Regula report:
     }
   }
 }
-
 ```
 
 **These are the important bits:**
@@ -341,7 +338,7 @@ Each entry in the `rule_results` block is the result of a Rego rule evaluation o
 
 ### Summary
 
-The `summary` block contains a breakdown of the `filenames` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (`PASS`, `FAIL`, or `UNKNOWN`), and a count of `severities` for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
+The `summary` block contains a breakdown of the `filenames` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (PASS, FAIL, or UNKNOWN), and a count of `severities` for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
 
 ## Running Regula in CI
 

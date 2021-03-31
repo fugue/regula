@@ -18,18 +18,26 @@ package main
 
 import data.fugue.regula
 
-deny[{"msg": msg, "rule_name": rule_name, "resource": resource_name}] {
+deny[{"msg": msg, "rule_name": rule_name, "resource": resource}] {
   # Our information comes from the report.  We select all invalid resources
   # and will generate a deny message for each of them.
-  resource = regula.report.rules[rule_name].resources[resource_name]
-  resource.valid == false
+  rule_result := regula.report.rule_results[_]
+  rule_result.rule_result == "FAIL"
 
-  # Generate a message for each invalid resource.
-  #
-  # Since we have more information available in the report; we should look
-  # into whether or not we can use conftests's structured output.
-  msg = concat(": ", [
-    "regula",
-    regula.report_rule_message(rule_name, resource_name, resource.message)
-  ])
+  rule_name := rule_result.rule_name
+  resource := rule_result.resource_id
+  best_message := best_rule_message(rule_result)
+
+  msg := sprintf("regula: %s: %s: %s", [rule_name, resource, best_message])
+}
+
+best_rule_message(rule_result) = ret {
+  ret := rule_result.rule_message
+  ret != ""
+} else = ret {
+  ret := rule_result.rule_summary
+} else = ret {
+  ret := rule_result.rule_description
+} else = "(no message)" {
+  true
 }

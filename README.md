@@ -104,18 +104,19 @@ Regula is available as a Docker image on DockerHub [here](https://hub.docker.com
 
 To run Regula on a CloudFormation template or Terraform plan file, use the following command:
 
-    docker run --rm -i fugue/regula < [IAC_TEMPLATE]
+    docker run --rm -i fugue/regula - < [IAC_TEMPLATE]
 
 `IAC_TEMPLATE` is the specific code file you want Regula to check.
+It is passed on standard input (`-`) to regula.
 
 To run Regula on Terraform HCL files, use the following command:
 
-    docker run --rm --entrypoint regula \
-    --volume [HCL_DIRECTORY]:/workspace \
-    -e AWS_ACCESS_KEY_ID=XXXXXX \
-    -e AWS_SECRET_ACCESS_KEY=XXXXXX \
-    -e AWS_DEFAULT_REGION=xx-xxxx-x \
-    fugue/regula /workspace /opt/regula
+    docker run --rm \
+        --volume [HCL_DIRECTORY]:/workspace \
+        -e AWS_ACCESS_KEY_ID=XXXXXX \
+        -e AWS_SECRET_ACCESS_KEY=XXXXXX \
+        -e AWS_DEFAULT_REGION=xx-xxxx-x \
+        fugue/regula /workspace
 
 `HCL_DIRECTORY` is the location of the Terraform HCL files you want Regula to check. This command creates a volume for the Docker container to access these files, so that a Terraform plan file can be generated.
 

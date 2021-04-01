@@ -16,10 +16,9 @@
     - [Rule examples](#rule-examples)
   - [Compliance controls vs. rules](#compliance-controls-vs-rules)
     - [Specifying compliance controls](#specifying-compliance-controls)
-  - [Interpreting the results](#interpreting-the-results)
+  - [Regula report output](#regula-report-output)
+    - [Rule Results](#rule-results)
     - [Summary](#summary)
-    - [Controls](#controls)
-    - [Rules](#rules)
   - [Running Regula in CI](#running-regula-in-ci)
   - [Running Regula with Conftest](#running-regula-with-conftest)
   - [Development](#development)
@@ -66,31 +65,31 @@ To install cfn-flip, create a virtualenv if you don't already have one (recommen
 
 #### macOS and Linux
 
-Run the following command:
+Regula requires two types of inputs to run:
+- `REGO_PATH`: A directory that contains rules written in Rego. At a minimum, this should include `lib`
+- `IAC_PATH`: Either a CloudFormation YAML/JSON template, Terraform plan file, or Terraform directory with HCL files
 
-    ./bin/regula [IAC_PATH] [REGO_PATHS...]
+This command evaluates a single Rego rule directory on a single `IAC_PATH`:
 
-`IAC_PATH` should either be a single CloudFormation YAML/JSON template, or Terraform directory.
+    ./bin/regula -d [REGO_PATH] [IAC_PATH]
 
-`REGO_PATHS` are the directories that need to be searched for Rego code.  This
-should at least include `lib/`.
+This command evaluates multiple Rego rule directories on multiple `IAC_PATH`s. Please note that a single Regula run can evaluate multiple CloudFormation templates, Terraform plan files, and Terraform HCL directories:
+
+    ./bin/regula -d [REGO_PATH_1] -d [REGO_PATH_2] [IAC_PATH_1] [IAC_PATH_2]
 
 Some examples:
 
--   `./bin/regula ../my-tf-infra .`: check `../my-tf-infra` against
-    all rules in this main repository.
--   `./bin/regula ../my-tf-infra.json .`: check `../my-tf-infra.json` Terraform plan against
-    all rules in this main repository.
--   `./bin/regula ../my-tf-infra lib examples/aws/ec2_t2_only.rego`: run Regula
-    using only the specified rule.
--   `./bin/regula ../my-tf-infra lib ../custom-rules`: run Regula using a
-    directory of custom rules.
--   `./bin/regula ../my-cfn-infra/s3.yaml .`: check `../my-cfn-infra/s3.yaml` against all rules in the main repository. 
+-   `./bin/regula -d . ../my-tf-infra`: Check the `../my-tf-infra` Terraform directory against
+    all rules in the main repository.
+-   `./bin/regula -d . ../my-tf-infra.json`: Check the `../my-tf-infra.json` Terraform plan file against
+    all rules in the main repository.
+-   `./bin/regula -d . ../test_infra/cfn/cfntest1.yaml`: Check the `../test_infra/cfn/cfntest1.yaml` CloudFormation template against all rules in the main repository.
+-   `./bin/regula -d lib examples/aws/ec2_t2_only.rego ../my-tf-infra`: Check the `../my-tf-infra` Terraform directory against the `examples/aws/ec2_t2_only.rego` rule.
+-   `./bin/regula -d lib ../custom-rules ../test_infra/cfn/cfntest1.yaml`: Check the `../test_infra/cfn/cfntest1.yaml` CloudFormation template against a directory of custom rules.
 
-It is also possible to set the name of the `terraform` executable, which is
-useful if you have several versions installed:
+It is also possible to set the name of the `terraform` executable, which is useful if you have several versions of Terraform installed:
 
-    env TERRAFORM=terraform-v0.12.18 ./bin/regula ../regula-ci-example/ lib
+    env TERRAFORM=terraform-v0.12.18 ./bin/regula -d lib/ -d rules/ ../regula-ci-example/infra_tf
 
 Note that Regula requires Terraform 0.12+ in order to generate the JSON-formatted plan.
 
@@ -102,14 +101,19 @@ Because Regula uses a bash script to automatically generate a plan, convert it t
 
 Regula is available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
 
-To run Regula on a CloudFormation template or Terraform plan file, use the following command:
+To run Regula on a single CloudFormation template or Terraform plan file, you can use the following command, passing in the template through standard input:
 
     docker run --rm -i fugue/regula - < [IAC_TEMPLATE]
 
-`IAC_TEMPLATE` is the specific code file you want Regula to check.
-It is passed on standard input (`-`) to regula.
+To run Regula on one or more CloudFormation templates or Terraform plan files, you can use the following command:
 
-To run Regula on Terraform HCL files, use the following command:
+    docker run --rm \
+        -v $(pwd):/workspace \
+        --workdir /workspace \
+        fugue/regula \
+        template1.yaml template2.yaml tfdirectory1/*.json
+
+You can also run Regula on Terraform HCL directories, for example using the following command:
 
     docker run --rm \
         --volume [HCL_DIRECTORY]:/workspace \
@@ -231,6 +235,7 @@ In Regula, a **rule** is a Rego policy that validates whether a cloud resource v
 Controls map to sets of rules, and rules can map to multiple controls. For example, control `CIS-AWS_v1.2.0_1.22` and `FG_R00092` [both map to](https://github.com/fugue/regula/blob/master/rules/aws/iam_admin_policy.rego) the rule `iam_admin_policy`.
 
 ### Specifying compliance controls
+
 Controls can be specified within the rules: just add a `controls` set.
 
 ```ruby
@@ -247,81 +252,98 @@ controls = {"CIS-AWS_v1.2.0_1.16"}
 ...
 ```
 
-## Interpreting the results
+## Regula report output
 
 Here's a snippet of test results from a Regula report: 
 
 ```
 {
-  "result": [
+  "rule_results": [
     {
-      "expressions": [
-        {
-          "value": {
-            "controls": {
-              "CIS-AWS_v1.2.0_1.22": {
-                "rules": [
-                  "iam_admin_policy"
-                ],
-                "valid": false
-              }
-            },
-            "rules": {
-              "tf_aws_iam_admin_policy": {
-                "resources": {
-                  "aws_iam_policy.basically_allow_all": {
-                    "id": "aws_iam_policy.basically_allow_all",
-                    "message": "invalid",
-                    "type": "aws_iam_policy",
-                    "valid": false
-                  },
-                  "aws_iam_policy.basically_deny_all": {
-                    "id": "aws_iam_policy.basically_deny_all",
-                    "message": "",
-                    "type": "aws_iam_policy",
-                    "valid": true
-                  }
-                },
-                "valid": false
-              }
-            },
-            "summary": {
-              "controls_failed": 2,
-              "controls_passed": 12,
-              "rules_failed": 2,
-              "rules_passed": 8,
-              "valid": false
-            }
-          },
-          "text": "data.fugue.regula.report",
-          "location": {
-            "row": 1,
-            "col": 1
-          }
-        }
-      ]
+      "controls": [
+        "CIS-AWS_v1.3.0_1.20"
+      ],
+      "filename": "../test_infra/cfn/cfntest2.yaml",
+      "platform": "cloudformation",
+      "provider": "aws",
+      "resource_id": "S3Bucket1",
+      "resource_type": "AWS::S3::Bucket",
+      "rule_description": "S3 buckets should have all `block public access` options enabled. AWS's S3 Block Public Access feature has four settings: BlockPublicAcls, IgnorePublicAcls, BlockPublicPolicy, and RestrictPublicBuckets. All four settings should be enabled to help prevent the risk of a data breach.",
+      "rule_id": "FG_R00229",
+      "rule_message": "",
+      "rule_name": "cfn_s3_block_public_access",
+      "rule_result": "PASS",
+      "rule_severity": "High",
+      "rule_summary": "S3 buckets should have all `block public access` options enabled"
+    },
+    {
+      "controls": [
+        "CIS-AWS_v1.3.0_2.1.1"
+      ],
+      "filename": "../test_infra/cfn/cfntest2.yaml",
+      "platform": "cloudformation",
+      "provider": "aws",
+      "resource_id": "S3BucketLogs",
+      "resource_type": "AWS::S3::Bucket",
+      "rule_description": "S3 bucket server side encryption should be enabled. Enabling server-side encryption (SSE) on S3 buckets at the object level protects data at rest and helps prevent the breach of sensitive information assets. Objects can be encrypted with S3-Managed Keys (SSE-S3), KMS-Managed Keys (SSE-KMS), or Customer-Provided Keys (SSE-C).",
+      "rule_id": "FG_R00099",
+      "rule_message": "",
+      "rule_name": "cfn_s3_encryption",
+      "rule_result": "FAIL",
+      "rule_severity": "High",
+      "rule_summary": "S3 bucket server side encryption should be enabled"
+    },
+    {
+      "controls": [
+        "CIS-Google_v1.0.0_3.6"
+      ],
+      "filename": "../test_infra/tf/",
+      "platform": "terraform",
+      "provider": "google",
+      "resource_id": "google_compute_firewall.rule-2",
+      "resource_type": "google_compute_firewall",
+      "rule_description": "VPC firewall rules should not permit unrestricted access from the internet to port 22 (SSH). Removing unfettered connectivity to remote console services, such as SSH, reduces a server's exposure to risk.",
+      "rule_id": "FG_R00379",
+      "rule_message": "",
+      "rule_name": "tf_google_compute_firewall_no_ingress_22",
+      "rule_result": "FAIL",
+      "rule_severity": "High",
+      "rule_summary": "VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)"
     }
-  ]
+  ],
+  "summary": {
+    "filenames": [
+      "../test_infra/cfn/cfntest2.yaml",
+      "../test_infra/tf/"
+    ],
+    "rule_results": {
+      "FAIL": 1,
+      "PASS": 2
+    },
+    "severities": {
+      "Critical": 0,
+      "High": 1,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 0,
+      "Unknown": 0
+    }
+  }
 }
 ```
 
 **These are the important bits:**
 
+- Rule Results
 - Summary
-- Controls
-- Rules
+
+### Rule Results
+
+Each entry in the `rule_results` block is the result of a Rego rule evaluation on a resource. All `rule_results` across multiple CloudFormation and Terraform files and directories are aggregated into this block. In the example above, the resource `S3Bucket1` configured in the `../test_infra/cfn/cfntest2.yaml` CloudFormation template passed the rule `cfn_s3_block_public_access`, and the resource `google_compute_firewall.rule-2` configured in the `../test_infra/tf/` Terraform directory failed the rule `tf_google_compute_firewall_no_ingress_22`.
 
 ### Summary
 
-The `summary` block contains a breakdown of the compliance state of your Terraform files. In the output above, the Terraform violated 2 rules and 2 controls, so the test as a whole failed.
-
-### Controls
-
-Regula shows you compliance results for both controls and rules, in addition to which specific resources failed. Above, in the `controls` block, you can see that the Terraform in the example is noncompliant with `CIS-AWS_v1.2.0_1.22`, and the mapped rules that failed are listed underneath (in this case, `tf_aws_iam_admin_policy`).
-
-### Rules
-
-In the `rules` block further down from `controls`, each rule lists the resources that failed. Above, you'll see that the resource `aws_iam_policy.basically_allow_all` was the one that failed the mapped rule -- as noted by `"valid": false`. In contrast, the `aws_iam_policy.basically_deny_all` resource passed.
+The `summary` block contains a breakdown of the `filenames` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (PASS, FAIL), and a count of `severities` (Critical, High, Medium, Low, Informational, Unknown) for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
 
 ## Running Regula in CI
 
@@ -359,9 +381,9 @@ To use Regula with Conftest:
 2.  Now, we'll pull the conftest support for Regula and the Regula library in.
 
         conftest pull -p policy/ github.com/fugue/regula/conftest
-        conftest pull -p policy/regula/lib github.com/fugue/regula/lib
+        conftest pull -p policy/regula/lib 'github.com/fugue/regula//lib?ref=v0.7.0'
 
-    If we want to use the [rules](#rule-library) that come with regula, we can
+    If we want to use the rules that come with regula, we can
     use:
 
         conftest pull -p policy/regula/rules github.com/fugue/regula/rules

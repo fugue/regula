@@ -28,4 +28,4 @@ COPY lib /opt/regula/lib
 COPY rules /opt/regula/rules
 COPY bin/regula /usr/local/bin
 
-ENTRYPOINT ["regula", "-", "/opt/regula"]
+ENTRYPOINT ["regula", "-d", "/opt/regula"]

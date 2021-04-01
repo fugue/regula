@@ -101,25 +101,30 @@ Because Regula uses a bash script to automatically generate a plan, convert it t
 
 Regula is available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
 
-To run Regula on one or more CloudFormation templates or Terraform plan files, use the following command:
+To run Regula on a single CloudFormation template or Terraform plan file, you can use the following command, passing in the template through standard input:
+
+    docker run --rm -i fugue/regula - < [IAC_TEMPLATE]
+
+To run Regula on one or more CloudFormation templates or Terraform plan files, you can use the following command:
 
     docker run --rm \
-    -v $(pwd):/workspace \
-    --workdir /workspace \
-    --entrypoint /bin/bash \
-    fugue/regula:v0.7.0 \
-    -c 'regula -d /opt/regula template1.yaml template2.yaml tfdirectory1/*.json'
+        -v $(pwd):/workspace \
+        --workdir /workspace \
+        fugue/regula \
+        template1.yaml template2.yaml tfdirectory1/*.json
 
-To run Regula on Terraform HCL directories, use the following command:
+You can also run Regula on Terraform HCL directories, for example using the following command:
 
-    docker run --rm --entrypoint regula \
-    --volume [HCL_DIRECTORY]:/workspace \
-    -e AWS_ACCESS_KEY_ID=XXXXXX \
-    -e AWS_SECRET_ACCESS_KEY=XXXXXX \
-    -e AWS_DEFAULT_REGION=xx-xxxx-x \
-    fugue/regula:v0.7.0 /workspace /opt/regula
+    docker run --rm \
+        --volume [HCL_DIRECTORY]:/workspace \
+        -e AWS_ACCESS_KEY_ID=XXXXXX \
+        -e AWS_SECRET_ACCESS_KEY=XXXXXX \
+        -e AWS_DEFAULT_REGION=xx-xxxx-x \
+        fugue/regula /workspace
 
 `HCL_DIRECTORY` is the location of the Terraform HCL files you want Regula to check. This command creates a volume for the Docker container to access these files, so that a Terraform plan file can be generated.
+
+When integrating this in a CI pipeline, we recommend pinning the regula version, e.g. `docker run fugue/regula:v0.7.0`.
 
 ## Regula rules
 

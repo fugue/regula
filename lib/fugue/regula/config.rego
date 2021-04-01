@@ -20,7 +20,17 @@ waivers[waiver] {
   false
   waiver := {
     "rule_id": "*",
+    "rule_name": "*",
     "resource_id": "*",
     "filename": "*",
+  }
+}
+
+rules[rule] {
+  false
+  rule := {
+    "rule_id": "some_rule_id",
+    "rule_name": "some_rule_name",
+    "status": "disabled",
   }
 }

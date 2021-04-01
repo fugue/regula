@@ -189,7 +189,6 @@ rule_metadata(pkg) = ret {
   }
 }
 
-
 # The full report.
 single_report = ret {
   # We look at all packages inside `data.rules` that have a `resource_type`
@@ -206,6 +205,10 @@ single_report = ret {
       "resource_type": resource_type,
       "metadata": rule_metadata(pkg)
     }
+
+    # Ignore disabled rules.
+    not disabled_rule_ids[rule.metadata.id]
+    not disabled_rule_names[rule["package"]]
   ]
 
   # Evaluate all these rules.
@@ -244,12 +247,14 @@ waiver_matches_rule_result(rule_result) {
   waiver := data.fugue.regula.config.waivers[_]
   waiver_resource_id := object.get(waiver, "resource_id", "*")
   waiver_rule_id := object.get(waiver, "rule_id", "*")
+  waiver_rule_name := object.get(waiver, "rule_name", "*")
   waiver_filename := object.get(waiver, "filename", "*")
 
   rule_result_filename := object.get(rule_result, "filename", null)
 
   waiver_pattern_matches(waiver_resource_id, rule_result.resource_id)
   waiver_pattern_matches(waiver_rule_id, rule_result.rule_id)
+  waiver_pattern_matches(waiver_rule_name, rule_result.rule_name)
   waiver_pattern_matches(waiver_filename, rule_result_filename)
 }
 
@@ -261,6 +266,18 @@ waiver_patch_rule_result(rule_result) = ret {
   )
 } else = ret {
   ret := rule_result
+}
+
+# Names of disabled rules.
+disabled_rule_names := {rule.rule_name |
+  rule := data.fugue.regula.config.rules[_]
+  rule.status == "disabled"
+}
+
+# IDs of disabled rules.
+disabled_rule_ids := {rule.rule_id |
+  rule := data.fugue.regula.config.rules[_]
+  rule.status == "disabled"
 }
 
 # Summarize a report.

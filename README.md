@@ -89,7 +89,7 @@ Some examples:
 
 It is also possible to set the name of the `terraform` executable, which is useful if you have several versions of Terraform installed:
 
-    env TERRAFORM=terraform-v0.12.18 ./bin/regula ../regula-ci-example/ lib
+    env TERRAFORM=terraform-v0.12.18 ./bin/regula -d lib/ -d rules/ ../regula-ci-example/infra_tf
 
 Note that Regula requires Terraform 0.12+ in order to generate the JSON-formatted plan.
 
@@ -117,7 +117,7 @@ To run Regula on Terraform HCL directories, use the following command:
     -e AWS_ACCESS_KEY_ID=XXXXXX \
     -e AWS_SECRET_ACCESS_KEY=XXXXXX \
     -e AWS_DEFAULT_REGION=xx-xxxx-x \
-    fugue/regula /workspace /opt/regula
+    fugue/regula:v0.7.0 /workspace /opt/regula
 
 `HCL_DIRECTORY` is the location of the Terraform HCL files you want Regula to check. This command creates a volume for the Docker container to access these files, so that a Terraform plan file can be generated.
 
@@ -338,7 +338,7 @@ Each entry in the `rule_results` block is the result of a Rego rule evaluation o
 
 ### Summary
 
-The `summary` block contains a breakdown of the `filenames` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (PASS, FAIL, or UNKNOWN), and a count of `severities` for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
+The `summary` block contains a breakdown of the `filenames` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (PASS, FAIL), and a count of `severities` (Critical, High, Medium, Low, Informational, Unknown) for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
 
 ## Running Regula in CI
 
@@ -376,9 +376,9 @@ To use Regula with Conftest:
 2.  Now, we'll pull the conftest support for Regula and the Regula library in.
 
         conftest pull -p policy/ github.com/fugue/regula/conftest
-        conftest pull -p policy/regula/lib github.com/fugue/regula/lib
+        conftest pull -p policy/regula/lib 'github.com/fugue/regula//lib?ref=v0.7.0'
 
-    If we want to use the [rules](#rule-library) that come with regula, we can
+    If we want to use the rules that come with regula, we can
     use:
 
         conftest pull -p policy/regula/rules github.com/fugue/regula/rules

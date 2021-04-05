@@ -162,6 +162,14 @@ else
 fi
 
 # Finally, run OPA on the result to get out our report.
+OUTPUT_PATH="$(mktemp -t output.XXXXXXX)"
+CLEANUP_PATHS+=("$OUTPUT_PATH")
 opa eval --format=pretty --input "$INPUT_PATH" \
     "${D_REGO_PATHS[@]}" \
-    'data.fugue.regula.report'
+    'data.fugue.regula.report' >"$OUTPUT_PATH"
+cat "$OUTPUT_PATH"
+NUM_FAILED="$(opa eval --format=pretty --input "$OUTPUT_PATH" \
+    "input.summary.rule_results.FAIL")"
+if [[ "$NUM_FAILED" != "0" ]]; then
+  exit 1
+fi

@@ -63,11 +63,35 @@ test_report_01 {
   num > 0
 }
 
-test_report_02 = report {
+test_report_02 {
   report := regula.report with
     data.rules as mock_rules with
     input as mock_input with
     data.fugue.regula.config.waivers as {
-      {"filename": "*"}
+      {"filename": "template2.yaml"}
     }
+
+  report.summary.rule_results.WAIVED == 2
+}
+
+test_report_03 {
+  report := regula.report with
+    data.rules as mock_rules with
+    input as mock_input with
+    data.fugue.regula.config.waivers as {
+      {"rule_id": "TEST_123"}
+    }
+
+  report.summary.rule_results.WAIVED == 2
+}
+
+test_report_04 {
+  report := regula.report with
+    data.rules as mock_rules with
+    input as mock_input with
+    data.fugue.regula.config.waivers as {
+      {"rule_name": "deny_buckets", "resource_id": "LoggingBucket"}
+    }
+
+  report.summary.rule_results.WAIVED == 1
 }

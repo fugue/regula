@@ -214,13 +214,10 @@ single_report := ret {
   # Evaluate all these rules.
   rule_results = [r | r = evaluate_rule(rules[_])[_]]
 
-  # Apply waivers.
-  waived_rule_results := [waiver_patch_rule_result(r) | r := rule_results[_]]
-
   # Produce the report.
   ret = {
-    "rule_results": waived_rule_results,
-    "summary": report_summary(waived_rule_results),
+    "rule_results": rule_results,
+    "summary": report_summary(rule_results),
   }
 }
 
@@ -266,6 +263,16 @@ waiver_patch_rule_result(rule_result) = ret {
   )
 } else = ret {
   ret := rule_result
+}
+
+# Update a report with waivers.  Should be processed as late possible, since
+# we want filenames to be set.
+waiver_patch_report(report0) = ret {
+  rule_results := [waiver_patch_rule_result(rr) | rr := report0.rule_results[_]]
+  ret := {
+    "rules_results": rule_results,
+    "summary": report_summary(rule_results),
+  }
 }
 
 # Names of disabled rules.
@@ -322,12 +329,13 @@ report_add_filename(report_0, filename) = report_1 {
 # We either produce a merged report out of several files, or a single report.
 report = ret {
   is_array(input)
-  ret := merge_reports([report_1 |
+  merged := merge_reports([report_1 |
     item := input[_]
     k := item.filename
     report_0 := single_report with input as item.content
     report_1 := report_add_filename(report_0, item.filename)
   ])
+  ret := waiver_patch_report(merged)
 } else = ret {
-  ret := single_report
+  ret := waiver_patch_report(single_report)
 }

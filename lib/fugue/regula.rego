@@ -270,7 +270,7 @@ waiver_patch_rule_result(rule_result) = ret {
 waiver_patch_report(report0) = ret {
   rule_results := [waiver_patch_rule_result(rr) | rr := report0.rule_results[_]]
   ret := {
-    "rules_results": rule_results,
+    "rule_results": rule_results,
     "summary": report_summary(rule_results),
   }
 }

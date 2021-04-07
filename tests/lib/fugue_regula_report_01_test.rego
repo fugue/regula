@@ -153,7 +153,8 @@ expected_report = {
     "filenames": [],
     "rule_results": {
       "PASS": 3,
-      "FAIL": 3
+      "FAIL": 3,
+      "WAIVED": 0
     },
     "severities": {
       "Critical": 0,

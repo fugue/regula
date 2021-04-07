@@ -190,7 +190,7 @@ rule_metadata(pkg) = ret {
 }
 
 # The full report.
-single_report = ret {
+single_report := ret {
   # We look at all packages inside `data.rules` that have a `resource_type`
   # declared and construct a list of rules based on that.
   #
@@ -271,13 +271,13 @@ waiver_patch_rule_result(rule_result) = ret {
 # Names of disabled rules.
 disabled_rule_names := {rule.rule_name |
   rule := data.fugue.regula.config.rules[_]
-  rule.status == "disabled"
+  upper(rule.status) == "DISABLED"
 }
 
 # IDs of disabled rules.
 disabled_rule_ids := {rule.rule_id |
   rule := data.fugue.regula.config.rules[_]
-  rule.status == "disabled"
+  upper(rule.status) == "DISABLED"
 }
 
 # Summarize a report.

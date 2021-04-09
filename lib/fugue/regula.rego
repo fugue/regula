@@ -242,6 +242,7 @@ waiver_pattern_matches(pattern, value) {
 # Should a rule-resource result be waived?
 waiver_matches_rule_result(rule_result) {
   waiver := data.fugue.regula.config.waivers[_]
+  count(waiver) > 0  # Filter out completely empty waiver objects.
   waiver_resource_id := object.get(waiver, "resource_id", "*")
   waiver_rule_id := object.get(waiver, "rule_id", "*")
   waiver_rule_name := object.get(waiver, "rule_name", "*")

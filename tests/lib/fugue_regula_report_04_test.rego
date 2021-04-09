@@ -95,3 +95,15 @@ test_report_04 {
 
   report.summary.rule_results.WAIVED == 1
 }
+
+test_report_05 {
+  report := regula.report with
+    data.rules as mock_rules with
+    input as mock_input with
+    data.fugue.regula.config.waivers as {
+      # Completey empty waivers should be ignored rather than waive everything.
+      {}
+    }
+
+  report.summary.rule_results.WAIVED == 0
+}

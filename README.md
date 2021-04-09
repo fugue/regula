@@ -355,7 +355,7 @@ either pass it in specifically:
 
     regula -d config.rego -d REGO_PATH ...
 
-along your other rules and libraries:
+or along your other rules and libraries:
 
     regula -d my-stuff -d REGO_PATH ...
 

@@ -19,6 +19,9 @@
   - [Regula report output](#regula-report-output)
     - [Rule Results](#rule-results)
     - [Summary](#summary)
+  - [Configuring Regula)(#configuring-regula)
+    - [Waiving results](#waiving-results)
+    - [Disabling rules](#disabling-rules)
   - [Running Regula in CI](#running-regula-in-ci)
   - [Running Regula with Conftest](#running-regula-with-conftest)
   - [Development](#development)
@@ -137,7 +140,7 @@ See the [rules](https://github.com/fugue/regula/tree/master/rules) directory for
 Simple rules are useful when the policy applies to a single resource type only,
 and you want to make simple yes/no decision.
 
-```ruby
+```rego
 # Rules must always be located right below the `rules` package.
 package rules.my_simple_rule
 
@@ -157,7 +160,7 @@ allow {
 If you want to return more information to the user, you can also define a
 custom error message.  This is done by writing a `deny[msg]` style rule.
 
-```ruby
+```rego
 package rules.simple_rule_custom_message
 resource_type = "aws_ebs_volume"
 
@@ -173,7 +176,7 @@ Advanced rules are harder to write, but more powerful. They allow you to
 observe different kinds of resource types and decide which specific resources
 are valid or invalid.
 
-```ruby
+```rego
 # Rules still must be located in the `rules` package.
 package rules.user_attached_policy
 
@@ -238,7 +241,7 @@ Controls map to sets of rules, and rules can map to multiple controls. For examp
 
 Controls can be specified within the rules: just add a `controls` set.
 
-```ruby
+```rego
 # Rules must always be located right below the `rules` package.
 package rules.my_simple_rule
 
@@ -344,6 +347,89 @@ Each entry in the `rule_results` block is the result of a Rego rule evaluation o
 ### Summary
 
 The `summary` block contains a breakdown of the `filenames` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (PASS, FAIL), and a count of `severities` (Critical, High, Medium, Low, Informational, Unknown) for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
+
+## Configuring Regula
+
+Configuration for Regula is done within Rego.  Regula looks for configuration
+options in any files that have the following package name set:
+
+    package fugue.regula.config
+
+This file does need to be passed to Regula so `opa` can find it.  You can
+either pass it in specifically:
+
+    regula -d config.rego -d REGO_PATH ...
+
+or along your other rules and libraries:
+
+    regula -d my-stuff -d REGO_PATH ...
+
+### Waiving results
+
+Regula enables you to waive a rule for resources or rules that match certain
+attributes.  When a rule is waived for a resource, the result (`PASS` or `FAIL`)
+becomes `WAIVED` and is effectively ignored in compliance calculations.
+
+To add a waiver, add a waiver object to the `fugue.regula.config.waivers` set.
+
+```rego
+waivers[waiver] {
+  waiver := {
+    "rule_id": "FG_R00100",
+    "resource_id": "LoggingBucket"
+  }
+}
+```
+
+This example waives a single resource for a single rule.  It is also possible
+to waive this rule for all resources:
+
+```rego
+waivers[waiver] {
+  waiver := {
+    "rule_id": "FG_R00100"
+  }
+}
+```
+
+The following attributes are supported for waiver objects:
+
+ -  `resource_id` The ID of the resource (defaults to `*`)
+ -  `rule_id` The metadata ID of the rule (defaults to `*`)
+ -  `rule_name`: The package name of the rule (defaults to `*`)
+ -  `filename`: The filename of the resource declaration (defaults to `*`)
+
+They match the corresponding rule result attributes in the [regula report
+output](#regula-report-output).
+
+### Disabling rules
+
+Disabling a rule prevents it from being run altogether.  This way it will not
+show up in the report at all.  You can use this to remove rules that are not
+relevant for you.
+
+To disable a rule, add an object to the `fugue.regula.config.rules` set and
+use `DISABLED` for status.
+
+You can disable rules by name or by rule ID:
+
+```rego
+rules[rule] {
+  rule := {
+    "rule_id": "FG_R00100",
+    "status": "DISABLED"
+  }
+}
+```
+
+```rego
+rules[rule] {
+  rule := {
+    "rule_name": "cfn_vpc_ingress_22",
+    "status": "DISABLED"
+  }
+}
+```
 
 ## Running Regula in CI
 

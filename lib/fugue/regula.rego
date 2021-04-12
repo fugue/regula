@@ -189,9 +189,8 @@ rule_metadata(pkg) = ret {
   }
 }
 
-
 # The full report.
-single_report = ret {
+single_report := ret {
   # We look at all packages inside `data.rules` that have a `resource_type`
   # declared and construct a list of rules based on that.
   #
@@ -206,6 +205,10 @@ single_report = ret {
       "resource_type": resource_type,
       "metadata": rule_metadata(pkg)
     }
+
+    # Ignore disabled rules.
+    not disabled_rule_ids[rule.metadata.id]
+    not disabled_rule_names[rule["package"]]
   ]
 
   # Evaluate all these rules.
@@ -229,11 +232,66 @@ merge_reports(reports) = ret {
   }
 }
 
+# Waiver globbing.
+waiver_pattern_matches(pattern, value) {
+  pattern == "*"
+} {
+  pattern == value
+}
+
+# Should a rule-resource result be waived?
+waiver_matches_rule_result(rule_result) {
+  waiver := data.fugue.regula.config.waivers[_]
+  count(waiver) > 0  # Filter out completely empty waiver objects.
+  waiver_resource_id := object.get(waiver, "resource_id", "*")
+  waiver_rule_id := object.get(waiver, "rule_id", "*")
+  waiver_rule_name := object.get(waiver, "rule_name", "*")
+  waiver_filename := object.get(waiver, "filename", "*")
+
+  rule_result_filename := object.get(rule_result, "filename", null)
+
+  waiver_pattern_matches(waiver_resource_id, rule_result.resource_id)
+  waiver_pattern_matches(waiver_rule_id, rule_result.rule_id)
+  waiver_pattern_matches(waiver_rule_name, rule_result.rule_name)
+  waiver_pattern_matches(waiver_filename, rule_result_filename)
+}
+
+# Apply a waiver to a rule result
+waiver_patch_rule_result(rule_result) = ret {
+  waiver_matches_rule_result(rule_result)
+  ret := json.patch(rule_result,
+    [{"op": "add", "path": "rule_result", "value": "WAIVED"}]
+  )
+} else = ret {
+  ret := rule_result
+}
+
+# Update a report with waivers.  Should be processed as late possible, since
+# we want filenames to be set.
+waiver_patch_report(report0) = ret {
+  rule_results := [waiver_patch_rule_result(rr) | rr := report0.rule_results[_]]
+  ret := {
+    "rule_results": rule_results,
+    "summary": report_summary(rule_results),
+  }
+}
+
+# Names of disabled rules.
+disabled_rule_names := {rule.rule_name |
+  rule := data.fugue.regula.config.rules[_]
+  upper(rule.status) == "DISABLED"
+}
+
+# IDs of disabled rules.
+disabled_rule_ids := {rule.rule_id |
+  rule := data.fugue.regula.config.rules[_]
+  upper(rule.status) == "DISABLED"
+}
 
 # Summarize a report.
 report_summary(rule_results) = ret {
   all_severities := {"Critical", "High", "Medium", "Low", "Informational", "Unknown"}
-  all_result_strings := {"PASS", "FAIL"}
+  all_result_strings := {"PASS", "FAIL", "WAIVED"}
   all_filenames := {fn | fn := rule_results[_].filename}
   ret := {
     "filenames": [fn | fn := all_filenames[_]],
@@ -272,12 +330,13 @@ report_add_filename(report_0, filename) = report_1 {
 # We either produce a merged report out of several files, or a single report.
 report = ret {
   is_array(input)
-  ret := merge_reports([report_1 |
+  merged := merge_reports([report_1 |
     item := input[_]
     k := item.filename
     report_0 := single_report with input as item.content
     report_1 := report_add_filename(report_0, item.filename)
   ])
+  ret := waiver_patch_report(merged)
 } else = ret {
-  ret := single_report
+  ret := waiver_patch_report(single_report)
 }

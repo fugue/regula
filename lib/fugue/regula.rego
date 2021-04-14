@@ -244,6 +244,7 @@ waiver_matches_rule_result(rule_result) {
   waiver := data.fugue.regula.config.waivers[_]
   count(waiver) > 0  # Filter out completely empty waiver objects.
   waiver_resource_id := object.get(waiver, "resource_id", "*")
+  waiver_resource_type := object.get(waiver, "resource_type", "*")
   waiver_rule_id := object.get(waiver, "rule_id", "*")
   waiver_rule_name := object.get(waiver, "rule_name", "*")
   waiver_filename := object.get(waiver, "filename", "*")
@@ -251,6 +252,7 @@ waiver_matches_rule_result(rule_result) {
   rule_result_filename := object.get(rule_result, "filename", null)
 
   waiver_pattern_matches(waiver_resource_id, rule_result.resource_id)
+  waiver_pattern_matches(waiver_resource_type, rule_result.resource_type)
   waiver_pattern_matches(waiver_rule_id, rule_result.rule_id)
   waiver_pattern_matches(waiver_rule_name, rule_result.rule_name)
   waiver_pattern_matches(waiver_filename, rule_result_filename)

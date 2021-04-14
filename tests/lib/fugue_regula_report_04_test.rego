@@ -108,7 +108,7 @@ test_report_05 {
   report.summary.rule_results.WAIVED == 0
 }
 
-test_report_06 = report {
+test_report_06 {
   report := regula.report with
     data.rules as mock_rules with
     input as mock_input with

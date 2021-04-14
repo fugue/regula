@@ -128,8 +128,8 @@ for INPUT_PATH in "${INPUT_PATHS[@]}"; do
   PROCESSED_INPUT_PATHS+=("$INPUT_PATH")
 done
 
-# If there are multiple input paths, we want to merge them into a single JSON
-# file for OPA.  We merge them into a an array of the shape:
+# We want Rego to have access to the filenames of whatever we are checking.
+# So we merge them into a single JSON file.  This is an array with the shape:
 #
 #   [
 #     {
@@ -143,23 +143,19 @@ done
 #   ]
 #
 # This works because we know that all the processed input paths are valid JSON.
-if [[ "${#PROCESSED_INPUT_PATHS[@]}" == 1 ]]; then
-  INPUT_PATH="${PROCESSED_INPUT_PATHS[0]}"
-else
-  INPUT_PATH="$(mktemp -t merged.XXXXXXX)"
-  CLEANUP_PATHS+=("$INPUT_PATH")
-  echo "[" >"$INPUT_PATH"
-  for i in "${!PROCESSED_INPUT_PATHS[@]}"; do
-    filename="${INPUT_PATHS[$i]}"
-    echo "{\"filename\":\"$filename\",\"content\":" >>"$INPUT_PATH"
-    cat "${PROCESSED_INPUT_PATHS[$i]}" >>"$INPUT_PATH"
-    if [[ $(($i + 1)) == "${#PROCESSED_INPUT_PATHS[@]}" ]]; then
-      echo "}]" >>"$INPUT_PATH"
-    else
-      echo "}," >>"$INPUT_PATH"
-    fi
-  done
-fi
+INPUT_PATH="$(mktemp -t merged.XXXXXXX)"
+CLEANUP_PATHS+=("$INPUT_PATH")
+echo "[" >"$INPUT_PATH"
+for i in "${!PROCESSED_INPUT_PATHS[@]}"; do
+  filename="${INPUT_PATHS[$i]}"
+  echo "{\"filename\":\"$filename\",\"content\":" >>"$INPUT_PATH"
+  cat "${PROCESSED_INPUT_PATHS[$i]}" >>"$INPUT_PATH"
+  if [[ $(($i + 1)) == "${#PROCESSED_INPUT_PATHS[@]}" ]]; then
+    echo "}]" >>"$INPUT_PATH"
+  else
+    echo "}," >>"$INPUT_PATH"
+  fi
+done
 
 # Finally, run OPA on the result to get out our report.
 OUTPUT_PATH="$(mktemp -t output.XXXXXXX)"

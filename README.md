@@ -19,8 +19,8 @@
   - [Regula report output](#regula-report-output)
     - [Rule Results](#rule-results)
     - [Summary](#summary)
-  - [Configuring Regula)(#configuring-regula)
-    - [Waiving results](#waiving-results)
+  - [Configuring Regula](#configuring-regula)
+    - [Waiving rule results](#waiving-rule-results)
     - [Disabling rules](#disabling-rules)
   - [Running Regula in CI](#running-regula-in-ci)
   - [Running Regula with Conftest](#running-regula-with-conftest)
@@ -350,39 +350,47 @@ The `summary` block contains a breakdown of the `filenames` (CloudFormation temp
 
 ## Configuring Regula
 
-Configuration for Regula is done within Rego.  Regula looks for configuration
-options in any files that have the following package name set:
+Regula can be configured to "waive" rule results or enable/disable rules altogether in Rego files that have the following package name set:
 
     package fugue.regula.config
 
-This file does need to be passed to Regula so `opa` can find it.  You can
-either pass it in specifically:
+You can either pass a specific Regula config file:
 
     regula -d config.rego -d REGO_PATH ...
 
-or along your other rules and libraries:
+Or a directory that includes your other Rego rules and libraries:
 
-    regula -d my-stuff -d REGO_PATH ...
+    regula -d my-rego-stuff -d REGO_PATH ...
 
-### Waiving results
+### Waiving rule results
 
-Regula enables you to waive a rule for resources or rules that match certain
-attributes.  When a rule is waived for a resource, the result (`PASS` or `FAIL`)
-becomes `WAIVED` and is effectively ignored in compliance calculations.
+Regula enables you to waive a rule for resources or rules that match certain attributes.  When a rule is waived for a resource, the result (`PASS` or `FAIL`) becomes `WAIVED` and is effectively ignored in compliance calculations.
 
-To add a waiver, add a waiver object to the `fugue.regula.config.waivers` set.
+The following rule result attributes, which are also in the [regula report output](#regula-report-output), are supported for waiver objects:
+
+ -  `resource_id` The ID of the resource (defaults to `*`)
+ -  `resource_type` The resource type of the resource (e.g. `aws_s3_bucket` for Terraform, or `AWS::S3::Bucket` for CloudFormation)
+ -  `rule_id` The metadata ID of the rule (defaults to `*`)
+ -  `rule_name`: The package name of the rule (defaults to `*`)
+ -  `filename`: The filename of the resource declaration (defaults to `*`)
+
+If an attribute is not specified for a waiver, Regula assumes a `*` value. Note that `rule_id` and `rule_name` can both be used as identifiers for a given rule. 
+
+To add a waiver, add a waiver object to the `fugue.regula.config.waivers` set:
 
 ```rego
 waivers[waiver] {
   waiver := {
     "rule_id": "FG_R00100",
+    "resource_type": "aws_s3_bucket",
     "resource_id": "LoggingBucket"
   }
 }
 ```
 
-This example waives a single resource for a single rule.  It is also possible
-to waive this rule for all resources:
+This example waives a single AWS S3 bucket resource for a single rule. 
+
+It is also possible to waive this rule for all resources:
 
 ```rego
 waivers[waiver] {
@@ -392,26 +400,15 @@ waivers[waiver] {
 }
 ```
 
-The following attributes are supported for waiver objects:
-
- -  `resource_id` The ID of the resource (defaults to `*`)
- -  `rule_id` The metadata ID of the rule (defaults to `*`)
- -  `rule_name`: The package name of the rule (defaults to `*`)
- -  `filename`: The filename of the resource declaration (defaults to `*`)
-
-They match the corresponding rule result attributes in the [regula report
-output](#regula-report-output).
+In this example, by leaving out `resource_type` and `resource_id`, Regula assumes `*` values for both.
 
 ### Disabling rules
 
-Disabling a rule prevents it from being run altogether.  This way it will not
-show up in the report at all.  You can use this to remove rules that are not
-relevant for you.
+Disabling a rule prevents Regula from running the rule at all. This can be used to remove rules that are not relevant for your purposes.
 
-To disable a rule, add an object to the `fugue.regula.config.rules` set and
-use `DISABLED` for status.
+To disable a rule, add an object to the `fugue.regula.config.rules` set and use `DISABLED` for `status`.
 
-You can disable rules by name or by rule ID:
+You can disable rules by `rule_name` or by `rule_id`:
 
 ```rego
 rules[rule] {

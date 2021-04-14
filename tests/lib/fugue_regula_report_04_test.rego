@@ -107,3 +107,14 @@ test_report_05 {
 
   report.summary.rule_results.WAIVED == 0
 }
+
+test_report_06 {
+  report := regula.report with
+    data.rules as mock_rules with
+    input as mock_input with
+    data.fugue.regula.config.waivers as {
+      {"resource_type": "AWS::S3::Bucket"}
+    }
+
+  report.summary.rule_results.WAIVED == 4
+}

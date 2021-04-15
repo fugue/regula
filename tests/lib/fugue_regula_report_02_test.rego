@@ -21,11 +21,11 @@ import data.tests.rules.cfn.s3.inputs.valid_encryption_infra as input2
 
 mock_input := [
   {
-    "filename": "template1.yaml",
+    "filepath": "template1.yaml",
     "content": input1.mock_plan_input
   },
   {
-    "filename": "template2.yaml",
+    "filepath": "template2.yaml",
     "content": input2.mock_plan_input
   }
 ]
@@ -51,14 +51,14 @@ test_report {
   report.summary.rule_results.PASS == 2
   report.summary.rule_results.FAIL == 1
 
-  report.summary.filenames[_] == "template1.yaml"
-  report.summary.filenames[_] == "template2.yaml"
+  report.summary.filepaths[_] == "template1.yaml"
+  report.summary.filepaths[_] == "template2.yaml"
 
-  report.rule_results[i].filename == "template1.yaml"
+  report.rule_results[i].filepath == "template1.yaml"
   report.rule_results[i].resource_type == "AWS::CloudTrail::Trail"
   report.rule_results[i].rule_result == "FAIL"
 
-  report.rule_results[j].filename == "template2.yaml"
+  report.rule_results[j].filepath == "template2.yaml"
   report.rule_results[j].resource_type == "AWS::S3::Bucket"
   report.rule_results[j].rule_result == "PASS"
 }

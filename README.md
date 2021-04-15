@@ -266,7 +266,7 @@ Here's a snippet of test results from a Regula report:
       "controls": [
         "CIS-AWS_v1.3.0_1.20"
       ],
-      "filename": "../test_infra/cfn/cfntest2.yaml",
+      "filepath": "../test_infra/cfn/cfntest2.yaml",
       "platform": "cloudformation",
       "provider": "aws",
       "resource_id": "S3Bucket1",
@@ -283,7 +283,7 @@ Here's a snippet of test results from a Regula report:
       "controls": [
         "CIS-AWS_v1.3.0_2.1.1"
       ],
-      "filename": "../test_infra/cfn/cfntest2.yaml",
+      "filepath": "../test_infra/cfn/cfntest2.yaml",
       "platform": "cloudformation",
       "provider": "aws",
       "resource_id": "S3BucketLogs",
@@ -300,7 +300,7 @@ Here's a snippet of test results from a Regula report:
       "controls": [
         "CIS-Google_v1.0.0_3.6"
       ],
-      "filename": "../test_infra/tf/",
+      "filepath": "../test_infra/tf/",
       "platform": "terraform",
       "provider": "google",
       "resource_id": "google_compute_firewall.rule-2",
@@ -315,7 +315,7 @@ Here's a snippet of test results from a Regula report:
     }
   ],
   "summary": {
-    "filenames": [
+    "filepaths": [
       "../test_infra/cfn/cfntest2.yaml",
       "../test_infra/tf/"
     ],
@@ -346,7 +346,7 @@ Each entry in the `rule_results` block is the result of a Rego rule evaluation o
 
 ### Summary
 
-The `summary` block contains a breakdown of the `filenames` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (PASS, FAIL), and a count of `severities` (Critical, High, Medium, Low, Informational, Unknown) for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
+The `summary` block contains a breakdown of the `filepaths` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (PASS, FAIL), and a count of `severities` (Critical, High, Medium, Low, Informational, Unknown) for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
 
 ## Configuring Regula
 
@@ -372,7 +372,7 @@ The following rule result attributes, which are also in the [regula report outpu
  -  `resource_type` The resource type of the resource (e.g. `aws_s3_bucket` for Terraform, or `AWS::S3::Bucket` for CloudFormation)
  -  `rule_id` The metadata ID of the rule (defaults to `*`)
  -  `rule_name`: The package name of the rule (defaults to `*`)
- -  `filename`: The filename of the resource declaration (defaults to `*`)
+ -  `filepath`: The file path of the resource declaration (defaults to `*`)
 
 If an attribute is not specified for a waiver, Regula assumes a `*` value. Note that `rule_id` and `rule_name` can both be used as identifiers for a given rule. 
 

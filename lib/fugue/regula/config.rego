@@ -22,7 +22,8 @@ waivers[waiver] {
     "rule_id": "*",
     "rule_name": "*",
     "resource_id": "*",
-    "filename": "*",
+    "resource_type": "*",
+    "filepath": "*",
   }
 }
 

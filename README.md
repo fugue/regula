@@ -266,7 +266,7 @@ Here's a snippet of test results from a Regula report:
       "controls": [
         "CIS-AWS_v1.3.0_1.20"
       ],
-      "filename": "../test_infra/cfn/cfntest2.yaml",
+      "filepath": "../test_infra/cfn/cfntest2.yaml",
       "platform": "cloudformation",
       "provider": "aws",
       "resource_id": "S3Bucket1",
@@ -283,7 +283,7 @@ Here's a snippet of test results from a Regula report:
       "controls": [
         "CIS-AWS_v1.3.0_2.1.1"
       ],
-      "filename": "../test_infra/cfn/cfntest2.yaml",
+      "filepath": "../test_infra/cfn/cfntest2.yaml",
       "platform": "cloudformation",
       "provider": "aws",
       "resource_id": "S3BucketLogs",
@@ -292,7 +292,7 @@ Here's a snippet of test results from a Regula report:
       "rule_id": "FG_R00099",
       "rule_message": "",
       "rule_name": "cfn_s3_encryption",
-      "rule_result": "FAIL",
+      "rule_result": "WAIVED",
       "rule_severity": "High",
       "rule_summary": "S3 bucket server side encryption should be enabled"
     },
@@ -300,7 +300,7 @@ Here's a snippet of test results from a Regula report:
       "controls": [
         "CIS-Google_v1.0.0_3.6"
       ],
-      "filename": "../test_infra/tf/",
+      "filepath": "../test_infra/tf/",
       "platform": "terraform",
       "provider": "google",
       "resource_id": "google_compute_firewall.rule-2",
@@ -315,13 +315,14 @@ Here's a snippet of test results from a Regula report:
     }
   ],
   "summary": {
-    "filenames": [
+    "filepaths": [
       "../test_infra/cfn/cfntest2.yaml",
       "../test_infra/tf/"
     ],
     "rule_results": {
       "FAIL": 1,
-      "PASS": 2
+      "PASS": 1,
+      "WAIVED": 1
     },
     "severities": {
       "Critical": 0,
@@ -342,11 +343,15 @@ Here's a snippet of test results from a Regula report:
 
 ### Rule Results
 
-Each entry in the `rule_results` block is the result of a Rego rule evaluation on a resource. All `rule_results` across multiple CloudFormation and Terraform files and directories are aggregated into this block. In the example above, the resource `S3Bucket1` configured in the `../test_infra/cfn/cfntest2.yaml` CloudFormation template passed the rule `cfn_s3_block_public_access`, and the resource `google_compute_firewall.rule-2` configured in the `../test_infra/tf/` Terraform directory failed the rule `tf_google_compute_firewall_no_ingress_22`.
+Each entry in the `rule_results` block is the result of a Rego rule evaluation on a resource. All `rule_results` across multiple CloudFormation and Terraform files and directories are aggregated into this block. In the example above:
+
+- The resource `S3Bucket1` configured in the `../test_infra/cfn/cfntest2.yaml` CloudFormation template passed the rule `cfn_s3_block_public_access`
+- The rule `cfn_s3_encryption` was [waived](#waiving-rule-results) for the resource `S3BucketLogs` in the `../test_infra/cfn/cfntest2.yaml` template
+- The resource `google_compute_firewall.rule-2` configured in the `../test_infra/tf/` Terraform directory failed the rule `tf_google_compute_firewall_no_ingress_22`
 
 ### Summary
 
-The `summary` block contains a breakdown of the `filenames` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (PASS, FAIL), and a count of `severities` (Critical, High, Medium, Low, Informational, Unknown) for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
+The `summary` block contains a breakdown of the `filepaths` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (PASS, FAIL, [WAIVED](#waiving-rule-results)), and a count of `severities` (Critical, High, Medium, Low, Informational, Unknown) for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
 
 ## Configuring Regula
 
@@ -371,8 +376,8 @@ The following rule result attributes, which are also in the [regula report outpu
  -  `resource_id` The ID of the resource (defaults to `*`)
  -  `resource_type` The resource type of the resource (e.g. `aws_s3_bucket` for Terraform, or `AWS::S3::Bucket` for CloudFormation)
  -  `rule_id` The metadata ID of the rule (defaults to `*`)
- -  `rule_name`: The package name of the rule (defaults to `*`)
- -  `filename`: The filename of the resource declaration (defaults to `*`)
+ -  `rule_name`: The package name of the rule (defaults to `*`). Omit the `rules.` segment of the package name (e.g., use `cfn_vpc_ingress_22` rather than `rules.cfn_vpc_ingress_22`)
+ -  `filepath`: The filepath containing the resource, as passed to Regula (defaults to `*`)
 
 If an attribute is not specified for a waiver, Regula assumes a `*` value. Note that `rule_id` and `rule_name` can both be used as identifiers for a given rule. 
 
@@ -382,13 +387,12 @@ To add a waiver, add a waiver object to the `fugue.regula.config.waivers` set:
 waivers[waiver] {
   waiver := {
     "rule_id": "FG_R00100",
-    "resource_type": "aws_s3_bucket",
     "resource_id": "LoggingBucket"
   }
 }
 ```
 
-This example waives a single AWS S3 bucket resource for a single rule. 
+This example waives a single resource for a single rule. 
 
 It is also possible to waive this rule for all resources:
 
@@ -400,7 +404,22 @@ waivers[waiver] {
 }
 ```
 
-In this example, by leaving out `resource_type` and `resource_id`, Regula assumes `*` values for both.
+In this example, because `resource_id` is omitted, its default value `*` is assumed.
+
+You can configure multiple waivers by adding to the `fugue.regula.config.waivers` set:
+
+```rego
+waivers[waiver] {
+  waiver := {
+    "filepath": "../my-test-infra/infra_cfn/cloudformation.yaml",
+    "resource_id": "InvalidUser01"
+  } 
+} {
+  waiver := {
+    "resource_type": "google_compute_subnetwork"
+  }
+}
+```
 
 ### Disabling rules
 
@@ -408,7 +427,9 @@ Disabling a rule prevents Regula from running the rule at all. This can be used 
 
 To disable a rule, add an object to the `fugue.regula.config.rules` set and use `DISABLED` for `status`.
 
-You can disable rules by `rule_name` or by `rule_id`:
+You can disable rules by `rule_name` (rule package name, omitting the `rules.` segment) or by `rule_id`.
+
+Here's an example using `rule_id`:
 
 ```rego
 rules[rule] {
@@ -419,10 +440,28 @@ rules[rule] {
 }
 ```
 
+Here's an example using `rule_name`. Note that the `rules.` segment of the package name must be omitted, so we use `cfn_vpc_ingress_22` rather than `rules.cfn_vpc_ingress_22`. (Tip: You can find the `rule_name` by running Regula first and looking for `rule_name` in the report.)
+
 ```rego
 rules[rule] {
   rule := {
     "rule_name": "cfn_vpc_ingress_22",
+    "status": "DISABLED"
+  }
+}
+```
+
+You can disable multiple rules by adding to the `fugue.regula.config.rules` set:
+
+```rego
+rules[rule] {
+  rule := {
+    "rule_id": "FG_R00007",
+    "status": "DISABLED"
+  }
+} {
+  rule := {
+    "rule_name": "tf_aws_iam_admin_policy",
     "status": "DISABLED"
   }
 }

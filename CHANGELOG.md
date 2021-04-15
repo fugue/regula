@@ -1,5 +1,12 @@
 # CHANGELOG
 
+ -  0.8.0 (2021-04-15)
+     *  Add support for waivers.
+     *  Add support for disabling rules.
+     *  Always use multiple input file mode to display the file path.
+     *  Rename `filename` to `filepath` in report out.
+     *  Use nonzero exit code when rules are failing.
+
  -  0.7.0 (2021-04-01)
      *  Update regula report output format.
      *  Support multiple input files.

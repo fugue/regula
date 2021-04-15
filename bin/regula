@@ -133,11 +133,11 @@ done
 #
 #   [
 #     {
-#       "filename": "1.json",
+#       "filepath": "1.json",
 #       "content": {...}
 #     },
 #     {
-#       "filename": "2.json",
+#       "filepath": "2.json",
 #       "content": {...}
 #     }
 #   ]
@@ -147,8 +147,8 @@ INPUT_PATH="$(mktemp -t merged.XXXXXXX)"
 CLEANUP_PATHS+=("$INPUT_PATH")
 echo "[" >"$INPUT_PATH"
 for i in "${!PROCESSED_INPUT_PATHS[@]}"; do
-  filename="${INPUT_PATHS[$i]}"
-  echo "{\"filename\":\"$filename\",\"content\":" >>"$INPUT_PATH"
+  filepath="${INPUT_PATHS[$i]}"
+  echo "{\"filepath\":\"$filepath\",\"content\":" >>"$INPUT_PATH"
   cat "${PROCESSED_INPUT_PATHS[$i]}" >>"$INPUT_PATH"
   if [[ $(($i + 1)) == "${#PROCESSED_INPUT_PATHS[@]}" ]]; then
     echo "}]" >>"$INPUT_PATH"

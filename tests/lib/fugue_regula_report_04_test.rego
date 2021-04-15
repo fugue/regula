@@ -21,11 +21,11 @@ import data.tests.rules.cfn.s3.inputs.valid_encryption_infra as input2
 
 mock_input := [
   {
-    "filename": "template1.yaml",
+    "filepath": "template1.yaml",
     "content": input1.mock_plan_input
   },
   {
-    "filename": "template2.yaml",
+    "filepath": "template2.yaml",
     "content": input2.mock_plan_input
   }
 ]
@@ -68,7 +68,7 @@ test_report_02 {
     data.rules as mock_rules with
     input as mock_input with
     data.fugue.regula.config.waivers as {
-      {"filename": "template2.yaml"}
+      {"filepath": "template2.yaml"}
     }
 
   report.summary.rule_results.WAIVED == 2

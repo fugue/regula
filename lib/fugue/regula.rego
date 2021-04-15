@@ -247,15 +247,15 @@ waiver_matches_rule_result(rule_result) {
   waiver_resource_type := object.get(waiver, "resource_type", "*")
   waiver_rule_id := object.get(waiver, "rule_id", "*")
   waiver_rule_name := object.get(waiver, "rule_name", "*")
-  waiver_filename := object.get(waiver, "filename", "*")
+  waiver_filepath := object.get(waiver, "filepath", "*")
 
-  rule_result_filename := object.get(rule_result, "filename", null)
+  rule_result_filepath := object.get(rule_result, "filepath", null)
 
   waiver_pattern_matches(waiver_resource_id, rule_result.resource_id)
   waiver_pattern_matches(waiver_resource_type, rule_result.resource_type)
   waiver_pattern_matches(waiver_rule_id, rule_result.rule_id)
   waiver_pattern_matches(waiver_rule_name, rule_result.rule_name)
-  waiver_pattern_matches(waiver_filename, rule_result_filename)
+  waiver_pattern_matches(waiver_filepath, rule_result_filepath)
 }
 
 # Apply a waiver to a rule result
@@ -269,7 +269,7 @@ waiver_patch_rule_result(rule_result) = ret {
 }
 
 # Update a report with waivers.  Should be processed as late possible, since
-# we want filenames to be set.
+# we want filepaths to be set.
 waiver_patch_report(report0) = ret {
   rule_results := [waiver_patch_rule_result(rr) | rr := report0.rule_results[_]]
   ret := {
@@ -294,9 +294,9 @@ disabled_rule_ids := {rule.rule_id |
 report_summary(rule_results) = ret {
   all_severities := {"Critical", "High", "Medium", "Low", "Informational", "Unknown"}
   all_result_strings := {"PASS", "FAIL", "WAIVED"}
-  all_filenames := {fn | fn := rule_results[_].filename}
+  all_filepaths := {fn | fn := rule_results[_].filepath}
   ret := {
-    "filenames": [fn | fn := all_filenames[_]],
+    "filepaths": [fn | fn := all_filepaths[_]],
     "rule_results": {rs: total |
       rs := all_result_strings[_]
       total := count([r |
@@ -315,13 +315,13 @@ report_summary(rule_results) = ret {
   }
 }
 
-# Add filenames to a report.
-report_add_filename(report_0, filename) = report_1 {
+# Add filepaths to a report.
+report_add_filepath(report_0, filepath) = report_1 {
   report_1 := {
     "rule_results": [rule_result_1 |
       rule_result_0 := report_0.rule_results[_]
       rule_result_1 := json.patch(rule_result_0, [
-        {"op": "add", "path": ["filename"], "value": filename}
+        {"op": "add", "path": ["filepath"], "value": filepath}
       ])
     ],
     "summary": report_0.summary
@@ -334,9 +334,9 @@ report = ret {
   is_array(input)
   merged := merge_reports([report_1 |
     item := input[_]
-    k := item.filename
+    k := item.filepath
     report_0 := single_report with input as item.content
-    report_1 := report_add_filename(report_0, item.filename)
+    report_1 := report_add_filepath(report_0, item.filepath)
   ])
   ret := waiver_patch_report(merged)
 } else = ret {

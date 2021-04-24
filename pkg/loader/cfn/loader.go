@@ -10,34 +10,42 @@ import (
 )
 
 type CfnYamlLoader struct {
+	path     string
 	template cfnTemplate
 }
 
-func NewCfnYamlLoader(filePath string) (*CfnYamlLoader, error) {
-	loader := &CfnYamlLoader{}
-	return loader, loader.Load(filePath)
+func NewCfnYamlLoader(path string) (*CfnYamlLoader, error) {
+	// loader :=
+	fileData, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read file: %v", err)
+	}
+	template := &cfnTemplate{}
+	if err = yaml.Unmarshal(fileData, &template); err != nil {
+		return nil, fmt.Errorf("Failed to unmarshal CloudFormation YAML file: %v", err)
+	}
+	return &CfnYamlLoader{
+		path:     path,
+		template: *template,
+	}, nil
+	// loader.template = *template
+	// return nil
+	// return loader, loader.load(path)
 	// if err := ; err != nil {
 	// 	return nil, err
 	// }
 	// return loader, nil
 }
 
-func (l *CfnYamlLoader) Load(filePath string) error {
-	fileData, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return fmt.Errorf("Failed to read file: %v", err)
-	}
+// func (l *CfnYamlLoader) load(path string) error {
 
-	template := &cfnTemplate{}
-	if err = yaml.Unmarshal(fileData, &template); err != nil {
-		return fmt.Errorf("Failed to unmarshal CloudFormation YAML file: %v", err)
-	}
-	l.template = *template
-	return nil
-}
+// }
 
-func (l *CfnYamlLoader) OpaInput() (base.OpaInput, error) {
-	return l.template.OpaInput, nil
+func (l *CfnYamlLoader) RegulaInput() base.RegulaInput {
+	return base.RegulaInput{
+		"filepath": l.path,
+		"content":  l.template.Contents,
+	}
 }
 
 func (l *CfnYamlLoader) Location(_ string) (*base.Location, error) {
@@ -45,15 +53,15 @@ func (l *CfnYamlLoader) Location(_ string) (*base.Location, error) {
 }
 
 type cfnTemplate struct {
-	OpaInput base.OpaInput
+	Contents map[string]interface{}
 }
 
 func (t *cfnTemplate) UnmarshalYAML(node *yaml.Node) error {
-	opaInput, err := decodeMap(node)
+	contents, err := decodeMap(node)
 	if err != nil {
 		return err
 	}
-	t.OpaInput = opaInput
+	t.Contents = contents
 	return nil
 }
 

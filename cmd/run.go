@@ -26,37 +26,31 @@ func NewRunCommand() *cobra.Command {
 				os.Exit(1)
 			}
 
-			for _, input := range args {
-				inputLoader, err := loader.GetLoaderByFileName(input)
+			loadedFiles, err := loader.LoadPaths(args)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			results, err := ruleRunner.Run(loadedFiles.RegulaInput())
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			reporterFunc, _ := reporter.GetReporter("json")
+			for _, r := range results {
+				output, err := reporter.ParseRegulaOutput(r)
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-
-				opaInput, err := inputLoader.OpaInput()
+				report, err := reporterFunc(loadedFiles, output)
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
-
-				results, err := ruleRunner.Run(opaInput)
-
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-
-				reporterFunc, _ := reporter.GetReporter("json")
-
-				for _, r := range results {
-					output, err := reporter.ParseRegulaOutput(r)
-					report, err := reporterFunc(&inputLoader, output)
-					if err != nil {
-						fmt.Println(err)
-						os.Exit(1)
-					}
-					fmt.Println(report)
-				}
+				fmt.Println(report)
 			}
 		},
 	}

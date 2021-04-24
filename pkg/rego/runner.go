@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -39,15 +40,30 @@ var LoadExts map[string]bool = map[string]bool{
 	".json": true,
 }
 
-func loadModule(fsys fs.FS, path string) (func(r *rego.Rego), error) {
-	contents, err := fs.ReadFile(fsys, path)
+type reader func(path string) ([]byte, error)
+type walker func(path string, walkDirFunc fs.WalkDirFunc) error
+
+func fsReader(fsys fs.FS) reader {
+	return func(path string) ([]byte, error) {
+		return fs.ReadFile(fsys, path)
+	}
+}
+
+func fsWalker(fsys fs.FS) walker {
+	return func(path string, walkDirFunc fs.WalkDirFunc) error {
+		return fs.WalkDir(fsys, path, walkDirFunc)
+	}
+}
+
+func loadModule(r reader, path string) (func(r *rego.Rego), error) {
+	contents, err := r(path)
 	if err != nil {
 		return nil, err
 	}
 	return rego.Module(path, string(contents)), nil
 }
 
-func loadDirectory(fsys fs.FS, path string) ([]func(r *rego.Rego), error) {
+func loadDirectory(r reader, w walker, path string) ([]func(r *rego.Rego), error) {
 	modules := []func(r *rego.Rego){}
 	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -59,7 +75,7 @@ func loadDirectory(fsys fs.FS, path string) ([]func(r *rego.Rego), error) {
 		if ext := filepath.Ext(path); !LoadExts[ext] {
 			return nil
 		}
-		module, err := loadModule(fsys, path)
+		module, err := loadModule(r, path)
 		if err != nil {
 			return err
 		}
@@ -67,7 +83,7 @@ func loadDirectory(fsys fs.FS, path string) ([]func(r *rego.Rego), error) {
 		return nil
 	}
 
-	if err := fs.WalkDir(fsys, path, walkDirFunc); err != nil {
+	if err := w(path, walkDirFunc); err != nil {
 		return nil, err
 	}
 
@@ -75,15 +91,14 @@ func loadDirectory(fsys fs.FS, path string) ([]func(r *rego.Rego), error) {
 }
 
 func loadIncludes(includes []string) ([]func(r *rego.Rego), error) {
-	modules := make([]func(r *rego.Rego), len(includes))
-	fsys := os.DirFS("")
+	modules := []func(r *rego.Rego){}
 	for _, path := range includes {
-		info, err := fs.Stat(fsys, path)
+		info, err := os.Stat(path)
 		if err != nil {
 			return nil, err
 		}
 		if info.IsDir() {
-			dirModules, err := loadDirectory(fsys, path)
+			dirModules, err := loadDirectory(ioutil.ReadFile, filepath.WalkDir, path)
 			if err != nil {
 				return nil, err
 			}
@@ -94,7 +109,7 @@ func loadIncludes(includes []string) ([]func(r *rego.Rego), error) {
 		if ext := filepath.Ext(path); !LoadExts[ext] {
 			return nil, fmt.Errorf("Unsupported file type %v in includes: %v", ext, path)
 		}
-		module, err := loadModule(fsys, path)
+		module, err := loadModule(ioutil.ReadFile, path)
 		if err != nil {
 			return nil, err
 		}
@@ -107,13 +122,13 @@ func loadIncludes(includes []string) ([]func(r *rego.Rego), error) {
 }
 
 func loadRegula(userOnly bool) ([]func(r *rego.Rego), error) {
-	modules, err := loadDirectory(regulaLib, "lib")
+	modules, err := loadDirectory(fsReader(regulaLib), fsWalker(regulaLib), "lib")
 	if err != nil {
 		return nil, err
 	}
 
 	if !userOnly {
-		rules, err := loadDirectory(regulaRules, "rules")
+		rules, err := loadDirectory(fsReader(regulaRules), fsWalker(regulaRules), "rules")
 		if err != nil {
 			return nil, err
 		}

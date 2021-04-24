@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/fugue/regula/pkg/loader/base"
 	"github.com/fugue/regula/pkg/loader/yaml"
@@ -15,9 +16,14 @@ type LoadedFiles struct {
 }
 
 func (l *LoadedFiles) RegulaInput() []base.RegulaInput {
+	keys := []string{}
+	for k, _ := range l.Loaders {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 	input := []base.RegulaInput{}
-	for _, loader := range l.Loaders {
-		input = append(input, loader.RegulaInput())
+	for _, k := range keys {
+		input = append(input, l.Loaders[k].RegulaInput())
 	}
 	return input
 }

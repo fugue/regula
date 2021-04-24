@@ -1,7 +1,8 @@
 BINARY = regula
 INSTALLED_BINARY = /usr/local/bin/$(BINARY)
-CLI_SOURCE = $(call rwildcard,./pkg,*.go)
-REGO_SOURCE = $(call rwildcard,./rego/lib,*.rego) $(call rwildcard,./rego/rules,*.rego)
+CLI_SOURCE = $(shell find pkg -type f -name '*.go')
+REGO_LIB_SOURCE = $(shell find rego/lib -type f -name '*.rego')
+REGO_RULES_SOURCE = $(shell find rego/rules -type f -name '*.rego')
 GO = GO111MODULE=on go
 VERSION = $(shell cat VERSION)
 GITCOMMIT = $(shell git rev-parse --short HEAD 2> /dev/null || true)
@@ -11,11 +12,19 @@ define LDFLAGS
 endef
 CLI_BUILD = $(GO) build -ldflags="$(LDFLAGS) -s -w"
 GOLINT = $(shell go env GOPATH)/bin/golint
+COPIED_REGO_LIB = pkg/rego/lib
+COPIED_REGO_RULES = pkg/rego/rules
+
+$(COPIED_REGO_LIB): $(REGO_LIB_SOURCE)
+	cp -R rego/lib $(COPIED_REGO_LIB)
+
+$(COPIED_REGO_RULES): $(REGO_RULES_SOURCE)
+	cp -R rego/rules $(COPIED_REGO_RULES)
 
 $(GOLINT):
 	$(GO) get -u golang.org/x/lint/golint
 
-$(BINARY): $(REGO_SOURCE) $(CLI_SOURCE)
+$(BINARY): $(CLI_SOURCE) $(COPIED_REGO_LIB) $(COPIED_REGO_RULES)
 	$(CLI_BUILD) -v -o $@
 
 $(BINARY)-linux-amd64: $(SOURCE)
@@ -48,5 +57,6 @@ lint:
 	$(GOLINT) ./...
 	$(GO) vet ./...
 
-# https://stackoverflow.com/questions/2483182/recursive-wildcards-in-gnu-make
-rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+.PHONY: printsrc
+printsrc:
+	@echo $(CLI_SOURCE)

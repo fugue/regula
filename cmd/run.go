@@ -16,9 +16,21 @@ func NewRunCommand() *cobra.Command {
 		Use:   "run",
 		Short: "Run Regula rules on inputs",
 		Run: func(cmd *cobra.Command, args []string) {
+			includes, err := cmd.Flags().GetStringSlice("include")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			userOnly, err := cmd.Flags().GetBool("user-only")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			ctx := context.TODO()
 			ruleRunner, err := rego.NewRuleRunner(&rego.RuleRunnerOptions{
-				Ctx: ctx,
+				Ctx:      ctx,
+				UserOnly: userOnly,
+				Includes: includes,
 			})
 
 			if err != nil {
@@ -55,6 +67,8 @@ func NewRunCommand() *cobra.Command {
 		},
 	}
 
+	cmd.Flags().StringSliceP("include", "i", nil, "Select rego libraries to include")
+	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
 	return cmd
 }
 

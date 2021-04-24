@@ -1,3 +1,9 @@
 .terraform/
 .DS_Store
 venv/
+pkg/rego/lib
+pkg/rego/rules
+regula
+regula-*
+.vscode/
+.scratch/

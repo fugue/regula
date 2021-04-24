@@ -14,19 +14,14 @@ var InputTypeIds = map[InputType][]string{
 	CfnYaml: {"cfn-yaml"},
 }
 
-type OpaInput map[string]interface{}
-
 type Location struct {
 	Line int
 	Col  int
 }
 
-type Loader interface {
-	Load(filePath string) error
-	OpaInput() (OpaInput, error)
-	Location(attributePath string) (*Location, error)
-}
+type RegulaInput map[string]interface{}
 
-type Detector interface {
-	DetectLoader(filePath string) (Loader, error)
+type Loader interface {
+	RegulaInput() RegulaInput
+	Location(attributePath string) (*Location, error)
 }

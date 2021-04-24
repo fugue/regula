@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/fugue/regula/pkg/loader/base"
 	"github.com/open-policy-agent/opa/rego"
 )
 
@@ -155,7 +156,7 @@ func NewRuleRunner(options *RuleRunnerOptions) (*RuleRunner, error) {
 }
 
 // Run evaluates rules against an input.
-func (r *RuleRunner) Run(input map[string]interface{}) (rego.ResultSet, error) {
+func (r *RuleRunner) Run(input []base.RegulaInput) (rego.ResultSet, error) {
 	results, err := r.Query.Eval(r.Ctx, rego.EvalInput(input))
 
 	if err != nil {

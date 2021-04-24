@@ -3,7 +3,7 @@ package reporter
 import (
 	"encoding/json"
 
-	"github.com/fugue/regula/pkg/loader/base"
+	"github.com/fugue/regula/pkg/loader"
 	"github.com/open-policy-agent/opa/rego"
 )
 
@@ -46,4 +46,4 @@ func ParseRegulaOutput(r rego.Result) (*RegulaOutput, error) {
 	return output, nil
 }
 
-type Reporter func(l *base.Loader, r *RegulaOutput) (string, error)
+type Reporter func(l *loader.LoadedFiles, r *RegulaOutput) (string, error)

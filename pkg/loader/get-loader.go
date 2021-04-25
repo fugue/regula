@@ -8,6 +8,7 @@ import (
 	"sort"
 
 	"github.com/fugue/regula/pkg/loader/base"
+	"github.com/fugue/regula/pkg/loader/cfn"
 	"github.com/fugue/regula/pkg/loader/yaml"
 )
 
@@ -28,8 +29,12 @@ func (l *LoadedFiles) RegulaInput() []base.RegulaInput {
 	return input
 }
 
-func LoadPaths(paths []string) (*LoadedFiles, error) {
+func LoadPaths(paths []string, inputType base.InputType) (*LoadedFiles, error) {
 	loaders := map[string]base.Loader{}
+	loaderFunc, err := getLoader(inputType)
+	if err != nil {
+		return nil, err
+	}
 	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -41,7 +46,7 @@ func LoadPaths(paths []string) (*LoadedFiles, error) {
 		if !recognizedExts[ext] {
 			return nil
 		}
-		loader, err := loadFile(path)
+		loader, err := loaderFunc(path)
 		if err != nil {
 			// Want to ignore files we can't load when we're
 			// recursing through a directory.
@@ -62,7 +67,7 @@ func LoadPaths(paths []string) (*LoadedFiles, error) {
 			}
 			continue
 		}
-		loader, err := loadFile(path)
+		loader, err := loaderFunc(path)
 		if err != nil {
 			return nil, err
 		}
@@ -89,6 +94,20 @@ func loadFile(path string) (base.Loader, error) {
 		return yaml.DetectYamlLoader(path)
 	default:
 		return nil, fmt.Errorf("Unable to detect file type for file: %s", path)
+	}
+}
+
+func getLoader(inputType base.InputType) (func(path string) (base.Loader, error), error) {
+	if inputType == base.Auto {
+		return loadFile, nil
+	}
+	switch inputType {
+	case base.CfnYaml:
+		return func(path string) (base.Loader, error) {
+			return cfn.NewCfnYamlLoader(path)
+		}, nil
+	default:
+		return nil, fmt.Errorf("Unsupported input type %v", base.InputTypeIds[inputType])
 	}
 }
 

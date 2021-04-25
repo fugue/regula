@@ -6,12 +6,15 @@ import (
 	"os"
 
 	"github.com/fugue/regula/pkg/loader"
+	"github.com/fugue/regula/pkg/loader/base"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/spf13/cobra"
+	"github.com/thediveo/enumflag"
 )
 
 func NewRunCommand() *cobra.Command {
+	var inputType base.InputType
 	cmd := &cobra.Command{
 		Use:   "run",
 		Short: "Run Regula rules on inputs",
@@ -38,7 +41,7 @@ func NewRunCommand() *cobra.Command {
 				os.Exit(1)
 			}
 
-			loadedFiles, err := loader.LoadPaths(args)
+			loadedFiles, err := loader.LoadPaths(args, inputType)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -69,6 +72,10 @@ func NewRunCommand() *cobra.Command {
 
 	cmd.Flags().StringSliceP("include", "i", nil, "Select rego libraries to include")
 	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
+	cmd.Flags().VarP(
+		enumflag.New(&inputType, "input-type", base.InputTypeIds, enumflag.EnumCaseInsensitive),
+		"input-type", "t",
+		"Explicitly set the input type")
 	return cmd
 }
 

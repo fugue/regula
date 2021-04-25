@@ -19,7 +19,7 @@ func NewRunCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "run",
 		Short: "Run Regula rules on inputs",
-		Run: func(cmd *cobra.Command, args []string) {
+		Run: func(cmd *cobra.Command, paths []string) {
 			includes, err := cmd.Flags().GetStringSlice("include")
 			if err != nil {
 				fmt.Println(err)
@@ -42,7 +42,16 @@ func NewRunCommand() *cobra.Command {
 				os.Exit(1)
 			}
 
-			loadedFiles, err := loader.LoadPaths(args, inputType)
+			if len(paths) < 1 {
+				wd, err := os.Getwd()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				paths = []string{wd}
+			}
+
+			loadedFiles, err := loader.LoadPaths(paths, inputType)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)

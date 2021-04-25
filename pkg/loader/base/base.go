@@ -3,12 +3,14 @@ package base
 type InputType int
 
 const (
-	TfPlan InputType = iota
+	Auto InputType = iota
+	TfPlan
 	CfnJson
 	CfnYaml
 )
 
 var InputTypeIds = map[InputType][]string{
+	Auto:    {"auto"},
 	TfPlan:  {"tf-plan"},
 	CfnJson: {"cfn-json"},
 	CfnYaml: {"cfn-yaml"},

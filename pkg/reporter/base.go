@@ -44,8 +44,10 @@ var regulaSeverities map[string]Severity = map[string]Severity{
 }
 
 func (o RegulaOutput) ExceedsSeverity(severity Severity) bool {
+	if o.Summary.RuleResults["FAIL"] < 1 {
+		return false
+	}
 	maxSeverity := Unknown
-	hasFailures := false
 	for s, count := range o.Summary.Severities {
 		if count < 1 {
 			continue
@@ -54,13 +56,12 @@ func (o RegulaOutput) ExceedsSeverity(severity Severity) bool {
 		if !ok {
 			continue
 		}
-		hasFailures = true
 		if level > maxSeverity {
 			maxSeverity = level
 		}
 	}
 
-	return hasFailures && maxSeverity >= severity
+	return maxSeverity >= severity
 }
 
 type RuleResult struct {

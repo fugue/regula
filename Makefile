@@ -33,6 +33,9 @@ $(BINARY)-linux-amd64: $(SOURCE)
 $(BINARY)-darwin-amd64: $(SOURCE)
 	GOOS=darwin GOARCH=amd64 $(CLI_BUILD) -o $@
 
+$(INSTALLED_BINARY): $(BINARY)
+	cp $(BINARY) $(INSTALLED_BINARY)
+
 release: $(BINARY)-linux-amd64 $(BINARY)-darwin-amd64
 
 .PHONY: install

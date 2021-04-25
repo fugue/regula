@@ -15,6 +15,7 @@ import (
 
 func NewRunCommand() *cobra.Command {
 	var inputType base.InputType
+	severity := reporter.Unknown
 	cmd := &cobra.Command{
 		Use:   "run",
 		Short: "Run Regula rules on inputs",
@@ -54,18 +55,20 @@ func NewRunCommand() *cobra.Command {
 			}
 
 			reporterFunc, _ := reporter.GetReporter("json")
-			for _, r := range results {
-				output, err := reporter.ParseRegulaOutput(r)
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-				report, err := reporterFunc(loadedFiles, output)
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-				fmt.Println(report)
+			r := results[0]
+			output, err := reporter.ParseRegulaOutput(r)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			report, err := reporterFunc(loadedFiles, output)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Println(report)
+			if output.ExceedsSeverity(severity) {
+				os.Exit(1)
 			}
 		},
 	}
@@ -76,6 +79,10 @@ func NewRunCommand() *cobra.Command {
 		enumflag.New(&inputType, "input-type", base.InputTypeIds, enumflag.EnumCaseInsensitive),
 		"input-type", "t",
 		"Explicitly set the input type")
+	cmd.Flags().VarP(
+		enumflag.New(&severity, "severity", reporter.SeverityIds, enumflag.EnumCaseInsensitive),
+		"severity", "s",
+		"Set the minimum severity that will result in a non-zero exit code.")
 	return cmd
 }
 

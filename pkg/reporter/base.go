@@ -7,9 +7,60 @@ import (
 	"github.com/open-policy-agent/opa/rego"
 )
 
+type Severity int
+
+const (
+	Unknown Severity = iota
+	Informational
+	Low
+	Medium
+	High
+	Critical
+	Off
+)
+
+var SeverityIds = map[Severity][]string{
+	Unknown:       {"unknown"},
+	Informational: {"informational"},
+	Low:           {"low"},
+	Medium:        {"medium"},
+	High:          {"high"},
+	Critical:      {"critical"},
+	Off:           {"off"},
+}
+
 type RegulaOutput struct {
 	RuleResults []RuleResult `json:"rule_results"`
 	Summary     Summary      `json:"summary"`
+}
+
+var regulaSeverities map[string]Severity = map[string]Severity{
+	"Unknown":       Unknown,
+	"Informational": Informational,
+	"Low":           Low,
+	"Medium":        Medium,
+	"High":          High,
+	"Critical":      Critical,
+}
+
+func (o RegulaOutput) ExceedsSeverity(severity Severity) bool {
+	maxSeverity := Unknown
+	hasFailures := false
+	for s, count := range o.Summary.Severities {
+		if count < 1 {
+			continue
+		}
+		level, ok := regulaSeverities[s]
+		if !ok {
+			continue
+		}
+		hasFailures = true
+		if level > maxSeverity {
+			maxSeverity = level
+		}
+	}
+
+	return hasFailures && maxSeverity >= severity
 }
 
 type RuleResult struct {

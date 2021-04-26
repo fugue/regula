@@ -384,6 +384,8 @@ If an attribute is not specified for a waiver, Regula assumes a `*` value. Note 
 To add a waiver, add a waiver object to the `fugue.regula.config.waivers` set:
 
 ```rego
+package fugue.regula.config
+
 waivers[waiver] {
   waiver := {
     "rule_id": "FG_R00100",
@@ -397,6 +399,8 @@ This example waives a single resource for a single rule.
 It is also possible to waive this rule for all resources:
 
 ```rego
+package fugue.regula.config
+
 waivers[waiver] {
   waiver := {
     "rule_id": "FG_R00100"
@@ -409,6 +413,8 @@ In this example, because `resource_id` is omitted, its default value `*` is assu
 You can configure multiple waivers by adding to the `fugue.regula.config.waivers` set:
 
 ```rego
+package fugue.regula.config
+
 waivers[waiver] {
   waiver := {
     "filepath": "../my-test-infra/infra_cfn/cloudformation.yaml",
@@ -432,6 +438,8 @@ You can disable rules by `rule_name` (rule package name, omitting the `rules.` s
 Here's an example using `rule_id`:
 
 ```rego
+package fugue.regula.config
+
 rules[rule] {
   rule := {
     "rule_id": "FG_R00100",
@@ -443,6 +451,8 @@ rules[rule] {
 Here's an example using `rule_name`. Note that the `rules.` segment of the package name must be omitted, so we use `cfn_vpc_ingress_22` rather than `rules.cfn_vpc_ingress_22`. (Tip: You can find the `rule_name` by running Regula first and looking for `rule_name` in the report.)
 
 ```rego
+package fugue.regula.config
+
 rules[rule] {
   rule := {
     "rule_name": "cfn_vpc_ingress_22",
@@ -454,6 +464,8 @@ rules[rule] {
 You can disable multiple rules by adding to the `fugue.regula.config.rules` set:
 
 ```rego
+package fugue.regula.config
+
 rules[rule] {
   rule := {
     "rule_id": "FG_R00007",

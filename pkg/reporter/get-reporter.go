@@ -2,14 +2,13 @@ package reporter
 
 import "fmt"
 
-var Reporters map[string]Reporter = map[string]Reporter{
-	"json": JsonReporter,
-}
-
-func GetReporter(name string) (Reporter, error) {
-	reporter, ok := Reporters[name]
-	if ok {
-		return reporter, nil
+func GetReporter(format Format) (Reporter, error) {
+	switch format {
+	case Json:
+		return JsonReporter, nil
+	case Table:
+		return TableReporter, nil
+	default:
+		return nil, fmt.Errorf("Unsupported or unrecognized reporter: %v", FormatIds[format])
 	}
-	return nil, fmt.Errorf("Unrecognized reporter: %v", name)
 }

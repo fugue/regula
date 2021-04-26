@@ -29,6 +29,24 @@ var SeverityIds = map[Severity][]string{
 	Off:           {"off"},
 }
 
+type Format int
+
+const (
+	Json Format = iota
+	Table
+	Junit
+	Tap
+	Tap13
+)
+
+var FormatIds = map[Format][]string{
+	Json:  {"json"},
+	Table: {"table"},
+	Junit: {"junit"},
+	Tap:   {"tap"},
+	Tap13: {"tap13"},
+}
+
 type RegulaOutput struct {
 	RuleResults []RuleResult `json:"rule_results"`
 	Summary     Summary      `json:"summary"`

@@ -3,6 +3,7 @@ package loader
 import (
 	"fmt"
 	"io/fs"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -46,7 +47,13 @@ func LoadPaths(paths []string, inputType base.InputType) (*LoadedFiles, error) {
 		if !recognizedExts[ext] {
 			return nil
 		}
-		loader, err := loaderFunc(path)
+		contents, err := ioutil.ReadFile(path)
+		if err != nil {
+			// Want to ignore files we can't load when we're
+			// recursing through a directory.
+			return nil
+		}
+		loader, err := loaderFunc(path, contents)
 		if err != nil {
 			// Want to ignore files we can't load when we're
 			// recursing through a directory.
@@ -56,6 +63,14 @@ func LoadPaths(paths []string, inputType base.InputType) (*LoadedFiles, error) {
 		return nil
 	}
 	for _, path := range paths {
+		if path == "-" {
+			loader, err := loadStdin(inputType)
+			if err != nil {
+				return nil, err
+			}
+			loaders[path] = loader
+			continue
+		}
 		info, err := os.Stat(path)
 		if err != nil {
 			return nil, err
@@ -67,7 +82,11 @@ func LoadPaths(paths []string, inputType base.InputType) (*LoadedFiles, error) {
 			}
 			continue
 		}
-		loader, err := loaderFunc(path)
+		contents, err := ioutil.ReadFile(path)
+		if err != nil {
+			return nil, err
+		}
+		loader, err := loaderFunc(path, contents)
 		if err != nil {
 			return nil, err
 		}
@@ -88,42 +107,38 @@ var recognizedExts map[string]bool = map[string]bool{
 	".yml":  true,
 }
 
-func loadFile(path string) (base.Loader, error) {
+func loadFile(path string, contents []byte) (base.Loader, error) {
 	switch ext := filepath.Ext(path); ext {
 	case ".yaml", ".yml":
-		return yaml.DetectYamlLoader(path)
+		return yaml.DetectYamlLoader(path, contents)
 	default:
 		return nil, fmt.Errorf("Unable to detect file type for file: %s", path)
 	}
 }
 
-func getLoader(inputType base.InputType) (func(path string) (base.Loader, error), error) {
+func getLoader(inputType base.InputType) (func(path string, contents []byte) (base.Loader, error), error) {
 	if inputType == base.Auto {
 		return loadFile, nil
 	}
 	switch inputType {
 	case base.CfnYaml:
-		return func(path string) (base.Loader, error) {
-			return cfn.NewCfnYamlLoader(path)
+		return func(path string, contents []byte) (base.Loader, error) {
+			return cfn.NewCfnYamlLoader(path, contents)
 		}, nil
 	default:
 		return nil, fmt.Errorf("Unsupported input type %v", base.InputTypeIds[inputType])
 	}
 }
 
-// func LoadPathsByInputType(paths []string, inputType base.InputType) (LoadedFiles, error) {
-
-// }
-
-// func GetLoaderByFileName(path string) (base.Loader, error) {
-
-// }
-
-// func GetLoaderByInputType(path string, inputType base.InputType) (base.Loader, error) {
-// 	switch inputType {
-// 	case base.CfnYaml:
-// 		return cfn.NewCfnYamlLoader(path)
-// 	default:
-// 		return nil, fmt.Errorf("Unsupported input type: %s", base.InputTypeIds[inputType])
-// 	}
-// }
+func loadStdin(inputType base.InputType) (base.Loader, error) {
+	contents, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		return nil, err
+	}
+	switch inputType {
+	case base.CfnYaml:
+		return cfn.NewCfnYamlLoader("<stdin>", contents)
+	default:
+		return nil, fmt.Errorf("Unsupported input type %v", base.InputTypeIds[inputType])
+	}
+}

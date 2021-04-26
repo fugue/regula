@@ -2,7 +2,6 @@ package cfn
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strings"
 
 	"github.com/fugue/regula/pkg/loader/base"
@@ -14,32 +13,21 @@ type CfnYamlLoader struct {
 	template cfnTemplate
 }
 
-func NewCfnYamlLoader(path string) (*CfnYamlLoader, error) {
+func NewCfnYamlLoader(path string, contents []byte) (*CfnYamlLoader, error) {
 	// loader :=
-	fileData, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to read file: %v", err)
-	}
+	// fileData, err := ioutil.ReadFile(path)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("Failed to read file: %v", err)
+	// }
 	template := &cfnTemplate{}
-	if err = yaml.Unmarshal(fileData, &template); err != nil {
+	if err := yaml.Unmarshal(contents, &template); err != nil {
 		return nil, fmt.Errorf("Failed to unmarshal CloudFormation YAML file: %v", err)
 	}
 	return &CfnYamlLoader{
 		path:     path,
 		template: *template,
 	}, nil
-	// loader.template = *template
-	// return nil
-	// return loader, loader.load(path)
-	// if err := ; err != nil {
-	// 	return nil, err
-	// }
-	// return loader, nil
 }
-
-// func (l *CfnYamlLoader) load(path string) error {
-
-// }
 
 func (l *CfnYamlLoader) RegulaInput() base.RegulaInput {
 	return base.RegulaInput{

@@ -11,6 +11,7 @@ import (
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func NewRunCommand() *cobra.Command {
@@ -43,12 +44,25 @@ func NewRunCommand() *cobra.Command {
 			}
 
 			if len(paths) < 1 {
-				wd, err := os.Getwd()
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+				if terminal.IsTerminal(int(os.Stdin.Fd())) {
+					wd, err := os.Getwd()
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					paths = []string{wd}
+				} else {
+					paths = []string{"-"}
 				}
-				paths = []string{wd}
+			}
+
+			if inputType == base.Auto {
+				for _, p := range paths {
+					if p == "-" {
+						fmt.Println("Automatic type detection not supported for stdin. Please specify an input type with: -t <input type>")
+						os.Exit(1)
+					}
+				}
 			}
 
 			loadedFiles, err := loader.LoadPaths(paths, inputType)

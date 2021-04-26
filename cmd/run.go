@@ -15,6 +15,7 @@ import (
 
 func NewRunCommand() *cobra.Command {
 	var inputType loader.InputType
+	var format reporter.Format
 	severity := reporter.Unknown
 	cmd := &cobra.Command{
 		Use:   "run",
@@ -70,7 +71,7 @@ func NewRunCommand() *cobra.Command {
 				os.Exit(1)
 			}
 
-			reporterFunc, _ := reporter.GetReporter("json")
+			reporterFunc, _ := reporter.GetReporter(format)
 			r := results[0]
 			output, err := reporter.ParseRegulaOutput(r)
 			if err != nil {
@@ -99,6 +100,10 @@ func NewRunCommand() *cobra.Command {
 		enumflag.New(&severity, "severity", reporter.SeverityIds, enumflag.EnumCaseInsensitive),
 		"severity", "s",
 		"Set the minimum severity that will result in a non-zero exit code.")
+	cmd.Flags().VarP(
+		enumflag.New(&format, "format", reporter.FormatIds, enumflag.EnumCaseInsensitive),
+		"format", "f",
+		"Set the output format")
 	return cmd
 }
 

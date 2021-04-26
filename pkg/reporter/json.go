@@ -1,15 +1,19 @@
 package reporter
 
 import (
+	"bytes"
 	"encoding/json"
 
 	"github.com/fugue/regula/pkg/loader"
 )
 
 func JsonReporter(l *loader.LoadedFiles, r *RegulaOutput) (string, error) {
-	j, err := json.MarshalIndent(r, "", "  ")
-	if err != nil {
+	buf := &bytes.Buffer{}
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(r); err != nil {
 		return "", err
 	}
-	return string(j), nil
+	return buf.String(), nil
 }

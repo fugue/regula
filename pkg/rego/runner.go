@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fugue/regula/pkg/loader/base"
+	"github.com/fugue/regula/pkg/loader"
 	"github.com/open-policy-agent/opa/rego"
 )
 
@@ -134,13 +134,8 @@ func NewRuleRunner(options *RuleRunnerOptions) (*RuleRunner, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to load includes: %v", err)
 	}
-	regoFuncs := append(
-		regula,
-		append(
-			includes,
-			rego.Query("data.fugue.regula.report"),
-		)...,
-	)
+	regoFuncs := append(regula, includes...)
+	regoFuncs = append(regoFuncs, rego.Query("data.fugue.regula.report"))
 	query, err := rego.New(
 		regoFuncs...,
 	).PrepareForEval(options.Ctx)
@@ -156,7 +151,7 @@ func NewRuleRunner(options *RuleRunnerOptions) (*RuleRunner, error) {
 }
 
 // Run evaluates rules against an input.
-func (r *RuleRunner) Run(input []base.RegulaInput) (rego.ResultSet, error) {
+func (r *RuleRunner) Run(input []loader.RegulaInput) (rego.ResultSet, error) {
 	results, err := r.Query.Eval(r.Ctx, rego.EvalInput(input))
 
 	if err != nil {

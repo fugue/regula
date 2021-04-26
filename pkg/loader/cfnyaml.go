@@ -1,43 +1,33 @@
-package cfn
+package loader
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/fugue/regula/pkg/loader/base"
 	"gopkg.in/yaml.v3"
 )
 
-type CfnYamlLoader struct {
-	path     string
-	template cfnTemplate
-}
-
-func NewCfnYamlLoader(path string, contents []byte) (*CfnYamlLoader, error) {
-	// loader :=
-	// fileData, err := ioutil.ReadFile(path)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("Failed to read file: %v", err)
-	// }
+func CfnYamlLoaderFactory(path string, contents []byte) (Loader, error) {
 	template := &cfnTemplate{}
 	if err := yaml.Unmarshal(contents, &template); err != nil {
 		return nil, fmt.Errorf("Failed to unmarshal CloudFormation YAML file: %v", err)
 	}
-	return &CfnYamlLoader{
+	return &cfnYamlLoader{
 		path:     path,
 		template: *template,
 	}, nil
 }
 
-func (l *CfnYamlLoader) RegulaInput() base.RegulaInput {
-	return base.RegulaInput{
+type cfnYamlLoader struct {
+	path     string
+	template cfnTemplate
+}
+
+func (l *cfnYamlLoader) RegulaInput() RegulaInput {
+	return RegulaInput{
 		"filepath": l.path,
 		"content":  l.template.Contents,
 	}
-}
-
-func (l *CfnYamlLoader) Location(_ string) (*base.Location, error) {
-	return nil, fmt.Errorf("Location not implemented for this type")
 }
 
 type cfnTemplate struct {

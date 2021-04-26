@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/fugue/regula/pkg/loader"
-	"github.com/fugue/regula/pkg/loader/base"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/spf13/cobra"
@@ -15,7 +14,7 @@ import (
 )
 
 func NewRunCommand() *cobra.Command {
-	var inputType base.InputType
+	var inputType loader.InputType
 	severity := reporter.Unknown
 	cmd := &cobra.Command{
 		Use:   "run",
@@ -56,16 +55,10 @@ func NewRunCommand() *cobra.Command {
 				}
 			}
 
-			if inputType == base.Auto {
-				for _, p := range paths {
-					if p == "-" {
-						fmt.Println("Automatic type detection not supported for stdin. Please specify an input type with: -t <input type>")
-						os.Exit(1)
-					}
-				}
-			}
-
-			loadedFiles, err := loader.LoadPaths(paths, inputType)
+			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
+				Paths:     paths,
+				InputType: inputType,
+			})
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -99,7 +92,7 @@ func NewRunCommand() *cobra.Command {
 	cmd.Flags().StringSliceP("include", "i", nil, "Select rego libraries to include")
 	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
 	cmd.Flags().VarP(
-		enumflag.New(&inputType, "input-type", base.InputTypeIds, enumflag.EnumCaseInsensitive),
+		enumflag.New(&inputType, "input-type", loader.InputTypeIds, enumflag.EnumCaseInsensitive),
 		"input-type", "t",
 		"Explicitly set the input type")
 	cmd.Flags().VarP(

@@ -10,6 +10,8 @@ func GetReporter(format Format) (Reporter, error) {
 		return TableReporter, nil
 	case Junit:
 		return JUnitReporter, nil
+	case Tap:
+		return TapReporter, nil
 	default:
 		return nil, fmt.Errorf("Unsupported or unrecognized reporter: %v", FormatIds[format])
 	}

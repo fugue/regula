@@ -2,6 +2,7 @@ package reporter
 
 import (
 	"encoding/json"
+	"sort"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/open-policy-agent/opa/rego"
@@ -82,6 +83,68 @@ func (o RegulaOutput) ExceedsSeverity(severity Severity) bool {
 	return maxSeverity >= severity
 }
 
+type ResourceResults struct {
+	ResourceId   string
+	ResourceType string
+	Results      []RuleResult
+	Pass         bool
+}
+
+type FilepathResults struct {
+	Filepath string
+	Results  map[string]ResourceResults
+	Pass     bool
+}
+
+func (f FilepathResults) SortedKeys() []string {
+	keys := []string{}
+	for k := range f.Results {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+type ResultsByFilepath map[string]FilepathResults
+
+func (r ResultsByFilepath) SortedKeys() []string {
+	keys := []string{}
+	for k := range r {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func (o RegulaOutput) AggregateByFilepath() ResultsByFilepath {
+	byFilepath := ResultsByFilepath{}
+	for _, r := range o.RuleResults {
+		filepathResults, ok := byFilepath[r.Filepath]
+		if !ok {
+			filepathResults = FilepathResults{
+				Filepath: r.Filepath,
+				Results:  map[string]ResourceResults{},
+				Pass:     !r.IsFail(),
+			}
+		}
+		resourceResults, ok := filepathResults.Results[r.ResourceId]
+		if !ok {
+			resourceResults = ResourceResults{
+				ResourceId:   r.ResourceId,
+				ResourceType: r.ResourceType,
+				Results:      []RuleResult{},
+				Pass:         !r.IsFail(),
+			}
+		}
+		resourceResults.Results = append(resourceResults.Results, r)
+		resourceResults.Pass = resourceResults.Pass && !r.IsFail()
+		filepathResults.Results[r.ResourceId] = resourceResults
+		filepathResults.Pass = filepathResults.Pass && resourceResults.Pass
+		byFilepath[r.Filepath] = filepathResults
+	}
+	return byFilepath
+}
+
 type RuleResult struct {
 	Controls        []string `json:"controls"`
 	Filepath        string   `json:"filepath"`
@@ -96,6 +159,18 @@ type RuleResult struct {
 	RuleResult      string   `json:"rule_result"`
 	RuleSeverity    string   `json:"rule_severity"`
 	RuleSummary     string   `json:"rule_summary"`
+}
+
+func (r RuleResult) IsWaived() bool {
+	return r.RuleResult == "WAIVED"
+}
+
+func (r RuleResult) IsPass() bool {
+	return r.RuleResult == "PASS"
+}
+
+func (r RuleResult) IsFail() bool {
+	return r.RuleResult == "FAIL"
 }
 
 func (r RuleResult) Message() string {

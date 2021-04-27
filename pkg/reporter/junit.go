@@ -4,11 +4,9 @@ import (
 	"encoding/xml"
 	"fmt"
 	"sort"
-
-	"github.com/fugue/regula/pkg/loader"
 )
 
-func JUnitReporter(l *loader.LoadedFiles, o *RegulaOutput) (string, error) {
+func JUnitReporter(o *RegulaOutput) (string, error) {
 	byFilepath := map[string]map[string]ResourceResults{}
 	for _, r := range o.RuleResults {
 		fileResults, ok := byFilepath[r.Filepath]

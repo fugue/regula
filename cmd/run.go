@@ -73,12 +73,12 @@ func NewRunCommand() *cobra.Command {
 
 			reporterFunc, _ := reporter.GetReporter(format)
 			r := results[0]
-			output, err := reporter.ParseRegulaOutput(r)
+			output, err := reporter.ParseRegulaOutput(loadedFiles, r)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			report, err := reporterFunc(loadedFiles, output)
+			report, err := reporterFunc(output)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)

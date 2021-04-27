@@ -1,23 +1,33 @@
 package loader
 
-import (
-	"fmt"
+// import (
+// 	"fmt"
 
-	"gopkg.in/yaml.v3"
-)
+// 	"gopkg.in/yaml.v3"
+// )
 
-func YamlLoaderFactory(path string, contents []byte) (Loader, error) {
-	d := &yamlDetector{}
-	if err := yaml.Unmarshal(contents, d); err != nil {
-		return nil, fmt.Errorf("Unable to parse %v as yaml: %v", path, err)
-	}
-	if d.AWSTemplateFormatVersion != "" {
-		return CfnYamlLoaderFactory(path, contents)
-	}
+var YamlTypeDetector = NewTypeDetector(&TypeDetector{
+	DetectFile: func(i InputFile) (Loader, error) {
+		if i.Ext != ".yaml" && i.Ext != ".yml" {
+			return nil, nil
+		}
 
-	return nil, fmt.Errorf("Unrecognized yaml file: %v", path)
-}
+		return i.DetectType(CfnYamlDetector)
+	},
+})
 
-type yamlDetector struct {
-	AWSTemplateFormatVersion string `yaml:"AWSTemplateFormatVersion"`
-}
+// func YamlLoaderFactory(path string, contents []byte) (Loader, error) {
+// 	d := &yamlDetector{}
+// 	if err := yaml.Unmarshal(contents, d); err != nil {
+// 		return nil, fmt.Errorf("Unable to parse %v as yaml: %v", path, err)
+// 	}
+// 	if d.AWSTemplateFormatVersion != "" {
+// 		return CfnYamlLoaderFactory(path, contents)
+// 	}
+
+// 	return nil, fmt.Errorf("Unrecognized yaml file: %v", path)
+// }
+
+// type yamlDetector struct {
+// 	AWSTemplateFormatVersion string `yaml:"AWSTemplateFormatVersion"`
+// }

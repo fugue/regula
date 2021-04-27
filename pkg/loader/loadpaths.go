@@ -2,8 +2,6 @@ package loader
 
 import (
 	"fmt"
-	"io"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
@@ -37,64 +35,54 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 	if err != nil {
 		return nil, err
 	}
-	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
+	walkFunc := func(i InputPath) error {
+		// Ignore errors when we're recursing
+		loader, _ := loaderFactory(i)
+		if loader != nil {
+			loaders[i.GetPath()] = loader
 		}
-		if d.IsDir() {
-			return nil
-		}
-		if ext := filepath.Ext(path); !recognizedExts[ext] {
-			return nil
-		}
-		contents, err := os.ReadFile(path)
-		if err != nil {
-			// Ignore files we can't read
-			return nil
-		}
-		loader, err := loaderFactory(path, contents)
-		if err != nil {
-			// Ignore files we can't load
-			return nil
-		}
-		loaders[path] = loader
 		return nil
 	}
 	for _, path := range options.Paths {
 		if path == "-" {
-			contents, err := io.ReadAll(os.Stdin)
+			loader, err := loaderFactory(InputFile{
+				Path: "<stdin>",
+				Name: "-",
+				Ext:  "",
+			})
 			if err != nil {
 				return nil, err
 			}
-			loader, err := loaderFactory("<stdin>", contents)
-			if err != nil {
-				return nil, err
+			if loader != nil {
+				loaders[path] = loader
 			}
-			loaders[path] = loader
 			continue
 		}
+		name := filepath.Base(path)
 		info, err := os.Stat(path)
 		if err != nil {
 			return nil, err
 		}
+		var i InputPath
 		if info.IsDir() {
-			err := filepath.WalkDir(path, walkDirFunc)
+			i, err = NewInputDirectory(path, name)
 			if err != nil {
 				return nil, err
 			}
-			continue
+		} else {
+			i = NewInputFile(path, name)
 		}
-		contents, err := os.ReadFile(path)
+		loader, err := loaderFactory(i)
 		if err != nil {
 			return nil, err
 		}
-		loader, err := loaderFactory(path, contents)
-		if err != nil {
+		if loader != nil {
+			loaders[path] = loader
+		}
+		if err := i.Walk(walkFunc); err != nil {
 			return nil, err
 		}
-		loaders[path] = loader
 	}
-
 	if len(loaders) < 1 {
 		return nil, fmt.Errorf("No loadable files in provided paths: %v", options.Paths)
 	}
@@ -102,12 +90,6 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 	return &LoadedFiles{
 		Loaders: loaders,
 	}, nil
-}
-
-var recognizedExts map[string]bool = map[string]bool{
-	".yaml": true,
-	".yml":  true,
-	".json": true,
 }
 
 func loaderFactoryByInputType(inputType InputType) (LoaderFactory, error) {
@@ -123,25 +105,37 @@ func loaderFactoryByInputType(inputType InputType) (LoaderFactory, error) {
 	}
 }
 
-func autoLoaderFactory(path string, contents []byte) (Loader, error) {
-	if path == "<stdin>" {
-		l, err := JsonLoaderFactory(path, contents)
+func autoLoaderFactory(i InputPath) (Loader, error) {
+	if i.IsDir() {
+		return nil, nil
+	}
+
+	if i.GetPath() == "<stdin>" {
+		l, err := JsonLoaderFactory(i)
 		if err == nil {
 			return l, nil
 		}
-		l, err = YamlLoaderFactory(path, contents)
+		l, err = CfnYamlLoaderFactory(i)
 		if err == nil {
 			return l, nil
 		}
 		return nil, fmt.Errorf("Unable to detect input type of data from stdin.")
 	}
 
-	switch ext := filepath.Ext(path); ext {
-	case ".yaml", ".yml":
-		return YamlLoaderFactory(path, contents)
-	case ".json":
-		return JsonLoaderFactory(path, contents)
-	default:
-		return nil, fmt.Errorf("Unable to detect file type for file: %s", path)
+	l, err := i.DetectType(*YamlTypeDetector)
+	if err != nil {
+		return nil, err
 	}
+	if l != nil {
+		return l, nil
+	}
+	l, err = i.DetectType(*JsonTypeDetector)
+	if err != nil {
+		return nil, err
+	}
+	if l != nil {
+		return l, nil
+	}
+
+	return nil, fmt.Errorf("Unable to detect file type for file: %s", i.GetPath())
 }

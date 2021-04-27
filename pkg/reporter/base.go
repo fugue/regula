@@ -98,6 +98,16 @@ type RuleResult struct {
 	RuleSummary     string   `json:"rule_summary"`
 }
 
+func (r RuleResult) Message() string {
+	if r.RuleMessage != "" {
+		return r.RuleMessage
+	}
+	if r.RuleSummary != "" {
+		return r.RuleSummary
+	}
+	return r.RuleDescription
+}
+
 type Summary struct {
 	Filepaths   []string       `json:"filepaths"`
 	RuleResults map[string]int `json:"rule_results"`

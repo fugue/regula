@@ -8,6 +8,8 @@ func GetReporter(format Format) (Reporter, error) {
 		return JsonReporter, nil
 	case Table:
 		return TableReporter, nil
+	case Junit:
+		return JUnitReporter, nil
 	default:
 		return nil, fmt.Errorf("Unsupported or unrecognized reporter: %v", FormatIds[format])
 	}

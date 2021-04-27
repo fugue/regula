@@ -114,7 +114,7 @@ type Summary struct {
 	Severities  map[string]int `json:"severities"`
 }
 
-func ParseRegulaOutput(r rego.Result) (*RegulaOutput, error) {
+func ParseRegulaOutput(_ *loader.LoadedFiles, r rego.Result) (*RegulaOutput, error) {
 	j, err := json.Marshal(r.Expressions[0].Value)
 	if err != nil {
 		return nil, err
@@ -126,4 +126,4 @@ func ParseRegulaOutput(r rego.Result) (*RegulaOutput, error) {
 	return output, nil
 }
 
-type Reporter func(l *loader.LoadedFiles, r *RegulaOutput) (string, error)
+type Reporter func(r *RegulaOutput) (string, error)

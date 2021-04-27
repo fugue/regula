@@ -5,10 +5,9 @@ import (
 
 	"github.com/alexeyco/simpletable"
 	"github.com/fatih/color"
-	"github.com/fugue/regula/pkg/loader"
 )
 
-func TableReporter(l *loader.LoadedFiles, o *RegulaOutput) (string, error) {
+func TableReporter(o *RegulaOutput) (string, error) {
 	tableData := []TableRow{}
 	var overall string
 	if o.Summary.RuleResults["FAIL"] > 0 {

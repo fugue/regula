@@ -88,9 +88,7 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 			if !noIgnore {
 				repo := gitRepoFinder.FindRepo(path)
 				ignored, _ := repo.IsPathIgnored(path)
-				if ignored {
-					noIgnore = true
-				}
+				noIgnore = ignored
 			}
 			i, err = NewInputDirectory(NewInputDirectoryOptions{
 				Path:          path,

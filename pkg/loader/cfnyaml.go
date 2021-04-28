@@ -7,51 +7,30 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var CfnYamlDetector = *NewTypeDetector(&TypeDetector{
-	DetectFile: func(i InputFile) (Loader, error) {
+var CfnYamlDetector = NewTypeDetector(&TypeDetector{
+	DetectFile: func(i *InputFile) (Loader, error) {
 		contents, err := i.ReadContents()
 		if err != nil {
 			return nil, err
 		}
-		c := &struct {
-			AWSTemplateFormatVersion string `yaml:"AWSTemplateFormatVersion"`
-		}{}
-		if err := yaml.Unmarshal(contents, c); err != nil {
+
+		template := &cfnTemplate{}
+		if err := yaml.Unmarshal(contents, &template); err != nil {
 			return nil, fmt.Errorf("Failed to parse YAML file %v: %v", i.Path, err)
 		}
-		if c.AWSTemplateFormatVersion != "" {
-			return baseCfnYamlLoaderFactory(i.Path, contents)
+		_, hasTemplateFormatVersion := template.Contents["AWSTemplateFormatVersion"]
+		_, hasResources := template.Contents["Resources"]
+
+		if !hasTemplateFormatVersion && !hasResources {
+			return nil, fmt.Errorf("Input file is not CloudFormation YAML: %v", i.Path)
 		}
 
-		return nil, fmt.Errorf("Input file is not CloudFormation: %v", i.Path)
+		return &cfnYamlLoader{
+			path:     i.Path,
+			template: *template,
+		}, nil
 	},
 })
-
-func CfnYamlLoaderFactory(i InputPath) (Loader, error) {
-	if i.IsDir() {
-		return nil, nil
-	}
-	f, ok := i.(InputFile)
-	if !ok {
-		return nil, fmt.Errorf("Unable to cast input as file: %v", i.GetPath())
-	}
-	contents, err := f.ReadContents()
-	if err != nil {
-		return nil, err
-	}
-	return baseCfnYamlLoaderFactory(f.Path, contents)
-}
-
-func baseCfnYamlLoaderFactory(path string, contents []byte) (Loader, error) {
-	template := &cfnTemplate{}
-	if err := yaml.Unmarshal(contents, &template); err != nil {
-		return nil, fmt.Errorf("Failed to unmarshal CloudFormation YAML file: %v", err)
-	}
-	return &cfnYamlLoader{
-		path:     path,
-		template: *template,
-	}, nil
-}
 
 type cfnYamlLoader struct {
 	path     string

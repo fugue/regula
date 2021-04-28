@@ -38,6 +38,7 @@ const (
 	Junit
 	Tap
 	Tap13
+	None
 )
 
 var FormatIds = map[Format][]string{
@@ -46,6 +47,7 @@ var FormatIds = map[Format][]string{
 	Junit: {"junit"},
 	Tap:   {"tap"},
 	Tap13: {"tap13"},
+	None:  {"none"},
 }
 
 type RegulaOutput struct {

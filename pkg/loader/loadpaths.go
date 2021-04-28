@@ -40,7 +40,9 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 	}
 	walkFunc := func(i *InputPath) error {
 		// Ignore errors when we're recursing
-		loader, _ := (*i).DetectType(*detector)
+		loader, _ := (*i).DetectType(*detector, DetectOptions{
+			IgnoreExt: false,
+		})
 		if loader != nil {
 			loaders[(*i).GetPath()] = loader
 		}
@@ -54,7 +56,9 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 				Name: "-",
 				Ext:  "",
 			}
-			loader, err := i.DetectType(*detector)
+			loader, err := i.DetectType(*detector, DetectOptions{
+				IgnoreExt: true,
+			})
 			if err != nil {
 				return nil, err
 			}
@@ -82,7 +86,9 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 		} else {
 			i = NewInputFile(path, name)
 		}
-		loader, err := i.DetectType(*detector)
+		loader, err := i.DetectType(*detector, DetectOptions{
+			IgnoreExt: options.InputType != Auto,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -118,29 +124,16 @@ func detectorByInputType(inputType InputType) (*TypeDetector, error) {
 }
 
 var AutoDetector = NewTypeDetector(&TypeDetector{
-	DetectFile: func(i *InputFile) (Loader, error) {
-		if i.GetPath() == "<stdin>" {
-			l, err := i.DetectType(*TfPlanDetector)
-			if err == nil {
-				return l, nil
-			}
-			l, err = i.DetectType(*CfnJsonDetector)
-			if err == nil {
-				return l, nil
-			}
-			l, err = i.DetectType(*CfnYamlDetector)
-			if err == nil {
-				return l, nil
-			}
-			fmt.Println(err)
-			return nil, fmt.Errorf("Unable to detect input type of data from stdin.")
-		}
-
-		l, err := i.DetectType(*JsonTypeDetector)
+	DetectFile: func(i *InputFile, opts DetectOptions) (Loader, error) {
+		l, err := i.DetectType(*TfPlanDetector, opts)
 		if err == nil {
 			return l, nil
 		}
-		l, err = i.DetectType(*YamlTypeDetector)
+		l, err = i.DetectType(*CfnJsonDetector, opts)
+		if err == nil {
+			return l, nil
+		}
+		l, err = i.DetectType(*CfnYamlDetector, opts)
 		if err == nil {
 			return l, nil
 		}

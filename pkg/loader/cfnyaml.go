@@ -8,7 +8,10 @@ import (
 )
 
 var CfnYamlDetector = NewTypeDetector(&TypeDetector{
-	DetectFile: func(i *InputFile) (Loader, error) {
+	DetectFile: func(i *InputFile, opts DetectOptions) (Loader, error) {
+		if !opts.IgnoreExt && i.Ext != ".yaml" && i.Ext != ".yml" {
+			return nil, fmt.Errorf("File does not have .yaml or .yml extension: %v", i.Path)
+		}
 		contents, err := i.ReadContents()
 		if err != nil {
 			return nil, err

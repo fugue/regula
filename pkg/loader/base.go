@@ -4,6 +4,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/fugue/regula/pkg/git"
+	git2go "github.com/libgit2/git2go/v31"
 )
 
 type InputType int
@@ -100,19 +103,39 @@ func (i InputDirectory) GetPath() string {
 	return i.Path
 }
 
-func NewInputDirectory(path string, name string) (*InputDirectory, error) {
-	// name := filepath.Base(path)
+type NewInputDirectoryOptions struct {
+	Path          string
+	Name          string
+	NoIgnore      bool
+	GitRepoFinder *git.GitRepoFinder
+}
+
+func NewInputDirectory(opts NewInputDirectoryOptions) (*InputDirectory, error) {
 	contents := []InputPath{}
-	entries, err := os.ReadDir(path)
+	entries, err := os.ReadDir(opts.Path)
 	if err != nil {
 		return nil, err
 	}
+	var repo *git2go.Repository
+	if !opts.NoIgnore {
+		repo = opts.GitRepoFinder.FindRepo(opts.Path)
+	}
 	for _, e := range entries {
 		n := e.Name()
-		p := filepath.Join(path, n)
+		p := filepath.Join(opts.Path, n)
+		if repo != nil {
+			if ignored, _ := repo.IsPathIgnored(p); ignored {
+				continue
+			}
+		}
 		var i InputPath
 		if e.IsDir() {
-			i, err = NewInputDirectory(p, n)
+			i, err = NewInputDirectory(NewInputDirectoryOptions{
+				Path:          p,
+				Name:          n,
+				NoIgnore:      opts.NoIgnore,
+				GitRepoFinder: opts.GitRepoFinder,
+			})
 			if err != nil {
 				return nil, err
 			}
@@ -123,8 +146,8 @@ func NewInputDirectory(path string, name string) (*InputDirectory, error) {
 		contents = append(contents, i)
 	}
 	return &InputDirectory{
-		Path:     path,
-		Name:     name,
+		Path:     opts.Path,
+		Name:     opts.Name,
 		Contents: contents,
 	}, nil
 }

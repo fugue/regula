@@ -6,15 +6,19 @@ import (
 )
 
 var JsonTypeDetector = NewTypeDetector(&TypeDetector{
-	DetectFile: func(i *InputFile) (Loader, error) {
-		if i.Ext != ".json" {
+	DetectFile: func(i *InputFile, opts DetectOptions) (Loader, error) {
+		if !opts.IgnoreExt && i.Ext != ".json" {
 			return nil, fmt.Errorf("File does not have .json extension: %v", i.Path)
 		}
-		l, err := i.DetectType(*TfPlanDetector)
+		l, err := i.DetectType(*TfPlanDetector, DetectOptions{
+			IgnoreExt: true,
+		})
 		if err == nil {
 			return l, nil
 		}
-		l, err = i.DetectType(*CfnJsonDetector)
+		l, err = i.DetectType(*CfnJsonDetector, DetectOptions{
+			IgnoreExt: true,
+		})
 		if err == nil {
 			return l, nil
 		}
@@ -23,7 +27,10 @@ var JsonTypeDetector = NewTypeDetector(&TypeDetector{
 })
 
 var TfPlanDetector = NewTypeDetector(&TypeDetector{
-	DetectFile: func(i *InputFile) (Loader, error) {
+	DetectFile: func(i *InputFile, opts DetectOptions) (Loader, error) {
+		if !opts.IgnoreExt && i.Ext != ".json" {
+			return nil, fmt.Errorf("File does not have .json extension: %v", i.Path)
+		}
 		contents, err := i.ReadContents()
 		if err != nil {
 			return nil, err
@@ -46,7 +53,10 @@ var TfPlanDetector = NewTypeDetector(&TypeDetector{
 })
 
 var CfnJsonDetector = NewTypeDetector(&TypeDetector{
-	DetectFile: func(i *InputFile) (Loader, error) {
+	DetectFile: func(i *InputFile, opts DetectOptions) (Loader, error) {
+		if !opts.IgnoreExt && i.Ext != ".json" {
+			return nil, fmt.Errorf("File does not have .json extension: %v", i.Path)
+		}
 		contents, err := i.ReadContents()
 		if err != nil {
 			return nil, err

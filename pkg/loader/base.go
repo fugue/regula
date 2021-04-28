@@ -43,19 +43,23 @@ type LocationAwareLoader interface {
 
 type LoaderFactory func(inputPath InputPath) (Loader, error)
 
+type DetectOptions struct {
+	IgnoreExt bool
+}
+
 type TypeDetector struct {
-	DetectDirectory func(i *InputDirectory) (Loader, error)
-	DetectFile      func(i *InputFile) (Loader, error)
+	DetectDirectory func(i *InputDirectory, opts DetectOptions) (Loader, error)
+	DetectFile      func(i *InputFile, opts DetectOptions) (Loader, error)
 }
 
 func NewTypeDetector(t *TypeDetector) *TypeDetector {
 	if t.DetectDirectory == nil {
-		t.DetectDirectory = func(i *InputDirectory) (Loader, error) {
+		t.DetectDirectory = func(i *InputDirectory, opts DetectOptions) (Loader, error) {
 			return nil, nil
 		}
 	}
 	if t.DetectFile == nil {
-		t.DetectFile = func(i *InputFile) (Loader, error) {
+		t.DetectFile = func(i *InputFile, opts DetectOptions) (Loader, error) {
 			return nil, nil
 		}
 	}
@@ -63,7 +67,7 @@ func NewTypeDetector(t *TypeDetector) *TypeDetector {
 }
 
 type InputPath interface {
-	DetectType(d TypeDetector) (Loader, error)
+	DetectType(d TypeDetector, opts DetectOptions) (Loader, error)
 	Children() []*InputPath
 	IsDir() bool
 	Walk(w func(i *InputPath) error) error
@@ -75,8 +79,8 @@ type InputDirectory struct {
 	Contents []*InputPath
 }
 
-func (i *InputDirectory) DetectType(d TypeDetector) (Loader, error) {
-	return d.DetectDirectory(i)
+func (i *InputDirectory) DetectType(d TypeDetector, opts DetectOptions) (Loader, error) {
+	return d.DetectDirectory(i, opts)
 }
 
 func (i *InputDirectory) Children() []*InputPath {
@@ -159,8 +163,8 @@ type InputFile struct {
 	cachedContents []byte
 }
 
-func (i *InputFile) DetectType(d TypeDetector) (Loader, error) {
-	return d.DetectFile(i)
+func (i *InputFile) DetectType(d TypeDetector, opts DetectOptions) (Loader, error) {
+	return d.DetectFile(i, opts)
 }
 
 func (i *InputFile) Children() []*InputPath {

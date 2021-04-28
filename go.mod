@@ -9,7 +9,6 @@ require (
 	github.com/libgit2/git2go/v31 v31.4.14
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/open-policy-agent/opa v0.26.0
-	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v1.1.3
 	github.com/thediveo/enumflag v0.10.1
 	golang.org/x/crypto v0.0.0-20201203163018-be400aefbc4c

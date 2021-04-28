@@ -10,20 +10,51 @@ import (
 )
 
 type LoadedFiles struct {
-	Loaders map[string]Loader
+	loaders     map[string]Loader
+	loadedFiles map[string]bool
+}
+
+func NewLoadedFiles() *LoadedFiles {
+	return &LoadedFiles{
+		loaders:     map[string]Loader{},
+		loadedFiles: map[string]bool{},
+	}
+}
+
+func (l *LoadedFiles) AddLoader(path string, loader Loader) {
+	l.loaders[path] = loader
+	for _, f := range loader.LoadedFiles() {
+		l.loadedFiles[f] = true
+	}
 }
 
 func (l *LoadedFiles) RegulaInput() []RegulaInput {
 	keys := []string{}
-	for k := range l.Loaders {
+	for k := range l.loaders {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 	input := []RegulaInput{}
 	for _, k := range keys {
-		input = append(input, l.Loaders[k].RegulaInput())
+		input = append(input, l.loaders[k].RegulaInput())
 	}
 	return input
+}
+
+func (l *LoadedFiles) Location(path string, attributePath []string) (*Location, error) {
+	loader, ok := l.loaders[path]
+	if !ok {
+		return nil, fmt.Errorf("Unable to determine location for given path %v and attribute path %v", path, attributePath)
+	}
+	return loader.Location(attributePath)
+}
+
+func (l *LoadedFiles) AlreadyLoaded(path string) bool {
+	return l.loadedFiles[path]
+}
+
+func (l *LoadedFiles) LoadedConfigurations() int {
+	return len(l.loadedFiles)
 }
 
 type LoadPathsOptions struct {
@@ -33,27 +64,37 @@ type LoadPathsOptions struct {
 }
 
 func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
-	loaders := map[string]Loader{}
+	loadedFiles := NewLoadedFiles()
 	detector, err := detectorByInputType(options.InputType)
 	if err != nil {
 		return nil, err
 	}
 	walkFunc := func(i *InputPath) error {
+		inputPath := *i
+		if loadedFiles.AlreadyLoaded(inputPath.GetPath()) {
+			return nil
+		}
 		// Ignore errors when we're recursing
-		loader, _ := (*i).DetectType(*detector, DetectOptions{
+		loader, _ := inputPath.DetectType(*detector, DetectOptions{
 			IgnoreExt: false,
 		})
 		if loader != nil {
-			loaders[(*i).GetPath()] = loader
+			loadedFiles.AddLoader(inputPath.GetPath(), loader)
 		}
 		return nil
 	}
 	gitRepoFinder := git.NewGitRepoFinder()
 	for _, path := range options.Paths {
 		if path == "-" {
+			path = StdIn
+		}
+		if loadedFiles.AlreadyLoaded(path) {
+			continue
+		}
+		if path == StdIn {
 			i := InputFile{
-				Path: "<stdin>",
-				Name: "-",
+				Path: StdIn,
+				Name: StdIn,
 				Ext:  "",
 			}
 			loader, err := i.DetectType(*detector, DetectOptions{
@@ -63,7 +104,8 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 				return nil, err
 			}
 			if loader != nil {
-				loaders[path] = loader
+				loadedFiles.AddLoader(StdIn, loader)
+				// loaders[path] = loader
 			}
 			continue
 		}
@@ -74,10 +116,20 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 		}
 		var i InputPath
 		if info.IsDir() {
+			// We want to override the gitignore behavior if the user explicitly gives
+			// us a directory that is ignored.
+			noIgnore := options.NoIgnore
+			if !noIgnore {
+				repo := gitRepoFinder.FindRepo(path)
+				ignored, _ := repo.IsPathIgnored(path)
+				if ignored {
+					noIgnore = true
+				}
+			}
 			i, err = NewInputDirectory(NewInputDirectoryOptions{
 				Path:          path,
 				Name:          name,
-				NoIgnore:      options.NoIgnore,
+				NoIgnore:      noIgnore,
 				GitRepoFinder: gitRepoFinder,
 			})
 			if err != nil {
@@ -93,19 +145,17 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 			return nil, err
 		}
 		if loader != nil {
-			loaders[path] = loader
+			loadedFiles.AddLoader(path, loader)
 		}
 		if err := i.Walk(walkFunc); err != nil {
 			return nil, err
 		}
 	}
-	if len(loaders) < 1 {
+	if loadedFiles.LoadedConfigurations() < 1 {
 		return nil, fmt.Errorf("No loadable files in provided paths: %v", options.Paths)
 	}
 
-	return &LoadedFiles{
-		Loaders: loaders,
-	}, nil
+	return loadedFiles, nil
 }
 
 func detectorByInputType(inputType InputType) (*TypeDetector, error) {

@@ -9,6 +9,8 @@ import (
 	git2go "github.com/libgit2/git2go/v31"
 )
 
+const StdIn = "<stdin>"
+
 type InputType int
 
 const (
@@ -25,10 +27,20 @@ var InputTypeIds = map[InputType][]string{
 	CfnYaml: {"cfn-yaml"},
 }
 
+type LoadedPaths interface {
+	AddLoader(loader Loader)
+	Location(path string, attributePath []string) (*Location, error)
+	AlreadyLoaded(path string) bool
+	RegulaInput() []RegulaInput
+	LoadedConfigurations() int
+}
+
 type RegulaInput map[string]interface{}
 
 type Loader interface {
 	RegulaInput() RegulaInput
+	LoadedFiles() []string
+	Location(attributePath []string) (*Location, error)
 }
 
 type Location struct {
@@ -38,7 +50,6 @@ type Location struct {
 }
 
 type LocationAwareLoader interface {
-	Location(attributePath string) (*Location, error)
 }
 
 type LoaderFactory func(inputPath InputPath) (Loader, error)
@@ -188,7 +199,7 @@ func (i *InputFile) ReadContents() ([]byte, error) {
 		return i.cachedContents, nil
 	}
 
-	if i.Name == "-" {
+	if i.Name == StdIn {
 		contents, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			i.cachedContents = []byte{}

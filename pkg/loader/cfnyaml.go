@@ -47,6 +47,18 @@ func (l *cfnYamlLoader) RegulaInput() RegulaInput {
 	}
 }
 
+func (l *cfnYamlLoader) Location(attributePath []string) (*Location, error) {
+	return &Location{
+		Path: l.path,
+		Line: 0,
+		Col:  0,
+	}, nil
+}
+
+func (l *cfnYamlLoader) LoadedFiles() []string {
+	return []string{l.path}
+}
+
 type cfnTemplate struct {
 	Contents map[string]interface{}
 }

@@ -9,88 +9,120 @@ import (
 	git2go "github.com/libgit2/git2go/v31"
 )
 
+// StdIn is the path used for stdin.
 const StdIn = "<stdin>"
 
+// InputType is a flag that determines which types regula should look for.
 type InputType int
 
 const (
+	// Auto means that regula will automatically try to determine which input types are
+	// in the given paths.
 	Auto InputType = iota
+	// TfPlan means that regula will only look for Terraform plan JSON files in given
+	// directories and it will assume that given files are Terraform plan JSON.
 	TfPlan
-	CfnJson
-	CfnYaml
+	// CfnJSON means that regula will only look for CloudFormation JSON files in given
+	// directories and it will assume that given files are CloudFormation JSON.
+	CfnJSON
+	// CfnYAML means that regula will only look for CloudFormation YAML files in given
+	// directories and it will assume that given files are CloudFormation YAML.
+	CfnYAML
 )
 
-var InputTypeIds = map[InputType][]string{
+// InputTypeIDs maps the InputType enums to string values that can be specified in
+// CLI options.
+var InputTypeIDs = map[InputType][]string{
 	Auto:    {"auto"},
 	TfPlan:  {"tf-plan"},
-	CfnJson: {"cfn-json"},
-	CfnYaml: {"cfn-yaml"},
+	CfnJSON: {"cfn-json"},
+	CfnYAML: {"cfn-yaml"},
 }
 
-type LoadedPaths interface {
-	AddLoader(loader Loader)
+// LoadedConfigurations is a container for IACConfigurations loaded by Regula.
+type LoadedConfigurations interface {
+	// AddConfiguration adds a configuration entry for the given path
+	AddConfiguration(path string, config IACConfiguration)
+	// Location resolves a file path and attribute path from the regula output to a
+	// location within a file.
 	Location(path string, attributePath []string) (*Location, error)
+	// AlreadyLoaded indicates whether the given path has already been loaded as part
+	// of another IACConfiguration.
 	AlreadyLoaded(path string) bool
+	// RegulaInput renders the RegulaInput from all of the contained configurations.
 	RegulaInput() []RegulaInput
-	LoadedConfigurations() int
+	// Count returns the number of loaded configurations.
+	Count() int
 }
 
+// RegulaInput is a generic map that can be fed to OPA for regula.
 type RegulaInput map[string]interface{}
 
-type Loader interface {
+// IACConfiguration is a loaded IaC Configuration.
+type IACConfiguration interface {
+	// RegulaInput returns a input for regula.
 	RegulaInput() RegulaInput
+	// LoadedFiles are all of the files contained within this configuration.
 	LoadedFiles() []string
+	// Location resolves an attribute path to to a file, line and column.
 	Location(attributePath []string) (*Location, error)
 }
 
+// Location is a filepath, line and column.
 type Location struct {
 	Path string
 	Line int
 	Col  int
 }
 
-type LocationAwareLoader interface {
-}
-
-type LoaderFactory func(inputPath InputPath) (Loader, error)
-
+// DetectOptions are options passed to the configuration detectors.
 type DetectOptions struct {
 	IgnoreExt bool
 }
 
-type TypeDetector struct {
-	DetectDirectory func(i *InputDirectory, opts DetectOptions) (Loader, error)
-	DetectFile      func(i *InputFile, opts DetectOptions) (Loader, error)
+// ConfigurationDetector implements the visitor part of the visitor pattern for the
+// concrete InputPath implementations. A ConfigurationDetector implementation must
+// contain functions to visit both directories and files.
+type ConfigurationDetector struct {
+	DetectDirectory func(i *InputDirectory, opts DetectOptions) (IACConfiguration, error)
+	DetectFile      func(i *InputFile, opts DetectOptions) (IACConfiguration, error)
 }
 
-func NewTypeDetector(t *TypeDetector) *TypeDetector {
+// NewConfigurationDetector is a convenience function that will fill in empty detection
+// functions for a configuration detector.
+func NewConfigurationDetector(t *ConfigurationDetector) *ConfigurationDetector {
 	if t.DetectDirectory == nil {
-		t.DetectDirectory = func(i *InputDirectory, opts DetectOptions) (Loader, error) {
+		t.DetectDirectory = func(i *InputDirectory, opts DetectOptions) (IACConfiguration, error) {
 			return nil, nil
 		}
 	}
 	if t.DetectFile == nil {
-		t.DetectFile = func(i *InputFile, opts DetectOptions) (Loader, error) {
+		t.DetectFile = func(i *InputFile, opts DetectOptions) (IACConfiguration, error) {
 			return nil, nil
 		}
 	}
 	return t
 }
 
+// InputPath is a generic interface to represent both directories and files that
+// can serve as inputs for a ConfigurationDetector.
 type InputPath interface {
-	DetectType(d TypeDetector, opts DetectOptions) (Loader, error)
+	DetectType(d ConfigurationDetector, opts DetectOptions) (IACConfiguration, error)
 	Children() []*InputPath
 	IsDir() bool
 	Walk(w func(i *InputPath) error) error
 	GetPath() string
 }
+
+// InputDirectory is a concrete implementation of the InputPath interface that
+// represents a directory.
 type InputDirectory struct {
 	Path     string
 	Name     string
 	Contents []*InputPath
 }
 
-func (i *InputDirectory) DetectType(d TypeDetector, opts DetectOptions) (Loader, error) {
+func (i *InputDirectory) DetectType(d ConfigurationDetector, opts DetectOptions) (IACConfiguration, error) {
 	return d.DetectDirectory(i, opts)
 }
 
@@ -118,11 +150,12 @@ func (i InputDirectory) GetPath() string {
 	return i.Path
 }
 
+// NewInputDirectoryOptions contains options for instantiating a new InputDirectory
 type NewInputDirectoryOptions struct {
 	Path          string
 	Name          string
 	NoIgnore      bool
-	GitRepoFinder *git.GitRepoFinder
+	GitRepoFinder *git.RepoFinder
 }
 
 func NewInputDirectory(opts NewInputDirectoryOptions) (*InputDirectory, error) {
@@ -174,7 +207,7 @@ type InputFile struct {
 	cachedContents []byte
 }
 
-func (i *InputFile) DetectType(d TypeDetector, opts DetectOptions) (Loader, error) {
+func (i *InputFile) DetectType(d ConfigurationDetector, opts DetectOptions) (IACConfiguration, error) {
 	return d.DetectFile(i, opts)
 }
 
@@ -207,15 +240,15 @@ func (i *InputFile) ReadContents() ([]byte, error) {
 		}
 		i.cachedContents = contents
 		return contents, nil
-	} else {
-		contents, err := os.ReadFile(i.Path)
-		if err != nil {
-			i.cachedContents = []byte{}
-			return nil, err
-		}
-		i.cachedContents = contents
-		return contents, nil
 	}
+
+	contents, err := os.ReadFile(i.Path)
+	if err != nil {
+		i.cachedContents = []byte{}
+		return nil, err
+	}
+	i.cachedContents = contents
+	return contents, nil
 }
 
 func NewInputFile(path string, name string) *InputFile {

@@ -9,69 +9,21 @@ import (
 	"github.com/fugue/regula/pkg/git"
 )
 
-type LoadedFiles struct {
-	loaders     map[string]Loader
-	loadedFiles map[string]bool
-}
-
-func NewLoadedFiles() *LoadedFiles {
-	return &LoadedFiles{
-		loaders:     map[string]Loader{},
-		loadedFiles: map[string]bool{},
-	}
-}
-
-func (l *LoadedFiles) AddLoader(path string, loader Loader) {
-	l.loaders[path] = loader
-	for _, f := range loader.LoadedFiles() {
-		l.loadedFiles[f] = true
-	}
-}
-
-func (l *LoadedFiles) RegulaInput() []RegulaInput {
-	keys := []string{}
-	for k := range l.loaders {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	input := []RegulaInput{}
-	for _, k := range keys {
-		input = append(input, l.loaders[k].RegulaInput())
-	}
-	return input
-}
-
-func (l *LoadedFiles) Location(path string, attributePath []string) (*Location, error) {
-	loader, ok := l.loaders[path]
-	if !ok {
-		return nil, fmt.Errorf("Unable to determine location for given path %v and attribute path %v", path, attributePath)
-	}
-	return loader.Location(attributePath)
-}
-
-func (l *LoadedFiles) AlreadyLoaded(path string) bool {
-	return l.loadedFiles[path]
-}
-
-func (l *LoadedFiles) LoadedConfigurations() int {
-	return len(l.loadedFiles)
-}
-
 type LoadPathsOptions struct {
 	Paths     []string
 	InputType InputType
 	NoIgnore  bool
 }
 
-func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
-	loadedFiles := NewLoadedFiles()
+func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
+	configurations := newLoadedConfigurations()
 	detector, err := detectorByInputType(options.InputType)
 	if err != nil {
 		return nil, err
 	}
 	walkFunc := func(i *InputPath) error {
 		inputPath := *i
-		if loadedFiles.AlreadyLoaded(inputPath.GetPath()) {
+		if configurations.AlreadyLoaded(inputPath.GetPath()) {
 			return nil
 		}
 		// Ignore errors when we're recursing
@@ -79,16 +31,16 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 			IgnoreExt: false,
 		})
 		if loader != nil {
-			loadedFiles.AddLoader(inputPath.GetPath(), loader)
+			configurations.AddConfiguration(inputPath.GetPath(), loader)
 		}
 		return nil
 	}
-	gitRepoFinder := git.NewGitRepoFinder()
+	gitRepoFinder := git.NewRepoFinder()
 	for _, path := range options.Paths {
 		if path == "-" {
 			path = StdIn
 		}
-		if loadedFiles.AlreadyLoaded(path) {
+		if configurations.AlreadyLoaded(path) {
 			continue
 		}
 		if path == StdIn {
@@ -104,7 +56,7 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 				return nil, err
 			}
 			if loader != nil {
-				loadedFiles.AddLoader(StdIn, loader)
+				configurations.AddConfiguration(StdIn, loader)
 				// loaders[path] = loader
 			}
 			continue
@@ -145,27 +97,75 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 			return nil, err
 		}
 		if loader != nil {
-			loadedFiles.AddLoader(path, loader)
+			configurations.AddConfiguration(path, loader)
 		}
 		if err := i.Walk(walkFunc); err != nil {
 			return nil, err
 		}
 	}
-	if loadedFiles.LoadedConfigurations() < 1 {
+	if configurations.Count() < 1 {
 		return nil, fmt.Errorf("No loadable files in provided paths: %v", options.Paths)
 	}
 
-	return loadedFiles, nil
+	return configurations, nil
 }
 
-func detectorByInputType(inputType InputType) (*TypeDetector, error) {
+type loadedConfigurations struct {
+	configurations map[string]IACConfiguration
+	loadedPaths    map[string]bool
+}
+
+func newLoadedConfigurations() *loadedConfigurations {
+	return &loadedConfigurations{
+		configurations: map[string]IACConfiguration{},
+		loadedPaths:    map[string]bool{},
+	}
+}
+
+func (l *loadedConfigurations) AddConfiguration(path string, config IACConfiguration) {
+	l.configurations[path] = config
+	for _, f := range config.LoadedFiles() {
+		l.loadedPaths[f] = true
+	}
+}
+
+func (l *loadedConfigurations) RegulaInput() []RegulaInput {
+	keys := []string{}
+	for k := range l.configurations {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	input := []RegulaInput{}
+	for _, k := range keys {
+		input = append(input, l.configurations[k].RegulaInput())
+	}
+	return input
+}
+
+func (l *loadedConfigurations) Location(path string, attributePath []string) (*Location, error) {
+	loader, ok := l.configurations[path]
+	if !ok {
+		return nil, fmt.Errorf("Unable to determine location for given path %v and attribute path %v", path, attributePath)
+	}
+	return loader.Location(attributePath)
+}
+
+func (l *loadedConfigurations) AlreadyLoaded(path string) bool {
+	return l.loadedPaths[path]
+}
+
+func (l *loadedConfigurations) Count() int {
+	return len(l.configurations)
+}
+
+func detectorByInputType(inputType InputType) (*ConfigurationDetector, error) {
 	switch inputType {
 	case Auto:
 		return AutoDetector, nil
-	case CfnYaml:
-		return CfnYamlDetector, nil
-	case CfnJson:
-		return CfnJsonDetector, nil
+	case CfnYAML:
+		return CfnYAMLDetector, nil
+	case CfnJSON:
+		return CfnJSONDetector, nil
 	case TfPlan:
 		return TfPlanDetector, nil
 	default:
@@ -173,17 +173,17 @@ func detectorByInputType(inputType InputType) (*TypeDetector, error) {
 	}
 }
 
-var AutoDetector = NewTypeDetector(&TypeDetector{
-	DetectFile: func(i *InputFile, opts DetectOptions) (Loader, error) {
+var AutoDetector = NewConfigurationDetector(&ConfigurationDetector{
+	DetectFile: func(i *InputFile, opts DetectOptions) (IACConfiguration, error) {
 		l, err := i.DetectType(*TfPlanDetector, opts)
 		if err == nil {
 			return l, nil
 		}
-		l, err = i.DetectType(*CfnJsonDetector, opts)
+		l, err = i.DetectType(*CfnJSONDetector, opts)
 		if err == nil {
 			return l, nil
 		}
-		l, err = i.DetectType(*CfnYamlDetector, opts)
+		l, err = i.DetectType(*CfnYAMLDetector, opts)
 		if err == nil {
 			return l, nil
 		}

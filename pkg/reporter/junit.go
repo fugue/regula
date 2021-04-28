@@ -36,7 +36,7 @@ func (r ResourceResults) ToTestCase() JUnitTestCase {
 		}
 	}
 	testCase := JUnitTestCase{
-		Name:       r.ResourceId,
+		Name:       r.ResourceID,
 		ClassName:  r.ResourceType,
 		Assertions: len(r.Results),
 	}
@@ -75,7 +75,7 @@ func (r ResultsByFilepath) ToTestSuites() JUnitTestSuites {
 func failureMessage(r RuleResult) string {
 	return fmt.Sprintf(
 		"Rule ID: %v\nRule Name: %v\nSeverity: %v\nMessage: %v",
-		r.RuleId,
+		r.RuleID,
 		r.RuleName,
 		r.RuleSeverity,
 		r.Message(),

@@ -21,11 +21,11 @@ func TableReporter(o *RegulaOutput) (string, error) {
 			message = r.RuleSummary
 		}
 		tableRow := TableRow{
-			Resource: r.ResourceId,
+			Resource: r.ResourceID,
 			Type:     r.ResourceType,
 			Filepath: r.Filepath,
 			Severity: colorizeSeverity(r),
-			RuleID:   r.RuleId,
+			RuleID:   r.RuleID,
 			RuleName: r.RuleName,
 			Message:  message,
 			Result:   colorizeResult(r.RuleResult),

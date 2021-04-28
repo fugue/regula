@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-func JsonReporter(r *RegulaOutput) (string, error) {
+func JSONReporter(r *RegulaOutput) (string, error) {
 	buf := &bytes.Buffer{}
 	enc := json.NewEncoder(buf)
 	enc.SetEscapeHTML(false)

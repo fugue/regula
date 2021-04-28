@@ -7,8 +7,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var CfnYamlDetector = NewTypeDetector(&TypeDetector{
-	DetectFile: func(i *InputFile, opts DetectOptions) (Loader, error) {
+var CfnYAMLDetector = NewConfigurationDetector(&ConfigurationDetector{
+	DetectFile: func(i *InputFile, opts DetectOptions) (IACConfiguration, error) {
 		if !opts.IgnoreExt && i.Ext != ".yaml" && i.Ext != ".yml" {
 			return nil, fmt.Errorf("File does not have .yaml or .yml extension: %v", i.Path)
 		}
@@ -28,26 +28,26 @@ var CfnYamlDetector = NewTypeDetector(&TypeDetector{
 			return nil, fmt.Errorf("Input file is not CloudFormation YAML: %v", i.Path)
 		}
 
-		return &cfnYamlLoader{
+		return &cfnYAML{
 			path:     i.Path,
 			template: *template,
 		}, nil
 	},
 })
 
-type cfnYamlLoader struct {
+type cfnYAML struct {
 	path     string
 	template cfnTemplate
 }
 
-func (l *cfnYamlLoader) RegulaInput() RegulaInput {
+func (l *cfnYAML) RegulaInput() RegulaInput {
 	return RegulaInput{
 		"filepath": l.path,
 		"content":  l.template.Contents,
 	}
 }
 
-func (l *cfnYamlLoader) Location(attributePath []string) (*Location, error) {
+func (l *cfnYAML) Location(attributePath []string) (*Location, error) {
 	return &Location{
 		Path: l.path,
 		Line: 0,
@@ -55,7 +55,7 @@ func (l *cfnYamlLoader) Location(attributePath []string) (*Location, error) {
 	}, nil
 }
 
-func (l *cfnYamlLoader) LoadedFiles() []string {
+func (l *cfnYAML) LoadedFiles() []string {
 	return []string{l.path}
 }
 

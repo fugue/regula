@@ -33,7 +33,7 @@ var SeverityIds = map[Severity][]string{
 type Format int
 
 const (
-	Json Format = iota
+	JSON Format = iota
 	Table
 	Junit
 	Tap
@@ -42,7 +42,7 @@ const (
 )
 
 var FormatIds = map[Format][]string{
-	Json:  {"json"},
+	JSON:  {"json"},
 	Table: {"table"},
 	Junit: {"junit"},
 	Tap:   {"tap"},
@@ -86,7 +86,7 @@ func (o RegulaOutput) ExceedsSeverity(severity Severity) bool {
 }
 
 type ResourceResults struct {
-	ResourceId   string
+	ResourceID   string
 	ResourceType string
 	Results      []RuleResult
 	Pass         bool
@@ -129,10 +129,10 @@ func (o RegulaOutput) AggregateByFilepath() ResultsByFilepath {
 				Pass:     !r.IsFail(),
 			}
 		}
-		resourceResults, ok := filepathResults.Results[r.ResourceId]
+		resourceResults, ok := filepathResults.Results[r.ResourceID]
 		if !ok {
 			resourceResults = ResourceResults{
-				ResourceId:   r.ResourceId,
+				ResourceID:   r.ResourceID,
 				ResourceType: r.ResourceType,
 				Results:      []RuleResult{},
 				Pass:         !r.IsFail(),
@@ -140,7 +140,7 @@ func (o RegulaOutput) AggregateByFilepath() ResultsByFilepath {
 		}
 		resourceResults.Results = append(resourceResults.Results, r)
 		resourceResults.Pass = resourceResults.Pass && !r.IsFail()
-		filepathResults.Results[r.ResourceId] = resourceResults
+		filepathResults.Results[r.ResourceID] = resourceResults
 		filepathResults.Pass = filepathResults.Pass && resourceResults.Pass
 		byFilepath[r.Filepath] = filepathResults
 	}
@@ -152,10 +152,10 @@ type RuleResult struct {
 	Filepath        string   `json:"filepath"`
 	Platform        string   `json:"platform"`
 	Provider        string   `json:"provider"`
-	ResourceId      string   `json:"resource_id"`
+	ResourceID      string   `json:"resource_id"`
 	ResourceType    string   `json:"resource_type"`
 	RuleDescription string   `json:"rule_description"`
-	RuleId          string   `json:"rule_id"`
+	RuleID          string   `json:"rule_id"`
 	RuleMessage     string   `json:"rule_message"`
 	RuleName        string   `json:"rule_name"`
 	RuleResult      string   `json:"rule_result"`
@@ -191,7 +191,7 @@ type Summary struct {
 	Severities  map[string]int `json:"severities"`
 }
 
-func ParseRegulaOutput(_ *loader.LoadedFiles, r rego.Result) (*RegulaOutput, error) {
+func ParseRegulaOutput(_ loader.LoadedConfigurations, r rego.Result) (*RegulaOutput, error) {
 	j, err := json.Marshal(r.Expressions[0].Value)
 	if err != nil {
 		return nil, err

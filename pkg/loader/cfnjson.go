@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-var CfnJsonDetector = NewTypeDetector(&TypeDetector{
-	DetectFile: func(i *InputFile, opts DetectOptions) (Loader, error) {
+var CfnJSONDetector = NewConfigurationDetector(&ConfigurationDetector{
+	DetectFile: func(i *InputFile, opts DetectOptions) (IACConfiguration, error) {
 		if !opts.IgnoreExt && i.Ext != ".json" {
 			return nil, fmt.Errorf("File does not have .json extension: %v", i.Path)
 		}
@@ -26,26 +26,26 @@ var CfnJsonDetector = NewTypeDetector(&TypeDetector{
 			return nil, fmt.Errorf("Input file is not CloudFormation JSON: %v", i.Path)
 		}
 
-		return &cfnJsonLoader{
+		return &cfnJSON{
 			path:    i.Path,
 			content: c,
 		}, nil
 	},
 })
 
-type cfnJsonLoader struct {
+type cfnJSON struct {
 	path    string
 	content *map[string]interface{}
 }
 
-func (l *cfnJsonLoader) RegulaInput() RegulaInput {
+func (l *cfnJSON) RegulaInput() RegulaInput {
 	return RegulaInput{
 		"filepath": l.path,
 		"content":  l.content,
 	}
 }
 
-func (l *cfnJsonLoader) Location(attributePath []string) (*Location, error) {
+func (l *cfnJSON) Location(attributePath []string) (*Location, error) {
 	return &Location{
 		Path: l.path,
 		Line: 0,
@@ -53,6 +53,6 @@ func (l *cfnJsonLoader) Location(attributePath []string) (*Location, error) {
 	}, nil
 }
 
-func (l *cfnJsonLoader) LoadedFiles() []string {
+func (l *cfnJSON) LoadedFiles() []string {
 	return []string{l.path}
 }

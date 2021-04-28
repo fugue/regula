@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-var TfPlanDetector = NewTypeDetector(&TypeDetector{
-	DetectFile: func(i *InputFile, opts DetectOptions) (Loader, error) {
+var TfPlanDetector = NewConfigurationDetector(&ConfigurationDetector{
+	DetectFile: func(i *InputFile, opts DetectOptions) (IACConfiguration, error) {
 		if !opts.IgnoreExt && i.Ext != ".json" {
 			return nil, fmt.Errorf("File does not have .json extension: %v", i.Path)
 		}

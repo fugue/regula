@@ -4,8 +4,8 @@ import "fmt"
 
 func GetReporter(format Format) (Reporter, error) {
 	switch format {
-	case Json:
-		return JsonReporter, nil
+	case JSON:
+		return JSONReporter, nil
 	case Table:
 		return TableReporter, nil
 	case Junit:

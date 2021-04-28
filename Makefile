@@ -1,6 +1,6 @@
 BINARY = regula
 INSTALLED_BINARY = /usr/local/bin/$(BINARY)
-CLI_SOURCE = $(shell find cmd pkg -type f -name '*.go')
+CLI_SOURCE = $(shell find cmd pkg -type f -name '*.go') $(wildcard cmd/*.txt) go.mod go.sum
 REGO_LIB_SOURCE = $(shell find rego/lib -type f -name '*.rego')
 REGO_RULES_SOURCE = $(shell find rego/rules -type f -name '*.rego')
 GO = GO111MODULE=on go

@@ -83,10 +83,7 @@ missing(params) = ret {
     "id": "",
     "type": params.resource_type,
     "message": object.get(params, "message", "invalid"),
-    # TODO: We're falling back to a blank provider here to avoid breaking the API.
-    # We should aim to change the API for these result functions to take a single
-    # object. Then we can add new fields w/o breaking anyone's usage.
-    "provider": "",
+    "provider": object.get(params, "provider", ""),
   }
 }
 

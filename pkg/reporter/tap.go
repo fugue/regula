@@ -9,10 +9,10 @@ import (
 func TapReporter(o *RegulaOutput) (string, error) {
 	results := o.RuleResults
 	sort.SliceStable(results, func(i, j int) bool {
-		if results[i].ResourceId == results[j].ResourceId {
-			return results[i].RuleId < results[j].RuleId
+		if results[i].ResourceID == results[j].ResourceID {
+			return results[i].RuleID < results[j].RuleID
 		}
-		return results[i].ResourceId < results[j].ResourceId
+		return results[i].ResourceID < results[j].ResourceID
 	})
 
 	tapOutput := []string{}
@@ -50,6 +50,6 @@ func (r RuleResult) ToTapRow(idx int) TapRow {
 		Index:     idx,
 		Message:   r.Message(),
 		Directive: directive,
-		Resource:  r.ResourceId,
+		Resource:  r.ResourceID,
 	}
 }

@@ -7,17 +7,22 @@ import (
 	git "github.com/libgit2/git2go/v31"
 )
 
-type GitRepoFinder struct {
+// RepoFinder finds the git repository for a given directory.
+type RepoFinder struct {
 	cache map[string]*git.Repository
 }
 
-func NewGitRepoFinder() *GitRepoFinder {
-	return &GitRepoFinder{
+// NewRepoFinder returns a new RepoFinder instance
+func NewRepoFinder() *RepoFinder {
+	return &RepoFinder{
 		cache: map[string]*git.Repository{},
 	}
 }
 
-func (s *GitRepoFinder) FindRepo(path string) *git.Repository {
+// FindRepo takes a directory path and finds the git repository for it if one exists.
+// It works by searching within the given directory, followed by searching in parent
+// directories until it either reaches the top-level directory or encounters an error.
+func (s *RepoFinder) FindRepo(path string) *git.Repository {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil

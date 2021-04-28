@@ -109,7 +109,7 @@ func NewRunCommand() *cobra.Command {
 	cmd.Flags().BoolP("no-ignore", "n", false, "Disable .gitignore rules")
 	cmd.Flags().BoolP("debug", "d", false, "Enable debug output")
 	cmd.Flags().VarP(
-		enumflag.New(&inputType, "input-type", loader.InputTypeIds, enumflag.EnumCaseInsensitive),
+		enumflag.New(&inputType, "input-type", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
 		"input-type", "t",
 		"Explicitly set the input type")
 	cmd.Flags().VarP(

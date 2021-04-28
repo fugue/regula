@@ -34,26 +34,27 @@ type LoadPathsOptions struct {
 
 func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 	loaders := map[string]Loader{}
-	loaderFactory, err := loaderFactoryByInputType(options.InputType)
+	detector, err := detectorByInputType(options.InputType)
 	if err != nil {
 		return nil, err
 	}
-	walkFunc := func(i InputPath) error {
+	walkFunc := func(i *InputPath) error {
 		// Ignore errors when we're recursing
-		loader, _ := loaderFactory(i)
+		loader, _ := (*i).DetectType(*detector)
 		if loader != nil {
-			loaders[i.GetPath()] = loader
+			loaders[(*i).GetPath()] = loader
 		}
 		return nil
 	}
 	gitRepoFinder := git.NewGitRepoFinder()
 	for _, path := range options.Paths {
 		if path == "-" {
-			loader, err := loaderFactory(InputFile{
+			i := InputFile{
 				Path: "<stdin>",
 				Name: "-",
 				Ext:  "",
-			})
+			}
+			loader, err := i.DetectType(*detector)
 			if err != nil {
 				return nil, err
 			}
@@ -81,7 +82,7 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 		} else {
 			i = NewInputFile(path, name)
 		}
-		loader, err := loaderFactory(i)
+		loader, err := i.DetectType(*detector)
 		if err != nil {
 			return nil, err
 		}
@@ -101,50 +102,49 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 	}, nil
 }
 
-func loaderFactoryByInputType(inputType InputType) (LoaderFactory, error) {
+func detectorByInputType(inputType InputType) (*TypeDetector, error) {
 	switch inputType {
 	case Auto:
-		return autoLoaderFactory, nil
+		return AutoDetector, nil
 	case CfnYaml:
-		return CfnYamlLoaderFactory, nil
-	case CfnJson, TfPlan:
-		return JsonLoaderFactory, nil
+		return CfnYamlDetector, nil
+	case CfnJson:
+		return CfnJsonDetector, nil
+	case TfPlan:
+		return TfPlanDetector, nil
 	default:
 		return nil, fmt.Errorf("Unsupported input type: %v", inputType)
 	}
 }
 
-func autoLoaderFactory(i InputPath) (Loader, error) {
-	if i.IsDir() {
-		return nil, nil
-	}
+var AutoDetector = NewTypeDetector(&TypeDetector{
+	DetectFile: func(i *InputFile) (Loader, error) {
+		if i.GetPath() == "<stdin>" {
+			l, err := i.DetectType(*TfPlanDetector)
+			if err == nil {
+				return l, nil
+			}
+			l, err = i.DetectType(*CfnJsonDetector)
+			if err == nil {
+				return l, nil
+			}
+			l, err = i.DetectType(*CfnYamlDetector)
+			if err == nil {
+				return l, nil
+			}
+			fmt.Println(err)
+			return nil, fmt.Errorf("Unable to detect input type of data from stdin.")
+		}
 
-	if i.GetPath() == "<stdin>" {
-		l, err := JsonLoaderFactory(i)
+		l, err := i.DetectType(*JsonTypeDetector)
 		if err == nil {
 			return l, nil
 		}
-		l, err = CfnYamlLoaderFactory(i)
+		l, err = i.DetectType(*YamlTypeDetector)
 		if err == nil {
 			return l, nil
 		}
-		return nil, fmt.Errorf("Unable to detect input type of data from stdin.")
-	}
 
-	l, err := i.DetectType(*YamlTypeDetector)
-	if err != nil {
-		return nil, err
-	}
-	if l != nil {
-		return l, nil
-	}
-	l, err = i.DetectType(*JsonTypeDetector)
-	if err != nil {
-		return nil, err
-	}
-	if l != nil {
-		return l, nil
-	}
-
-	return nil, fmt.Errorf("Unable to detect file type for file: %s", i.GetPath())
-}
+		return nil, fmt.Errorf("Unable to detect file type for file: %s", i.GetPath())
+	},
+})

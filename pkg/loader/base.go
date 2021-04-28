@@ -44,18 +44,18 @@ type LocationAwareLoader interface {
 type LoaderFactory func(inputPath InputPath) (Loader, error)
 
 type TypeDetector struct {
-	DetectDirectory func(i InputDirectory) (Loader, error)
-	DetectFile      func(i InputFile) (Loader, error)
+	DetectDirectory func(i *InputDirectory) (Loader, error)
+	DetectFile      func(i *InputFile) (Loader, error)
 }
 
 func NewTypeDetector(t *TypeDetector) *TypeDetector {
 	if t.DetectDirectory == nil {
-		t.DetectDirectory = func(i InputDirectory) (Loader, error) {
+		t.DetectDirectory = func(i *InputDirectory) (Loader, error) {
 			return nil, nil
 		}
 	}
 	if t.DetectFile == nil {
-		t.DetectFile = func(i InputFile) (Loader, error) {
+		t.DetectFile = func(i *InputFile) (Loader, error) {
 			return nil, nil
 		}
 	}
@@ -64,35 +64,35 @@ func NewTypeDetector(t *TypeDetector) *TypeDetector {
 
 type InputPath interface {
 	DetectType(d TypeDetector) (Loader, error)
-	Children() []InputPath
+	Children() []*InputPath
 	IsDir() bool
-	Walk(w func(i InputPath) error) error
+	Walk(w func(i *InputPath) error) error
 	GetPath() string
 }
 type InputDirectory struct {
 	Path     string
 	Name     string
-	Contents []InputPath
+	Contents []*InputPath
 }
 
-func (i InputDirectory) DetectType(d TypeDetector) (Loader, error) {
+func (i *InputDirectory) DetectType(d TypeDetector) (Loader, error) {
 	return d.DetectDirectory(i)
 }
 
-func (i InputDirectory) Children() []InputPath {
+func (i *InputDirectory) Children() []*InputPath {
 	return i.Contents
 }
 
-func (i InputDirectory) IsDir() bool {
+func (i *InputDirectory) IsDir() bool {
 	return true
 }
 
-func (i InputDirectory) Walk(w func(i InputPath) error) error {
+func (i *InputDirectory) Walk(w func(i *InputPath) error) error {
 	for _, c := range i.Contents {
 		if err := w(c); err != nil {
 			return err
 		}
-		if err := c.Walk(w); err != nil {
+		if err := (*c).Walk(w); err != nil {
 			return err
 		}
 	}
@@ -111,7 +111,7 @@ type NewInputDirectoryOptions struct {
 }
 
 func NewInputDirectory(opts NewInputDirectoryOptions) (*InputDirectory, error) {
-	contents := []InputPath{}
+	contents := []*InputPath{}
 	entries, err := os.ReadDir(opts.Path)
 	if err != nil {
 		return nil, err
@@ -143,7 +143,7 @@ func NewInputDirectory(opts NewInputDirectoryOptions) (*InputDirectory, error) {
 		} else {
 			i = NewInputFile(p, n)
 		}
-		contents = append(contents, i)
+		contents = append(contents, &i)
 	}
 	return &InputDirectory{
 		Path:     opts.Path,
@@ -153,37 +153,54 @@ func NewInputDirectory(opts NewInputDirectoryOptions) (*InputDirectory, error) {
 }
 
 type InputFile struct {
-	Path string
-	Name string
-	Ext  string
+	Path           string
+	Name           string
+	Ext            string
+	cachedContents []byte
 }
 
-func (i InputFile) DetectType(d TypeDetector) (Loader, error) {
+func (i *InputFile) DetectType(d TypeDetector) (Loader, error) {
 	return d.DetectFile(i)
 }
 
-func (i InputFile) Children() []InputPath {
+func (i *InputFile) Children() []*InputPath {
 	return nil
 }
 
-func (i InputFile) IsDir() bool {
+func (i *InputFile) IsDir() bool {
 	return false
 }
 
-func (i InputFile) Walk(w func(i InputPath) error) error {
+func (i *InputFile) Walk(w func(i *InputPath) error) error {
 	return nil
 }
 
-func (i InputFile) GetPath() string {
+func (i *InputFile) GetPath() string {
 	return i.Path
 }
 
-func (i InputFile) ReadContents() ([]byte, error) {
-	if i.Name == "-" {
-		return io.ReadAll(os.Stdin)
+func (i *InputFile) ReadContents() ([]byte, error) {
+	if i.cachedContents != nil {
+		return i.cachedContents, nil
 	}
 
-	return os.ReadFile(i.Path)
+	if i.Name == "-" {
+		contents, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			i.cachedContents = []byte{}
+			return nil, err
+		}
+		i.cachedContents = contents
+		return contents, nil
+	} else {
+		contents, err := os.ReadFile(i.Path)
+		if err != nil {
+			i.cachedContents = []byte{}
+			return nil, err
+		}
+		i.cachedContents = contents
+		return contents, nil
+	}
 }
 
 func NewInputFile(path string, name string) *InputFile {

@@ -8,6 +8,7 @@ import (
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag"
 	"golang.org/x/crypto/ssh/terminal"
@@ -35,6 +36,14 @@ func NewRunCommand() *cobra.Command {
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
+			}
+			debug, err := cmd.Flags().GetBool("debug")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			if debug {
+				log.SetLevel(log.DebugLevel)
 			}
 			ctx := context.TODO()
 			ruleRunner, err := rego.NewRuleRunner(&rego.RuleRunnerOptions{
@@ -86,7 +95,9 @@ func NewRunCommand() *cobra.Command {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			fmt.Println(report)
+			if report != "" {
+				fmt.Println(report)
+			}
 			if output.ExceedsSeverity(severity) {
 				os.Exit(1)
 			}
@@ -96,6 +107,7 @@ func NewRunCommand() *cobra.Command {
 	cmd.Flags().StringSliceP("include", "i", nil, "Select rego libraries to include")
 	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
 	cmd.Flags().BoolP("no-ignore", "n", false, "Disable .gitignore rules")
+	cmd.Flags().BoolP("debug", "d", false, "Enable debug output")
 	cmd.Flags().VarP(
 		enumflag.New(&inputType, "input-type", loader.InputTypeIds, enumflag.EnumCaseInsensitive),
 		"input-type", "t",

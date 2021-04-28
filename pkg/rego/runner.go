@@ -30,6 +30,7 @@ type RuleRunnerOptions struct {
 	Ctx      context.Context
 	UserOnly bool
 	Includes []string
+	Debug    bool
 }
 
 var LoadExts map[string]bool = map[string]bool{

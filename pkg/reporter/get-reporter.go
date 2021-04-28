@@ -12,7 +12,13 @@ func GetReporter(format Format) (Reporter, error) {
 		return JUnitReporter, nil
 	case Tap:
 		return TapReporter, nil
+	case None:
+		return noneReporter, nil
 	default:
 		return nil, fmt.Errorf("Unsupported or unrecognized reporter: %v", FormatIds[format])
 	}
+}
+
+func noneReporter(o *RegulaOutput) (string, error) {
+	return "", nil
 }

@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+
+	"github.com/fugue/regula/pkg/git"
 )
 
 type LoadedFiles struct {
@@ -27,6 +29,7 @@ func (l *LoadedFiles) RegulaInput() []RegulaInput {
 type LoadPathsOptions struct {
 	Paths     []string
 	InputType InputType
+	NoIgnore  bool
 }
 
 func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
@@ -43,6 +46,7 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 		}
 		return nil
 	}
+	gitRepoFinder := git.NewGitRepoFinder()
 	for _, path := range options.Paths {
 		if path == "-" {
 			loader, err := loaderFactory(InputFile{
@@ -65,7 +69,12 @@ func LoadPaths(options LoadPathsOptions) (*LoadedFiles, error) {
 		}
 		var i InputPath
 		if info.IsDir() {
-			i, err = NewInputDirectory(path, name)
+			i, err = NewInputDirectory(NewInputDirectoryOptions{
+				Path:          path,
+				Name:          name,
+				NoIgnore:      options.NoIgnore,
+				GitRepoFinder: gitRepoFinder,
+			})
 			if err != nil {
 				return nil, err
 			}

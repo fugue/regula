@@ -101,7 +101,7 @@ type JUnitTestCase struct {
 	ClassName   string              `xml:"classname,attr"`
 	Assertions  int                 `xml:"assertions,attr"`
 	SkipMessage *[]JUnitSkipMessage `xml:"skipped,omitempty"`
-	Failures    *[]JUnitFailure     `xml:"error,omitempty"`
+	Failures    *[]JUnitFailure     `xml:"failure,omitempty"`
 }
 
 type JUnitFailure struct {

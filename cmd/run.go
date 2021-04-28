@@ -31,6 +31,11 @@ func NewRunCommand() *cobra.Command {
 				fmt.Println(err)
 				os.Exit(1)
 			}
+			noIgnore, err := cmd.Flags().GetBool("no-ignore")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			ctx := context.TODO()
 			ruleRunner, err := rego.NewRuleRunner(&rego.RuleRunnerOptions{
 				Ctx:      ctx,
@@ -45,12 +50,9 @@ func NewRunCommand() *cobra.Command {
 
 			if len(paths) < 1 {
 				if terminal.IsTerminal(int(os.Stdin.Fd())) {
-					wd, err := os.Getwd()
-					if err != nil {
-						fmt.Println(err)
-						os.Exit(1)
-					}
-					paths = []string{wd}
+					// Not using os.Getwd here so that we get relative paths.
+					// A single dot should mean the same on windows.
+					paths = []string{"."}
 				} else {
 					paths = []string{"-"}
 				}
@@ -59,6 +61,7 @@ func NewRunCommand() *cobra.Command {
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
 				Paths:     paths,
 				InputType: inputType,
+				NoIgnore:  noIgnore,
 			})
 			if err != nil {
 				fmt.Println(err)
@@ -92,6 +95,7 @@ func NewRunCommand() *cobra.Command {
 
 	cmd.Flags().StringSliceP("include", "i", nil, "Select rego libraries to include")
 	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
+	cmd.Flags().BoolP("no-ignore", "n", false, "Disable .gitignore rules")
 	cmd.Flags().VarP(
 		enumflag.New(&inputType, "input-type", loader.InputTypeIds, enumflag.EnumCaseInsensitive),
 		"input-type", "t",

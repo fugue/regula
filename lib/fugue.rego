@@ -37,43 +37,53 @@ resources(rt) = ret {
 }
 
 allow_resource(resource) = ret {
-  ret = {
+  ret := allow({"resource": resource})
+}
+
+allow(params) = ret {
+  ret := {
     "valid": true,
-    "id": resource.id,
-    "message": "",
-    "type": resource._type,
-    "provider": resource._provider,
+    "id": params.resource.id,
+    "type": params.resource._type,
+    "message": object.get(params, "message", ""),
+    "provider": params.resource._provider,
   }
 }
 
 deny_resource(resource) = ret {
-  ret = deny_resource_with_message(resource, "")
+  ret := deny({"resource": resource})
 }
 
 deny_resource_with_message(resource, message) = ret {
-  ret = {
+  ret := deny({"resource": resource, "message": message})
+}
+
+deny(params) = ret {
+  ret := {
     "valid": false,
-    "id": resource.id,
-    "message": message,
-    "type": resource._type,
-    "provider": resource._provider,
+    "id": params.resource.id,
+    "type": params.resource._type,
+    "message": object.get(params, "message", ""),
+    "attribute": object.get(params, "attribute", null),
+    "provider": params.resource._provider,
   }
 }
 
 missing_resource(resource_type) = ret {
-  ret = missing_resource_with_message(resource_type, "")
+  ret := missing({"resource_type": resource_type})
 }
 
 missing_resource_with_message(resource_type, message) = ret {
-  ret = {
+  ret := missing({"resource_type": resource_type, "message": message})
+}
+
+missing(params) = ret {
+  ret := {
     "valid": false,
     "id": "",
-    "message": message,
-    "type": resource_type,
-    # TODO: We're falling back to a blank provider here to avoid breaking the API.
-    # We should aim to change the API for these result functions to take a single
-    # object. Then we can add new fields w/o breaking anyone's usage.
-    "provider": "",
+    "type": params.resource_type,
+    "message": object.get(params, "message", "invalid"),
+    "provider": object.get(params, "provider", ""),
   }
 }
 

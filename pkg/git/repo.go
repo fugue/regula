@@ -36,9 +36,9 @@ func (r *repo) IsPathIgnored(path string) bool {
 		return false
 	}
 	// git2go's IsPathIgnored results differ from git check-ignore if you've got a
-	// pattern like we do where the path matches the name of the directory. It's
-	// safe to assume that this should always be false.
-	if path == r.path {
+	// pattern like we do where the path matches the name of the root directory for
+	// the repository. It's safe to assume that this should always be false.
+	if absPath == r.path {
 		return false
 	}
 	ignored, _ := r.repo.IsPathIgnored(absPath)
@@ -86,6 +86,7 @@ func (s *RepoFinder) FindRepo(path string) Repo {
 					return nil
 				}
 				s.cache[absPath] = &repo{
+					path: absPath,
 					repo: r,
 				}
 				return s.cache[absPath]

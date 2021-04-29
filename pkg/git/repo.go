@@ -21,22 +21,46 @@ import (
 	git "github.com/libgit2/git2go/v31"
 )
 
+type Repo interface {
+	IsPathIgnored(path string) bool
+}
+
+type repo struct {
+	path string
+	repo *git.Repository
+}
+
+func (r *repo) IsPathIgnored(path string) bool {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return false
+	}
+	// git2go's IsPathIgnored results differ from git check-ignore if you've got a
+	// pattern like we do where the path matches the name of the directory. It's
+	// safe to assume that this should always be false.
+	if path == r.path {
+		return false
+	}
+	ignored, _ := r.repo.IsPathIgnored(absPath)
+	return ignored
+}
+
 // RepoFinder finds the git repository for a given directory.
 type RepoFinder struct {
-	cache map[string]*git.Repository
+	cache map[string]Repo
 }
 
 // NewRepoFinder returns a new RepoFinder instance
 func NewRepoFinder() *RepoFinder {
 	return &RepoFinder{
-		cache: map[string]*git.Repository{},
+		cache: map[string]Repo{},
 	}
 }
 
 // FindRepo takes a directory path and finds the git repository for it if one exists.
 // It works by searching within the given directory, followed by searching in parent
 // directories until it either reaches the top-level directory or encounters an error.
-func (s *RepoFinder) FindRepo(path string) *git.Repository {
+func (s *RepoFinder) FindRepo(path string) Repo {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil
@@ -56,13 +80,15 @@ func (s *RepoFinder) FindRepo(path string) *git.Repository {
 		}
 		for _, e := range entries {
 			if e.Name() == ".git" {
-				repo, err := git.OpenRepository(filepath.Join(absPath, e.Name()))
+				r, err := git.OpenRepository(filepath.Join(absPath, e.Name()))
 				if err != nil {
 					s.cache[absPath] = nil
 					return nil
 				}
-				s.cache[absPath] = repo
-				return repo
+				s.cache[absPath] = &repo{
+					repo: r,
+				}
+				return s.cache[absPath]
 			}
 		}
 		traversedPaths = append(traversedPaths, absPath)

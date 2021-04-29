@@ -35,17 +35,16 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 	if err != nil {
 		return nil, err
 	}
-	walkFunc := func(i *InputPath) error {
-		inputPath := *i
-		if configurations.AlreadyLoaded(inputPath.GetPath()) {
+	walkFunc := func(i InputPath) error {
+		if configurations.AlreadyLoaded(i.Path()) {
 			return nil
 		}
 		// Ignore errors when we're recursing
-		loader, _ := inputPath.DetectType(*detector, DetectOptions{
+		loader, _ := i.DetectType(detector, DetectOptions{
 			IgnoreExt: false,
 		})
 		if loader != nil {
-			configurations.AddConfiguration(inputPath.GetPath(), loader)
+			configurations.AddConfiguration(i.Path(), loader)
 		}
 		return nil
 	}
@@ -58,12 +57,8 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 			continue
 		}
 		if path == StdIn {
-			i := InputFile{
-				Path: StdIn,
-				Name: StdIn,
-				Ext:  "",
-			}
-			loader, err := i.DetectType(*detector, DetectOptions{
+			i := newFile(StdIn, StdIn)
+			loader, err := i.DetectType(detector, DetectOptions{
 				IgnoreExt: true,
 			})
 			if err != nil {
@@ -71,7 +66,8 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 			}
 			if loader != nil {
 				configurations.AddConfiguration(StdIn, loader)
-				// loaders[path] = loader
+			} else {
+				return nil, fmt.Errorf("Unable to detect input type of stdin")
 			}
 			continue
 		}
@@ -80,17 +76,17 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 		if err != nil {
 			return nil, err
 		}
-		var i InputPath
+		// var i InputPath
 		if info.IsDir() {
 			// We want to override the gitignore behavior if the user explicitly gives
 			// us a directory that is ignored.
 			noIgnore := options.NoIgnore
 			if !noIgnore {
-				repo := gitRepoFinder.FindRepo(path)
-				ignored, _ := repo.IsPathIgnored(path)
-				noIgnore = ignored
+				if repo := gitRepoFinder.FindRepo(path); repo != nil {
+					noIgnore = repo.IsPathIgnored(path)
+				}
 			}
-			i, err = NewInputDirectory(NewInputDirectoryOptions{
+			i, err := newDirectory(directoryOptions{
 				Path:          path,
 				Name:          name,
 				NoIgnore:      noIgnore,
@@ -99,20 +95,31 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 			if err != nil {
 				return nil, err
 			}
+			loader, err := i.DetectType(detector, DetectOptions{
+				IgnoreExt: options.InputType != Auto,
+			})
+			if err != nil {
+				return nil, err
+			}
+			if loader != nil {
+				configurations.AddConfiguration(path, loader)
+			}
+			if err := i.Walk(walkFunc); err != nil {
+				return nil, err
+			}
 		} else {
-			i = NewInputFile(path, name)
-		}
-		loader, err := i.DetectType(*detector, DetectOptions{
-			IgnoreExt: options.InputType != Auto,
-		})
-		if err != nil {
-			return nil, err
-		}
-		if loader != nil {
-			configurations.AddConfiguration(path, loader)
-		}
-		if err := i.Walk(walkFunc); err != nil {
-			return nil, err
+			i := newFile(path, name)
+			loader, err := i.DetectType(detector, DetectOptions{
+				IgnoreExt: options.InputType != Auto,
+			})
+			if err != nil {
+				return nil, err
+			}
+			if loader != nil {
+				configurations.AddConfiguration(path, loader)
+			} else {
+				return nil, fmt.Errorf("Unable to detect input type of file %v", i.Path())
+			}
 		}
 	}
 	if configurations.Count() < 1 {
@@ -170,36 +177,18 @@ func (l *loadedConfigurations) Count() int {
 	return len(l.configurations)
 }
 
-func detectorByInputType(inputType InputType) (*ConfigurationDetector, error) {
+func detectorByInputType(inputType InputType) (ConfigurationDetector, error) {
 	switch inputType {
 	case Auto:
-		return AutoDetector, nil
-	case CfnYAML:
-		return CfnYAMLDetector, nil
-	case CfnJSON:
-		return CfnJSONDetector, nil
+		return NewAutoDetector(
+			&CfnDetector{},
+			&TfPlanDetector{},
+		), nil
+	case Cfn:
+		return &CfnDetector{}, nil
 	case TfPlan:
-		return TfPlanDetector, nil
+		return &TfPlanDetector{}, nil
 	default:
 		return nil, fmt.Errorf("Unsupported input type: %v", inputType)
 	}
 }
-
-var AutoDetector = NewConfigurationDetector(&ConfigurationDetector{
-	DetectFile: func(i *InputFile, opts DetectOptions) (IACConfiguration, error) {
-		l, err := i.DetectType(*TfPlanDetector, opts)
-		if err == nil {
-			return l, nil
-		}
-		l, err = i.DetectType(*CfnJSONDetector, opts)
-		if err == nil {
-			return l, nil
-		}
-		l, err = i.DetectType(*CfnYAMLDetector, opts)
-		if err == nil {
-			return l, nil
-		}
-
-		return nil, fmt.Errorf("Unable to detect file type for file: %s", i.GetPath())
-	},
-})

@@ -12,8 +12,7 @@ a specified directory. This behavior can be disabled with the --no-ignore option
 Input types:
     auto        Automatically determine input types (default)
     tf-plan     Terraform plan JSON
-    cfn-json    CloudFormation JSON
-    cfn-yaml    CloudFormation YAML
+    cfn         CloudFormation template in YAML or JSON format
 
 Output formats:
     json    A JSON report containing rule results and a summary (default)

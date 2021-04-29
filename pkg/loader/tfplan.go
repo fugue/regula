@@ -15,35 +15,40 @@
 package loader
 
 import (
-	"encoding/json"
 	"fmt"
+
+	"gopkg.in/yaml.v3"
 )
 
-var TfPlanDetector = NewConfigurationDetector(&ConfigurationDetector{
-	DetectFile: func(i *InputFile, opts DetectOptions) (IACConfiguration, error) {
-		if !opts.IgnoreExt && i.Ext != ".json" {
-			return nil, fmt.Errorf("File does not have .json extension: %v", i.Path)
-		}
-		contents, err := i.ReadContents()
-		if err != nil {
-			return nil, err
-		}
-		c := &map[string]interface{}{}
-		if err := json.Unmarshal(contents, c); err != nil {
-			return nil, fmt.Errorf("Failed to parse JSON file %v: %v", i.Path, err)
-		}
-		_, hasTerraformVersion := (*c)["terraform_version"]
+type TfPlanDetector struct{}
 
-		if !hasTerraformVersion {
-			return nil, fmt.Errorf("Input file is not Terraform Plan JSON: %v", i.Path)
-		}
+func (t *TfPlanDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfiguration, error) {
+	if !opts.IgnoreExt && i.Ext() != ".json" {
+		return nil, fmt.Errorf("File does not have .json extension: %v", i.Path())
+	}
+	contents, err := i.Contents()
+	if err != nil {
+		return nil, err
+	}
+	j := &map[string]interface{}{}
+	if err := yaml.Unmarshal(contents, j); err != nil {
+		return nil, fmt.Errorf("Failed to parse JSON file %v: %v", i.Path(), err)
+	}
+	_, hasTerraformVersion := (*j)["terraform_version"]
 
-		return &tfPlanLoader{
-			path:    i.Path,
-			content: c,
-		}, nil
-	},
-})
+	if !hasTerraformVersion {
+		return nil, fmt.Errorf("Input file is not Terraform Plan JSON: %v", i.Path())
+	}
+
+	return &tfPlanLoader{
+		path:    i.Path(),
+		content: j,
+	}, nil
+}
+
+func (c *TfPlanDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
+	return nil, nil
+}
 
 type tfPlanLoader struct {
 	path    string

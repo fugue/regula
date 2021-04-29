@@ -21,47 +21,57 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var CfnYAMLDetector = NewConfigurationDetector(&ConfigurationDetector{
-	DetectFile: func(i *InputFile, opts DetectOptions) (IACConfiguration, error) {
-		if !opts.IgnoreExt && i.Ext != ".yaml" && i.Ext != ".yml" {
-			return nil, fmt.Errorf("File does not have .yaml or .yml extension: %v", i.Path)
-		}
-		contents, err := i.ReadContents()
-		if err != nil {
-			return nil, err
-		}
+var validCfnExts map[string]bool = map[string]bool{
+	".yaml": true,
+	".yml":  true,
+	".json": true,
+}
 
-		template := &cfnTemplate{}
-		if err := yaml.Unmarshal(contents, &template); err != nil {
-			return nil, fmt.Errorf("Failed to parse YAML file %v: %v", i.Path, err)
-		}
-		_, hasTemplateFormatVersion := template.Contents["AWSTemplateFormatVersion"]
-		_, hasResources := template.Contents["Resources"]
+type CfnDetector struct{}
 
-		if !hasTemplateFormatVersion && !hasResources {
-			return nil, fmt.Errorf("Input file is not CloudFormation YAML: %v", i.Path)
-		}
+func (c *CfnDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfiguration, error) {
+	if !opts.IgnoreExt && !validCfnExts[i.Ext()] {
+		return nil, fmt.Errorf("File does not have .yaml, .yml, or .json extension: %v", i.Path())
+	}
+	contents, err := i.Contents()
+	if err != nil {
+		return nil, err
+	}
 
-		return &cfnYAML{
-			path:     i.Path,
-			template: *template,
-		}, nil
-	},
-})
+	template := &cfnTemplate{}
+	if err := yaml.Unmarshal(contents, &template); err != nil {
+		return nil, fmt.Errorf("Failed to parse YAML file %v: %v", i.Path(), err)
+	}
+	_, hasTemplateFormatVersion := template.Contents["AWSTemplateFormatVersion"]
+	_, hasResources := template.Contents["Resources"]
 
-type cfnYAML struct {
+	if !hasTemplateFormatVersion && !hasResources {
+		return nil, fmt.Errorf("Input file is not CloudFormation YAML: %v", i.Path())
+	}
+
+	return &cfnConfiguration{
+		path:     i.Path(),
+		template: *template,
+	}, nil
+}
+
+func (c *CfnDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
+	return nil, nil
+}
+
+type cfnConfiguration struct {
 	path     string
 	template cfnTemplate
 }
 
-func (l *cfnYAML) RegulaInput() RegulaInput {
+func (l *cfnConfiguration) RegulaInput() RegulaInput {
 	return RegulaInput{
 		"filepath": l.path,
 		"content":  l.template.Contents,
 	}
 }
 
-func (l *cfnYAML) Location(attributePath []string) (*Location, error) {
+func (l *cfnConfiguration) Location(attributePath []string) (*Location, error) {
 	return &Location{
 		Path: l.path,
 		Line: 0,
@@ -69,7 +79,7 @@ func (l *cfnYAML) Location(attributePath []string) (*Location, error) {
 	}, nil
 }
 
-func (l *cfnYAML) LoadedFiles() []string {
+func (l *cfnConfiguration) LoadedFiles() []string {
 	return []string{l.path}
 }
 

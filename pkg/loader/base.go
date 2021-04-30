@@ -14,8 +14,14 @@
 
 package loader
 
-// StdIn is the path used for stdin.
-const StdIn = "<stdin>"
+//go:generate mockgen -destination=../mocks/mock_iacconfiguration.go -package=mocks github.com/fugue/regula/pkg/loader IACConfiguration
+//go:generate mockgen -destination=../mocks/mock_configurationdetector.go -package=mocks github.com/fugue/regula/pkg/loader ConfigurationDetector
+//go:generate mockgen -destination=../mocks/mock_inputpath.go -package=mocks github.com/fugue/regula/pkg/loader InputPath
+//go:generate mockgen -destination=../mocks/mock_inputdirectory.go -package=mocks github.com/fugue/regula/pkg/loader InputDirectory
+//go:generate mockgen -destination=../mocks/mock_inputfile.go -package=mocks github.com/fugue/regula/pkg/loader InputFile
+
+// stdIn is the path used for stdin.
+const stdIn = "<stdin>"
 
 // InputType is a flag that determines which types regula should look for.
 type InputType int
@@ -28,7 +34,7 @@ const (
 	// directories and it will assume that given files are Terraform plan JSON.
 	TfPlan
 	// Cfn means that regula will only look for CloudFormation template files in given
-	// directories and it will assume that given files are CloudFormation JSON.
+	// directories and it will assume that given files are CloudFormation YAML or JSON.
 	Cfn
 )
 

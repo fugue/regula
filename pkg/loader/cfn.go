@@ -40,13 +40,13 @@ func (c *CfnDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurat
 
 	template := &cfnTemplate{}
 	if err := yaml.Unmarshal(contents, &template); err != nil {
-		return nil, fmt.Errorf("Failed to parse YAML file %v: %v", i.Path(), err)
+		return nil, fmt.Errorf("Failed to parse file as YAML or JSON %v: %v", i.Path(), err)
 	}
 	_, hasTemplateFormatVersion := template.Contents["AWSTemplateFormatVersion"]
 	_, hasResources := template.Contents["Resources"]
 
 	if !hasTemplateFormatVersion && !hasResources {
-		return nil, fmt.Errorf("Input file is not CloudFormation YAML: %v", i.Path())
+		return nil, fmt.Errorf("Input file is not a CloudFormation template: %v", i.Path())
 	}
 
 	return &cfnConfiguration{

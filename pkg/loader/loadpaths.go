@@ -76,7 +76,6 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 		if err != nil {
 			return nil, err
 		}
-		// var i InputPath
 		if info.IsDir() {
 			// We want to override the gitignore behavior if the user explicitly gives
 			// us a directory that is ignored.

@@ -51,13 +51,13 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 	gitRepoFinder := git.NewRepoFinder()
 	for _, path := range options.Paths {
 		if path == "-" {
-			path = StdIn
+			path = stdIn
 		}
 		if configurations.AlreadyLoaded(path) {
 			continue
 		}
-		if path == StdIn {
-			i := newFile(StdIn, StdIn)
+		if path == stdIn {
+			i := newFile(stdIn, stdIn)
 			loader, err := i.DetectType(detector, DetectOptions{
 				IgnoreExt: true,
 			})
@@ -65,7 +65,7 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 				return nil, err
 			}
 			if loader != nil {
-				configurations.AddConfiguration(StdIn, loader)
+				configurations.AddConfiguration(stdIn, loader)
 			} else {
 				return nil, fmt.Errorf("Unable to detect input type of stdin")
 			}

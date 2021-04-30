@@ -134,7 +134,7 @@ func (f *file) Contents() ([]byte, error) {
 		return f.cachedContents, nil
 	}
 
-	if f.name == StdIn {
+	if f.name == stdIn {
 		contents, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			f.cachedContents = []byte{}

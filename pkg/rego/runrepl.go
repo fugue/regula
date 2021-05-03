@@ -16,7 +16,7 @@ type RunREPLOptions struct {
 }
 
 func RunREPL(options *RunREPLOptions) error {
-	registerBuiltins()
+	RegisterBuiltins()
 	store, err := initStore(options.Ctx, options.UserOnly, options.Includes)
 	if err != nil {
 		return err
@@ -37,10 +37,10 @@ func initStore(ctx context.Context, userOnly bool, includes []string) (storage.S
 	cb := func(r RegoFile) error {
 		return store.UpsertPolicy(ctx, txn, r.Path(), r.Raw())
 	}
-	if err := loadRegula(userOnly, cb); err != nil {
+	if err := LoadRegula(userOnly, cb); err != nil {
 		return nil, err
 	}
-	if err := loadOsFiles(includes, cb); err != nil {
+	if err := LoadOSFiles(includes, cb); err != nil {
 		return nil, err
 	}
 	if err := store.Commit(ctx, txn); err != nil {

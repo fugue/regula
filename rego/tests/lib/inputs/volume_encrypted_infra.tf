@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,30 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 provider "aws" {
-  region = "us-west-2"
+  region = "us-east-2"
 }
 
-resource "aws_s3_bucket" "example" {
-  bucket_prefix = "example"
+resource "aws_ebs_volume" "good" {
+  availability_zone = "us-west-2a"
+  size              = 40
+  encrypted         = true
 }
 
-data "aws_iam_policy_document" "example" {
-  statement {
-    effect = "Allow"
-    actions = ["s3:*"]
-
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-
-    resources = [
-      "arn:aws:s3:::${aws_s3_bucket.example.id}/*",
-    ]
-  }
+resource "aws_ebs_volume" "missing" {
+  availability_zone = "us-west-2a"
+  size              = 40
 }
 
-resource "aws_s3_bucket_policy" "example" {
-  bucket = "${aws_s3_bucket.example.id}"
-  policy = "${data.aws_iam_policy_document.example.json}"
+resource "aws_ebs_volume" "bad" {
+  availability_zone = "us-west-2a"
+  size              = 40
+  encrypted         = false
 }

@@ -80,7 +80,7 @@ func regulaLoadType(ctx rego.BuiltinContext, a *ast.Term, b *ast.Term) (*ast.Ter
 	})
 }
 
-func registerBuiltins() {
+func RegisterBuiltins() {
 	rego.RegisterBuiltin1(
 		&rego.Function{
 			Name:    "regula_load",

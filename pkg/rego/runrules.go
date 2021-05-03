@@ -32,7 +32,7 @@ type RunRulesOptions struct {
 
 // RunRules runs regula and user-specified rules on loaded inputs
 func RunRules(options *RunRulesOptions) (*rego.Result, error) {
-	registerBuiltins()
+	RegisterBuiltins()
 	query, err := prepare(options.Ctx, options.UserOnly, options.Includes)
 	if err != nil {
 		return nil, err
@@ -52,10 +52,10 @@ func prepare(ctx context.Context, userOnly bool, includes []string) (*rego.Prepa
 		regoFuncs = append(regoFuncs, rego.Module(r.Path(), r.String()))
 		return nil
 	}
-	if err := loadRegula(userOnly, cb); err != nil {
+	if err := LoadRegula(userOnly, cb); err != nil {
 		return nil, err
 	}
-	if err := loadOsFiles(includes, cb); err != nil {
+	if err := LoadOSFiles(includes, cb); err != nil {
 		return nil, err
 	}
 	query, err := rego.New(regoFuncs...).PrepareForEval(ctx)

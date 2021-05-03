@@ -90,7 +90,7 @@ func loadDirectory(fsys fs.FS, path string, cb func(r RegoFile) error) error {
 	return nil
 }
 
-func loadOsFiles(paths []string, cb func(r RegoFile) error) error {
+func LoadOSFiles(paths []string, cb func(r RegoFile) error) error {
 	fsys := &osFs{}
 	for _, path := range paths {
 		info, err := os.Stat(path)
@@ -115,7 +115,7 @@ func loadOsFiles(paths []string, cb func(r RegoFile) error) error {
 	return nil
 }
 
-func loadRegula(userOnly bool, cb func(r RegoFile) error) error {
+func LoadRegula(userOnly bool, cb func(r RegoFile) error) error {
 	if err := loadDirectory(regulaLib, "lib", cb); err != nil {
 		return err
 	}

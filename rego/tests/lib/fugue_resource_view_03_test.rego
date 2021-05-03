@@ -64,6 +64,7 @@ test_resource_view_03 {
       "location": "westeurope",
       "min_tls_version": "TLS1_0",
       "name": "main",
+      "nfsv3_enabled": false,
       "resource_group_name": "main",
       "static_website": [],
       "tags": null,

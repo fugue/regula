@@ -15,7 +15,7 @@ type RunTestOptions struct {
 }
 
 func RunTest(options *RunTestOptions) error {
-	registerBuiltins()
+	RegisterBuiltins()
 	store := inmem.New()
 	modules := map[string]*ast.Module{}
 	cb := func(r RegoFile) error {
@@ -26,10 +26,10 @@ func RunTest(options *RunTestOptions) error {
 		modules[r.Path()] = module
 		return nil
 	}
-	if err := loadRegula(true, cb); err != nil {
+	if err := LoadRegula(true, cb); err != nil {
 		return err
 	}
-	if err := loadOsFiles(options.Includes, cb); err != nil {
+	if err := LoadOSFiles(options.Includes, cb); err != nil {
 		return err
 	}
 	ch, err := tester.NewRunner().SetStore(store).EnableTracing(true).Run(options.Ctx, modules)

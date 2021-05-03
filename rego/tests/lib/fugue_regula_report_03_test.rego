@@ -16,17 +16,17 @@
 package fugue.regula_report_03_test
 
 import data.fugue.regula
-import data.tests.rules.cfn.cloudtrail.inputs.invalid_encryption_infra as input1
-import data.tests.rules.cfn.s3.inputs.valid_encryption_infra as input2
+import data.tests.lib.inputs.invalid_encryption_infra as input1
+import data.tests.lib.inputs.valid_encryption_infra as input2
 
 mock_input := [
   {
     "filepath": "template1.yaml",
-    "content": input1.mock_plan_input
+    "content": input1.mock_config[0].content
   },
   {
     "filepath": "template2.yaml",
-    "content": input2.mock_plan_input
+    "content": input2.mock_config[0].content
   }
 ]
 

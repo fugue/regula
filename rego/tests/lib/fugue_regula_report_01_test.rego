@@ -17,10 +17,10 @@
 package fugue.regula_report_01_test
 
 import data.fugue.regula
-import data.tests.rules.tf.aws.ebs.inputs.volume_encrypted_infra
+import data.tests.lib.inputs.volume_encrypted_infra
 
 # We reuse the mock input from another test case.
-mock_plan_input = volume_encrypted_infra.mock_plan_input
+mock_config = volume_encrypted_infra.mock_config[0].content
 
 # We construct some mock rules as well.
 mock_rules = {
@@ -47,7 +47,7 @@ mock_rules = {
 
 # Produce a report.
 report = ret {
-  ret = regula.report with input as mock_plan_input with data.rules as mock_rules
+  ret = regula.report with input as mock_config with data.rules as mock_rules
 }
 
 contains_result(arr, result) {

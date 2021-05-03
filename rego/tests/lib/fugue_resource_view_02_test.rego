@@ -18,59 +18,60 @@ import data.tests.lib.inputs.resource_view_02_infra
 test_resource_view_02 {
   resource_view_02_infra.mock_resources == {
     "aws_s3_bucket.example": {
-      "id": "aws_s3_bucket.example",
-      "acl": "private",
-      "website": [],
-      "replication_configuration": [],
-      "cors_rule": [],
-      "tags": null,
-      "bucket_prefix": "example",
-      "policy": null,
-      "server_side_encryption_configuration": [],
-      "grant": [],
-      "object_lock_configuration": [],
-      "logging": [],
-      "lifecycle_rule": [],
-      "_type": "aws_s3_bucket",
       "_provider": "aws",
-      "force_destroy": false
+      "_type": "aws_s3_bucket",
+      "acl": "private",
+      "bucket_prefix": "example",
+      "cors_rule": [],
+      "force_destroy": false,
+      "grant": [],
+      "id": "aws_s3_bucket.example",
+      "lifecycle_rule": [],
+      "logging": [],
+      "object_lock_configuration": [],
+      "policy": null,
+      "replication_configuration": [],
+      "server_side_encryption_configuration": [],
+      "tags": null,
+      "website": [],
     },
     "data.aws_iam_policy_document.example": {
+      "_provider": "aws",
+      "_type": "aws_iam_policy_document",
       "id": "data.aws_iam_policy_document.example",
-      "statement": [{
-        "actions": ["s3:*"],
-        "sid": null,
-        "not_resources": null,
-        "resources": [
-          "arn:aws:s3:::some-example-bucket/*",
-          "aws_s3_bucket.example"
-        ],
-        "effect": "Allow",
-        "condition": [],
-        "not_principals": [],
-        "principals": [{
-          "type": "*",
-          "identifiers": ["*"]
-        }],
-        "not_actions": null
-      }],
       "override_json": null,
       "override_policy_documents": null,
-      "source_policy_documents": null,
-      "source_json": null,
-      "version": null,
       "policy_id": null,
-      "_type": "aws_iam_policy_document",
-      "_provider": "aws",
+      "source_json": null,
+      "source_policy_documents": null,
+      "statement": [{
+        "actions": ["s3:*"],
+        "condition": [],
+        "effect": "Allow",
+        "not_actions": null,
+        "not_principals": [],
+        "not_resources": null,
+        "principals": [{
+          "type": "*",
+          "identifiers": ["*"],
+        }],
+        "resources": [
+          "arn:aws:s3:::some-example-bucket/*",
+          "aws_s3_bucket.example",
+        ],
+        "sid": null,
+      }],
+      "version": null,
     },
     "aws_iam_policy.example": {
-      "id": "aws_iam_policy.example",
-      "description": null,
-      "policy": "data.aws_iam_policy_document.example",
-      "path": "/",
-      "_type": "aws_iam_policy",
       "_provider": "aws",
-      "name_prefix": null
+      "_type": "aws_iam_policy",
+      "description": null,
+      "id": "aws_iam_policy.example",
+      "name_prefix": null,
+      "path": "/",
+      "policy": "data.aws_iam_policy_document.example",
+      "tags": null,
     }
   }
 }

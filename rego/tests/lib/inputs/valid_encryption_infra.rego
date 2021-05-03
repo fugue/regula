@@ -14,7 +14,7 @@
 
 # This package was automatically generated from:
 #
-#     tests/lib/inputs/resource_view_01_infra.tf
+#     tests/lib/inputs/valid_encryption_infra.cfn
 #
 # using 'generate_test_inputs.sh' and should not be modified
 # directly.
@@ -23,10 +23,10 @@
 # - mock_input: The resource view input as passed to advanced rules
 # - mock_resources: The resources present as a convenience for tests
 # - mock_config: The raw config input as its parsed by regula
-package tests.lib.inputs.resource_view_01_infra
+package tests.lib.inputs.valid_encryption_infra
 
 import data.regula
 
-mock_config := regula_load_type("resource_view_01_infra.tfplan", "tf-plan")
+mock_config := regula_load_type("valid_encryption_infra.cfn", "cfn")
 mock_input := regula.mock_input(mock_config)
 mock_resources := mock_input.resources

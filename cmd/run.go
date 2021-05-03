@@ -56,17 +56,10 @@ func NewRunCommand() *cobra.Command {
 				os.Exit(1)
 			}
 			ctx := context.TODO()
-			ruleRunner, err := rego.NewRuleRunner(&rego.RuleRunnerOptions{
-				Ctx:      ctx,
-				UserOnly: userOnly,
-				Includes: includes,
-			})
-
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-
 			if len(paths) < 1 {
 				if terminal.IsTerminal(int(os.Stdin.Fd())) {
 					// Not using os.Getwd here so that we get relative paths.
@@ -86,16 +79,18 @@ func NewRunCommand() *cobra.Command {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-
-			results, err := ruleRunner.Run(loadedFiles.RegulaInput())
+			result, err := rego.RunRules(&rego.RunRulesOptions{
+				Ctx:      ctx,
+				UserOnly: userOnly,
+				Includes: includes,
+				Input:    loadedFiles.RegulaInput(),
+			})
+			reporterFunc, err := reporter.GetReporter(format)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-
-			reporterFunc, _ := reporter.GetReporter(format)
-			r := results[0]
-			output, err := reporter.ParseRegulaOutput(loadedFiles, r)
+			output, err := reporter.ParseRegulaOutput(loadedFiles, *result)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)

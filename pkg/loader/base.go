@@ -14,6 +14,8 @@
 
 package loader
 
+import "fmt"
+
 //go:generate mockgen -destination=../mocks/mock_iacconfiguration.go -package=mocks github.com/fugue/regula/pkg/loader IACConfiguration
 //go:generate mockgen -destination=../mocks/mock_configurationdetector.go -package=mocks github.com/fugue/regula/pkg/loader ConfigurationDetector
 //go:generate mockgen -destination=../mocks/mock_inputpath.go -package=mocks github.com/fugue/regula/pkg/loader InputPath
@@ -44,6 +46,21 @@ var InputTypeIDs = map[InputType][]string{
 	Auto:   {"auto"},
 	TfPlan: {"tf-plan"},
 	Cfn:    {"cfn"},
+}
+
+// InputTypeForString is a utility function to translate the string name of an input
+// type to an InputType enum
+func InputTypeForString(typeStr string) (InputType, error) {
+	switch typeStr {
+	case "auto":
+		return Auto, nil
+	case "cfn":
+		return Cfn, nil
+	case "tf-plan":
+		return TfPlan, nil
+	default:
+		return -1, fmt.Errorf("Unrecognized input type %v", typeStr)
+	}
 }
 
 // LoadedConfigurations is a container for IACConfigurations loaded by Regula.

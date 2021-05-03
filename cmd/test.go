@@ -27,13 +27,13 @@ import (
 
 func NewTestCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "test",
+		Use:   "test [rego paths]",
 		Short: "Run OPA test with Regula.",
-		Run: func(cmd *cobra.Command, paths []string) {
+		Run: func(cmd *cobra.Command, includes []string) {
 			ctx := context.TODO()
 			err := rego.RunTest(&rego.RunTestOptions{
-				Ctx:   ctx,
-				Paths: paths,
+				Ctx:      ctx,
+				Includes: includes,
 			})
 			if err != nil {
 				fmt.Println(err)

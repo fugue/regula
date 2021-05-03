@@ -10,38 +10,28 @@ import (
 )
 
 type RunTestOptions struct {
-	Ctx   context.Context
-	Paths []string
+	Ctx      context.Context
+	Includes []string
 }
 
 func RunTest(options *RunTestOptions) error {
-	defineLoadFunction()
-	// store, err := initStore(&InitStoreOptions{
-	// 	Ctx:      options.Ctx,
-	// 	UserOnly: true,
-	// })
+	registerBuiltins()
 	store := inmem.New()
-	// if err != nil {
-	// 	return err
-	// }
-
-	modules, err := loadIncludesAst(options.Paths)
-	if err != nil {
-		return err
-	}
-
-	regulaRaw, err := loadRegulaRaw(true)
-	if err != nil {
-		return err
-	}
-	for k, v := range regulaRaw {
-		module, err := ast.ParseModule(k, string(v))
+	modules := map[string]*ast.Module{}
+	cb := func(r RegoFile) error {
+		module, err := r.AstModule()
 		if err != nil {
 			return err
 		}
-		modules[k] = module
+		modules[r.Path()] = module
+		return nil
 	}
-
+	if err := loadRegula(true, cb); err != nil {
+		return err
+	}
+	if err := loadOsFiles(options.Includes, cb); err != nil {
+		return err
+	}
 	ch, err := tester.NewRunner().SetStore(store).EnableTracing(true).Run(options.Ctx, modules)
 	if err != nil {
 		return err

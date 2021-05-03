@@ -1,20 +1,13 @@
 package rego
 
 import (
-	"context"
 	"embed"
-	"encoding/json"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 
-	"github.com/fugue/regula/pkg/loader"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
-	"github.com/open-policy-agent/opa/storage"
-	"github.com/open-policy-agent/opa/storage/inmem"
-	"github.com/open-policy-agent/opa/types"
 )
 
 //go:embed lib
@@ -23,9 +16,6 @@ var regulaLib embed.FS
 //go:embed rules
 var regulaRules embed.FS
 
-//go:embed test_helper.rego
-var testHelperRego []byte
-
 var loadExts map[string]bool = map[string]bool{
 	".rego": true,
 	".yaml": true,
@@ -33,16 +23,43 @@ var loadExts map[string]bool = map[string]bool{
 	".json": true,
 }
 
-func loadModule(fsys fs.FS, path string) (func(r *rego.Rego), error) {
+type regoFile struct {
+	path     string
+	contents []byte
+}
+
+func (r *regoFile) Raw() []byte {
+	return r.contents
+}
+
+func (r *regoFile) String() string {
+	return string(r.contents)
+}
+
+func (r *regoFile) AstModule() (*ast.Module, error) {
+	return ast.ParseModule(r.Path(), r.String())
+}
+
+func (r *regoFile) RegoModule() func(r *rego.Rego) {
+	return rego.Module(r.Path(), r.String())
+}
+
+func (r *regoFile) Path() string {
+	return r.path
+}
+
+func newRegoFile(fsys fs.FS, path string) (RegoFile, error) {
 	contents, err := fs.ReadFile(fsys, path)
 	if err != nil {
 		return nil, err
 	}
-	return rego.Module(path, string(contents)), nil
+	return &regoFile{
+		path:     path,
+		contents: contents,
+	}, nil
 }
 
-func loadDirectory(fsys fs.FS, path string) ([]func(r *rego.Rego), error) {
-	modules := []func(r *rego.Rego){}
+func loadDirectory(fsys fs.FS, path string, cb func(r RegoFile) error) error {
 	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -53,289 +70,87 @@ func loadDirectory(fsys fs.FS, path string) ([]func(r *rego.Rego), error) {
 		if ext := filepath.Ext(path); !loadExts[ext] {
 			return nil
 		}
-		module, err := loadModule(fsys, path)
+		regoFile, err := newRegoFile(fsys, path)
 		if err != nil {
 			return err
 		}
-		modules = append(modules, module)
+		if err := cb(regoFile); err != nil {
+			return err
+		}
 		return nil
 	}
 
 	if err := fs.WalkDir(fsys, path, walkDirFunc); err != nil {
-		return nil, err
+		return err
 	}
 
-	return modules, nil
+	return nil
 }
 
-func loadIncludesAst(includes []string) (map[string]*ast.Module, error) {
-	modules := map[string]*ast.Module{}
-	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			return nil
-		}
-		if ext := filepath.Ext(path); !loadExts[ext] {
-			return nil
-		}
-		contents, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		module, err := ast.ParseModule(path, string(contents))
-		if err != nil {
-			return err
-		}
-		modules[path] = module
-		return nil
-	}
-	for _, path := range includes {
+func loadOsFiles(paths []string, cb func(r RegoFile) error) error {
+	fsys := &osFs{}
+	for _, path := range paths {
 		info, err := os.Stat(path)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		if info.IsDir() {
-			if err := filepath.WalkDir(path, walkDirFunc); err != nil {
-				return nil, err
-			}
-			continue
-		}
-		contents, err := os.ReadFile(path)
-		if err != nil {
-			return nil, err
-		}
-		module, err := ast.ParseModule(path, string(contents))
-		if err != nil {
-			return nil, err
-		}
-		modules[path] = module
-	}
-	return modules, nil
-}
-
-func loadIncludes(includes []string) ([]func(r *rego.Rego), error) {
-	modules := []func(r *rego.Rego){}
-	o := osFs{}
-	for _, path := range includes {
-		info, err := fs.Stat(o, path)
-		if err != nil {
-			return nil, err
-		}
-		if info.IsDir() {
-			dirModules, err := loadDirectory(o, path)
+			err := loadDirectory(fsys, path, cb)
 			if err != nil {
-				return nil, err
+				return err
 			}
-
-			modules = append(modules, dirModules...)
 			continue
 		}
-		if ext := filepath.Ext(path); !loadExts[ext] {
-			return nil, fmt.Errorf("Unsupported file type %v in includes: %v", ext, path)
-		}
-		module, err := loadModule(o, path)
-		if err != nil {
-			return nil, err
-		}
-		if module != nil {
-			modules = append(modules, module)
-		}
-	}
-
-	return modules, nil
-}
-
-func loadRegula(userOnly bool) ([]func(r *rego.Rego), error) {
-	modules, err := loadDirectory(regulaLib, "lib")
-	if err != nil {
-		return nil, err
-	}
-
-	if !userOnly {
-		rules, err := loadDirectory(regulaRules, "rules")
-		if err != nil {
-			return nil, err
-		}
-		modules = append(modules, rules...)
-	}
-	return modules, nil
-}
-
-func loadDirectoryRaw(fsys fs.FS, path string) (map[string][]byte, error) {
-	modules := map[string][]byte{}
-	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
+		file, err := newRegoFile(fsys, path)
 		if err != nil {
 			return err
 		}
-		if d.IsDir() {
-			return nil
-		}
-		if ext := filepath.Ext(path); !loadExts[ext] {
-			return nil
-		}
-		raw, err := fs.ReadFile(fsys, path)
-		if err != nil {
+		if err := cb(file); err != nil {
 			return err
 		}
-		modules[path] = raw
-		return nil
 	}
-	if err := fs.WalkDir(fsys, path, walkDirFunc); err != nil {
-		return nil, err
-	}
-
-	return modules, nil
+	return nil
 }
 
-func loadRegulaRaw(userOnly bool) (map[string][]byte, error) {
-	libModules, err := loadDirectoryRaw(regulaLib, "lib")
-	if err != nil {
-		return nil, err
+func loadRegula(userOnly bool, cb func(r RegoFile) error) error {
+	if err := loadDirectory(regulaLib, "lib", cb); err != nil {
+		return err
 	}
 	if !userOnly {
-		rulesModules, err := loadDirectoryRaw(regulaRules, "rules")
-		if err != nil {
-			return nil, err
-		}
-		for k, v := range rulesModules {
-			libModules[k] = v
+		if err := loadDirectory(regulaRules, "rules", cb); err != nil {
+			return err
 		}
 	}
-	libModules["test_helper.rego"] = testHelperRego
-	return libModules, nil
+
+	return nil
 }
 
-func resolvePath(path, location string) string {
-	if !filepath.IsAbs(path) {
-		if location == "" {
-			location = "."
-		} else {
-			location = filepath.Dir(location)
-		}
-		path = filepath.Join(location, path)
-	}
-	return path
+// I might be missing something, but it looks like the only fs.FS implementation
+// with os methods is os.DirFS, which has behavior that we don't want.
+type osFs struct {
+	fs.FS
+	fs.GlobFS
+	fs.ReadDirFS
+	fs.ReadFileFS
+	fs.StatFS
 }
 
-func loadToAstTerm(options loader.LoadPathsOptions) (*ast.Term, error) {
-	configs, err := loader.LoadPaths(options)
-	if err != nil {
-		return nil, err
-	}
-
-	parseable := []interface{}{}
-
-	raw, _ := json.Marshal(configs.RegulaInput())
-	_ = json.Unmarshal(raw, &parseable)
-
-	v, err := ast.InterfaceToValue(parseable)
-	if err != nil {
-		return nil, err
-	}
-
-	return ast.NewTerm(v), nil
+func (o *osFs) Open(name string) (fs.File, error) {
+	return os.Open(name)
 }
 
-func regulaLoad(ctx rego.BuiltinContext, a *ast.Term) (*ast.Term, error) {
-	var path string
-	if err := ast.As(a.Value, &path); err != nil {
-		return nil, err
-	}
-
-	path = resolvePath(path, ctx.Location.File)
-
-	return loadToAstTerm(loader.LoadPathsOptions{
-		Paths:     []string{path},
-		InputType: loader.Auto,
-		NoIgnore:  false,
-	})
+func (o *osFs) Glob(pattern string) ([]string, error) {
+	return filepath.Glob(pattern)
 }
 
-func regulaLoadType(ctx rego.BuiltinContext, a *ast.Term, b *ast.Term) (*ast.Term, error) {
-	var path string
-	var inputTypeStr string
-	if err := ast.As(a.Value, &path); err != nil {
-		return nil, err
-	}
-	if err := ast.As(b.Value, &inputTypeStr); err != nil {
-		return nil, err
-	}
-
-	var inputType loader.InputType
-	switch inputTypeStr {
-	case "cfn":
-		inputType = loader.Cfn
-	case "tf-plan":
-		inputType = loader.TfPlan
-	default:
-		return nil, fmt.Errorf("Unrecognized input type %v", inputTypeStr)
-	}
-
-	path = resolvePath(path, ctx.Location.File)
-
-	return loadToAstTerm(loader.LoadPathsOptions{
-		Paths:     []string{path},
-		InputType: inputType,
-		NoIgnore:  false,
-	})
+func (o *osFs) ReadDir(name string) ([]fs.DirEntry, error) {
+	return os.ReadDir(name)
 }
 
-func defineLoadFunction() {
-	rego.RegisterBuiltin1(
-		&rego.Function{
-			Name:    "regula_load",
-			Decl:    types.NewFunction(types.Args(types.S), types.A),
-			Memoize: true,
-		},
-		regulaLoad,
-	)
-	rego.RegisterBuiltin2(
-		&rego.Function{
-			Name:    "regula_load_type",
-			Decl:    types.NewFunction(types.Args(types.S, types.S), types.A),
-			Memoize: true,
-		},
-		regulaLoadType,
-	)
+func (o *osFs) ReadFile(name string) ([]byte, error) {
+	return os.ReadFile(name)
 }
 
-type InitStoreOptions struct {
-	Ctx      context.Context
-	UserOnly bool
-}
-
-func initStore(options *InitStoreOptions) (storage.Store, error) {
-	modules, err := loadRegulaRaw(options.UserOnly)
-	if err != nil {
-		return nil, err
-	}
-	store := inmem.New()
-	txn, err := store.NewTransaction(options.Ctx, storage.TransactionParams{
-		Write: true,
-	})
-	if err != nil {
-		return nil, err
-	}
-	// defer store.Abort(options.Ctx, txn)
-	for path, raw := range modules {
-		if err := store.UpsertPolicy(options.Ctx, txn, path, raw); err != nil {
-			return nil, err
-		}
-	}
-	if err := store.Commit(options.Ctx, txn); err != nil {
-		return nil, err
-	}
-	return store, nil
-}
-
-type osFs struct{}
-
-func (o osFs) Open(name string) (fs.File, error) {
-	f, err := os.Open(name)
-	if err != nil {
-		return nil, err
-	}
-	return f, nil
+func (o *osFs) Stat(name string) (fs.FileInfo, error) {
+	return os.Stat(name)
 }

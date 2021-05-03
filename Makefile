@@ -31,7 +31,7 @@ $(GOLINT):
 $(MOCKGEN):
 	go install github.com/golang/mock/mockgen@v1.5.0
 
-$(BINARY): $(CLI_SOURCE) $(COPIED_REGO_LIB) $(COPIED_REGO_RULES)
+$(BINARY): $(CLI_SOURCE) $(COPIED_REGO_LIB) $(COPIED_REGO_RULES) pkg/rego/test_helper.rego
 	$(CLI_BUILD) -v -o $@
 
 $(BINARY)-linux-amd64: $(SOURCE)

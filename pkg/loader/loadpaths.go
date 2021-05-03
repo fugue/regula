@@ -31,7 +31,7 @@ type LoadPathsOptions struct {
 
 func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 	configurations := newLoadedConfigurations()
-	detector, err := detectorByInputType(options.InputType)
+	detector, err := DetectorByInputType(options.InputType)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +176,7 @@ func (l *loadedConfigurations) Count() int {
 	return len(l.configurations)
 }
 
-func detectorByInputType(inputType InputType) (ConfigurationDetector, error) {
+func DetectorByInputType(inputType InputType) (ConfigurationDetector, error) {
 	switch inputType {
 	case Auto:
 		return NewAutoDetector(

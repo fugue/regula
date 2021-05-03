@@ -184,6 +184,12 @@ func decodeIntrinsic(node *yaml.Node, name string) (map[string]interface{}, erro
 		if err := node.Decode(&val); err != nil {
 			return nil, fmt.Errorf("Failed to decode intrinsic: %v", err)
 		}
+		// Special case for GetAtt
+		if name == "Fn::GetAtt" {
+			if valString, ok := val.(string); ok {
+				val = strings.Split(valString, ".")
+			}
+		}
 		intrinsic[name] = val
 	}
 

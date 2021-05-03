@@ -18,9 +18,12 @@ var regulaRules embed.FS
 
 var loadExts map[string]bool = map[string]bool{
 	".rego": true,
-	".yaml": true,
-	".yml":  true,
-	".json": true,
+	// TODO: We should evaluate how useful it is for end-users to load non-rego files
+	// in their rules. We'll need to change how these files get loaded into OPA in
+	// order to support these other extensions.
+	// ".yaml": true,
+	// ".yml":  true,
+	// ".json": true,
 }
 
 type regoFile struct {

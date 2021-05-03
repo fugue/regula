@@ -69,15 +69,15 @@ func TestRegulaRules(t *testing.T) {
 		return nil
 	}
 	if err := rego.LoadRegula(false, cb); err != nil {
-		assert.Fail(t, "Failed to load regula library", err)
+		assert.Fail(t, "Failed to load regula library and rules", err)
 	}
 	if err := rego.LoadOSFiles([]string{"../../rego/tests/rules"}, cb); err != nil {
-		assert.Fail(t, "Failed to load regula library tests", err)
+		assert.Fail(t, "Failed to load regula rule tests", err)
 	}
 	ctx := context.Background()
 	ch, err := tester.NewRunner().SetStore(inmem.New()).Run(ctx, modules)
 	if err != nil {
-		assert.Fail(t, "Failed to run library tests through OPA", err)
+		assert.Fail(t, "Failed to run rule tests through OPA", err)
 	}
 	failedTests := []string{}
 	hasFailures := false

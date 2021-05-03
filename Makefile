@@ -20,9 +20,11 @@ COPIED_REGO_LIB = pkg/rego/lib
 COPIED_REGO_RULES = pkg/rego/rules
 
 $(COPIED_REGO_LIB): $(REGO_LIB_SOURCE)
+	rm -rf ./$(COPIED_REGO_LIB)
 	cp -R rego/lib $(COPIED_REGO_LIB)
 
 $(COPIED_REGO_RULES): $(REGO_RULES_SOURCE)
+	rm -rf ./$(COPIED_REGO_RULES)
 	cp -R rego/rules $(COPIED_REGO_RULES)
 
 $(GOLINT):
@@ -31,7 +33,7 @@ $(GOLINT):
 $(MOCKGEN):
 	go install github.com/golang/mock/mockgen@v1.5.0
 
-$(BINARY): $(CLI_SOURCE) $(COPIED_REGO_LIB) $(COPIED_REGO_RULES) pkg/rego/test_helper.rego
+$(BINARY): $(CLI_SOURCE) $(COPIED_REGO_LIB) $(COPIED_REGO_RULES)
 	$(CLI_BUILD) -v -o $@
 
 $(BINARY)-linux-amd64: $(SOURCE)

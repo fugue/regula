@@ -27,21 +27,16 @@ import (
 
 func NewREPLCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "repl",
+		Use:   "repl [rego paths]",
 		Short: "Evaluate rules against infrastructure-as-code with Regula.",
-		Run: func(cmd *cobra.Command, paths []string) {
-			includes, err := cmd.Flags().GetStringSlice("include")
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
+		Run: func(cmd *cobra.Command, includes []string) {
 			userOnly, err := cmd.Flags().GetBool("user-only")
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
 			ctx := context.TODO()
-			err = rego.REPL(&rego.RuleRunnerOptions{
+			err = rego.RunREPL(&rego.RunREPLOptions{
 				Ctx:      ctx,
 				UserOnly: userOnly,
 				Includes: includes,
@@ -54,7 +49,6 @@ func NewREPLCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringSliceP("include", "i", nil, "Specify additional rego files or directories to include")
 	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
 	return cmd
 }

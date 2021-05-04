@@ -15,11 +15,12 @@
 package git
 
 import (
-	"fmt"
+	"bufio"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5/plumbing/format/gitignore"
 )
@@ -40,7 +41,7 @@ type repo struct {
 
 func NewRepo(path string) (Repo, error) {
 	fsys := osfs.New(path)
-	patterns, err := gitignore.ReadPatterns(fsys, nil)
+	patterns, err := ReadPatterns(fsys, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +53,6 @@ func NewRepo(path string) (Repo, error) {
 }
 
 func (r *repo) IsPathIgnored(path string, isDir bool) bool {
-	fmt.Println("Got path", path)
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return false
@@ -81,7 +81,6 @@ func NewRepoFinder() *RepoFinder {
 // It works by searching within the given directory, followed by searching in parent
 // directories until it either reaches the top-level directory or encounters an error.
 func (s *RepoFinder) FindRepo(path string) Repo {
-	fmt.Println("In find repo", path)
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil
@@ -101,7 +100,6 @@ func (s *RepoFinder) FindRepo(path string) Repo {
 		}
 		for _, e := range entries {
 			if e.Name() == ".git" {
-				fmt.Println("Found repo", absPath)
 				r, err := NewRepo(absPath)
 				if err != nil {
 					s.cache[absPath] = nil
@@ -122,4 +120,63 @@ func (s *RepoFinder) FindRepo(path string) Repo {
 		s.cache[p] = nil
 	}
 	return nil
+}
+
+// Vendored from go-git so that we can fix their behavior
+// readIgnoreFile reads a specific git ignore file.
+func readIgnoreFile(fs billy.Filesystem, path []string, ignoreFile string) (ps []gitignore.Pattern, err error) {
+	f, err := fs.Open(fs.Join(append(path, ignoreFile)...))
+	if err == nil {
+		defer f.Close()
+
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			s := scanner.Text()
+			if !strings.HasPrefix(s, "#") && len(strings.TrimSpace(s)) > 0 {
+				ps = append(ps, gitignore.ParsePattern(s, path))
+			}
+		}
+	} else if !os.IsNotExist(err) {
+		return nil, err
+	}
+
+	return
+}
+
+// ReadPatterns reads gitignore patterns recursively traversing through the directory
+// structure. The result is in the ascending order of priority (last higher). This
+// function has been modified to respect gitignore patterns while it's traversing. This
+// has a big impact for larger repositories.
+func ReadPatterns(fs billy.Filesystem, path []string, accumulator []gitignore.Pattern) ([]gitignore.Pattern, error) {
+	ps, _ := readIgnoreFile(fs, path, ".gitignore")
+	accumulator = append(accumulator, ps...)
+
+	var fis []os.FileInfo
+	fis, err := fs.ReadDir(fs.Join(path...))
+	if err != nil {
+		return nil, err
+	}
+
+	matcher := gitignore.NewMatcher(accumulator)
+	for _, fi := range fis {
+		name := fi.Name()
+		subPath := append(path, name)
+		isDir := fi.IsDir()
+		if matcher.Match(subPath, isDir) {
+			continue
+		}
+		if isDir && name != ".git" {
+			var subps []gitignore.Pattern
+			subps, err = ReadPatterns(fs, subPath, accumulator)
+			if err != nil {
+				return nil, err
+			}
+
+			if len(subps) > 0 {
+				ps = append(ps, subps...)
+			}
+		}
+	}
+
+	return ps, nil
 }

@@ -70,7 +70,7 @@ func newDirectory(opts directoryOptions) (InputDirectory, error) {
 		n := e.Name()
 		p := filepath.Join(opts.Path, n)
 		if repo != nil {
-			if ignored := repo.IsPathIgnored(p); ignored {
+			if ignored := repo.IsPathIgnored(p, e.IsDir()); ignored {
 				continue
 			}
 		}

@@ -15,34 +15,54 @@
 package git
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
-	git "github.com/libgit2/git2go/v31"
+	"github.com/go-git/go-billy/v5/osfs"
+	"github.com/go-git/go-git/v5/plumbing/format/gitignore"
 )
 
+var defaultGitIgnorePatterns = []gitignore.Pattern{
+	gitignore.ParsePattern("..", []string{}),
+	gitignore.ParsePattern(".git", []string{}),
+}
+
 type Repo interface {
-	IsPathIgnored(path string) bool
+	IsPathIgnored(path string, isDir bool) bool
 }
 
 type repo struct {
-	path string
-	repo *git.Repository
+	path          string
+	ignoreMatcher gitignore.Matcher
 }
 
-func (r *repo) IsPathIgnored(path string) bool {
+func NewRepo(path string) (Repo, error) {
+	fsys := osfs.New(path)
+	patterns, err := gitignore.ReadPatterns(fsys, nil)
+	if err != nil {
+		return nil, err
+	}
+	patterns = append(patterns, defaultGitIgnorePatterns...)
+	return &repo{
+		path:          path,
+		ignoreMatcher: gitignore.NewMatcher(patterns),
+	}, nil
+}
+
+func (r *repo) IsPathIgnored(path string, isDir bool) bool {
+	fmt.Println("Got path", path)
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return false
 	}
-	// git2go's IsPathIgnored results differ from git check-ignore if you've got a
-	// pattern like we do where the path matches the name of the root directory for
-	// the repository. It's safe to assume that this should always be false.
-	if absPath == r.path {
+	relPath, err := filepath.Rel(r.path, absPath)
+	if err != nil {
 		return false
 	}
-	ignored, _ := r.repo.IsPathIgnored(absPath)
-	return ignored
+	splitPath := strings.Split(relPath, string(os.PathSeparator))
+	return r.ignoreMatcher.Match(splitPath, isDir)
 }
 
 // RepoFinder finds the git repository for a given directory.
@@ -61,6 +81,7 @@ func NewRepoFinder() *RepoFinder {
 // It works by searching within the given directory, followed by searching in parent
 // directories until it either reaches the top-level directory or encounters an error.
 func (s *RepoFinder) FindRepo(path string) Repo {
+	fmt.Println("In find repo", path)
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil
@@ -80,15 +101,13 @@ func (s *RepoFinder) FindRepo(path string) Repo {
 		}
 		for _, e := range entries {
 			if e.Name() == ".git" {
-				r, err := git.OpenRepository(filepath.Join(absPath, e.Name()))
+				fmt.Println("Found repo", absPath)
+				r, err := NewRepo(absPath)
 				if err != nil {
 					s.cache[absPath] = nil
 					return nil
 				}
-				s.cache[absPath] = &repo{
-					path: absPath,
-					repo: r,
-				}
+				s.cache[absPath] = r
 				return s.cache[absPath]
 			}
 		}

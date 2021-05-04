@@ -62,7 +62,7 @@ clean:
 	rm -f $(BINARY) $(BINARY)-linux-amd64 $(BINARY)-darwin-amd64
 
 .PHONY: test
-test:
+test: $(COPIED_REGO_LIB) $(COPIED_REGO_RULES)
 	go test -v -cover ./...
 
 .PHONY: coverage

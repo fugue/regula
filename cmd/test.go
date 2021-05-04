@@ -30,10 +30,16 @@ func NewTestCommand() *cobra.Command {
 		Use:   "test [rego paths]",
 		Short: "Run OPA test with Regula.",
 		Run: func(cmd *cobra.Command, includes []string) {
+			trace, err := cmd.Flags().GetBool("trace")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			ctx := context.TODO()
-			err := rego.RunTest(&rego.RunTestOptions{
+			err = rego.RunTest(&rego.RunTestOptions{
 				Ctx:      ctx,
 				Includes: includes,
+				Trace:    trace,
 			})
 			if err != nil {
 				fmt.Println(err)
@@ -41,6 +47,7 @@ func NewTestCommand() *cobra.Command {
 			}
 		},
 	}
+	cmd.Flags().BoolP("trace", "t", false, "Enable trace output")
 	return cmd
 }
 

@@ -12,11 +12,11 @@ import (
 type RunTestOptions struct {
 	Ctx      context.Context
 	Includes []string
+	Trace    bool
 }
 
 func RunTest(options *RunTestOptions) error {
 	RegisterBuiltins()
-	store := inmem.New()
 	modules := map[string]*ast.Module{}
 	cb := func(r RegoFile) error {
 		module, err := r.AstModule()
@@ -32,14 +32,18 @@ func RunTest(options *RunTestOptions) error {
 	if err := LoadOSFiles(options.Includes, cb); err != nil {
 		return err
 	}
-	ch, err := tester.NewRunner().SetStore(store).EnableTracing(true).Run(options.Ctx, modules)
+	ch, err := tester.
+		NewRunner().
+		SetStore(inmem.New()).
+		EnableTracing(options.Trace).
+		Run(options.Ctx, modules)
 	if err != nil {
 		return err
 	}
 	reporter := tester.PrettyReporter{
 		Output:      os.Stdout,
 		FailureLine: true,
-		Verbose:     true,
+		Verbose:     options.Trace,
 	}
 	reporter.Report(ch)
 	return nil

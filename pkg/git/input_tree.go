@@ -29,6 +29,7 @@ func NewInputTreeNode(splitPath []string) *InputTreeNode {
 }
 
 func (t *InputTreeNode) Relation(splitPath []string) Relation {
+	// fmt.Println("Checking relation", strings.Join(splitPath, "/"))
 	if pathLen := len(splitPath); pathLen < 1 {
 		// In this case the splitPath is a parent of the tree node
 		return IsParent
@@ -37,7 +38,7 @@ func (t *InputTreeNode) Relation(splitPath []string) Relation {
 			// In this case the tree node is a parent of the split path
 			return IsChild
 		}
-		if child, ok := t.Children[splitPath[1]]; ok {
+		if child, ok := t.Children[splitPath[0]]; ok {
 			return child.Relation(splitPath[1:])
 		}
 

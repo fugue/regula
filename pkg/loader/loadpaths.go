@@ -48,7 +48,7 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 		}
 		return nil
 	}
-	gitRepoFinder := git.NewRepoFinder()
+	gitRepoFinder := git.NewRepoFinder(options.Paths)
 	for _, path := range options.Paths {
 		if path == "-" {
 			path = stdIn

@@ -20,8 +20,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/go-git/go-billy/v5"
-	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5/plumbing/format/gitignore"
 )
 
@@ -39,9 +37,9 @@ type repo struct {
 	ignoreMatcher gitignore.Matcher
 }
 
-func NewRepo(path string) (Repo, error) {
-	fsys := osfs.New(path)
-	patterns, err := ReadPatterns(fsys, nil, nil)
+func NewRepo(path string, inputTree *InputTreeNode) (Repo, error) {
+	// fsys := osfs.New(path)
+	patterns, err := ReadPatterns(strings.Split(path, string(os.PathSeparator)), inputTree, nil, nil, None)
 	if err != nil {
 		return nil, err
 	}
@@ -67,13 +65,16 @@ func (r *repo) IsPathIgnored(path string, isDir bool) bool {
 
 // RepoFinder finds the git repository for a given directory.
 type RepoFinder struct {
-	cache map[string]Repo
+	inputTree *InputTreeNode
+	cache     map[string]Repo
 }
 
 // NewRepoFinder returns a new RepoFinder instance
-func NewRepoFinder() *RepoFinder {
+func NewRepoFinder(inputPaths []string) *RepoFinder {
+	inputTree := NewInputTree(inputPaths)
 	return &RepoFinder{
-		cache: map[string]Repo{},
+		inputTree: inputTree,
+		cache:     map[string]Repo{},
 	}
 }
 
@@ -100,7 +101,7 @@ func (s *RepoFinder) FindRepo(path string) Repo {
 		}
 		for _, e := range entries {
 			if e.Name() == ".git" {
-				r, err := NewRepo(absPath)
+				r, err := NewRepo(absPath, s.inputTree)
 				if err != nil {
 					s.cache[absPath] = nil
 					return nil
@@ -124,8 +125,9 @@ func (s *RepoFinder) FindRepo(path string) Repo {
 
 // Vendored from go-git so that we can fix their behavior
 // readIgnoreFile reads a specific git ignore file.
-func readIgnoreFile(fs billy.Filesystem, path []string, ignoreFile string) (ps []gitignore.Pattern, err error) {
-	f, err := fs.Open(fs.Join(append(path, ignoreFile)...))
+func readIgnoreFile(prefix []string, path []string, ignoreFile string) (ps []gitignore.Pattern, err error) {
+	absPath := append(append(prefix, path...), ignoreFile)
+	f, err := os.Open(filepath.Join(absPath...))
 	if err == nil {
 		defer f.Close()
 
@@ -147,12 +149,14 @@ func readIgnoreFile(fs billy.Filesystem, path []string, ignoreFile string) (ps [
 // structure. The result is in the ascending order of priority (last higher). This
 // function has been modified to respect gitignore patterns while it's traversing. This
 // has a big impact for larger repositories.
-func ReadPatterns(fs billy.Filesystem, path []string, accumulator []gitignore.Pattern) ([]gitignore.Pattern, error) {
-	ps, _ := readIgnoreFile(fs, path, ".gitignore")
+func ReadPatterns(prefix []string, inputTree *InputTreeNode, path []string, accumulator []gitignore.Pattern, lastRelation Relation) ([]gitignore.Pattern, error) {
+	ps, _ := readIgnoreFile(prefix, path, ".gitignore")
 	accumulator = append(accumulator, ps...)
 
-	var fis []os.FileInfo
-	fis, err := fs.ReadDir(fs.Join(path...))
+	absPath := append(prefix, path...)
+	joinPath := filepath.Join(absPath...)
+	var fis []os.DirEntry
+	fis, err := os.ReadDir(joinPath)
 	if err != nil {
 		return nil, err
 	}
@@ -166,8 +170,14 @@ func ReadPatterns(fs billy.Filesystem, path []string, accumulator []gitignore.Pa
 			continue
 		}
 		if isDir && name != ".git" {
+			if lastRelation != IsParent {
+				lastRelation = inputTree.Relation(append(absPath, name))
+			}
+			if lastRelation == None {
+				continue
+			}
 			var subps []gitignore.Pattern
-			subps, err = ReadPatterns(fs, subPath, accumulator)
+			subps, err = ReadPatterns(prefix, inputTree, subPath, accumulator, lastRelation)
 			if err != nil {
 				return nil, err
 			}

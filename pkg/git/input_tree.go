@@ -2,58 +2,71 @@ package git
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 )
 
-type TreeNode struct {
-	Children map[string]*TreeNode
+type Relation int
+
+const (
+	None Relation = iota
+	IsParent
+	IsChild
+)
+
+type InputTreeNode struct {
+	Children map[string]*InputTreeNode
 }
 
-func NewTreeNode(splitPath []string) *TreeNode {
-	t := &TreeNode{
-		Children: map[string]*TreeNode{},
+func NewInputTreeNode(splitPath []string) *InputTreeNode {
+	t := &InputTreeNode{
+		Children: map[string]*InputTreeNode{},
 	}
 	if len(splitPath) > 0 {
-		t.Children[splitPath[0]] = NewTreeNode(splitPath[1:])
+		t.Children[splitPath[0]] = NewInputTreeNode(splitPath[1:])
 	}
 	return t
 }
 
-func (t *TreeNode) Contains(splitPath []string) bool {
+func (t *InputTreeNode) Relation(splitPath []string) Relation {
 	if pathLen := len(splitPath); pathLen < 1 {
-		return true
+		// In this case the splitPath is a parent of the tree node
+		return IsParent
 	} else {
-		if child, ok := t.Children[splitPath[1]]; ok {
-			return child.Contains(splitPath[1:])
-		} else {
-			return false
+		if len(t.Children) == 0 {
+			// In this case the tree node is a parent of the split path
+			return IsChild
 		}
+		if child, ok := t.Children[splitPath[1]]; ok {
+			return child.Relation(splitPath[1:])
+		}
+
+		return None
 	}
 }
 
-func NewTree(paths []string) *TreeNode {
-	rootNode := NewTreeNode(nil)
+func (t *InputTreeNode) AddChild(splitPath []string) {
+	if len(splitPath) < 1 {
+		return
+	}
+	if child, ok := t.Children[splitPath[0]]; ok {
+		child.AddChild(splitPath[1:])
+		return
+	}
+	t.Children[splitPath[0]] = NewInputTreeNode(splitPath[1:])
+}
+
+func NewInputTree(paths []string) *InputTreeNode {
+	rootNode := NewInputTreeNode(nil)
 	for _, path := range paths {
-		splitPath := strings.Split(path, string(os.PathSeparator))
-		if len(splitPath) < 1 {
-			continue
+		absPath, err := filepath.Abs(path)
+		if err != nil {
+			// This case can happen for the stdin path "-"
+			absPath = path
 		}
-		rootNode.Children[splitPath[0]] = NewTreeNode(splitPath[1:])
+		splitPath := strings.Split(absPath, string(os.PathSeparator))
+		rootNode.AddChild(splitPath)
 	}
 
 	return rootNode
-
-	// if len(splitPath) < 1 {
-	// 	return nil, fmt.Errorf("Got an empty path when initializing input tree")
-	// }
-	// rootNode := NewTreeNode()
-	// currChild := NewTreeNode()
-	// rootNode.Children[splitPath[0]] = currChild
-	// for len(splitPath) > 1 {
-	// 	splitPath = splitPath[1:]
-	// 	nextChild := NewTreeNode()
-	// 	currChild.Children[splitPath[0]] = nextChild
-	// 	currChild = nextChild
-	// }
-	// return
 }

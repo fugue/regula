@@ -75,6 +75,20 @@ lint:
 	$(GOLINT) ./...
 	go vet ./...
 
-.PHONY: printsrc
-printsrc:
-	@echo $(CLI_SOURCE)
+.PHONY: docker
+docker: $(COPIED_REGO_LIB) $(COPIED_REGO_RULES)
+	rm -rf build
+	mkdir -p build
+	cp -R pkg build
+	cp -R cmd build
+	cp go.mod build
+	cp go.sum build
+	cp main.go build
+	cp Dockerfile build
+	cd build
+	docker build \
+		--build-arg version=$(VERSION) \
+		--build-arg gitcommit=$(GITCOMMIT) \
+		--tag fugue/regula:$(VERSION) \
+		--tag fugue/regula:latest \
+		.

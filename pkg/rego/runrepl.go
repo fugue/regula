@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/fugue/regula/pkg/version"
@@ -25,9 +26,15 @@ func RunREPL(options *RunREPLOptions) error {
 	if err != nil {
 		return err
 	}
+	var historyPath string
+	if homeDir, err := os.UserHomeDir(); err == nil {
+		historyPath = filepath.Join(homeDir, ".regula-history")
+	} else {
+		historyPath = filepath.Join(".", ".regula-history")
+	}
 	r := repl.New(
 		store,
-		"./.regula-history",
+		historyPath,
 		os.Stdout,
 		"pretty",
 		ast.CompileErrorLimitDefault,

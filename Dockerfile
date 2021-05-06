@@ -3,7 +3,7 @@ ARG version
 ARG gitcommit
 WORKDIR /build
 COPY . .
-ENV ldflags "-X \"github.com/fugue/regula/cmd.Version=${version}\" -X \"github.com/fugue/regula/cmd.GitCommit=${gitcommit}\""
+ENV ldflags "-X \"github.com/fugue/regula/pkg/version.Version=${version}\" -X \"github.com/fugue/regula/pkg/version.GitCommit=${gitcommit}\""
 RUN go build -ldflags="${ldflags} -s -w"
 
 FROM alpine:latest

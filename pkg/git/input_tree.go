@@ -10,8 +10,8 @@ type Relation int
 
 const (
 	None Relation = iota
-	IsParent
-	IsChild
+	TreeNodeIsChild
+	TreeNodeIsParent
 )
 
 type InputTreeNode struct {
@@ -29,14 +29,13 @@ func NewInputTreeNode(splitPath []string) *InputTreeNode {
 }
 
 func (t *InputTreeNode) Relation(splitPath []string) Relation {
-	// fmt.Println("Checking relation", strings.Join(splitPath, "/"))
 	if pathLen := len(splitPath); pathLen < 1 {
 		// In this case the splitPath is a parent of the tree node
-		return IsParent
+		return TreeNodeIsChild
 	} else {
 		if len(t.Children) == 0 {
 			// In this case the tree node is a parent of the split path
-			return IsChild
+			return TreeNodeIsParent
 		}
 		if child, ok := t.Children[splitPath[0]]; ok {
 			return child.Relation(splitPath[1:])
@@ -70,4 +69,40 @@ func NewInputTree(paths []string) *InputTreeNode {
 	}
 
 	return rootNode
+}
+
+type SearchPath struct {
+	prefix      string
+	path        []string
+	splitPrefix []string
+}
+
+func NewSearchPath(prefix string, path []string) SearchPath {
+	splitPrefix := strings.Split(prefix, string(os.PathSeparator))
+	return SearchPath{
+		prefix:      prefix,
+		path:        path,
+		splitPrefix: splitPrefix,
+	}
+}
+
+func (s SearchPath) Abs() string {
+	fullPath := append([]string{s.prefix}, s.path...)
+	return filepath.Join(fullPath...)
+}
+
+func (s SearchPath) WithAddedPath(path string) SearchPath {
+	return SearchPath{
+		prefix:      s.prefix,
+		path:        append(s.path, path),
+		splitPrefix: s.splitPrefix,
+	}
+}
+
+func (s SearchPath) AbsSplit() []string {
+	return append(s.splitPrefix, s.path...)
+}
+
+func (s SearchPath) Path() []string {
+	return s.path
 }

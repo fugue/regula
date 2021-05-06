@@ -38,8 +38,7 @@ type repo struct {
 }
 
 func NewRepo(path string, inputTree *InputTreeNode) (Repo, error) {
-	// fsys := osfs.New(path)
-	patterns, err := ReadPatterns(path, inputTree, nil, nil, None)
+	patterns, err := ReadPatterns(NewSearchPath(path, nil), inputTree, nil, None)
 	if err != nil {
 		return nil, err
 	}
@@ -125,11 +124,9 @@ func (s *RepoFinder) FindRepo(path string) Repo {
 
 // Vendored from go-git so that we can fix their behavior
 // readIgnoreFile reads a specific git ignore file.
-func readIgnoreFile(prefix string, path []string, ignoreFile string) (ps []gitignore.Pattern, err error) {
-	absPath := append(append([]string{prefix}, path...), ignoreFile)
-	joinPath := filepath.Join(absPath...)
-	// fmt.Println("Trying to read .gitignore file", joinPath)
-	f, err := os.Open(joinPath)
+func readIgnoreFile(searchPath SearchPath) (ps []gitignore.Pattern, err error) {
+	ignoreFilePath := searchPath.WithAddedPath(".gitignore").Abs()
+	f, err := os.Open(ignoreFilePath)
 	if err == nil {
 		defer f.Close()
 
@@ -137,7 +134,7 @@ func readIgnoreFile(prefix string, path []string, ignoreFile string) (ps []gitig
 		for scanner.Scan() {
 			s := scanner.Text()
 			if !strings.HasPrefix(s, "#") && len(strings.TrimSpace(s)) > 0 {
-				ps = append(ps, gitignore.ParsePattern(s, path))
+				ps = append(ps, gitignore.ParsePattern(s, searchPath.Path()))
 			}
 		}
 	} else if !os.IsNotExist(err) {
@@ -151,15 +148,12 @@ func readIgnoreFile(prefix string, path []string, ignoreFile string) (ps []gitig
 // structure. The result is in the ascending order of priority (last higher). This
 // function has been modified to respect gitignore patterns while it's traversing. This
 // has a big impact for larger repositories.
-func ReadPatterns(prefix string, inputTree *InputTreeNode, path []string, accumulator []gitignore.Pattern, lastRelation Relation) ([]gitignore.Pattern, error) {
-	ps, _ := readIgnoreFile(prefix, path, ".gitignore")
+func ReadPatterns(searchPath SearchPath, inputTree *InputTreeNode, accumulator []gitignore.Pattern, lastRelation Relation) ([]gitignore.Pattern, error) {
+	ps, _ := readIgnoreFile(searchPath)
 	accumulator = append(accumulator, ps...)
 
-	absPath := append([]string{prefix}, path...)
-	joinPath := filepath.Join(absPath...)
-	// fmt.Println(joinPath)
 	var fis []os.DirEntry
-	fis, err := os.ReadDir(joinPath)
+	fis, err := os.ReadDir(searchPath.Abs())
 	if err != nil {
 		return nil, err
 	}
@@ -167,26 +161,21 @@ func ReadPatterns(prefix string, inputTree *InputTreeNode, path []string, accumu
 	matcher := gitignore.NewMatcher(accumulator)
 	for _, fi := range fis {
 		name := fi.Name()
-		// fmt.Println(name)
-		subPath := append(path, name)
 		isDir := fi.IsDir()
-		if matcher.Match(subPath, isDir) {
-			continue
-		}
+
 		if isDir && name != ".git" {
-			// fmt.Println("In iteration", joinPath, name)
-			if lastRelation != IsChild {
-				splitPath := strings.Split(prefix, string(os.PathSeparator))
-				splitPath = append(splitPath, path...)
-				splitPath = append(splitPath, name)
-				lastRelation = inputTree.Relation(splitPath)
+			subPath := searchPath.WithAddedPath(name)
+			if matcher.Match(subPath.Path(), isDir) {
+				continue
+			}
+			if lastRelation != TreeNodeIsParent {
+				lastRelation = inputTree.Relation(subPath.AbsSplit())
 			}
 			if lastRelation == None {
-				// fmt.Println("lastRelation was None for", joinPath, name)
 				continue
 			}
 			var subps []gitignore.Pattern
-			subps, err = ReadPatterns(prefix, inputTree, subPath, accumulator, lastRelation)
+			subps, err = ReadPatterns(subPath, inputTree, accumulator, lastRelation)
 			if err != nil {
 				return nil, err
 			}

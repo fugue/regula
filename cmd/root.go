@@ -18,13 +18,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fugue/regula/pkg/version"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
 	Use:     "regula",
 	Short:   "Regula",
-	Version: fmt.Sprintf("%s, build %s", Version, GitCommit),
+	Version: fmt.Sprintf("%s, build %s", version.Version, version.GitCommit),
 }
 
 func Execute() {

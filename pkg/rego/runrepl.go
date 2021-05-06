@@ -2,8 +2,12 @@ package rego
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strings"
 
+	"github.com/fugue/regula/pkg/version"
+	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/repl"
 	"github.com/open-policy-agent/opa/storage"
 	"github.com/open-policy-agent/opa/storage/inmem"
@@ -21,7 +25,13 @@ func RunREPL(options *RunREPLOptions) error {
 	if err != nil {
 		return err
 	}
-	r := repl.New(store, "./.regula-history", os.Stdout, "", 50, "Regula REPL")
+	r := repl.New(
+		store,
+		"./.regula-history",
+		os.Stdout,
+		"pretty",
+		ast.CompileErrorLimitDefault,
+		getBanner())
 	r.Loop(options.Ctx)
 	return nil
 }
@@ -47,4 +57,11 @@ func initStore(ctx context.Context, userOnly bool, includes []string) (storage.S
 		return nil, err
 	}
 	return store, nil
+}
+
+func getBanner() string {
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("Regula v%v - built on OPA v%v\n", version.Version, version.OPAVersion))
+	sb.WriteString("Run 'help' to see a list of commands.")
+	return sb.String()
 }

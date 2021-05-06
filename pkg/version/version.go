@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package version
+
+import (
+	"github.com/open-policy-agent/opa/version"
+)
 
 // Default build-time variables.
 // These values are overridden via ldflags
@@ -20,3 +24,6 @@ var (
 	Version   = "unknown-version"
 	GitCommit = "unknown-commit"
 )
+
+// OPAVersion is the canonical version of OPA that is embedded in Regula
+var OPAVersion = version.Version

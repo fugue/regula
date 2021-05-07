@@ -85,6 +85,10 @@ func NewRunCommand() *cobra.Command {
 				Includes: includes,
 				Input:    loadedFiles.RegulaInput(),
 			})
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			reporterFunc, err := reporter.GetReporter(format)
 			if err != nil {
 				fmt.Println(err)

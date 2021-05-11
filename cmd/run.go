@@ -25,7 +25,6 @@ import (
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 //go:embed run.txt
@@ -61,12 +60,13 @@ func NewRunCommand() *cobra.Command {
 				os.Exit(1)
 			}
 			if len(paths) < 1 {
-				if terminal.IsTerminal(int(os.Stdin.Fd())) {
+				stat, _ := os.Stdin.Stat()
+				if (stat.Mode() & os.ModeCharDevice) == 0 {
+					paths = []string{"-"}
+				} else {
 					// Not using os.Getwd here so that we get relative paths.
 					// A single dot should mean the same on windows.
 					paths = []string{"."}
-				} else {
-					paths = []string{"-"}
 				}
 			}
 

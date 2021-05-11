@@ -514,8 +514,8 @@ To use Regula with Conftest:
 
 2.  Now, we'll pull the conftest support for Regula and the Regula library in.
 
-        conftest pull -p policy/ github.com/fugue/regula/conftest
-        conftest pull -p policy/regula/lib 'github.com/fugue/regula//lib?ref=v0.7.0'
+        conftest pull -p policy/ 'github.com/fugue/regula//conftest?ref=v0.8.0'
+        conftest pull -p policy/regula/lib 'github.com/fugue/regula//lib?ref=v0.8.0'
 
     If we want to use the rules that come with regula, we can
     use:

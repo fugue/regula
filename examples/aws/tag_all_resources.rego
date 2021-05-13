@@ -76,9 +76,10 @@ is_tagged(resource) {
 
 is_improperly_tagged(resource) = msg {
   # Any tag value has less than 6 characters.
-  resource.tags[key] = val
-  count(val) < 6
-  msg = sprintf("Tag %s is too short", [key])
+  too_short = [k | v = resource.tags[k]; count(v) < 6]
+  count(too_short) > 0
+  keys = concat(", ", too_short)
+  msg = sprintf("Values for these tags are too short: %s", [keys])
 } else = "No tags found" {
   # The resource is not tagged at all.
   not is_tagged(resource)

@@ -1,4 +1,4 @@
-package regula
+package fugue.regula.tests
 
 import data.fugue.resource_view.resource_view_input
 

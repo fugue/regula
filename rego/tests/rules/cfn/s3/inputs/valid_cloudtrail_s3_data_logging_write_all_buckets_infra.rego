@@ -25,8 +25,8 @@
 # - mock_config: The raw config input as its parsed by regula
 package tests.rules.cfn.s3.inputs.valid_cloudtrail_s3_data_logging_write_all_buckets_infra
 
-import data.regula
+import data.fugue.regula.tests
 
 mock_config := regula_load_type("valid_cloudtrail_s3_data_logging_write_all_buckets_infra.cfn", "cfn")
-mock_input := regula.mock_input(mock_config)
+mock_input := tests.mock_input(mock_config)
 mock_resources := mock_input.resources

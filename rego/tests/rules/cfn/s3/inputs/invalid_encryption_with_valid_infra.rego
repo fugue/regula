@@ -25,8 +25,8 @@
 # - mock_config: The raw config input as its parsed by regula
 package tests.rules.cfn.s3.inputs.invalid_encryption_with_valid_infra
 
-import data.regula
+import data.fugue.regula.tests
 
 mock_config := regula_load_type("invalid_encryption_with_valid_infra.cfn", "cfn")
-mock_input := regula.mock_input(mock_config)
+mock_input := tests.mock_input(mock_config)
 mock_resources := mock_input.resources

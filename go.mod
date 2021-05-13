@@ -8,7 +8,7 @@ require (
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
 	github.com/go-git/go-git/v5 v5.3.0
 	github.com/golang/mock v1.5.0
-	github.com/open-policy-agent/opa v0.25.2
+	github.com/open-policy-agent/opa v0.28.0
 	github.com/spf13/cobra v1.1.3
 	github.com/stretchr/testify v1.4.0
 	github.com/thediveo/enumflag v0.10.1

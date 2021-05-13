@@ -25,8 +25,8 @@
 # - mock_config: The raw config input as its parsed by regula
 package tests.lib.inputs.resource_view_04_infra
 
-import data.regula
+import data.fugue.regula.tests
 
 mock_config := regula_load_type("resource_view_04_infra.tfplan", "tf-plan")
-mock_input := regula.mock_input(mock_config)
+mock_input := tests.mock_input(mock_config)
 mock_resources := mock_input.resources

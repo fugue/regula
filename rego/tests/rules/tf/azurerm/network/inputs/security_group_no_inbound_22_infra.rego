@@ -25,8 +25,8 @@
 # - mock_config: The raw config input as its parsed by regula
 package tests.rules.tf.azurerm.network.inputs.security_group_no_inbound_22_infra
 
-import data.regula
+import data.fugue.regula.tests
 
 mock_config := regula_load_type("security_group_no_inbound_22_infra.tfplan", "tf-plan")
-mock_input := regula.mock_input(mock_config)
+mock_input := tests.mock_input(mock_config)
 mock_resources := mock_input.resources

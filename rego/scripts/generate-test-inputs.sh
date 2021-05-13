@@ -76,10 +76,10 @@ function generate_tf_input {
 # - mock_config: The raw config input as its parsed by regula
 package ${package}
 
-import data.regula
+import data.fugue.regula.tests
 
 mock_config := regula_load_type("${plan_json_basename}", "tf-plan")
-mock_input := regula.mock_input(mock_config)
+mock_input := tests.mock_input(mock_config)
 mock_resources := mock_input.resources
 EOF
 }
@@ -98,10 +98,10 @@ function generate_cfn_input {
 # - mock_config: The raw config input as its parsed by regula
 package ${package}
 
-import data.regula
+import data.fugue.regula.tests
 
 mock_config := regula_load_type("${config_basename}", "cfn")
-mock_input := regula.mock_input(mock_config)
+mock_input := tests.mock_input(mock_config)
 mock_resources := mock_input.resources
 EOF
 }

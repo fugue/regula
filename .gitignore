@@ -5,6 +5,7 @@ pkg/rego/lib
 pkg/rego/rules
 regula
 regula-*
+!regula/
 .vscode/
 .scratch/
 .regula-history

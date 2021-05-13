@@ -39,6 +39,7 @@ func RunREPL(options *RunREPLOptions) error {
 		"pretty",
 		ast.CompileErrorLimitDefault,
 		getBanner())
+	r.OneShot(options.Ctx, "strict-builtin-errors")
 	r.Loop(options.Ctx)
 	return nil
 }

@@ -122,7 +122,7 @@ configuration_modules[module_path] = ret {
   module = val[module_name]
   is_object(module)
   _ = module.resources
-  all([string_is_module_calls(k) | path[i] = k; i % 3 == 0])
+  all([b | path[i] = k; i % 3 == 1; b := (k == "module_calls")])
   module_path = [k | path[i] = k; i % 3 == 2]
 
   # Calculate input variables used in this module.
@@ -134,10 +134,6 @@ configuration_modules[module_path] = ret {
 
   ret = [vars, module]
 }
-
-# Utility to work around a fregot parsing bug.  Try inlining this and see what
-# happens.
-string_is_module_calls(k) {k == "module_calls"}
 
 # Calculate outputs into a globally qualified map.
 configuration_module_outputs[qualified_var] = qualified_val {

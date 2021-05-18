@@ -1,0 +1,47 @@
+project_name: regula
+
+release:
+  prerelease: auto
+  name_template: "Regula {{.Tag}}"
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+
+builds:
+  - <<: &build_defaults
+      binary: bin/regula
+      ldflags:
+        - -s -w
+        - -X github.com/fugue/regula/pkg/version.Version={{.Tag}}
+        - -X github.com/fugue/regula/pkg/version.GitCommit={{.ShortCommit}}
+    id: macos
+    goos: [darwin]
+    goarch: [amd64, arm64]
+
+  - <<: *build_defaults
+    id: linux
+    goos: [linux]
+    goarch: [arm, amd64, arm64]
+
+dockers:
+  - image_templates:
+    - "fugue/regula:{{ if .Prerelease }}preview{{ else }}latest{{ end }}"
+    - "fugue/regula:{{ .Tag }}"
+
+brews:
+  - skip_upload: auto
+    tap:
+      owner: fugue
+      name: homebrew-regula
+      token: "{{ .Env.BREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: Fugue
+      email: regula@fugue.co
+    folder: Formula
+    homepage: "https://regula.dev"
+    description: "Tool to evaluate infrastructure as code for security and compliance"
+
+checksum:
+  name_template: "checksums.txt"

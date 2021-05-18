@@ -25,7 +25,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:     "regula",
 	Short:   "Regula",
-	Version: fmt.Sprintf("v%s, build %s, built with OPA v%s", version.Version, version.GitCommit, version.OPAVersion),
+	Version: fmt.Sprintf("%s, build %s, built with OPA v%s", version.Version, version.GitCommit, version.OPAVersion),
 }
 
 func Execute() {

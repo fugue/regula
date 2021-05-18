@@ -2,12 +2,8 @@
 .DS_Store
 venv/
 site/
-pkg/rego/lib
-pkg/rego/rules
-regula
-regula-*
-!regula/
+bin/
+dist/
 .vscode/
 .scratch/
 .regula-history
-build/

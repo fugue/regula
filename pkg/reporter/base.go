@@ -51,7 +51,6 @@ const (
 	Table
 	Junit
 	Tap
-	Tap13
 	None
 )
 
@@ -60,7 +59,6 @@ var FormatIds = map[Format][]string{
 	Table: {"table"},
 	Junit: {"junit"},
 	Tap:   {"tap"},
-	Tap13: {"tap13"},
 	None:  {"none"},
 }
 

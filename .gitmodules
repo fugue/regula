@@ -1,0 +1,6 @@
+[submodule "providers/terraform-provider-google"]
+	path = providers/terraform-provider-google
+	url = https://github.com/hashicorp/terraform-provider-google.git
+[submodule "providers/terraform-provider-aws"]
+	path = providers/terraform-provider-aws
+	url = https://github.com/hashicorp/terraform-provider-aws.git

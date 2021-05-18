@@ -18,6 +18,5 @@ import data.tests.rules.tf.azurerm.storage.inputs.container_private_access_infra
 test_storage_container_private_access {
   resources = container_private_access_infra.mock_resources
   allow with input as resources["azurerm_storage_container.validcontainer1"]
-  allow with input as resources["azurerm_storage_container.validcontainer2"]
   not allow with input as resources["azurerm_storage_container.invalidcontainer1"]
 }

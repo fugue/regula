@@ -52,8 +52,8 @@ is_invalid(resource) {
   resource = user_policy_attachments[name]
 } {
   resource = policy_attachments[name]
-  resource.users != null
-  resource.users != [""]
+  user = resource.users[_]
+  user != ""
 }
 
 policy[p] {

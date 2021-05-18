@@ -1,0 +1,16 @@
+changesDir: changes
+unreleasedDir: unreleased
+headerPath: header.tpl.md
+versionHeaderPath: ""
+changelogPath: CHANGELOG.md
+versionExt: md
+versionFormat: '## {{.Version}} ({{.Time.Format "2006-01-02"}})'
+kindFormat: '### {{.Kind}}'
+changeFormat: '* {{.Body}}'
+kinds:
+- Added
+- Changed
+- Deprecated
+- Removed
+- Fixed
+- Security

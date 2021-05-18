@@ -1,0 +1,46 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    environment: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16'
+      - name: Install tools
+        run: make install_tools
+      - name: Extract tag name from git ref
+        id: tag_name
+        run: echo ::set-output name=TAG_NAME::${GITHUB_REF/refs\/tags\//}
+      - name: Ensure changelog exists
+        env:
+          TAG_NAME: ${{ steps.tag_name.outputs.TAG_NAME }}
+        run: make changes/${TAG_NAME}.md
+      - name: Docker login
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+        run: |
+          echo "${DOCKER_TOKEN}" | docker login \
+            --username "${DOCKER_USERNAME}" \
+            --password-stdin
+      - name: Run GoReleaser
+        env:
+          TAG_NAME: ${{ steps.tag_name.outputs.TAG_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BREW_TAP_GITHUB_TOKEN: ${{ secrets.BREW_TAP_GITHUB_TOKEN }}
+        run: |
+          goreleaser release \
+            --release-notes=changes/${TAG_NAME}.md \
+            --skip-validate

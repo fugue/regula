@@ -13,6 +13,7 @@ Input types:
     auto        Automatically determine input types (default)
     tf-plan     Terraform plan JSON
     cfn         CloudFormation template in YAML or JSON format
+    tf          Terraform directory or file
 
 Output formats:
     json    A JSON report containing rule results and a summary (default)

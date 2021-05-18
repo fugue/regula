@@ -22,6 +22,8 @@ input_type = "terraform" {
 }
 
 terraform_input_type {
+  _ = input.hcl_resource_view_version
+} {
   _ = input.terraform_version
 } {
   _ = input.resource_changes

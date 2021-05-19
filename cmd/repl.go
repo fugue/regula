@@ -33,11 +33,17 @@ func NewREPLCommand() *cobra.Command {
 			if err != nil {
 				logrus.Fatal(err)
 			}
+			noTestInputs, err := cmd.Flags().GetBool("no-test-inputs")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			ctx := context.TODO()
 			err = rego.RunREPL(&rego.RunREPLOptions{
-				Ctx:      ctx,
-				UserOnly: userOnly,
-				Includes: includes,
+				Ctx:          ctx,
+				UserOnly:     userOnly,
+				Includes:     includes,
+				NoTestInputs: noTestInputs,
 			})
 
 			if err != nil {
@@ -47,6 +53,7 @@ func NewREPLCommand() *cobra.Command {
 	}
 
 	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
+	cmd.Flags().BoolP("no-test-inputs", "n", false, "Disable loading test inputs")
 	return cmd
 }
 

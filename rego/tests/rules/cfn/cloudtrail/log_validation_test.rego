@@ -16,17 +16,17 @@ package rules.cfn_cloudtrail_log_validation
 import data.tests.rules.cfn.cloudtrail.inputs
 
 test_valid_cloudtrail_log_validation {
-    resources = inputs.valid_log_validation_infra.mock_resources
+    resources = inputs.valid_log_validation_infra_yaml.mock_resources
     allow with input as resources["CloudTrailLogging"]
 }
 
 test_invalid_cloudtrail_log_validation {
-    resources = inputs.invalid_log_validation_infra.mock_resources
+    resources = inputs.invalid_log_validation_infra_yaml.mock_resources
     not allow with input as resources["CloudTrailLogging"]
 }
 
 test_invalid_cloudtrail_log_validation_with_valid {
-    resources = inputs.invalid_log_validation_with_valid_infra.mock_resources
+    resources = inputs.invalid_log_validation_with_valid_infra_yaml.mock_resources
     not allow with input as resources["InvalidCloudTrailLogging"]
     allow with input as resources["ValidCloudTrailLogging"]
 }

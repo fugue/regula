@@ -14,7 +14,7 @@
 package rules.useast1_only
 
 import data.fugue.resource_view.resource_view_input
-import data.tests.examples.aws.inputs.useast1_only_infra.mock_input
+import data.tests.examples.aws.inputs.useast1_only_infra_json.mock_input
 
 test_useast1_only {
   pol = policy with input as mock_input

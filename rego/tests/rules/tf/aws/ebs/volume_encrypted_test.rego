@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_aws_ebs_volume_encrypted
 
-import data.tests.rules.tf.aws.ebs.inputs.volume_encrypted_infra
+import data.tests.rules.tf.aws.ebs.inputs.volume_encrypted_infra_json
 
 test_ebs_volume_encrypted {
-  resources = volume_encrypted_infra.mock_resources
+  resources = volume_encrypted_infra_json.mock_resources
   allow with input as resources["aws_ebs_volume.good"]
   not allow with input as resources["aws_ebs_volume.missing"]
   not allow with input as resources["aws_ebs_volume.bad"]

@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.cfn_vpc_flow_logging_enabled
 
-import data.tests.rules.cfn.vpc.inputs.flow_logging_enabled_infra
+import data.tests.rules.cfn.vpc.inputs.flow_logging_enabled_infra_yaml
 
 test_flow_logging_enabled {
-  pol = policy with input as flow_logging_enabled_infra.mock_input
+  pol = policy with input as flow_logging_enabled_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   by_resource_id["ValidVpc"] == true
   by_resource_id["InvalidVpc"] == false

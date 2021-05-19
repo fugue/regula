@@ -24,9 +24,18 @@ import (
 )
 
 type LoadPathsOptions struct {
-	Paths     []string
-	InputType InputType
-	NoIgnore  bool
+	Paths              []string
+	InputType          InputType
+	NoIgnore           bool
+	DisableDirectories bool
+}
+
+type NoLoadableConfigsError struct {
+	paths []string
+}
+
+func (e *NoLoadableConfigsError) Error() string {
+	return fmt.Sprintf("No loadable files in provided paths: %v", e.paths)
 }
 
 func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
@@ -41,7 +50,8 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 		}
 		// Ignore errors when we're recursing
 		loader, _ := i.DetectType(detector, DetectOptions{
-			IgnoreExt: false,
+			IgnoreExt:          false,
+			DisableDirectories: options.DisableDirectories,
 		})
 		if loader != nil {
 			configurations.AddConfiguration(i.Path(), loader)
@@ -95,7 +105,8 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 				return nil, err
 			}
 			loader, err := i.DetectType(detector, DetectOptions{
-				IgnoreExt: options.InputType != Auto,
+				IgnoreExt:          options.InputType != Auto,
+				DisableDirectories: options.DisableDirectories,
 			})
 			if err != nil {
 				return nil, err
@@ -122,7 +133,7 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 		}
 	}
 	if configurations.Count() < 1 {
-		return nil, fmt.Errorf("No loadable files in provided paths: %v", options.Paths)
+		return nil, &NoLoadableConfigsError{options.Paths}
 	}
 
 	return configurations, nil

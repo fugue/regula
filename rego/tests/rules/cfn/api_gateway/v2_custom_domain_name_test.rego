@@ -16,21 +16,21 @@ package rules.cfn_api_gateway_v2_custom_domain_name
 import data.tests.rules.cfn.api_gateway.inputs
 
 test_valid_v2_custom_domain_name {
-  pol = policy with input as inputs.valid_v2_custom_domain_name_infra.mock_input
+  pol = policy with input as inputs.valid_v2_custom_domain_name_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 1
   by_resource_id["CustomDomainName"] == true
 }
 
 test_valid_v2_custom_domain_name_sam {
-  pol = policy with input as inputs.valid_v2_custom_domain_name_sam_infra.mock_input
+  pol = policy with input as inputs.valid_v2_custom_domain_name_sam_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 1
   by_resource_id["ServerlessAPI"] == true
 }
 
 test_invalid_v2_custom_domain_name {
-  pol = policy with input as inputs.invalid_v2_custom_domain_name_infra.mock_input
+  pol = policy with input as inputs.invalid_v2_custom_domain_name_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 4
   by_resource_id["CustomDomainName"] == false
@@ -40,7 +40,7 @@ test_invalid_v2_custom_domain_name {
 }
 
 test_invalid_v2_custom_domain_name_sam {
-  pol = policy with input as inputs.invalid_v2_custom_domain_name_sam_infra.mock_input
+  pol = policy with input as inputs.invalid_v2_custom_domain_name_sam_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 2
   by_resource_id["ServerlessAPI"] == false

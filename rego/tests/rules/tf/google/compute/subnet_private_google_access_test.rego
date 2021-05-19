@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_google_compute_subnet_private_google_access
 
-import data.tests.rules.tf.google.compute.inputs.subnet_private_google_access_infra
+import data.tests.rules.tf.google.compute.inputs.subnet_private_google_access_infra_json
 
 test_gcp_compute_subnet_private_google_access {
-  resources = subnet_private_google_access_infra.mock_resources
+  resources = subnet_private_google_access_infra_json.mock_resources
   allow with input as resources["google_compute_subnetwork.valid-subnet-1"]
   not allow with input as resources["google_compute_subnetwork.invalid-subnet-1"]
   not allow with input as resources["google_compute_subnetwork.invalid-subnet-2"]

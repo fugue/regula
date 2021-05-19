@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.cfn_kms_key_rotation
 
-import data.tests.rules.cfn.kms.inputs.key_rotation_infra
+import data.tests.rules.cfn.kms.inputs.key_rotation_infra_yaml
 
 test_key_rotation {
-  resources = key_rotation_infra.mock_resources
+  resources = key_rotation_infra_yaml.mock_resources
   allow with input as resources["ValidKey01"]
   not allow with input as resources["InvalidKey01"]
   not allow with input as resources["InvalidKey02"]

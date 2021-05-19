@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_aws_vpc_flow_log
 
-import data.tests.rules.tf.aws.vpc.inputs.flow_log_infra
+import data.tests.rules.tf.aws.vpc.inputs.flow_log_infra_json
 
 test_vpc_flow_log {
-  pol = policy with input as flow_log_infra.mock_input
+  pol = policy with input as flow_log_infra_json.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   by_resource_id["aws_vpc.valid_vpc"] == true
   by_resource_id["aws_vpc.invalid_vpc"] == false

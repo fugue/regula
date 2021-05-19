@@ -16,17 +16,17 @@ package rules.cfn_cloudtrail_cloudwatch
 import data.tests.rules.cfn.cloudtrail.inputs
 
 test_valid_cloudwatch {
-    resources = inputs.valid_cloudwatch_infra.mock_resources
+    resources = inputs.valid_cloudwatch_infra_yaml.mock_resources
     allow with input as resources["CloudTrailLogging"]
 }
 
 test_invalid_cloudwatch {
-    resources = inputs.invalid_cloudwatch_infra.mock_resources
+    resources = inputs.invalid_cloudwatch_infra_yaml.mock_resources
     not allow with input as resources["CloudTrailLogging"]
 }
 
 test_invalid_cloudwatch_with_valid {
-    resources = inputs.invalid_cloudwatch_with_valid_infra.mock_resources
+    resources = inputs.invalid_cloudwatch_with_valid_infra_yaml.mock_resources
     not allow with input as resources["InvalidCloudTrailLogging"]
     allow with input as resources["ValidCloudTrailLogging"]
 }

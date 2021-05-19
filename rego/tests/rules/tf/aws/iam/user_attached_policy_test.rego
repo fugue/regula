@@ -13,7 +13,7 @@
 # limitations under the License.
 package rules.tf_aws_iam_user_attached_policy
 
-import data.tests.rules.tf.aws.iam.inputs.user_attached_policy_infra.mock_input
+import data.tests.rules.tf.aws.iam.inputs.user_attached_policy_infra_json.mock_input
 
 test_user_attached_policy {
   pol := policy with input as mock_input

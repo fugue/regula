@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_aws_iam_admin_policy
 
-import data.tests.rules.tf.aws.iam.inputs.admin_policy_infra
+import data.tests.rules.tf.aws.iam.inputs.admin_policy_infra_json
 
 test_admin_policy {
-  pol = policy with input as admin_policy_infra.mock_input
+  pol = policy with input as admin_policy_infra_json.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   by_resource_id["aws_iam_group_policy.invalid_group_policy"] == false
   by_resource_id["aws_iam_group_policy.valid_group_policy"] == true

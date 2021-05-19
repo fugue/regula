@@ -16,13 +16,13 @@ package rules.cfn_s3_cloudtrail_s3_data_logging_read
 import data.tests.rules.cfn.s3.inputs
 
 test_valid_empty_document {
-  pol = policy with input as inputs.empty_template_infra.mock_input
+  pol = policy with input as inputs.empty_template_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 0
 }
 
 test_valid_cloudtrail_s3_data_logging_read_all_buckets {
-  pol = policy with input as inputs.valid_cloudtrail_s3_data_logging_read_all_buckets_infra.mock_input
+  pol = policy with input as inputs.valid_cloudtrail_s3_data_logging_read_all_buckets_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 4
   by_resource_id["LoggingBucket"] == true
@@ -32,7 +32,7 @@ test_valid_cloudtrail_s3_data_logging_read_all_buckets {
 }
 
 test_valid_cloudtrail_s3_data_logging_all_all_buckets {
-  pol = policy with input as inputs.valid_cloudtrail_s3_data_logging_all_all_buckets_infra.mock_input
+  pol = policy with input as inputs.valid_cloudtrail_s3_data_logging_all_all_buckets_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 4
   by_resource_id["LoggingBucket"] == true
@@ -42,7 +42,7 @@ test_valid_cloudtrail_s3_data_logging_all_all_buckets {
 }
 
 test_valid_cloudtrail_s3_data_logging_all_two_buckets {
-  pol = policy with input as inputs.valid_cloudtrail_s3_data_logging_all_two_buckets_infra.mock_input
+  pol = policy with input as inputs.valid_cloudtrail_s3_data_logging_all_two_buckets_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 2
   by_resource_id["LoggingBucket"] == true
@@ -50,7 +50,7 @@ test_valid_cloudtrail_s3_data_logging_all_two_buckets {
 }
 
 test_invalid_cloudtrail_s3_data_logging_all_one_bucket {
-  pol = policy with input as inputs.invalid_cloudtrail_s3_data_logging_all_one_bucket_infra.mock_input
+  pol = policy with input as inputs.invalid_cloudtrail_s3_data_logging_all_one_bucket_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 2
   by_resource_id["LoggingBucket"] == true
@@ -58,7 +58,7 @@ test_invalid_cloudtrail_s3_data_logging_all_one_bucket {
 }
 
 test_invalid_cloudtrail_s3_data_logging_read_one_bucket {
-  pol = policy with input as inputs.invalid_cloudtrail_s3_data_logging_read_one_bucket_infra.mock_input
+  pol = policy with input as inputs.invalid_cloudtrail_s3_data_logging_read_one_bucket_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 2
   by_resource_id["LoggingBucket"] == true
@@ -66,14 +66,14 @@ test_invalid_cloudtrail_s3_data_logging_read_one_bucket {
 }
 
 test_invalid_cloudtrail_s3_data_logging_no_trails {
-  pol = policy with input as inputs.invalid_cloudtrail_s3_data_logging_no_trails_infra.mock_input
+  pol = policy with input as inputs.invalid_cloudtrail_s3_data_logging_no_trails_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   # The rule shouldn't evaluate any of the buckets when there are no trails.
   count(by_resource_id) == 0
 }
 
 test_invalid_cloudtrail_s3_data_logging_trail_no_data_events {
-  pol = policy with input as inputs.invalid_cloudtrail_s3_data_logging_trail_no_data_events_infra.mock_input
+  pol = policy with input as inputs.invalid_cloudtrail_s3_data_logging_trail_no_data_events_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 4
   by_resource_id["LoggingBucket"] == false
@@ -83,7 +83,7 @@ test_invalid_cloudtrail_s3_data_logging_trail_no_data_events {
 }
 
 test_invalid_cloudtrail_s3_data_logging_trail_no_selector {
-  pol = policy with input as inputs.invalid_cloudtrail_s3_data_logging_trail_no_selector_infra.mock_input
+  pol = policy with input as inputs.invalid_cloudtrail_s3_data_logging_trail_no_selector_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 4
   by_resource_id["LoggingBucket"] == false
@@ -93,7 +93,7 @@ test_invalid_cloudtrail_s3_data_logging_trail_no_selector {
 }
 
 test_valid_cloudtrail_s3_data_logging_write_one_bucket_read_all {
-  pol = policy with input as inputs.valid_cloudtrail_s3_data_logging_write_one_bucket_read_all_infra.mock_input
+  pol = policy with input as inputs.valid_cloudtrail_s3_data_logging_write_one_bucket_read_all_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   count(by_resource_id) == 4
   by_resource_id["LoggingBucket"] == true

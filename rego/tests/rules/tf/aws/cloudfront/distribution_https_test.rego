@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_aws_cloudfront_distribution_https
 
-import data.tests.rules.tf.aws.cloudfront.inputs.distribution_https_infra
+import data.tests.rules.tf.aws.cloudfront.inputs.distribution_https_infra_json
 
 test_cloudfront_distribution_https {
-  resources = distribution_https_infra.mock_resources
+  resources = distribution_https_infra_json.mock_resources
   not allow with input as resources["aws_cloudfront_distribution.allow_all"]
   allow with input as resources["aws_cloudfront_distribution.redirect_to_https"]
   allow with input as resources["aws_cloudfront_distribution.https_only"]

@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_google_compute_subnet_flow_log_enabled
 
-import data.tests.rules.tf.google.compute.inputs.subnet_flow_log_enabled_infra
+import data.tests.rules.tf.google.compute.inputs.subnet_flow_log_enabled_infra_json
 
 test_gcp_compute_subnet_flow_log_enabled {
-  resources = subnet_flow_log_enabled_infra.mock_resources
+  resources = subnet_flow_log_enabled_infra_json.mock_resources
   allow with input as resources["google_compute_subnetwork.valid-subnet-1"]
   allow with input as resources["google_compute_subnetwork.valid-subnet-2"]
   not allow with input as resources["google_compute_subnetwork.invalid-subnet-1"]

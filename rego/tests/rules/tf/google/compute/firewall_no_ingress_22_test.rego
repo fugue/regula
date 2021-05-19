@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_google_compute_firewall_no_ingress_22
 
-import data.tests.rules.tf.google.compute.inputs.firewall_no_ingress_22_infra
+import data.tests.rules.tf.google.compute.inputs.firewall_no_ingress_22_infra_json
 
 test_gcp_compute_firewall_no_ingress_22 {
-  resources = firewall_no_ingress_22_infra.mock_resources
+  resources = firewall_no_ingress_22_infra_json.mock_resources
   not deny with input as resources["google_compute_firewall.valid-rule-1"]
   not deny with input as resources["google_compute_firewall.valid-rule-2"]
   deny with input as resources["google_compute_firewall.invalid-rule-1"]

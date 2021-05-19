@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.cfn_iam_admin_policy
 
-import data.tests.rules.cfn.iam.inputs.admin_policy_infra
+import data.tests.rules.cfn.iam.inputs.admin_policy_infra_yaml
 
 test_admin_policy {
-  pol = policy with input as admin_policy_infra.mock_input
+  pol = policy with input as admin_policy_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   by_resource_id["InvalidGroup01"] == false
   by_resource_id["InvalidPolicy01"] == false

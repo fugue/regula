@@ -16,11 +16,11 @@ package rules.cfn_cloudtrail_encryption
 import data.tests.rules.cfn.cloudtrail.inputs
 
 test_valid_encryption {
-  resources = inputs.valid_encryption_infra.mock_resources
+  resources = inputs.valid_encryption_infra_yaml.mock_resources
   allow with input as resources["CloudTrailLogging"]
 }
 
 test_invalid_encryption {
-  resources = inputs.invalid_encryption_infra.mock_resources
+  resources = inputs.invalid_encryption_infra_yaml.mock_resources
   not allow with input as resources["CloudTrailLogging"]
 }

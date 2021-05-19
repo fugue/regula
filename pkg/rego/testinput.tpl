@@ -11,22 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+package {{.Package}}
 
-# This package was automatically generated from:
-#
-#     tests/rules/cfn/vpc/inputs/ingress_3389_infra.cfn
-#
-# using 'generate_test_inputs.sh' and should not be modified
-# directly.
-#
-# It provides three inputs for testing:
-# - mock_input: The resource view input as passed to advanced rules
-# - mock_resources: The resources present as a convenience for tests
-# - mock_config: The raw config input as its parsed by regula
-package tests.rules.cfn.vpc.inputs.ingress_3389_infra
+import data.fugue.resource_view.resource_view_input
 
-import data.fugue.regula.tests
-
-mock_config := regula_load_type("ingress_3389_infra.cfn", "cfn")
-mock_input := tests.mock_input(mock_config)
+mock_input := ret {
+  ret = resource_view_input with input as mock_config
+}
 mock_resources := mock_input.resources
+mock_config := {{.Config}}

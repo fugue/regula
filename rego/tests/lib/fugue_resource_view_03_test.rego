@@ -13,10 +13,10 @@
 # limitations under the License.
 package fugue.resource_view
 
-import data.tests.lib.inputs.resource_view_03_infra
+import data.tests.lib.inputs.resource_view_03_infra_json
 
 test_resource_view_03 {
-  resource_view_03_infra.mock_resources == {
+  resource_view_03_infra_json.mock_resources == {
      "azurerm_monitor_log_profile.main": {
       "_type": "azurerm_monitor_log_profile",
       "_provider": "azurerm",

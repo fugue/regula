@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_azurerm_storage_account_deny_access
 
-import data.tests.rules.tf.azurerm.storage.inputs.account_deny_access_infra
+import data.tests.rules.tf.azurerm.storage.inputs.account_deny_access_infra_json
 
 test_storage_account_deny_access {
-  resources = account_deny_access_infra.mock_resources
+  resources = account_deny_access_infra_json.mock_resources
   allow with input as resources["azurerm_storage_account.validstorageaccount1"]
   allow with input as resources["azurerm_storage_account.validstorageaccount2"]
   not allow with input as resources["azurerm_storage_account.invalidstorageaccount1"]

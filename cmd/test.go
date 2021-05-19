@@ -33,11 +33,17 @@ func NewTestCommand() *cobra.Command {
 			if err != nil {
 				logrus.Fatal(err)
 			}
+			noTestInputs, err := cmd.Flags().GetBool("no-test-inputs")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			ctx := context.TODO()
 			err = rego.RunTest(&rego.RunTestOptions{
-				Ctx:      ctx,
-				Includes: includes,
-				Trace:    trace,
+				Ctx:          ctx,
+				Includes:     includes,
+				Trace:        trace,
+				NoTestInputs: noTestInputs,
 			})
 			if err != nil {
 				logrus.Fatal(err)
@@ -45,6 +51,7 @@ func NewTestCommand() *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolP("trace", "t", false, "Enable trace output")
+	cmd.Flags().BoolP("no-test-inputs", "n", false, "Disable loading test inputs")
 	return cmd
 }
 

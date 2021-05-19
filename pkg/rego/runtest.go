@@ -10,9 +10,10 @@ import (
 )
 
 type RunTestOptions struct {
-	Ctx      context.Context
-	Includes []string
-	Trace    bool
+	Ctx          context.Context
+	Includes     []string
+	Trace        bool
+	NoTestInputs bool
 }
 
 func RunTest(options *RunTestOptions) error {
@@ -31,6 +32,11 @@ func RunTest(options *RunTestOptions) error {
 	}
 	if err := LoadOSFiles(options.Includes, cb); err != nil {
 		return err
+	}
+	if !options.NoTestInputs {
+		if err := LoadTestInputs(options.Includes, cb); err != nil {
+			return err
+		}
 	}
 	ch, err := tester.
 		NewRunner().

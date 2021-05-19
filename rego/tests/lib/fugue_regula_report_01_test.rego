@@ -17,10 +17,10 @@
 package fugue.regula_report_01_test
 
 import data.fugue.regula
-import data.tests.lib.inputs.volume_encrypted_infra
+import data.tests.lib.inputs.volume_encrypted_infra_json
 
 # We reuse the mock input from another test case.
-mock_config = volume_encrypted_infra.mock_config[0].content
+mock_config = volume_encrypted_infra_json.mock_config
 
 # We construct some mock rules as well.
 mock_rules = {

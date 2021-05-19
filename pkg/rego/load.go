@@ -1,16 +1,18 @@
 package rego
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 
+	"github.com/fugue/regula/pkg/loader"
 	embedded "github.com/fugue/regula/rego"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
 )
 
-var loadExts map[string]bool = map[string]bool{
+var opaExts map[string]bool = map[string]bool{
 	".rego": true,
 	// TODO: We should evaluate how useful it is for end-users to load non-rego files
 	// in their rules. We'll need to change how these files get loaded into OPA in
@@ -64,7 +66,7 @@ func loadDirectory(fsys fs.FS, path string, cb func(r RegoFile) error) error {
 		if d.IsDir() {
 			return nil
 		}
-		if ext := filepath.Ext(path); !loadExts[ext] {
+		if ext := filepath.Ext(path); !opaExts[ext] {
 			return nil
 		}
 		regoFile, err := newRegoFile(fsys, path)
@@ -119,6 +121,39 @@ func LoadRegula(userOnly bool, cb func(r RegoFile) error) error {
 		}
 	}
 
+	return nil
+}
+
+func LoadTestInputs(paths []string, cb func(r RegoFile) error) error {
+	filteredPaths := []string{}
+	for _, p := range paths {
+		if !opaExts[filepath.Ext(p)] {
+			filteredPaths = append(filteredPaths, p)
+		}
+	}
+	if len(filteredPaths) < 1 {
+		return nil
+	}
+	configs, err := loader.LoadPaths(loader.LoadPathsOptions{
+		Paths:              filteredPaths,
+		DisableDirectories: true,
+	})
+	if err != nil {
+		// Ignore if we can't load any configs
+		if _, ok := err.(*loader.NoLoadableConfigsError); ok {
+			fmt.Fprintln(os.Stderr, "No IaC configurations found in input paths")
+			return nil
+		}
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "Loaded %v IaC configurations as test inputs\n", configs.Count())
+	for _, regulaInput := range configs.RegulaInput() {
+		r, err := NewTestInput(regulaInput)
+		if err != nil {
+			return err
+		}
+		cb(r)
+	}
 	return nil
 }
 

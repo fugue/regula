@@ -3,6 +3,8 @@ package rego_test
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -34,6 +36,9 @@ func runRegoTest(t *testing.T, userOnly bool, includes []string) {
 	if err := rego.LoadOSFiles(includes, cb); err != nil {
 		assert.Fail(t, "Failed to load regula tests", err)
 	}
+	if err := rego.LoadTestInputs(includes, cb); err != nil {
+		assert.Fail(t, "Failed to load test inputs", err)
+	}
 	ctx := context.Background()
 	ch, err := tester.NewRunner().SetStore(inmem.New()).Run(ctx, modules)
 	if err != nil {
@@ -58,13 +63,24 @@ func runRegoTest(t *testing.T, userOnly bool, includes []string) {
 }
 
 func TestRegulaLib(t *testing.T) {
-	runRegoTest(t, true, []string{"../../rego/tests/lib"})
+	runRegoTest(t, true, []string{"tests/lib"})
 }
 
 func TestRegulaRules(t *testing.T) {
-	runRegoTest(t, false, []string{"../../rego/tests/rules"})
+	runRegoTest(t, false, []string{"tests/rules"})
 }
 
 func TestRegulaExamples(t *testing.T) {
-	runRegoTest(t, true, []string{"../../rego/examples", "../../rego/tests/examples"})
+	runRegoTest(t, true, []string{"examples", "tests/examples"})
+}
+
+// Trick to set the working directory to the rego directory
+func init() {
+	regoDir, err := filepath.Abs("../../rego")
+	if err != nil {
+		panic(err)
+	}
+	if err := os.Chdir(regoDir); err != nil {
+		panic(err)
+	}
 }

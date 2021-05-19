@@ -38,7 +38,7 @@ python3 -m venv venv
 3. Install MkDocs and theme:
 
 ```
-pip install mkdocs mkdocs-material
+pip install mkdocs mkdocs-material mkdocs-macros-plugin
 ```
 
 ### Build the site - live preview

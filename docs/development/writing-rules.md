@@ -90,7 +90,7 @@ deny[msg] {
 
 ## Adding rule metadata
 
-You can add metadata to a rule:
+You can add metadata to a rule to enhance Regula's [report](../report.md):
 
 ```
 __rego__metadoc__ := {
@@ -115,3 +115,25 @@ Regula supports the following metadata properties:
 - `description`: Longer description of the rule
 - `controls`: An object where the key is the compliance family name and the value is an array of controls
 - `severity`: One of `Critical`, `High`, `Medium`, `Low`, `Informational`
+
+Here's an example rule result to show how this metadata looks in the report:
+
+```json
+    {
+      "controls": [
+        "CORPORATE-POLICY_1.1"
+      ],
+      "filepath": "../regula-ci-example/infra_tf/",
+      "platform": "terraform",
+      "provider": "aws",
+      "resource_id": "aws_iam_policy.basically_allow_all",
+      "resource_type": "aws_iam_policy",
+      "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
+      "rule_id": "CUSTOM_0001",
+      "rule_message": "",
+      "rule_name": "long_description",
+      "rule_result": "FAIL",
+      "rule_severity": "Low",
+      "rule_summary": "IAM policies must have a description of at least 25 characters"
+    }
+```

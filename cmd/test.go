@@ -26,7 +26,7 @@ import (
 
 func NewTestCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "test [rego paths]",
+		Use:   "test [paths containing rego or test inputs]",
 		Short: "Run OPA test with Regula.",
 		Run: func(cmd *cobra.Command, includes []string) {
 			trace, err := cmd.Flags().GetBool("trace")

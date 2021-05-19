@@ -59,8 +59,7 @@ func NewTestInput(regulaInput loader.RegulaInput) (RegoFile, error) {
 }
 
 func pathToPackage(path string) string {
-	// ext := filepath.Ext(path)
-	// p := strings.TrimSuffix(path, ext)
 	p := strings.ReplaceAll(path, ".", "_")
+	p = strings.ReplaceAll(p, "-", "_")
 	return strings.ReplaceAll(p, string(os.PathSeparator), ".")
 }

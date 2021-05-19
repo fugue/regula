@@ -26,7 +26,7 @@ import (
 
 func NewREPLCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "repl [rego paths]",
+		Use:   "repl [paths containing rego or test inputs]",
 		Short: "Start an interactive session for testing rules with Regula",
 		Run: func(cmd *cobra.Command, includes []string) {
 			userOnly, err := cmd.Flags().GetBool("user-only")

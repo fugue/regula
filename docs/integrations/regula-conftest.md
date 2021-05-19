@@ -20,13 +20,13 @@ To use Regula with Conftest:
 
 2.  Now, we'll pull the conftest support for Regula and the Regula library in.
 
-        conftest pull -p policy/ 'github.com/fugue/regula//conftest?ref=v0.8.0'
-        conftest pull -p policy/regula/lib 'github.com/fugue/regula//lib?ref=v0.8.0'
+        conftest pull -p policy/ 'github.com/fugue/regula//conftest?ref={{ version }}'
+        conftest pull -p policy/regula/lib 'github.com/fugue/regula//lib?ref={{ version }}'
 
     If we want to use the rules that come with regula, we can
     use:
 
-        conftest pull -p policy/regula/rules github.com/fugue/regula/rules
+        conftest pull -p policy/regula/rules 'github.com/fugue/regula//rules?ref={{ version }}'
 
     And of course you can pull in your own Regula rules as well.
 

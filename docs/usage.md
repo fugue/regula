@@ -99,5 +99,5 @@ You can also run Regula on Terraform HCL directories using the following command
 
 `HCL_DIRECTORY` is the location of the Terraform HCL files you want Regula to check. This command creates a volume for the Docker container to access these files, so that a Terraform plan file can be generated.
 
-When integrating this in a CI pipeline, we recommend pinning the regula version, e.g. `docker run fugue/regula:v0.7.0`.
+When integrating this in a CI pipeline, we recommend pinning the regula version, e.g. `docker run fugue/regula:{{ version }}`.
 

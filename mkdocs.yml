@@ -1,0 +1,63 @@
+site_name: Regula
+nav:
+    - Home: 'index.md'
+    - 'getting-started.md'
+    - 'usage.md'
+    - 'report.md'
+    - 'configuration.md'
+    - Integrations:
+        - 'integrations/regula-conftest.md'
+        - 'integrations/regula-gh-actions.md'
+        - 'integrations/regula-travis.md'
+    - Custom Rule Development:
+        - 'development/rule-development.md'
+        - 'development/writing-rules.md'
+    - Examples:
+        - 'examples/waive-and-disable.md'
+        - 'examples/writing-a-rule.md'
+    - 'contributing.md'
+    - 'about.md'
+theme:
+  name: material
+  palette:
+    primary: deep purple
+    accent: light blue
+  favicon: img/favicon.ico
+  logo: img/favicon.ico
+  icon:
+    repo: fontawesome/brands/github
+copyright: Copyright &copy; 2021 <a href="https://www.fugue.co" target="_blank">Fugue, Inc.</a>
+repo_url: https://github.com/fugue/regula
+use_directory_urls: false
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js
+  - javascripts/tables.js
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - def_list
+  - pymdownx.tabbed
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+  - toc:
+      permalink: ⚓︎
+site_url: https://regula.dev
+edit_uri: blob/master/docs/
+extra:
+  social:
+    - icon: fontawesome/solid/globe
+      link: https://www.fugue.co
+      name: Fugue website
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/fugue-inc-/
+      name: Fugue on LinkedIn
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/fuguehq
+      name: Fugue on Twitter
+    - icon: fontawesome/brands/github
+      link: https://github.com/fugue
+      name: Fugue on GitHub
+    - icon: fontawesome/solid/envelope
+      link: mailto:regula@fugue.co
+      name: Email the Regula team

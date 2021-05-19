@@ -316,4 +316,4 @@ allow {
 
 ## What's next?
 
-Congratulations, you wrote a simple custom rule! :tada: To learn more about writing rules, check out [Writing Rules](../development/writing-rules.md). Or, continue onward to learn about [integrations](regula-conftest.md).
+Congratulations, you wrote a simple custom rule! :tada: To learn more about writing rules, check out [Writing Rules](../development/writing-rules.md). Or, continue onward to learn how to [contribute](../contributing.md) your rules.

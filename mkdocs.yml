@@ -16,6 +16,7 @@ nav:
         - 'examples/waive-and-disable.md'
         - 'examples/writing-a-rule.md'
     - 'contributing.md'
+    - CHANGELOG: 'docs-changelog.md'
     - 'about.md'
 theme:
   name: material
@@ -38,6 +39,7 @@ markdown_extensions:
   - pymdownx.superfences
   - def_list
   - pymdownx.tabbed
+  - pymdownx.snippets
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
   - toc:
@@ -45,6 +47,7 @@ markdown_extensions:
 site_url: https://regula.dev
 edit_uri: blob/master/docs/
 extra:
+  version: v0.8.0
   social:
     - icon: fontawesome/solid/globe
       link: https://www.fugue.co
@@ -61,3 +64,6 @@ extra:
     - icon: fontawesome/solid/envelope
       link: mailto:regula@fugue.co
       name: Email the Regula team
+plugins:
+  - macros
+  - search

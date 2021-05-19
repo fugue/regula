@@ -68,9 +68,9 @@ func NewRunCommand() *cobra.Command {
 			}
 
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
-				Paths:     paths,
-				InputType: inputType,
-				NoIgnore:  noIgnore,
+				Paths:       paths,
+				InputType:   inputType,
+				NoGitIgnore: noIgnore,
 			})
 			if err != nil {
 				logrus.Fatal(err)

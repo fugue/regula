@@ -52,7 +52,7 @@ func (d *directory) Children() []InputPath {
 type directoryOptions struct {
 	Path          string
 	Name          string
-	NoIgnore      bool
+	NoGitIgnore   bool
 	GitRepoFinder *git.RepoFinder
 }
 
@@ -63,7 +63,7 @@ func newDirectory(opts directoryOptions) (InputDirectory, error) {
 		return nil, err
 	}
 	var repo git.Repo
-	if !opts.NoIgnore {
+	if !opts.NoGitIgnore {
 		repo = opts.GitRepoFinder.FindRepo(opts.Path)
 	}
 	for _, e := range entries {
@@ -79,7 +79,7 @@ func newDirectory(opts directoryOptions) (InputDirectory, error) {
 			i, err = newDirectory(directoryOptions{
 				Path:          p,
 				Name:          n,
-				NoIgnore:      opts.NoIgnore,
+				NoGitIgnore:   opts.NoGitIgnore,
 				GitRepoFinder: opts.GitRepoFinder,
 			})
 			if err != nil {

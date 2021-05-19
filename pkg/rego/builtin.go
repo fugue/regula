@@ -50,9 +50,9 @@ func regulaLoad(ctx rego.BuiltinContext, a *ast.Term) (*ast.Term, error) {
 	path = resolvePath(path, ctx.Location.File)
 
 	return loadToAstTerm(loader.LoadPathsOptions{
-		Paths:     []string{path},
-		InputType: loader.Auto,
-		NoIgnore:  false,
+		Paths:       []string{path},
+		InputType:   loader.Auto,
+		NoGitIgnore: false,
 	})
 }
 
@@ -74,9 +74,9 @@ func regulaLoadType(ctx rego.BuiltinContext, a *ast.Term, b *ast.Term) (*ast.Ter
 	path = resolvePath(path, ctx.Location.File)
 
 	return loadToAstTerm(loader.LoadPathsOptions{
-		Paths:     []string{path},
-		InputType: inputType,
-		NoIgnore:  false,
+		Paths:       []string{path},
+		InputType:   inputType,
+		NoGitIgnore: false,
 	})
 }
 

@@ -135,8 +135,8 @@ func LoadTestInputs(paths []string, cb func(r RegoFile) error) error {
 		return nil
 	}
 	configs, err := loader.LoadPaths(loader.LoadPathsOptions{
-		Paths:              filteredPaths,
-		DisableDirectories: true,
+		Paths:      filteredPaths,
+		IgnoreDirs: true,
 	})
 	if err != nil {
 		// Ignore if we can't load any configs

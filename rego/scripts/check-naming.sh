@@ -30,7 +30,7 @@ for rule_file in {rules,examples}/**/*.rego; do
     exit_code=1
   fi
 
-  infra_files=(tests/${rule_dirname}/inputs/*${rule_basename}*_infra.rego)
+  infra_files=(tests/${rule_dirname}/inputs/*${rule_basename}*_infra.*)
   if [[ ${#infra_files[@]} -lt 1 ]]; then
     1>&2 echo "Missing infra files for ${rule_file}"
     exit_code=1

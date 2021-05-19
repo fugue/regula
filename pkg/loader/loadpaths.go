@@ -24,10 +24,10 @@ import (
 )
 
 type LoadPathsOptions struct {
-	Paths              []string
-	InputType          InputType
-	NoIgnore           bool
-	DisableDirectories bool
+	Paths       []string
+	InputType   InputType
+	NoGitIgnore bool
+	IgnoreDirs  bool
 }
 
 type NoLoadableConfigsError struct {
@@ -50,8 +50,8 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 		}
 		// Ignore errors when we're recursing
 		loader, _ := i.DetectType(detector, DetectOptions{
-			IgnoreExt:          false,
-			DisableDirectories: options.DisableDirectories,
+			IgnoreExt:  false,
+			IgnoreDirs: options.IgnoreDirs,
 		})
 		if loader != nil {
 			configurations.AddConfiguration(i.Path(), loader)
@@ -89,7 +89,7 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 		if info.IsDir() {
 			// We want to override the gitignore behavior if the user explicitly gives
 			// us a directory that is ignored.
-			noIgnore := options.NoIgnore
+			noIgnore := options.NoGitIgnore
 			if !noIgnore {
 				if repo := gitRepoFinder.FindRepo(path); repo != nil {
 					noIgnore = repo.IsPathIgnored(path, true)
@@ -98,15 +98,15 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 			i, err := newDirectory(directoryOptions{
 				Path:          path,
 				Name:          name,
-				NoIgnore:      noIgnore,
+				NoGitIgnore:   noIgnore,
 				GitRepoFinder: gitRepoFinder,
 			})
 			if err != nil {
 				return nil, err
 			}
 			loader, err := i.DetectType(detector, DetectOptions{
-				IgnoreExt:          options.InputType != Auto,
-				DisableDirectories: options.DisableDirectories,
+				IgnoreExt:  options.InputType != Auto,
+				IgnoreDirs: options.IgnoreDirs,
 			})
 			if err != nil {
 				return nil, err

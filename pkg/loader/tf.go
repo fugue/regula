@@ -562,9 +562,11 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 		} else {
 			return c.RenderExpr(e.Wrapped)
 		}
+	case *hclsyntax.FunctionCallExpr:
+		// This is handled using evaluation.
+	default:
+		fmt.Fprintf(os.Stderr, "warning: unhandled expression type %s\n", reflect.TypeOf(expr).String())
 	}
-
-	fmt.Fprintf(os.Stderr, "warning: unhandled expression type %s\n", reflect.TypeOf(expr).String())
 
 	// Fall back to normal eval.
 	return c.EvaluateExpr(expr)

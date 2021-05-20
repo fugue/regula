@@ -24,7 +24,10 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
+	"github.com/hashicorp/terraform/addrs"
 	"github.com/hashicorp/terraform/configs"
+	"github.com/hashicorp/terraform/lang"
+	"github.com/hashicorp/terraform/tfdiags"
 	"github.com/zclconf/go-cty/cty"
 
 	"tf_resource_schemas"
@@ -36,8 +39,9 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 	if !strings.HasSuffix(i.Path(), ".tf") {
 		return nil, fmt.Errorf("Expected a .tf extension for %s", i.Path())
 	}
+	dir := filepath.Dir(i.Path())
 
-	return parseFiles([]string{}, nil, []string{i.Path()})
+	return parseFiles([]string{}, dir, false, []string{i.Path()})
 }
 
 func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
@@ -55,9 +59,11 @@ type HclConfiguration struct {
 	path []string
 
 	// Directory the configuration is loaded from.  Necessary to find the
-	// locations of child modules.  If this is `nil`, it means the configuration
-	// was not loaded from a directory.
-	dir *string
+	// locations of child modules, and do `file()` calls.
+	dir string
+
+	// Recursively load submodules.
+	recurse bool
 
 	// Filepaths that have been loaded.
 	filepaths []string
@@ -88,22 +94,21 @@ func parseDirectory(path []string, dir string) (*HclConfiguration, error) {
 		return nil, diags
 	}
 
-	return parseFiles(path, &dir, primary)
+	return parseFiles(path, dir, true, primary)
 }
 
-func parseFiles(path []string, dir *string, filepaths []string) (*HclConfiguration, error) {
+func parseFiles(path []string, dir string, recurse bool, filepaths []string) (*HclConfiguration, error) {
 	// Attempt to make filepaths relative, since we have the directory as well.
 	for i := range filepaths {
-		if dir != nil {
-			if rel, err := filepath.Rel(*dir, filepaths[i]); err != nil {
-				filepaths[i] = rel
-			}
+		if rel, err := filepath.Rel(dir, filepaths[i]); err != nil {
+			filepaths[i] = rel
 		}
 	}
 
 	configuration := new(HclConfiguration)
 	configuration.path = path
 	configuration.dir = dir
+	configuration.recurse = recurse
 	configuration.filepaths = filepaths
 
 	parser := configs.NewParser(nil)
@@ -132,7 +137,7 @@ func parseFiles(path []string, dir *string, filepaths []string) (*HclConfigurati
 
 	// Load children
 	configuration.children = make(map[string]*HclConfiguration)
-	if dir != nil {
+	if recurse {
 		for key, moduleCall := range module.ModuleCalls {
 			fmt.Fprintf(os.Stderr, "Key: %s\n", key)
 			body, ok := moduleCall.Config.(*hclsyntax.Body)
@@ -140,13 +145,14 @@ func parseFiles(path []string, dir *string, filepaths []string) (*HclConfigurati
 				// We're only interested in getting the `source` attribute, this
 				// should not have any variables in it.
 				ctx := renderContext{
+					dir:     dir,
 					resolve: func(path []string) interface{} { return nil },
 				}
 				properties := ctx.RenderBody(body)
 				if source, ok := properties["source"]; ok {
 					if str, ok := source.(string); ok {
 						fmt.Fprintf(os.Stderr, "Loading submodule: %s\n", str)
-						childDir := filepath.Join(*dir, str)
+						childDir := filepath.Join(dir, str)
 
 						// Construct child path, e.g. `module.child1.aws_vpc.child`.
 						childPath := make([]string, len(configuration.path))
@@ -180,13 +186,13 @@ func (c0 *HclConfiguration) withVars(vars map[string]interface{}) *HclConfigurat
 
 func (c *HclConfiguration) LoadedFiles() []string {
 	filepaths := []string{}
-	if c.dir != nil {
-		filepaths = append(filepaths, *c.dir)
+	if c.recurse {
+		filepaths = append(filepaths, c.dir)
 	}
 	fmt.Fprintf(os.Stderr, "%v\n", c.filepaths)
 	for _, fp := range c.filepaths {
-		if c.dir != nil && !filepath.IsAbs(fp) {
-			fp = filepath.Join(*c.dir, fp)
+		if c.recurse && !filepath.IsAbs(fp) {
+			fp = filepath.Join(c.dir, fp)
 		}
 		filepaths = append(filepaths, fp)
 	}
@@ -204,8 +210,8 @@ func (c *HclConfiguration) Location(attributePath []string) (*Location, error) {
 
 func (c *HclConfiguration) RegulaInput() RegulaInput {
 	path := ""
-	if c.dir != nil {
-		path = *c.dir
+	if c.recurse {
+		path = c.dir
 	} else {
 		path = c.filepaths[0]
 	}
@@ -359,6 +365,7 @@ func (c *HclConfiguration) GetChild(name string) (*HclConfiguration, bool) {
 			body, ok := moduleCall.Config.(*hclsyntax.Body)
 			if ok {
 				ctx := renderContext{
+					dir:     c.dir,
 					resolve: func(path []string) interface{} { return c.resolveResourceReference(path) },
 				}
 				childVars = ctx.RenderBody(body)
@@ -398,6 +405,7 @@ func (c *HclConfiguration) renderContext() renderContext {
 // This is a structure passed down that contains all additional information
 // apart from the thing being rendered, which is passed separately.
 type renderContext struct {
+	dir     string
 	schema  *tf_resource_schemas.Schema
 	resolve func([]string) interface{}
 }
@@ -557,8 +565,26 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 }
 
 func (c *renderContext) EvaluateExpr(expr hcl.Expression) interface{} {
-	ctx := hcl.EvalContext{}
-	val, _ := expr.Value(&ctx)
+	// We set up a scope and context to be close to regula terraform, and we
+	// reuse the functions that it exposes.
+	scope := lang.Scope{
+		Data:     c,
+		BaseDir:  c.dir,
+		SelfAddr: nil,
+		PureOnly: false,
+	}
+	// NOTE: we could try to convert the variables we have into native cty.Value
+	// items and insert them again as variables.
+	vars := make(map[string]cty.Value)
+	ctx := hcl.EvalContext{
+		Functions: scope.Functions(),
+		Variables: vars,
+	}
+
+	val, err := expr.Value(&ctx)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Evaluation error: %s\n", err)
+	}
 	return c.RenderValue(val)
 }
 
@@ -612,7 +638,70 @@ func (c *renderContext) RenderValue(val cty.Value) interface{} {
 	}
 
 	fmt.Fprintf(os.Stderr, "Unknown type: %v\n", val.Type().GoString())
+	fmt.Fprintf(os.Stderr, "Wholly known: %v\n", val.HasWhollyKnownType())
 	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// This implements the lang.Data interface on the renderContext.  Most of the
+// functions we're interested in do not use lang.Data, but we can't use a `nil`.
+
+type UnsupportedOperationDiag struct {
+}
+
+func (d UnsupportedOperationDiag) Severity() tfdiags.Severity {
+	return tfdiags.Error
+}
+
+func (d UnsupportedOperationDiag) Description() tfdiags.Description {
+	return tfdiags.Description{
+		Summary: "Unsupported operation",
+		Detail:  "This operation cannot currently be performed by regula.",
+	}
+}
+
+func (d UnsupportedOperationDiag) Source() tfdiags.Source {
+	return tfdiags.Source{}
+}
+
+func (d UnsupportedOperationDiag) FromExpr() *tfdiags.FromExpr {
+	return nil
+}
+
+func (c *renderContext) StaticValidateReferences(refs []*addrs.Reference, self addrs.Referenceable) tfdiags.Diagnostics {
+	return tfdiags.Diagnostics{UnsupportedOperationDiag{}}
+}
+
+func (c *renderContext) GetCountAttr(addrs.CountAttr, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
+}
+
+func (c *renderContext) GetForEachAttr(addrs.ForEachAttr, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
+}
+
+func (c *renderContext) GetResource(addrs.Resource, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
+}
+
+func (c *renderContext) GetLocalValue(addrs.LocalValue, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
+}
+
+func (c *renderContext) GetModule(addrs.ModuleCall, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
+}
+
+func (c *renderContext) GetPathAttr(addrs.PathAttr, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
+}
+
+func (c *renderContext) GetTerraformAttr(addrs.TerraformAttr, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
+}
+
+func (c *renderContext) GetInputVariable(addrs.InputVariable, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

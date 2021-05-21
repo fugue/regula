@@ -35,10 +35,10 @@ python3 -m venv venv
 . venv/bin/activate
 ```
 
-3. Install MkDocs and theme:
+3. Install MkDocs and dependencies (from the root of the `regula` repo):
 
 ```
-pip install mkdocs mkdocs-material mkdocs-macros-plugin
+pip install -r docs/requirements.txt
 ```
 
 ### Build the site - live preview

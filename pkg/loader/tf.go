@@ -104,13 +104,6 @@ func parseDirectory(path []string, dir string) (*HclConfiguration, error) {
 }
 
 func parseFiles(path []string, dir string, recurse bool, filepaths []string) (*HclConfiguration, error) {
-	// Attempt to make filepaths relative, since we have the directory as well.
-	for i := range filepaths {
-		if rel, err := filepath.Rel(dir, filepaths[i]); err != nil {
-			filepaths[i] = rel
-		}
-	}
-
 	configuration := new(HclConfiguration)
 	configuration.path = path
 	configuration.dir = dir
@@ -197,9 +190,6 @@ func (c *HclConfiguration) LoadedFiles() []string {
 	}
 	fmt.Fprintf(os.Stderr, "%v\n", c.filepaths)
 	for _, fp := range c.filepaths {
-		if c.recurse && !filepath.IsAbs(fp) {
-			fp = filepath.Join(c.dir, fp)
-		}
 		filepaths = append(filepaths, fp)
 	}
 	for _, child := range c.children {

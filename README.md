@@ -32,7 +32,7 @@ More information is available at [regula.dev](https://regula.dev).
 
 1. Clone the Regula repo and move to the new directory:
 
-        git clone https://github.com/fugue/regula.git
+        git clone -b v0.8.0 https://github.com/fugue/regula.git
         cd regula
 
 2. Install the following:

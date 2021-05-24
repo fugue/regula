@@ -15,7 +15,9 @@
 package loader
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -41,7 +43,7 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 	}
 	dir := filepath.Dir(i.Path())
 
-	return parseFiles([]string{}, dir, false, []string{i.Path()})
+	return parseFiles([]string{}, dir, nil, false, []string{i.Path()})
 }
 
 func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
@@ -56,7 +58,7 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 		return nil, fmt.Errorf("Directory does not contain a .tf file: %s", i.Path())
 	}
 
-	return ParseDirectory([]string{}, i.Path())
+	return ParseDirectory([]string{}, i.Path(), nil)
 }
 
 type HclConfiguration struct {
@@ -89,9 +91,16 @@ type HclConfiguration struct {
 	// Values of variables.  Maybe we should make this lazy to handle cycles
 	// better?
 	vars map[string]interface{}
+
+	// Locations of terraform modules.
+	moduleRegister *terraformModuleRegister
 }
 
-func ParseDirectory(path []string, dir string) (*HclConfiguration, error) {
+func ParseDirectory(
+	path []string,
+	dir string,
+	moduleRegister *terraformModuleRegister,
+) (*HclConfiguration, error) {
 	parser := configs.NewParser(nil)
 	var diags hcl.Diagnostics
 
@@ -100,15 +109,27 @@ func ParseDirectory(path []string, dir string) (*HclConfiguration, error) {
 		return nil, diags
 	}
 
-	return parseFiles(path, dir, true, primary)
+	return parseFiles(path, dir, moduleRegister, true, primary)
 }
 
-func parseFiles(path []string, dir string, recurse bool, filepaths []string) (*HclConfiguration, error) {
+func parseFiles(
+	path []string,
+	dir string,
+	moduleRegister *terraformModuleRegister,
+	recurse bool,
+	filepaths []string,
+) (*HclConfiguration, error) {
 	configuration := new(HclConfiguration)
 	configuration.path = path
 	configuration.dir = dir
 	configuration.recurse = recurse
 	configuration.filepaths = filepaths
+
+	if moduleRegister == nil {
+		configuration.moduleRegister = newTerraformRegister(dir)
+	} else {
+		configuration.moduleRegister = moduleRegister
+	}
 
 	parser := configs.NewParser(nil)
 	var diags hcl.Diagnostics
@@ -152,6 +173,9 @@ func parseFiles(path []string, dir string, recurse bool, filepaths []string) (*H
 					if str, ok := source.(string); ok {
 						fmt.Fprintf(os.Stderr, "Loading submodule: %s\n", str)
 						childDir := filepath.Join(dir, str)
+						if register := configuration.moduleRegister.getDir(str); register != nil {
+							childDir = filepath.Join(dir, *register)
+						}
 
 						// Construct child path, e.g. `module.child1.aws_vpc.child`.
 						childPath := make([]string, len(configuration.path))
@@ -159,7 +183,8 @@ func parseFiles(path []string, dir string, recurse bool, filepaths []string) (*H
 						childPath = append(childPath, "module")
 						childPath = append(childPath, key)
 
-						if child, err := ParseDirectory(childPath, childDir); err == nil {
+						child, err := ParseDirectory(childPath, childDir, configuration.moduleRegister)
+						if err == nil {
 							configuration.children[key] = child
 						} else {
 							fmt.Fprintf(os.Stderr, "warning: Error loading submodule: %s\n", err)
@@ -624,6 +649,10 @@ func (c *renderContext) RenderTraversal(traversal hcl.Traversal) []string {
 }
 
 func (c *renderContext) RenderValue(val cty.Value) interface{} {
+	if !val.IsKnown() {
+		return nil
+	}
+
 	if val.Type() == cty.Bool {
 		return val.True()
 	} else if val.Type() == cty.Number {
@@ -802,4 +831,44 @@ func (node *TfNode) Location() string {
 		node.Range.Start.Line,
 		node.Range.Start.Column,
 	)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// utilities for traversing to a path in a HCL tree somewhat generically
+// `terraform init` downloads modules and writes a helpful file
+// `.terraform/modules/modules.json` that tells us where to find modules
+
+//{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"acm","Source":"terraform-aws-modules/acm/aws","Version":"3.0.0","Dir":".terraform/modules/acm"}]}
+type terraformModuleRegister struct {
+	Modules []terraformModuleRegisterEntry `json:"Modules"`
+}
+
+type terraformModuleRegisterEntry struct {
+	Source string `json:"Source"`
+	Dir    string `json:"Dir"`
+}
+
+func newTerraformRegister(dir string) *terraformModuleRegister {
+	registry := terraformModuleRegister{
+		Modules: []terraformModuleRegisterEntry{},
+	}
+	path := filepath.Join(dir, ".terraform/modules/modules.json")
+	bytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return &registry
+	}
+	json.Unmarshal(bytes, &registry)
+	for _, entry := range registry.Modules {
+		fmt.Fprintf(os.Stderr, "Entry: %s -> %s", entry.Source, entry.Dir)
+	}
+	return &registry
+}
+
+func (r *terraformModuleRegister) getDir(source string) *string {
+	for _, entry := range r.Modules {
+		if entry.Source == source {
+			return &entry.Dir
+		}
+	}
+	return nil
 }

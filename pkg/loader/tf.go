@@ -38,7 +38,7 @@ import (
 type TfDetector struct{}
 
 func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfiguration, error) {
-	if i.Ext() != ".tf" {
+	if !opts.IgnoreExt && i.Ext() != ".tf" {
 		return nil, fmt.Errorf("Expected a .tf extension for %s", i.Path())
 	}
 	dir := filepath.Dir(i.Path())
@@ -55,7 +55,7 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 		}
 	}
 	if !tfExists {
-		return nil, fmt.Errorf("Directory does not contain a .tf file: %s", i.Path())
+		return nil, nil
 	}
 
 	return ParseDirectory([]string{}, i.Path(), nil)

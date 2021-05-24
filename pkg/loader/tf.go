@@ -408,6 +408,7 @@ func (c *HclConfiguration) GetOutput(name string) interface{} {
 
 func (c *HclConfiguration) renderContext(self string) renderContext {
 	return renderContext{
+		dir:     c.dir,
 		resolve: func(path []string) interface{} { return c.resolveResourceReference(self, path) },
 	}
 }
@@ -581,13 +582,16 @@ func (c *renderContext) EvaluateExpr(expr hcl.Expression) interface{} {
 	// reuse the functions that it exposes.
 	scope := lang.Scope{
 		Data:     c,
-		BaseDir:  c.dir,
 		SelfAddr: nil,
 		PureOnly: false,
 	}
 	// NOTE: we could try to convert the variables we have into native cty.Value
 	// items and insert them again as variables.
-	vars := make(map[string]cty.Value)
+	vars := map[string]cty.Value{
+		"path": cty.MapVal(map[string]cty.Value{
+			"module": cty.StringVal(c.dir),
+		}),
+	}
 	ctx := hcl.EvalContext{
 		Functions: scope.Functions(),
 		Variables: vars,
@@ -704,7 +708,7 @@ func (c *renderContext) GetModule(addrs.ModuleCall, tfdiags.SourceRange) (cty.Va
 	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
 }
 
-func (c *renderContext) GetPathAttr(addrs.PathAttr, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+func (c *renderContext) GetPathAttr(attr addrs.PathAttr, diags tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
 	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
 }
 

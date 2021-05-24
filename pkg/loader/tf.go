@@ -56,7 +56,7 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 		return nil, fmt.Errorf("Directory does not contain a .tf file: %s", i.Path())
 	}
 
-	return parseDirectory([]string{}, i.Path())
+	return ParseDirectory([]string{}, i.Path())
 }
 
 type HclConfiguration struct {
@@ -91,7 +91,7 @@ type HclConfiguration struct {
 	vars map[string]interface{}
 }
 
-func parseDirectory(path []string, dir string) (*HclConfiguration, error) {
+func ParseDirectory(path []string, dir string) (*HclConfiguration, error) {
 	parser := configs.NewParser(nil)
 	var diags hcl.Diagnostics
 
@@ -159,7 +159,7 @@ func parseFiles(path []string, dir string, recurse bool, filepaths []string) (*H
 						childPath = append(childPath, "module")
 						childPath = append(childPath, key)
 
-						if child, err := parseDirectory(childPath, childDir); err == nil {
+						if child, err := ParseDirectory(childPath, childDir); err == nil {
 							configuration.children[key] = child
 						} else {
 							fmt.Fprintf(os.Stderr, "warning: Error loading submodule: %s\n", err)
@@ -259,7 +259,7 @@ func (c *HclConfiguration) renderResources() map[string]interface{} {
 func (c *HclConfiguration) renderResource(
 	resourceId string, resource *configs.Resource,
 ) interface{} {
-	context := c.renderContext()
+	context := c.renderContext(resourceId)
 	context.schema = c.schemas[resource.Type]
 
 	properties := make(map[string]interface{})
@@ -297,7 +297,7 @@ func (c *HclConfiguration) getResource(id string) (*configs.Resource, bool) {
 	return nil, false
 }
 
-func (c *HclConfiguration) resolveResourceReference(path []string) interface{} {
+func (c *HclConfiguration) resolveResourceReference(self string, path []string) interface{} {
 	if len(path) < 1 {
 		return nil
 	}
@@ -333,16 +333,28 @@ func (c *HclConfiguration) resolveResourceReference(path []string) interface{} {
 		return nil
 	}
 
-	resourceId := strings.Join(path[:idx], ".")
+	resourceId := ""
+	attributePath := []string{}
+
+	if len(path) == 1 {
+		// Assume it is a local reference and update `path` to point to this
+		// reference inside `self`.
+		resourceId = self
+		attributePath = []string{path[0]}
+	} else {
+		resourceId = strings.Join(path[:idx], ".")
+		attributePath = path[idx:]
+	}
+
 	if resource, ok := c.getResource(resourceId); ok {
 		resourceNode := TfNode{Object: resource.Config, Range: resource.DeclRange}
-		if node, err := resourceNode.GetDescendant(path[idx:]); err == nil {
+		if node, err := resourceNode.GetDescendant(attributePath); err == nil {
 			// NOTE: We could handle non-attribute cases but we're usually not
 			// using these to work with lists and blocks.
 			if node.Attribute != nil {
 				expr := node.Attribute.Expr
 				if e, ok := expr.(hclsyntax.Expression); ok {
-					ctx := c.renderContext()
+					ctx := c.renderContext(resourceId)
 					return ctx.RenderExpr(e)
 				}
 			}
@@ -361,8 +373,10 @@ func (c *HclConfiguration) GetChild(name string) (*HclConfiguration, bool) {
 			body, ok := moduleCall.Config.(*hclsyntax.Body)
 			if ok {
 				ctx := renderContext{
-					dir:     c.dir,
-					resolve: func(path []string) interface{} { return c.resolveResourceReference(path) },
+					dir: c.dir,
+					resolve: func(path []string) interface{} {
+						return c.resolveResourceReference("module."+name, path)
+					},
 				}
 				childVars = ctx.RenderBody(body)
 				for key, val := range childVars {
@@ -384,7 +398,7 @@ func (c *HclConfiguration) GetChild(name string) (*HclConfiguration, bool) {
 func (c *HclConfiguration) GetOutput(name string) interface{} {
 	if output, ok := c.module.Outputs[name]; ok {
 		if e, ok := output.Expr.(hclsyntax.Expression); ok {
-			ctx := c.renderContext()
+			ctx := c.renderContext("")
 			return ctx.RenderExpr(e)
 		}
 	}
@@ -392,9 +406,9 @@ func (c *HclConfiguration) GetOutput(name string) interface{} {
 	return nil
 }
 
-func (c *HclConfiguration) renderContext() renderContext {
+func (c *HclConfiguration) renderContext(self string) renderContext {
 	return renderContext{
-		resolve: func(path []string) interface{} { return c.resolveResourceReference(path) },
+		resolve: func(path []string) interface{} { return c.resolveResourceReference(self, path) },
 	}
 }
 

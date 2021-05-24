@@ -4,3 +4,6 @@
 [submodule "providers/terraform-provider-aws"]
 	path = providers/terraform-provider-aws
 	url = https://github.com/hashicorp/terraform-provider-aws.git
+[submodule "pkg/loader/tf_test/example-terraform-modules"]
+	path = pkg/loader/tf_test/example-terraform-modules
+	url = https://github.com/jaspervdj-luminal/example-terraform-modules.git

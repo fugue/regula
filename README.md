@@ -1,5 +1,7 @@
 # Regula
 
+**Tip: See all of our documentation at [regula.dev](https://regula.dev)!**
+
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -18,13 +20,13 @@
 
 ## Introduction
 
-**Tip: See all of our documentation at [regula.dev](https://regula.dev)!**
-
 Regula is a tool that evaluates CloudFormation and Terraform infrastructure-as-code (IaC) for potential AWS, Azure, and Google Cloud security and compliance violations prior to deployment.
 
 Regula includes a library of rules written in Rego, the policy language used by the Open Policy Agent ([opa]) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS, Azure, and Google Cloud Foundations Benchmarks so you can assess compliance posture. Regula is maintained by engineers at [Fugue](https://fugue.co).
 
 Regula is also available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
+
+More information is available at [regula.dev](https://regula.dev).
 
 ## Installation
 
@@ -155,7 +157,7 @@ Regula rules are written in [Rego] and use the same format as [Fugue Custom Rule
 
 For a list of Regula rules, see the [rules](https://github.com/fugue/regula/tree/master/rules) directory.
 
-For more information about writing rules, see [Writing Rules](https://regula.dev/development/writing-rules.html)
+For more information about writing rules, see [Writing Rules](https://regula.dev/development/writing-rules.html).
 
 To learn how to add tests and debug rules, see [Rule Development](https://regula.dev/development/rule-development.html).
 
@@ -261,7 +263,7 @@ The `summary` block contains a breakdown of the `filepaths` (CloudFormation temp
 
 Regula can be configured to ["waive" rule results](https://regula.dev/configuration.html#waiving-rule-results) or [enable/disable rules](https://regula.dev/configuration.html#disabling-rules) altogether.
 
-To learn how to waive a rule result or disable a rule, see [Configuring Regula](https://regula.dev/configuration.html)
+To learn how to waive a rule result or disable a rule, see [Configuring Regula](https://regula.dev/configuration.html).
 
 ## Running Regula in CI
 

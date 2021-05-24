@@ -25,6 +25,11 @@ builds:
     goos: [linux]
     goarch: [arm, amd64, arm64]
 
+  - <<: *build_defaults
+    id: windows
+    goos: [windows]
+    goarch: [amd64]
+
 dockers:
   - image_templates:
     - "fugue/regula:{{ if .Prerelease }}preview{{ else }}latest{{ end }}"

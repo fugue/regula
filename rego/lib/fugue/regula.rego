@@ -63,13 +63,22 @@ judgement_from_allow_denies(resource, allows, denies) = ret {
   }
 }
 
-# Construct judgements from simple `deny[msg]` style rules.
-judgement_from_deny_messages(resource, messages) = ret {
-  count(messages) == 0
-  ret = fugue.allow_resource(resource)
+# Construct judgements from simple `deny[msg]` or `deny[obj]` style rules.
+judgements_from_deny_set(resource, infos) = ret {
+  count(infos) == 0
+  ret = [fugue.allow_resource(resource)]
 } else = ret {
-  msg = concat(", ", messages)
-  ret = fugue.deny_resource_with_message(resource, msg)
+  all([is_string(info) | info := infos[_]])
+  msg = concat(", ", infos)
+  ret = [fugue.deny_resource_with_message(resource, msg)]
+} else = ret {
+  all([is_object(info) | info := infos[_]])
+  ret := [fugue.deny(params) |
+    info := infos[_]
+    params := json.patch(info,
+      [{"op": "add", "path": "resource", "value": resource}]
+    )
+  ]
 }
 
 # Construct judgements from a multi-resource rule that has a `policy` set.
@@ -90,18 +99,19 @@ evaluate_denies(pkg, resource) = ret {
   ret = [a | a = data["rules"][pkg]["deny"] with input as resource]
 }
 
-# Evaluate the judgement for a simple rule.
-evaluate_rule_judgement(pkg, resource) = ret {
+# Evaluate the judgement for a simple rule.  This may return multiple
+# judgements.
+evaluate_rule_judgements(pkg, resource) = ret {
   # Specifies `deny[msg]` as a set.
   denies = evaluate_denies(pkg, resource)
   any([is_set(d) | d = denies[_]])
-  msgs = [msg | d = denies[_]; d[msg]]
-  ret = judgement_from_deny_messages(resource, msgs)
+  infos = [info | d = denies[_]; d[info]]
+  ret = judgements_from_deny_set(resource, infos)
 } else = ret {
   # Specifies allow / deny as a boolean rule.
   allows = evaluate_allows(pkg, resource)
   denies = evaluate_denies(pkg, resource)
-  ret = judgement_from_allow_denies(resource, allows, denies)
+  ret = [judgement_from_allow_denies(resource, allows, denies)]
 }
 
 # Stringify judgement
@@ -140,7 +150,7 @@ evaluate_rule(rule) = ret {
   judgements = {j |
     resource = resource_view.resource_view[_]
     resource._type == resource_type
-    j = evaluate_rule_judgement(pkg, resource)
+    j = evaluate_rule_judgements(pkg, resource)[_]
   }
 
   ret = [r | r = rule_resource_result(rule, judgements[_])]

@@ -64,7 +64,7 @@ brews:
       email: regula@fugue.co
     folder: Formula
     homepage: "https://regula.dev"
-    description: "Tool to evaluate infrastructure as code for security and compliance"
+    description: "Evaluate infrastructure as code for security and compliance"
 
 checksum:
   name_template: "checksums.txt"

@@ -57,7 +57,7 @@ dockers:
     - "fugue/regula:{{ .Tag }}"
 
 brews:
-  - skip_upload: auto
+  - skip_upload: false
     tap:
       owner: fugue
       name: homebrew-regula

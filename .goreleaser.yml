@@ -30,6 +30,9 @@ builds:
     goos: [windows]
     goarch: [amd64]
 
+archives:
+  - format: binary
+
 dockers:
   - image_templates:
     - "fugue/regula:{{ if .Prerelease }}preview{{ else }}latest{{ end }}"

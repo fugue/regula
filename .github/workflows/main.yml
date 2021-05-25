@@ -7,7 +7,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: recurse
+        submodules: true
     - uses: actions/setup-go@v2
       with:
         go-version: '^1.16'

@@ -42,4 +42,5 @@ jobs:
           BREW_TAP_GITHUB_TOKEN: ${{ secrets.BREW_TAP_GITHUB_TOKEN }}
         run: |
           goreleaser release \
-            --release-notes=changes/${TAG_NAME}.md
+            --release-notes=changes/${TAG_NAME}.md \
+            --skip-validate

@@ -47,6 +47,9 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 }
 
 func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
+	if opts.IgnoreDirs {
+		return nil, nil
+	}
 	// First check that a `.tf` file exists in the directory.
 	tfExists := false
 	for _, child := range i.Children() {

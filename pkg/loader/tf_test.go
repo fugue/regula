@@ -31,7 +31,7 @@ func TestTf(t *testing.T) {
 			dir := filepath.Join(testDir, entry.Name())
 			outputPath := filepath.Join(testDir, entry.Name()+".json")
 
-			hcl, err := loader.ParseDirectory([]string{}, dir)
+			hcl, err := loader.ParseDirectory([]string{}, dir, nil)
 			if err != nil {
 				t.Fatal(err)
 			}

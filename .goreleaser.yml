@@ -24,6 +24,8 @@ builds:
     id: linux
     goos: [linux]
     goarch: [arm, amd64, arm64]
+    env:
+      - CGO_ENABLED=0
 
   - <<: *build_defaults
     id: windows
@@ -31,7 +33,20 @@ builds:
     goarch: [amd64]
 
 archives:
-  - format: binary
+  - id: nix
+    builds: [macos, linux]
+    <<: &archive_defaults
+      name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+      wrap_in_directory: false
+      files:
+      - LICENSE
+    replacements:
+      darwin: macOS
+    format: tar.gz
+  - id: windows
+    builds: [windows]
+    <<: *archive_defaults
+    format: zip
 
 dockers:
   - image_templates:

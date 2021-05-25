@@ -26,7 +26,7 @@ func NewVersionCommand() *cobra.Command {
 		Use:   "version",
 		Short: "Print version information.",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("v%s, build %s, built with OPA v%s\n", version.Version, version.GitCommit, version.OPAVersion)
+			fmt.Printf("%s, build %s, built with OPA v%s\n", version.Version, version.GitCommit, version.OPAVersion)
 		},
 	}
 }

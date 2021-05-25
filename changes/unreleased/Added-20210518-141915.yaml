@@ -7,8 +7,7 @@ body: |
     * Discovery of IaC configurations
     * Additional output formats (an ASCII table, JUnit XML, etc.)
     * A configurable exit status based on rule severity 
-    * `test` and `repl` commands which enhance OPA with the Regula library and
-      custom rego functions.
+    * `test` and `repl` commands which enhance OPA with the Regula library
 
     For descriptions of the new features and how to use them, please see our updated
     documentation at https://regula.dev

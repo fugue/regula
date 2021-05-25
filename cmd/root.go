@@ -29,6 +29,11 @@ var rootCmd = &cobra.Command{
 	Short:   "Regula",
 	Version: fmt.Sprintf("v%s, build %s, built with OPA v%s", version.Version, version.GitCommit, version.OPAVersion),
 	PersistentPreRun: func(cmd *cobra.Command, paths []string) {
+		logrus.SetFormatter(&logrus.TextFormatter{
+			DisableTimestamp:       true,
+			DisableLevelTruncation: true,
+		})
+
 		if verbose {
 			logrus.SetLevel(logrus.DebugLevel)
 		}
@@ -37,7 +42,7 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-    	logrus.Fatal(err)
+		logrus.Fatal(err)
 	}
 }
 

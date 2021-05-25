@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -59,8 +60,9 @@ func NewTestInput(regulaInput loader.RegulaInput) (RegoFile, error) {
 }
 
 func pathToPackage(path string) string {
-	p := strings.ReplaceAll(path, ".", "_")
-	p = strings.ReplaceAll(p, "-", "_")
+	p := strings.TrimPrefix(path, filepath.VolumeName(path))
 	p = strings.TrimPrefix(p, string(os.PathSeparator))
+	p = strings.ReplaceAll(p, ".", "_")
+	p = strings.ReplaceAll(p, "-", "_")
 	return strings.ReplaceAll(p, string(os.PathSeparator), ".")
 }

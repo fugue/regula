@@ -15,39 +15,22 @@
 package cmd
 
 import (
-	"context"
-	_ "embed"
+	"fmt"
 
-	"github.com/fugue/regula/pkg/rego"
-
-	"github.com/sirupsen/logrus"
+	"github.com/fugue/regula/pkg/version"
 	"github.com/spf13/cobra"
 )
 
-func NewTestCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "test [rego paths]",
-		Short: "Run OPA test with Regula.",
-		Run: func(cmd *cobra.Command, includes []string) {
-			trace, err := cmd.Flags().GetBool("trace")
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			ctx := context.TODO()
-			err = rego.RunTest(&rego.RunTestOptions{
-				Ctx:      ctx,
-				Includes: includes,
-				Trace:    trace,
-			})
-			if err != nil {
-				logrus.Fatal(err)
-			}
+func NewVersionCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print version information.",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("v%s, build %s, built with OPA v%s\n", version.Version, version.GitCommit, version.OPAVersion)
 		},
 	}
-	cmd.Flags().BoolP("trace", "t", false, "Enable trace output")
-	return cmd
 }
 
 func init() {
-	rootCmd.AddCommand(NewTestCommand())
+	rootCmd.AddCommand(NewVersionCommand())
 }

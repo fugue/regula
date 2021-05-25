@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"reflect"
 	"strconv"
@@ -30,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform/configs"
 	"github.com/hashicorp/terraform/lang"
 	"github.com/hashicorp/terraform/tfdiags"
+	"github.com/sirupsen/logrus"
 	"github.com/zclconf/go-cty/cty"
 
 	"tf_resource_schemas"
@@ -145,7 +145,7 @@ func parseFiles(
 	configuration.module = module
 	diags = append(diags, lDiags...)
 	if diags.HasErrors() {
-		fmt.Fprintf(os.Stderr, "%s\n", diags.Error())
+		logrus.Warn(diags.Error())
 	}
 	if configuration.module == nil {
 		// Only actually throw an error if we don't have a module.  We can
@@ -159,7 +159,7 @@ func parseFiles(
 	configuration.children = make(map[string]*HclConfiguration)
 	if recurse {
 		for key, moduleCall := range module.ModuleCalls {
-			fmt.Fprintf(os.Stderr, "Key: %s\n", key)
+			logrus.Debugf("Loading submodule %s", key)
 			body, ok := moduleCall.Config.(*hclsyntax.Body)
 			if ok {
 				// We're only interested in getting the `source` attribute, this
@@ -171,11 +171,11 @@ func parseFiles(
 				properties := ctx.RenderBody(body)
 				if source, ok := properties["source"]; ok {
 					if str, ok := source.(string); ok {
-						fmt.Fprintf(os.Stderr, "Loading submodule: %s\n", str)
 						childDir := filepath.Join(dir, str)
 						if register := configuration.moduleRegister.getDir(str); register != nil {
 							childDir = filepath.Join(dir, *register)
 						}
+						logrus.Debugf("Loading source from %s", childDir)
 
 						// Construct child path, e.g. `module.child1.aws_vpc.child`.
 						childPath := make([]string, len(configuration.path))
@@ -187,7 +187,7 @@ func parseFiles(
 						if err == nil {
 							configuration.children[key] = child
 						} else {
-							fmt.Fprintf(os.Stderr, "warning: Error loading submodule: %s\n", err)
+							logrus.Warnf("Error loading submodule %s: %s", key, err)
 						}
 					}
 				}
@@ -213,7 +213,6 @@ func (c *HclConfiguration) LoadedFiles() []string {
 	if c.recurse {
 		filepaths = append(filepaths, c.dir)
 	}
-	fmt.Fprintf(os.Stderr, "%v\n", c.filepaths)
 	for _, fp := range c.filepaths {
 		filepaths = append(filepaths, fp)
 	}
@@ -342,7 +341,7 @@ func (c *HclConfiguration) resolveResourceReference(self string, path []string) 
 	if len(path) == 3 && path[0] == "module" {
 		if child, ok := c.GetChild(path[1]); ok {
 			out := child.GetOutput(path[2])
-			fmt.Fprintf(os.Stderr, "%v -> %v\n", path, out)
+			logrus.Debugf("Found output: %s -> %s", path, out)
 			return out
 		}
 
@@ -404,9 +403,6 @@ func (c *HclConfiguration) GetChild(name string) (*HclConfiguration, bool) {
 					},
 				}
 				childVars = ctx.RenderBody(body)
-				for key, val := range childVars {
-					fmt.Fprintf(os.Stderr, "%s: setting %v to %v\n", name, key, val)
-				}
 			} else {
 				childVars = make(map[string]interface{})
 			}
@@ -581,7 +577,7 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 			if str, ok := key.(string); ok {
 				object[str] = val
 			} else {
-				fmt.Fprintf(os.Stderr, "warning: non-string key: %s\n", reflect.TypeOf(key).String())
+				logrus.Warnf("Non-string object key: %s", reflect.TypeOf(key).String())
 			}
 		}
 		return object
@@ -595,7 +591,7 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 	case *hclsyntax.FunctionCallExpr:
 		// This is handled using evaluation.
 	default:
-		fmt.Fprintf(os.Stderr, "warning: unhandled expression type %s\n", reflect.TypeOf(expr).String())
+		logrus.Debugf("Unhandled expression type %s, falling back to evaluation", reflect.TypeOf(expr).String())
 	}
 
 	// Fall back to normal eval.
@@ -624,7 +620,7 @@ func (c *renderContext) EvaluateExpr(expr hcl.Expression) interface{} {
 
 	val, err := expr.Value(&ctx)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Evaluation error: %s\n", err)
+		logrus.Debugf("Evaluation error: %s", err)
 	}
 	return c.RenderValue(val)
 }
@@ -682,8 +678,7 @@ func (c *renderContext) RenderValue(val cty.Value) interface{} {
 		return object
 	}
 
-	fmt.Fprintf(os.Stderr, "Unknown type: %v\n", val.Type().GoString())
-	fmt.Fprintf(os.Stderr, "Wholly known: %v\n", val.HasWhollyKnownType())
+	logrus.Debugf("Unhandled value type: %v\n", val.Type().GoString())
 	return nil
 }
 
@@ -858,8 +853,9 @@ func newTerraformRegister(dir string) *terraformModuleRegister {
 		return &registry
 	}
 	json.Unmarshal(bytes, &registry)
+	logrus.Debugf("Loaded module register at %s", path)
 	for _, entry := range registry.Modules {
-		fmt.Fprintf(os.Stderr, "Entry: %s -> %s", entry.Source, entry.Dir)
+		logrus.Debugf("Module register entry: %s -> %s", entry.Source, entry.Dir)
 	}
 	return &registry
 }

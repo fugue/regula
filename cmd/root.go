@@ -15,22 +15,33 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/fugue/regula/pkg/version"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
+var verbose bool
+
 var rootCmd = &cobra.Command{
-	Use:     "regula",
-	Short:   "Regula",
-	Version: fmt.Sprintf("v%s, build %s, built with OPA v%s", version.Version, version.GitCommit, version.OPAVersion),
+	Use:   "regula",
+	Short: "Regula",
+	PersistentPreRun: func(cmd *cobra.Command, paths []string) {
+		if verbose {
+			logrus.SetLevel(logrus.DebugLevel)
+		}
+	},
 }
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		logrus.Fatal(err)
 	}
+}
+
+func init() {
+	logrus.SetFormatter(&logrus.TextFormatter{
+		DisableTimestamp:       true,
+		DisableLevelTruncation: true,
+	})
+
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 }

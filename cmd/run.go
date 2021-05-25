@@ -23,6 +23,7 @@ import (
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag"
 )
@@ -41,23 +42,19 @@ func NewRunCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, paths []string) {
 			includes, err := cmd.Flags().GetStringSlice("include")
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			userOnly, err := cmd.Flags().GetBool("user-only")
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			noIgnore, err := cmd.Flags().GetBool("no-ignore")
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			ctx := context.TODO()
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			if len(paths) < 1 {
 				stat, _ := os.Stdin.Stat()
@@ -76,8 +73,7 @@ func NewRunCommand() *cobra.Command {
 				NoIgnore:  noIgnore,
 			})
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			result, err := rego.RunRules(&rego.RunRulesOptions{
 				Ctx:      ctx,
@@ -86,23 +82,19 @@ func NewRunCommand() *cobra.Command {
 				Input:    loadedFiles.RegulaInput(),
 			})
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			reporterFunc, err := reporter.GetReporter(format)
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			output, err := reporter.ParseRegulaOutput(loadedFiles, *result)
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			report, err := reporterFunc(output)
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			if report != "" {
 				fmt.Println(report)

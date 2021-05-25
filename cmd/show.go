@@ -17,11 +17,11 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag"
+	"github.com/sirupsen/logrus"
 )
 
 func NewShowCommand() *cobra.Command {
@@ -34,8 +34,7 @@ func NewShowCommand() *cobra.Command {
   input [file..]   Show the JSON input being passed to regula`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
-				fmt.Fprintf(os.Stderr, "Expected an item to show\n")
-				os.Exit(1)
+				logrus.Fatal("Expected an item to show")
 			}
 
 			switch args[0] {
@@ -46,20 +45,17 @@ func NewShowCommand() *cobra.Command {
 					InputType: inputType,
 				})
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "%s\n", err)
-					os.Exit(1)
+    				logrus.Fatal(err)
 				}
 
 				bytes, err := json.MarshalIndent(loadedFiles.RegulaInput(), "", "  ")
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "%s\n", err)
-					os.Exit(1)
+    				logrus.Fatal(err)
 				}
 				fmt.Println(string(bytes))
 
 			default:
-				fmt.Fprintf(os.Stderr, "Unknown item: %s\n", args[0])
-				os.Exit(1)
+				logrus.Fatalf("Unknown item: %s\n", args[0])
 			}
 		},
 	}

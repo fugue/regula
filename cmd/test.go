@@ -17,11 +17,10 @@ package cmd
 import (
 	"context"
 	_ "embed"
-	"fmt"
-	"os"
 
 	"github.com/fugue/regula/pkg/rego"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -32,8 +31,7 @@ func NewTestCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, includes []string) {
 			trace, err := cmd.Flags().GetBool("trace")
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			ctx := context.TODO()
 			err = rego.RunTest(&rego.RunTestOptions{
@@ -42,8 +40,7 @@ func NewTestCommand() *cobra.Command {
 				Trace:    trace,
 			})
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 		},
 	}

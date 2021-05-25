@@ -13,6 +13,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.5.0
 	github.com/hashicorp/terraform-provider-google v1.20.0 // indirect
 	github.com/open-policy-agent/opa v0.28.0
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/stretchr/testify v1.6.1
 	github.com/terraform-providers/terraform-provider-aws v1.60.0

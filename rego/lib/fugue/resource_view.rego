@@ -21,18 +21,25 @@ import data.fugue.input_type
 import data.fugue.resource_view.cloudformation
 import data.fugue.resource_view.terraform
 
-resource_view_input = ret {
-  input_type.terraform_input_type
-  ret = {"resources": resource_view, "_plan": input}
-} else = ret {
-  input_type.cloudformation_input_type
-  ret = {"resources": resource_view, "_template": input}
-}
-
 resource_view = ret {
+  # If we are already given a resource view, just pass it through.
+  _ = input.hcl_resource_view_version
+  ret = input.resources
+} else = ret {
   input_type.terraform_input_type
   ret = terraform.resource_view
 } else = ret {
   input_type.cloudformation_input_type
   ret = cloudformation.resource_view
+}
+
+resource_view_input = ret {
+  _ = input.hcl_resource_view_version
+  ret = {"resources": resource_view}
+} else = ret {
+  input_type.terraform_input_type
+  ret = {"resources": resource_view, "_plan": input}
+} else = ret {
+  input_type.cloudformation_input_type
+  ret = {"resources": resource_view, "_template": input}
 }

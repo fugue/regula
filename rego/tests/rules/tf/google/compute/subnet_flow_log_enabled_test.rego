@@ -17,7 +17,7 @@ import data.tests.rules.tf.google.compute.inputs.subnet_flow_log_enabled_infra
 
 test_gcp_compute_subnet_flow_log_enabled {
   resources = subnet_flow_log_enabled_infra.mock_resources
-  not deny with input as resources["google_compute_subnetwork.valid-subnet-1"]
-  not deny with input as resources["google_compute_subnetwork.valid-subnet-2"]
-  deny with input as resources["google_compute_subnetwork.invalid-subnet-1"]
+  allow with input as resources["google_compute_subnetwork.valid-subnet-1"]
+  allow with input as resources["google_compute_subnetwork.valid-subnet-2"]
+  not allow with input as resources["google_compute_subnetwork.invalid-subnet-1"]
 }

@@ -39,11 +39,6 @@ resource "azurerm_storage_container" "validcontainer1" {
   container_access_type = "private"
 }
 
-resource "azurerm_storage_container" "validcontainer2" {
-  name                  = "validcontainer2"
-  storage_account_name  = azurerm_storage_account.example.name
-}
-
 resource "azurerm_storage_container" "invalidcontainer1" {
   name                  = "invalidcontainer1"
   storage_account_name  = azurerm_storage_account.example.name

@@ -30,8 +30,8 @@ __rego__metadoc__ := {
 
 resource_type = "google_compute_subnetwork"
 
-default deny = false
+default allow = false
 
-deny {
-  count(input.log_config) == 0
+allow {
+  _ = input.log_config[_]
 }

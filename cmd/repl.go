@@ -35,8 +35,7 @@ func NewREPLCommand() *cobra.Command {
 			}
 			noTestInputs, err := cmd.Flags().GetBool("no-test-inputs")
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				logrus.Fatal(err)
 			}
 			ctx := context.TODO()
 			err = rego.RunREPL(&rego.RunREPLOptions{

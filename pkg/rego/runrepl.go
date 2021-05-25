@@ -69,7 +69,7 @@ func initStore(ctx context.Context, userOnly bool, includes []string) (storage.S
 
 func getBanner() string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Regula v%v - built with OPA v%v\n", version.Version, version.OPAVersion))
+	sb.WriteString(fmt.Sprintf("Regula %v - built with OPA v%v\n", version.Version, version.OPAVersion))
 	sb.WriteString("Run 'help' to see a list of commands.")
 	return sb.String()
 }

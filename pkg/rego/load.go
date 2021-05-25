@@ -1,20 +1,14 @@
 package rego
 
 import (
-	"embed"
 	"io/fs"
 	"os"
 	"path/filepath"
 
+	embedded "github.com/fugue/regula/rego"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
 )
-
-//go:embed lib
-var regulaLib embed.FS
-
-//go:embed rules
-var regulaRules embed.FS
 
 var loadExts map[string]bool = map[string]bool{
 	".rego": true,
@@ -116,11 +110,11 @@ func LoadOSFiles(paths []string, cb func(r RegoFile) error) error {
 }
 
 func LoadRegula(userOnly bool, cb func(r RegoFile) error) error {
-	if err := loadDirectory(regulaLib, "lib", cb); err != nil {
+	if err := loadDirectory(embedded.RegulaLib, "lib", cb); err != nil {
 		return err
 	}
 	if !userOnly {
-		if err := loadDirectory(regulaRules, "rules", cb); err != nil {
+		if err := loadDirectory(embedded.RegulaRules, "rules", cb); err != nil {
 			return err
 		}
 	}

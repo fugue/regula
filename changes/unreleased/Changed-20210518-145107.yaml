@@ -1,0 +1,3 @@
+kind: Changed
+body: Put all rego code in a `rego` subdirectory. Please see our Conftest documentation
+  for the updated URLs.

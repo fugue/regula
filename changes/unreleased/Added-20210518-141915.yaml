@@ -1,0 +1,13 @@
+kind: Added
+body: |
+  A `regula` CLI tool with lots of new features, including:
+    * Support for HCL source code
+    * Built-in OPA and input processing - removes the need for a separate OPA
+      installation as well as the Python and Terraform dependencies.
+    * Discovery of IaC configurations
+    * Additional output formats (an ASCII table, JUnit XML, etc.)
+    * A configurable exit status based on rule severity 
+    * `test` and `repl` commands which enhance OPA with the Regula library
+
+    For descriptions of the new features and how to use them, please see our updated
+    documentation at https://regula.dev

@@ -11,7 +11,7 @@ before:
 
 builds:
   - <<: &build_defaults
-      binary: bin/regula
+      binary: regula
       ldflags:
         - -s -w
         - -X github.com/fugue/regula/pkg/version.Version={{.Tag}}
@@ -23,7 +23,7 @@ builds:
   - <<: *build_defaults
     id: linux
     goos: [linux]
-    goarch: [arm, amd64, arm64]
+    goarch: [amd64, arm64]
     env:
       - CGO_ENABLED=0
 
@@ -40,8 +40,11 @@ archives:
       wrap_in_directory: false
       files:
       - LICENSE
-    replacements:
-      darwin: macOS
+      replacements:
+        darwin: macOS
+        linux: Linux
+        windows: Windows
+        amd64: x86_64
     format: tar.gz
   - id: windows
     builds: [windows]

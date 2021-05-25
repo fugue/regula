@@ -3,13 +3,11 @@ on: [pull_request, push]
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: OPA test
+    name: Test
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-go@v2
-    - run: |
-        go get github.com/open-policy-agent/opa
-        go install github.com/open-policy-agent/opa
-    - run: echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-    - run: opa test lib rules examples tests
-    - run: ./scripts/check-naming.sh
+      with:
+        go-version: '^1.16'
+    - run: make test
+    - run: cd rego && ./scripts/check-naming.sh

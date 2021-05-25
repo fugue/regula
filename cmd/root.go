@@ -25,11 +25,6 @@ var rootCmd = &cobra.Command{
 	Use:   "regula",
 	Short: "Regula",
 	PersistentPreRun: func(cmd *cobra.Command, paths []string) {
-		logrus.SetFormatter(&logrus.TextFormatter{
-			DisableTimestamp:       true,
-			DisableLevelTruncation: true,
-		})
-
 		if verbose {
 			logrus.SetLevel(logrus.DebugLevel)
 		}
@@ -43,5 +38,10 @@ func Execute() {
 }
 
 func init() {
+	logrus.SetFormatter(&logrus.TextFormatter{
+		DisableTimestamp:       true,
+		DisableLevelTruncation: true,
+	})
+
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 }

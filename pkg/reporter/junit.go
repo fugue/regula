@@ -18,6 +18,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"sort"
+	"strings"
 )
 
 func JUnitReporter(o *RegulaOutput) (string, error) {
@@ -49,8 +50,12 @@ func (r ResourceResults) ToTestCase() JUnitTestCase {
 			})
 		}
 	}
+	caseName := strings.Join([]string{
+		r.Filepath,
+		r.ResourceID,
+	}, "#")
 	testCase := JUnitTestCase{
-		Name:       r.ResourceID,
+		Name:       caseName,
 		ClassName:  r.ResourceType,
 		Assertions: len(r.Results),
 	}

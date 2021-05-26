@@ -7,13 +7,13 @@ Regula can be configured to [waive](#waiving-rule-results) rule results or [enab
 
     package fugue.regula.config
 
-You can either pass a specific Regula config file:
+You can either pass a specific Regula config file to [`regula run`](usage.md#run):
 
-    regula -d config.rego -d REGO_PATH ...
+    regula run --include config.rego my_infra
 
 Or a directory that includes your other Rego rules and libraries:
 
-    regula -d my-rego-stuff -d REGO_PATH ...
+    regula run --include my_rego_stuff my_infra
 
 ## Waiving rule results
 
@@ -137,7 +137,7 @@ When should you waive a rule and when should you disable it?
 - If there's a good reason a rule shouldn't apply to a particular resource, you can create a [waiver](#waiving-rule-results) for that rule result. This is useful for making exceptions to rules.
 - If a rule shouldn't apply to *any* resource, you can [disable](#disabling-rules) it. This is useful if a rule is not relevant at all for your organization.
 
-For instance, if you have an S3 bucket that hosts a static website, you can waive the rule ["S3 buckets should have all `block public access` options enabled"](https://github.com/fugue/regula/blob/master/rules/cfn/s3/block_public_access.rego) for that bucket because it's *intentionally* public. The rule will still be applied to all your other S3 buckets, but the website bucket will have a rule result of WAIVED instead of PASS or FAIL.
+For instance, if you have an S3 bucket that hosts a static website, you can waive the rule ["S3 buckets should have all `block public access` options enabled"](https://github.com/fugue/regula/blob/master/rego/rules/cfn/s3/block_public_access.rego) for that bucket because it's *intentionally* public. The rule will still be applied to all your other S3 buckets, but the website bucket will have a rule result of WAIVED instead of PASS or FAIL.
 
 In contrast, if you don't want the "block public access" rule applied to *any* S3 bucket, you can disable it and Regula will ignore the rule. No rule results will be calculated, and therefore the rule won't be included in Regula's report.
 

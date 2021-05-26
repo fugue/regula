@@ -20,9 +20,8 @@ brew upgrade regula
 ### Prebuilt binary (all platforms)
 
 1. Download the Regula archive for your platform from the [Releases](https://github.com/fugue/regula/releases) page.
-2. Unzip the downloaded archive.
-3. `cd` into the unzipped directory.
-4. Move the unzipped binary to somewhere in your PATH:
+2. Extract the downloaded archive.
+3. Move the extracted `regula` binary to somewhere in your PATH:
 
     === "macOS"
 

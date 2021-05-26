@@ -577,7 +577,11 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 			if str, ok := key.(string); ok {
 				object[str] = val
 			} else {
-				logrus.Warnf("Non-string object key: %s", reflect.TypeOf(key).String())
+				if kty := reflect.TypeOf(key); kty != nil {
+					logrus.Warnf("Skipping non-string object key: %s", kty.String())
+				} else {
+					logrus.Warnf("Skipping object key of unknown type")
+				}
 			}
 		}
 		return object
@@ -591,7 +595,11 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 	case *hclsyntax.FunctionCallExpr:
 		// This is handled using evaluation.
 	default:
-		logrus.Debugf("Unhandled expression type %s, falling back to evaluation", reflect.TypeOf(expr).String())
+		if ty := reflect.TypeOf(expr); ty != nil {
+			logrus.Debugf("Unhandled expression type %s, falling back to evaluation", ty.String())
+		} else {
+			logrus.Debug("Unknown expression type, falling back to evaluation")
+		}
 	}
 
 	// Fall back to normal eval.

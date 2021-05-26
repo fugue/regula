@@ -47,7 +47,7 @@ markdown_extensions:
 site_url: https://regula.dev
 edit_uri: blob/master/docs/
 extra:
-  version: v0.8.0
+  version: v0.9.0
   social:
     - icon: fontawesome/solid/globe
       link: https://www.fugue.co

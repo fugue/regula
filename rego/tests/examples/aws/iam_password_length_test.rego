@@ -14,7 +14,7 @@
 package rules.iam_password_length
 
 import data.fugue.resource_view.resource_view_input
-import data.tests.examples.aws.inputs.iam_password_length_infra.mock_input
+import data.tests.examples.aws.inputs.iam_password_length_infra_json.mock_input
 
 test_iam_password_length {
   pol = policy with input as mock_input

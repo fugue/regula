@@ -26,18 +26,23 @@ import (
 
 func NewTestCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "test [rego paths]",
+		Use:   "test [paths containing rego or test inputs]",
 		Short: "Run OPA test with Regula.",
 		Run: func(cmd *cobra.Command, includes []string) {
 			trace, err := cmd.Flags().GetBool("trace")
 			if err != nil {
 				logrus.Fatal(err)
 			}
+			noTestInputs, err := cmd.Flags().GetBool("no-test-inputs")
+			if err != nil {
+				logrus.Fatal(err)
+			}
 			ctx := context.TODO()
 			err = rego.RunTest(&rego.RunTestOptions{
-				Ctx:      ctx,
-				Includes: includes,
-				Trace:    trace,
+				Ctx:          ctx,
+				Includes:     includes,
+				Trace:        trace,
+				NoTestInputs: noTestInputs,
 			})
 			if err != nil {
 				logrus.Fatal(err)
@@ -45,6 +50,7 @@ func NewTestCommand() *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolP("trace", "t", false, "Enable trace output")
+	cmd.Flags().Bool("no-test-inputs", false, "Disable loading test inputs")
 	return cmd
 }
 

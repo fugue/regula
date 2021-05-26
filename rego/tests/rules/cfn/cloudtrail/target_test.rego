@@ -16,14 +16,14 @@ package rules.cfn_cloudtrail_target
 import data.tests.rules.cfn.cloudtrail.inputs
 
 test_valid_target {
-    pol = policy with input as inputs.valid_target_infra.mock_input
+    pol = policy with input as inputs.valid_target_infra_yaml.mock_input
     by_resource_id = {p.id: p.valid | pol[p]}
     count(by_resource_id) == 1
     by_resource_id["LoggingBucket"] == true
 }
 
 test_valid_target_full_check {
-    pol = policy with input as inputs.valid_target_full_check_infra.mock_input
+    pol = policy with input as inputs.valid_target_full_check_infra_yaml.mock_input
     by_resource_id = {p.id: p.valid | pol[p]}
     count(by_resource_id) == 2
     by_resource_id["LoggingBucket"] == true
@@ -31,14 +31,14 @@ test_valid_target_full_check {
 }
 
 test_invalid_target_public {
-    pol = policy with input as inputs.invalid_target_public_infra.mock_input
+    pol = policy with input as inputs.invalid_target_public_infra_yaml.mock_input
     by_resource_id = {p.id: p.valid | pol[p]}
     count(by_resource_id) == 1
     by_resource_id["LoggingBucket"] == false
 }
 
 test_invalid_target_public_write {
-    pol = policy with input as inputs.invalid_target_public_write_infra.mock_input
+    pol = policy with input as inputs.invalid_target_public_write_infra_yaml.mock_input
     by_resource_id = {p.id: p.valid | pol[p]}
     count(by_resource_id) == 1
     by_resource_id["LoggingBucket"] == false

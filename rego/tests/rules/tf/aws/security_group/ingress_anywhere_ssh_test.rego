@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_aws_security_group_ingress_anywhere_ssh
 
-import data.tests.rules.tf.aws.security_group.inputs.ingress_anywhere_ssh_infra
+import data.tests.rules.tf.aws.security_group.inputs.ingress_anywhere_ssh_infra_json
 
 test_security_group_ingress_anywhere_ssh {
-  resources = ingress_anywhere_ssh_infra.mock_resources
+  resources = ingress_anywhere_ssh_infra_json.mock_resources
   not deny with input as resources["aws_security_group.valid_sg_1"]
   not deny with input as resources["aws_security_group.valid_sg_2"]
   deny with input as resources["aws_security_group.invalid_sg_1"]

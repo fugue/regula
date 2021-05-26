@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_aws_s3_bucket_sse
 
-import data.tests.rules.tf.aws.s3.inputs.bucket_sse_infra
+import data.tests.rules.tf.aws.s3.inputs.bucket_sse_infra_json
 
 test_s3_bucket_sse {
-  resources = bucket_sse_infra.mock_resources
+  resources = bucket_sse_infra_json.mock_resources
   not allow with input as resources["aws_s3_bucket.unencrypted"]
   allow with input as resources["aws_s3_bucket.aes_encrypted"]
   allow with input as resources["aws_s3_bucket.kms_encrypted"]

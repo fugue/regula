@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_azurerm_network_security_group_no_inbound_22
 
-import data.tests.rules.tf.azurerm.network.inputs.security_group_no_inbound_22_infra
+import data.tests.rules.tf.azurerm.network.inputs.security_group_no_inbound_22_infra_json
 
 test_network_security_group_no_inbound_22 {
-  pol = policy with input as security_group_no_inbound_22_infra.mock_input
+  pol = policy with input as security_group_no_inbound_22_infra_json.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   by_resource_id["azurerm_network_security_group.validnsg1"] == true
   by_resource_id["azurerm_network_security_group.invalidnsg1"] == false

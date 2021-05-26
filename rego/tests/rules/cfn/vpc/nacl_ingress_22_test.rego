@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.cfn_vpc_nacl_ingress_22
 
-import data.tests.rules.cfn.vpc.inputs.nacl_ingress_22_infra
+import data.tests.rules.cfn.vpc.inputs.nacl_ingress_22_infra_yaml
 
 test_nacl_ingress_22 {
-  pol = policy with input as nacl_ingress_22_infra.mock_input
+  pol = policy with input as nacl_ingress_22_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   by_resource_id["ValidVpc01Nacl"] == true
   by_resource_id["ValidVpc02Nacl"] == true

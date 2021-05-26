@@ -5,6 +5,9 @@ type AutoDetector struct {
 }
 
 func (a *AutoDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
+	if opts.IgnoreDirs {
+		return nil, nil
+	}
 	for _, d := range a.detectors {
 		l, err := i.DetectType(d, opts)
 		if err == nil && l != nil {

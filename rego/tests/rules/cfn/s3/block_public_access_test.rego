@@ -16,12 +16,12 @@ package rules.cfn_s3_block_public_access
 import data.tests.rules.cfn.s3.inputs
 
 test_valid {
-    resources = inputs.valid_block_public_access_infra.mock_resources
+    resources = inputs.valid_block_public_access_infra_yaml.mock_resources
     allow with input as resources["Bucket"]
 }
 
 test_invalid {
-    resources = inputs.invalid_block_public_access_infra.mock_resources
+    resources = inputs.invalid_block_public_access_infra_yaml.mock_resources
     not allow with input as resources["Bucket1"]
     not allow with input as resources["Bucket2"]
 }

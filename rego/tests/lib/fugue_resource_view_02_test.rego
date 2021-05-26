@@ -13,10 +13,10 @@
 # limitations under the License.
 package fugue.resource_view
 
-import data.tests.lib.inputs.resource_view_02_infra
+import data.tests.lib.inputs.resource_view_02_infra_json
 
 test_resource_view_02 {
-  resource_view_02_infra.mock_resources == {
+  resource_view_02_infra_json.mock_resources == {
     "aws_s3_bucket.example": {
       "_provider": "aws",
       "_type": "aws_s3_bucket",

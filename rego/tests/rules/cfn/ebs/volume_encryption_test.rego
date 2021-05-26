@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.cfn_ebs_volume_encryption
 
-import data.tests.rules.cfn.ebs.inputs.volume_encryption_infra
+import data.tests.rules.cfn.ebs.inputs.volume_encryption_infra_yaml
 
 test_volume_encryption {
-  resources = volume_encryption_infra.mock_resources
+  resources = volume_encryption_infra_yaml.mock_resources
   allow with input as resources["ValidVolume01"]
   not allow with input as resources["InvalidVolume01"]
   not allow with input as resources["InvalidVolume02"]

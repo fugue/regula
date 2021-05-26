@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_azurerm_storage_account_secure_transfer
 
-import data.tests.rules.tf.azurerm.storage.inputs.account_secure_transfer_infra
+import data.tests.rules.tf.azurerm.storage.inputs.account_secure_transfer_infra_json
 
 test_storage_account_secure_transfer {
-  resources = account_secure_transfer_infra.mock_resources
+  resources = account_secure_transfer_infra_json.mock_resources
   allow with input as resources["azurerm_storage_account.validstorageaccount1"]
   not allow with input as resources["azurerm_storage_account.invalidstorageaccount1"]
   not allow with input as resources["azurerm_storage_account.invalidstorageaccount2"]

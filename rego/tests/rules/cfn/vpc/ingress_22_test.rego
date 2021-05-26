@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.cfn_vpc_ingress_22
 
-import data.tests.rules.cfn.vpc.inputs.ingress_22_infra
+import data.tests.rules.cfn.vpc.inputs.ingress_22_infra_yaml
 
 test_ingress_22 {
-  pol = policy with input as ingress_22_infra.mock_input
+  pol = policy with input as ingress_22_infra_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   by_resource_id["ValidSecurityGroup02"] == true
   by_resource_id["ValidSecurityGroup03"] == true

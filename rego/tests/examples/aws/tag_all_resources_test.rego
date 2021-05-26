@@ -13,7 +13,7 @@
 # limitations under the License.
 package rules.tag_all_resources
 
-import data.tests.examples.aws.inputs.tag_all_resources_infra.mock_input
+import data.tests.examples.aws.inputs.tag_all_resources_infra_json.mock_input
 
 test_tag_all_resources {
   pol = policy with input as mock_input

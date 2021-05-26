@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_aws_security_group_ingress_anywhere
 
-import data.tests.rules.tf.aws.security_group.inputs.ingress_anywhere_infra
+import data.tests.rules.tf.aws.security_group.inputs.ingress_anywhere_infra_json
 
 test_no_ingress_except_80_443 {
-  resources = ingress_anywhere_infra.mock_resources
+  resources = ingress_anywhere_infra_json.mock_resources
   deny with input as resources["aws_security_group.invalid_allow_all"]
   deny with input as resources["aws_security_group.invalid_include_443"]
   deny with input as resources["aws_security_group.invalid_include_80"]

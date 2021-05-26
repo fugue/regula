@@ -108,7 +108,8 @@ type Location struct {
 
 // DetectOptions are options passed to the configuration detectors.
 type DetectOptions struct {
-	IgnoreExt bool
+	IgnoreExt  bool
+	IgnoreDirs bool
 }
 
 // ConfigurationDetector implements the visitor part of the visitor pattern for the

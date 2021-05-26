@@ -19,9 +19,9 @@ import (
 	"fmt"
 
 	"github.com/fugue/regula/pkg/loader"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/thediveo/enumflag"
-	"github.com/sirupsen/logrus"
 )
 
 func NewShowCommand() *cobra.Command {
@@ -45,12 +45,12 @@ func NewShowCommand() *cobra.Command {
 					InputType: inputType,
 				})
 				if err != nil {
-    				logrus.Fatal(err)
+					logrus.Fatal(err)
 				}
 
 				bytes, err := json.MarshalIndent(loadedFiles.RegulaInput(), "", "  ")
 				if err != nil {
-    				logrus.Fatal(err)
+					logrus.Fatal(err)
 				}
 				fmt.Println(string(bytes))
 

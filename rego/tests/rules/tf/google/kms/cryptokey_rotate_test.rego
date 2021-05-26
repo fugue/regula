@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_google_kms_cryptokey_rotate
 
-import data.tests.rules.tf.google.kms.inputs.cryptokey_rotate_infra
+import data.tests.rules.tf.google.kms.inputs.cryptokey_rotate_infra_json
 
 test_gcp_kms_cryptokey_rotate {
-  resources = cryptokey_rotate_infra.mock_resources
+  resources = cryptokey_rotate_infra_json.mock_resources
   allow with input as resources["google_kms_crypto_key.valid_key_1"]
   not allow with input as resources["google_kms_crypto_key.invalid_key_1"]
   not allow with input as resources["google_kms_crypto_key.invalid_key_2"]

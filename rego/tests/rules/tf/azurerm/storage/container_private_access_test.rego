@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_azurerm_storage_container_private_access
 
-import data.tests.rules.tf.azurerm.storage.inputs.container_private_access_infra
+import data.tests.rules.tf.azurerm.storage.inputs.container_private_access_infra_json
 
 test_storage_container_private_access {
-  resources = container_private_access_infra.mock_resources
+  resources = container_private_access_infra_json.mock_resources
   allow with input as resources["azurerm_storage_container.validcontainer1"]
   not allow with input as resources["azurerm_storage_container.invalidcontainer1"]
 }

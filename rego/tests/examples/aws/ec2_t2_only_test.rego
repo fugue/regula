@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.ec2_t2_only
 
-import data.tests.examples.aws.inputs.ec2_t2_only_infra
+import data.tests.examples.aws.inputs.ec2_t2_only_infra_json
 
 test_t2_only {
-  resources = ec2_t2_only_infra.mock_resources
+  resources = ec2_t2_only_infra_json.mock_resources
   not allow with input as resources["aws_instance.invalid"]
   allow with input as resources["aws_instance.valid_micro"]
   allow with input as resources["aws_instance.valid_small"]

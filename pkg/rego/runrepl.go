@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/version"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/repl"
@@ -15,14 +16,15 @@ import (
 )
 
 type RunREPLOptions struct {
-	Ctx      context.Context
-	UserOnly bool
-	Includes []string
+	Ctx          context.Context
+	UserOnly     bool
+	Includes     []string
+	NoTestInputs bool
 }
 
 func RunREPL(options *RunREPLOptions) error {
 	RegisterBuiltins()
-	store, err := initStore(options.Ctx, options.UserOnly, options.Includes)
+	store, err := initStore(options.Ctx, options.UserOnly, options.Includes, options.NoTestInputs)
 	if err != nil {
 		return err
 	}
@@ -44,7 +46,7 @@ func RunREPL(options *RunREPLOptions) error {
 	return nil
 }
 
-func initStore(ctx context.Context, userOnly bool, includes []string) (storage.Store, error) {
+func initStore(ctx context.Context, userOnly bool, includes []string, noTestInputs bool) (storage.Store, error) {
 	store := inmem.New()
 	txn, err := store.NewTransaction(ctx, storage.TransactionParams{
 		Write: true,
@@ -60,6 +62,11 @@ func initStore(ctx context.Context, userOnly bool, includes []string) (storage.S
 	}
 	if err := LoadOSFiles(includes, cb); err != nil {
 		return nil, err
+	}
+	if !noTestInputs {
+		if err := LoadTestInputs(includes, loader.Auto, cb); err != nil {
+			return nil, err
+		}
 	}
 	if err := store.Commit(ctx, txn); err != nil {
 		return nil, err

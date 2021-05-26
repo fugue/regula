@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_aws_cloudtrail_log_file_validation
 
-import data.tests.rules.tf.aws.cloudtrail.inputs.log_file_validation_infra
+import data.tests.rules.tf.aws.cloudtrail.inputs.log_file_validation_infra_json
 
 test_cloudtrail_log_file_validation {
-  resources = log_file_validation_infra.mock_resources
+  resources = log_file_validation_infra_json.mock_resources
   not allow with input as resources["aws_cloudtrail.invalid_trail"]
   allow with input as resources["aws_cloudtrail.valid_trail"]
 }

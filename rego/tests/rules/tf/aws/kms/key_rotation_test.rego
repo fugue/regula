@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_aws_kms_key_rotation
 
-import data.tests.rules.tf.aws.kms.inputs.key_rotation_infra
+import data.tests.rules.tf.aws.kms.inputs.key_rotation_infra_json
 
 test_kms_rotate {
-  resources = key_rotation_infra.mock_resources
+  resources = key_rotation_infra_json.mock_resources
   count(deny) == 0 with input as resources["aws_kms_key.valid"]
   count(deny) == 1 with input as resources["aws_kms_key.invalid"]
 }

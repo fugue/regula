@@ -37,7 +37,7 @@ func NewRunCommand() *cobra.Command {
 	severity := reporter.Unknown
 	cmd := &cobra.Command{
 		Use:   "run [input...]",
-		Short: "Evaluate rules against infrastructure-as-code with Regula.",
+		Short: "Evaluate rules against infrastructure as code with Regula.",
 		Long:  longDescription,
 		Run: func(cmd *cobra.Command, paths []string) {
 			includes, err := cmd.Flags().GetStringSlice("include")
@@ -68,9 +68,9 @@ func NewRunCommand() *cobra.Command {
 			}
 
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
-				Paths:     paths,
-				InputType: inputType,
-				NoIgnore:  noIgnore,
+				Paths:       paths,
+				InputType:   inputType,
+				NoGitIgnore: noIgnore,
 			})
 			if err != nil {
 				logrus.Fatal(err)

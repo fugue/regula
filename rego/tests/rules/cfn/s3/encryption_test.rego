@@ -16,17 +16,17 @@ package rules.cfn_s3_encryption
 import data.tests.rules.cfn.s3.inputs
 
 test_valid_encryption {
-    resources = inputs.valid_encryption_infra.mock_resources
+    resources = inputs.valid_encryption_infra_yaml.mock_resources
     allow with input as resources["Bucket"]
 }
 
 test_invalid_encryption_missing {
-    resources = inputs.invalid_encryption_missing_infra.mock_resources
+    resources = inputs.invalid_encryption_missing_infra_yaml.mock_resources
     not allow with input as resources["Bucket"]
 }
 
 test_invalid_encryption_with_valid {
-    resources = inputs.invalid_encryption_with_valid_infra.mock_resources
+    resources = inputs.invalid_encryption_with_valid_infra_yaml.mock_resources
     allow with input as resources["Bucket"]
     not allow with input as resources["InvalidBucket"]
 }

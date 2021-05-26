@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_azurerm_sql_firewall_no_inbound_all
 
-import data.tests.rules.tf.azurerm.sql.inputs.firewall_no_inbound_all_infra
+import data.tests.rules.tf.azurerm.sql.inputs.firewall_no_inbound_all_infra_json
 
 test_sql_server_firewall_no_inbound_all {
-  resources = firewall_no_inbound_all_infra.mock_resources
+  resources = firewall_no_inbound_all_infra_json.mock_resources
   not deny with input as resources["azurerm_sql_firewall_rule.validrule1"]
   deny with input as resources["azurerm_sql_firewall_rule.invalidrule1"]
   deny with input as resources["azurerm_sql_firewall_rule.invalidrule2"]

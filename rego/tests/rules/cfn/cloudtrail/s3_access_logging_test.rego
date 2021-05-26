@@ -16,20 +16,20 @@ package rules.cfn_cloudtrail_s3_access_logging
 import data.tests.rules.cfn.cloudtrail.inputs
 
 test_valid_no_cloudtrail {
-    pol = policy with input as inputs.empty_template_infra.mock_input
+    pol = policy with input as inputs.empty_template_infra_yaml.mock_input
     by_resource_id = {p.id: p.valid | pol[p]}
     count(by_resource_id) == 0
 }
 
 test_valid_access_logging {
-    pol = policy with input as inputs.valid_s3_access_logging_infra.mock_input
+    pol = policy with input as inputs.valid_s3_access_logging_infra_yaml.mock_input
     by_resource_id = {p.id: p.valid | pol[p]}
     count(by_resource_id) == 1
     by_resource_id["CloudTrailLogging"] == true
 }
 
 test_invalid_access_logging {
-    pol = policy with input as inputs.invalid_s3_access_logging_infra.mock_input
+    pol = policy with input as inputs.invalid_s3_access_logging_infra_yaml.mock_input
     by_resource_id = {p.id: p.valid | pol[p]}
     count(by_resource_id) == 1
     by_resource_id["CloudTrailLogging"] == false

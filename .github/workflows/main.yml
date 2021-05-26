@@ -16,6 +16,9 @@ jobs:
     - name: Build
       run: make bin/regula
     - name: Run regula test
-      run: cd rego && ../bin/regula test examples rules tests
+      run: |
+        cd rego
+        ../bin/regula test examples rules tests
+        ../bin/regula test --no-test-inputs examples rules tests
     - name: Validate rule tests and test inputs
       run: cd rego && ./scripts/check-naming.sh

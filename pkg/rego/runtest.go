@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/fugue/regula/pkg/loader"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/storage/inmem"
 	"github.com/open-policy-agent/opa/tester"
@@ -34,7 +35,7 @@ func RunTest(options *RunTestOptions) error {
 		return err
 	}
 	if !options.NoTestInputs {
-		if err := LoadTestInputs(options.Includes, cb); err != nil {
+		if err := LoadTestInputs(options.Includes, loader.Auto, cb); err != nil {
 			return err
 		}
 	}

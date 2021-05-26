@@ -54,9 +54,18 @@ func NewTestInput(regulaInput loader.RegulaInput) (RegoFile, error) {
 		return nil, err
 	}
 	return &regoFile{
-		path:     path,
+		path:     pathToRegoPath(path),
 		contents: contentBuf.Bytes(),
 	}, nil
+}
+
+func pathToRegoPath(path string) string {
+	ext := filepath.Ext(path)
+	return strings.Join([]string{
+		strings.TrimSuffix(path, ext),
+		strings.ReplaceAll(ext, ".", "_"),
+		".rego",
+	}, "")
 }
 
 func pathToPackage(path string) string {

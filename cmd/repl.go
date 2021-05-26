@@ -52,7 +52,7 @@ func NewREPLCommand() *cobra.Command {
 	}
 
 	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
-	cmd.Flags().BoolP("no-test-inputs", "n", false, "Disable loading test inputs")
+	cmd.Flags().Bool("no-test-inputs", false, "Disable loading test inputs")
 	return cmd
 }
 

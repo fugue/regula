@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/version"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/repl"
@@ -63,7 +64,7 @@ func initStore(ctx context.Context, userOnly bool, includes []string, noTestInpu
 		return nil, err
 	}
 	if !noTestInputs {
-		if err := LoadTestInputs(includes, cb); err != nil {
+		if err := LoadTestInputs(includes, loader.Auto, cb); err != nil {
 			return nil, err
 		}
 	}

@@ -15,45 +15,38 @@
 package cmd
 
 import (
-	"context"
 	_ "embed"
+	"os"
 
+	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
-
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/thediveo/enumflag"
 )
 
-func NewTestCommand() *cobra.Command {
+func NewWriteTestInputsCommand() *cobra.Command {
+	var inputType loader.InputType
 	cmd := &cobra.Command{
-		Use:   "test [paths containing rego or test inputs]",
-		Short: "Run OPA test with Regula.",
-		Run: func(cmd *cobra.Command, includes []string) {
-			trace, err := cmd.Flags().GetBool("trace")
-			if err != nil {
-				logrus.Fatal(err)
+		Use:   "write-test-inputs [input...]",
+		Short: "Persist dynamically-generated test inputs for use with other Rego interpreters",
+		Run: func(cmd *cobra.Command, paths []string) {
+			cb := func(r rego.RegoFile) error {
+				return os.WriteFile(r.Path(), r.Raw(), 0644)
 			}
-			noTestInputs, err := cmd.Flags().GetBool("no-test-inputs")
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			ctx := context.TODO()
-			err = rego.RunTest(&rego.RunTestOptions{
-				Ctx:          ctx,
-				Includes:     includes,
-				Trace:        trace,
-				NoTestInputs: noTestInputs,
-			})
-			if err != nil {
+			if err := rego.LoadTestInputs(paths, inputType, cb); err != nil {
 				logrus.Fatal(err)
 			}
 		},
 	}
-	cmd.Flags().BoolP("trace", "t", false, "Enable trace output")
-	cmd.Flags().Bool("no-test-inputs", false, "Disable loading test inputs")
+
+	cmd.Flags().VarP(
+		enumflag.New(&inputType, "input-type", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
+		"input-type", "t",
+		"Set the input type for the given paths")
 	return cmd
 }
 
 func init() {
-	rootCmd.AddCommand(NewTestCommand())
+	rootCmd.AddCommand(NewWriteTestInputsCommand())
 }

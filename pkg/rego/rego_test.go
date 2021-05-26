@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/storage/inmem"
@@ -36,7 +37,7 @@ func runRegoTest(t *testing.T, userOnly bool, includes []string) {
 	if err := rego.LoadOSFiles(includes, cb); err != nil {
 		assert.Fail(t, "Failed to load regula tests", err)
 	}
-	if err := rego.LoadTestInputs(includes, cb); err != nil {
+	if err := rego.LoadTestInputs(includes, loader.Auto, cb); err != nil {
 		assert.Fail(t, "Failed to load test inputs", err)
 	}
 	ctx := context.Background()

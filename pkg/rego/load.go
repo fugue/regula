@@ -1,7 +1,6 @@
 package rego
 
 import (
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -10,6 +9,7 @@ import (
 	embedded "github.com/fugue/regula/rego"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
+	"github.com/sirupsen/logrus"
 )
 
 var opaExts map[string]bool = map[string]bool{
@@ -124,7 +124,7 @@ func LoadRegula(userOnly bool, cb func(r RegoFile) error) error {
 	return nil
 }
 
-func LoadTestInputs(paths []string, cb func(r RegoFile) error) error {
+func LoadTestInputs(paths []string, inputType loader.InputType, cb func(r RegoFile) error) error {
 	filteredPaths := []string{}
 	for _, p := range paths {
 		if !opaExts[filepath.Ext(p)] {
@@ -137,16 +137,17 @@ func LoadTestInputs(paths []string, cb func(r RegoFile) error) error {
 	configs, err := loader.LoadPaths(loader.LoadPathsOptions{
 		Paths:      filteredPaths,
 		IgnoreDirs: true,
+		InputType:  inputType,
 	})
 	if err != nil {
 		// Ignore if we can't load any configs
 		if _, ok := err.(*loader.NoLoadableConfigsError); ok {
-			fmt.Fprintln(os.Stderr, "No IaC configurations found in input paths")
+			logrus.Warning("No IaC configurations found in input paths")
 			return nil
 		}
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "Loaded %v IaC configurations as test inputs\n", configs.Count())
+	logrus.Infof("Loaded %v IaC configurations as test inputs\n", configs.Count())
 	for _, regulaInput := range configs.RegulaInput() {
 		r, err := NewTestInput(regulaInput)
 		if err != nil {

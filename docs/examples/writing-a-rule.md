@@ -115,7 +115,7 @@ You'll see this output:
 ```
 {
   "aws_iam_policy.basically_allow_all": {
-    "_provider": "hashicorp/aws",
+    "_provider": "aws",
     "_type": "aws_iam_policy",
     "description": "Some policy",
     "id": "aws_iam_policy.basically_allow_all",
@@ -124,7 +124,7 @@ You'll see this output:
     "policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"*\",\n      \"Effect\": \"Allow\",\n      \"Resource\": \"*\"\n    }\n  ]\n}\n"
   },
   "aws_iam_policy.basically_deny_all": {
-    "_provider": "hashicorp/aws",
+    "_provider": "aws",
     "_type": "aws_iam_policy",
     "description": "Some policy with a long description that denies anything",
     "id": "aws_iam_policy.basically_deny_all",
@@ -234,7 +234,7 @@ You'll see this output:
       ],
       "filepath": "infra_tf",
       "platform": "terraform",
-      "provider": "hashicorp/aws",
+      "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
@@ -251,7 +251,7 @@ You'll see this output:
       ],
       "filepath": "infra_tf",
       "platform": "terraform",
-      "provider": "hashicorp/aws",
+      "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",

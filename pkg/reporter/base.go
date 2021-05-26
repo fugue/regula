@@ -98,6 +98,7 @@ func (o RegulaOutput) ExceedsSeverity(severity Severity) bool {
 }
 
 type ResourceResults struct {
+	Filepath     string
 	ResourceID   string
 	ResourceType string
 	Results      []RuleResult
@@ -144,6 +145,7 @@ func (o RegulaOutput) AggregateByFilepath() ResultsByFilepath {
 		resourceResults, ok := filepathResults.Results[r.ResourceID]
 		if !ok {
 			resourceResults = ResourceResults{
+				Filepath:     r.Filepath,
 				ResourceID:   r.ResourceID,
 				ResourceType: r.ResourceType,
 				Results:      []RuleResult{},

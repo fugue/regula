@@ -297,7 +297,7 @@ Flags:
 
 `regula repl` is the same as OPA's REPL ([`opa run`](https://www.openpolicyagent.org/docs/latest/#3-try-opa-run-interactive)), but with the Regula library and ruleset built in (unless you disable it with `--user-only`). Additionally, Regula's REPL allows you to generate [`mock_input`, `mock_resources`, and `mock_config`](development/rule-development.md#test-inputs) at runtime.
 
-To view this dynamically generated data, start by loading one or more IaC files or a directory containing IaC files. Note that Regula will only operate on individual files rather than interpreting the entire directory as a single configuration.
+To view this dynamically generated data, start by loading one or more IaC files or a directory containing IaC files. Note that `regula repl` will only operate on individual files rather than interpreting the entire directory as a single configuration.
 
 ### Examples
 This command loads the `infra` directory into the REPL:
@@ -320,6 +320,8 @@ Then you can [view the input](development/rule-development.md#viewing-test-input
 ```
 data.<path.to.file>.<iac filename without extension>_<extension>.<input type>
 ```
+
+Regula automatically generates a package name for the input based on the file path, replacing path separators with `.` and other characters (such as dashes) with `_`
 
 For instance, to see the mock resources of `infra/cfn_resources.yaml`, you'd enter this command:
 
@@ -427,7 +429,7 @@ Files or directories passed in to `regula test` must include the following for e
 - The Rego tests file, where each test is prepended with `test_`
 - The test Terraform or CloudFormation IaC file
 
-If passed one or more directories, `regula test` recurses through them and runs all `test_` rules it finds. Note that it will only operate on individual files rather than interpreting the entire directory as a single configuration.
+If passed one or more directories, `regula test` recurses through them and runs all `test_` rules it finds. Note that `regula test` will only operate on individual files rather than interpreting the entire directory as a single configuration.
 
 For more information about using `regula test`, see [Rule Development](development/rule-development.md).
 

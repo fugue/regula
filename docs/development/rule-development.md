@@ -24,7 +24,7 @@ Regula dynamically generates each type of input at runtime when the IaC file is 
 
 ### A note about test input
 
-The package name for the test input is based on its path, relative to where you'll be running [`regula repl`](../usage.md#repl) or [`regula test`](../usage.md#test).
+The package name for the test input is based on its path, relative to where you'll be running [`regula repl`](../usage.md#repl) or [`regula test`](../usage.md#test). Regula automatically generates the package name, replacing path separators with `.` and other characters (such as dashes) with `_`
 
 - When you invoke the command, make sure you're running it from the correct directory relative to the package name.
 - When you write the test, make sure you're referring to the package name relative to where you'll be running the command.

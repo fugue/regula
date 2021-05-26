@@ -100,6 +100,9 @@ func LoadOSFiles(paths []string, cb func(r RegoFile) error) error {
 			}
 			continue
 		}
+		if ext := filepath.Ext(path); !opaExts[ext] {
+			continue
+		}
 		file, err := newRegoFile(fsys, path)
 		if err != nil {
 			return err

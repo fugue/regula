@@ -3,43 +3,43 @@
     "hcl_resource_view_version": "0.0.1",
     "resources": {
       "aws_security_group.parent": {
-        "_provider": "hashicorp/aws",
+        "_provider": "aws",
         "_type": "aws_security_group",
         "id": "aws_security_group.parent",
         "vpc_id": "module.child1.module.grandchild1.aws_vpc.grandchild"
       },
       "aws_vpc.parent": {
-        "_provider": "hashicorp/aws",
+        "_provider": "aws",
         "_type": "aws_vpc",
         "cidr_block": "10.0.0.0/16",
         "id": "aws_vpc.parent"
       },
       "module.child1.aws_vpc.child": {
-        "_provider": "hashicorp/aws",
+        "_provider": "aws",
         "_type": "aws_vpc",
         "cidr_block": "10.0.0.0/16",
         "id": "module.child1.aws_vpc.child"
       },
       "module.child1.module.grandchild1.aws_security_group.grandchild": {
-        "_provider": "hashicorp/aws",
+        "_provider": "aws",
         "_type": "aws_security_group",
         "id": "module.child1.module.grandchild1.aws_security_group.grandchild",
         "vpc_id": "module.child1.module.grandchild1.aws_vpc.grandchild"
       },
       "module.child1.module.grandchild1.aws_vpc.grandchild": {
-        "_provider": "hashicorp/aws",
+        "_provider": "aws",
         "_type": "aws_vpc",
         "cidr_block": "10.0.0.0/16",
         "id": "module.child1.module.grandchild1.aws_vpc.grandchild"
       },
       "module.child2.aws_security_group.child": {
-        "_provider": "hashicorp/aws",
+        "_provider": "aws",
         "_type": "aws_security_group",
         "id": "module.child2.aws_security_group.child",
         "vpc_id": "module.child1.module.grandchild1.aws_vpc.grandchild"
       },
       "module.child2.aws_vpc.child": {
-        "_provider": "hashicorp/aws",
+        "_provider": "aws",
         "_type": "aws_vpc",
         "cidr_block": "10.0.0.0/16",
         "id": "module.child2.aws_vpc.child"

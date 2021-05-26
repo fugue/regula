@@ -305,13 +305,22 @@ func (c *HclConfiguration) renderResource(
 
 	// `provider` may be explicitly set.
 	if provider, ok := properties["provider"]; ok {
-		properties["_provider"] = provider
+		properties["_provider"] = formatProvider(provider)
 		delete(properties, "provider")
 	} else {
-		properties["_provider"] = resource.Provider.ForDisplay()
+		properties["_provider"] = formatProvider(resource.Provider.ForDisplay())
 	}
 
 	return properties
+}
+
+func formatProvider(provider interface{}) interface{} {
+	p, ok := provider.(string)
+	if !ok {
+		return provider
+	}
+	split := strings.Split(p, "/")
+	return split[len(split)-1]
 }
 
 func (c *HclConfiguration) getResource(id string) (*configs.Resource, bool) {

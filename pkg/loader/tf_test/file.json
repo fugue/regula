@@ -3,7 +3,7 @@
     "hcl_resource_view_version": "0.0.1",
     "resources": {
       "aws_s3_bucket.trail_bucket": {
-        "_provider": "hashicorp/aws",
+        "_provider": "aws",
         "_type": "aws_s3_bucket",
         "force_destroy": true,
         "id": "aws_s3_bucket.trail_bucket",

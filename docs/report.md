@@ -100,6 +100,6 @@ The `summary` block contains a breakdown of the `filepaths` (CloudFormation temp
 
 What's the difference between controls and rules? A **control** represents an individual recommendation within a compliance standard, such as "IAM policies should not have full `"*:*"` administrative privileges" (CIS AWS Foundations Benchmark v1.3.0 1.16).
 
-In Regula, a **rule** is a Rego policy that validates whether a cloud resource violates a control (or multiple controls). One example of a rule is [`cfn_iam_admin_policy`](https://github.com/fugue/regula/blob/master/rules/cfn/iam/admin_policy.rego), which checks whether an IAM policy in a CloudFormation template has `"*:*"` privileges. If it does not, the resource fails validation.
+In Regula, a **rule** is a Rego policy that validates whether a cloud resource violates a control (or multiple controls). One example of a rule is [`cfn_iam_admin_policy`](https://github.com/fugue/regula/blob/master/rego/rules/cfn/iam/admin_policy.rego), which checks whether an IAM policy in a CloudFormation template has `"*:*"` privileges. If it does not, the resource fails validation.
 
-Controls map to sets of rules, and rules can map to multiple controls. For example, control `CIS-AWS_v1.2.0_1.22` and `CIS-AWS_v1.3.0_1.16` [both map to](https://github.com/fugue/regula/blob/master/rules/cfn/iam/admin_policy.rego) the rule `cfn_iam_admin_policy`.
+Controls map to sets of rules, and rules can map to multiple controls. For example, control `CIS-AWS_v1.2.0_1.22` and `CIS-AWS_v1.3.0_1.16` [both map to](https://github.com/fugue/regula/blob/master/rego/rules/cfn/iam/admin_policy.rego) the rule `cfn_iam_admin_policy`.

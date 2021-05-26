@@ -4,7 +4,7 @@
 policy-as-code.  Conftest supports Terraform, but policies need to be written
 directly against the plan file which is often inconvenient and tricky.
 
-Regula works works seamlessly with Conftest.
+Regula works seamlessly with Conftest.
 This way you get the advantages of both projects, in particular:
 
  -  Easy CI integration and policy retrieval from Conftest

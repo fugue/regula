@@ -6,9 +6,9 @@ nav:
     - 'report.md'
     - 'configuration.md'
     - Integrations:
-        - 'integrations/regula-conftest.md'
-        - 'integrations/regula-gh-actions.md'
-        - 'integrations/regula-travis.md'
+        - 'integrations/conftest.md'
+        - 'integrations/gh-actions.md'
+        - 'integrations/travis.md'
     - Custom Rule Development:
         - 'development/rule-development.md'
         - 'development/writing-rules.md'
@@ -67,3 +67,8 @@ extra:
 plugins:
   - macros
   - search
+  - redirects:
+      redirect_maps:
+          'integrations/regula-conftest.md': 'integrations/conftest.md'
+          'integrations/regula-gh-actions.md': 'integrations/gh-actions.md'
+          'integrations/regula-travis.md': 'integrations/travis.md'

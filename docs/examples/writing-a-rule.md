@@ -94,48 +94,50 @@ Now we just need the condition. In this case, we want to allow a resource **if**
 
 ### Specify the attribute(s) to check
 
-First, we check how to specify the "description" attribute. There are two ways to find this information:
+First, we check how to specify the "description" attribute. The best way to do this is to check the [`mock_resources`](../development/rule-development.md#test-inputs) dynamically generated from the test IaC file. In this case, we'll use [infra_tf/main.tf](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) as our test file.
 
-- Check the Terraform docs (quick, but not exact for nested attributes)
-- Check the Terraform plan
-
-Let's examine both options.
-
-#### Terraform docs
-
-A quick way to look up how to specify an attribute is to check the Terraform docs. In this case, that's simple -- it's a top-level [`aws_iam_policy`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) attribute called `description`. We know it's a top-level and not a nested attribute because the Terraform docs don't mention that it's part of a "block" or "object." (An example of a nested attribute is the [`enabled`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#enabled) property of the [`versioning`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#versioning) block.)
-
-Because the attribute descriptions in Terraform docs are not always consistent in verbiage, it's not an exact science. However, it's a quick way to at least find the _name_ of the attribute you're looking for, if not the syntax. And it's spot-on for top-level properties.
-
-#### Terraform plan
-
-We can find the attribute name _and_ exact syntax by looking at the Terraform plan. To do so, we initialize the Terraform project, create a plan, and convert it to JSON by running the following commands:
+To view the `mock_resources`, let's fire up the [REPL](../usage.md#repl):
 
 ```
-terraform init
-terraform plan -refresh=false -out=plan.tfplan
-terraform show -json plan.tfplan >input.json
+regula repl infra_tf
 ```
 
-Pop open the JSON file and check out the `resource_changes[_].change.after` section for the resource you want to examine. 
+Now, we enter the package name of the input file, specifying `mock_resources` as the input type. The package name follows the format `data.<path.to.file>.<iac filename without extension>_<extension>.<input type>` so we'll enter the following:
 
-You'll see something like this:
+```
+data.infra_tf.main_tf.mock_resources
+```
+
+For more details on the package name format, see [our note about test inputs](../development/rule-development.md#a-note-about-test-input).
+
+You'll see this output:
 
 ```
 {
-  "format_version": "0.1",
-  "terraform_version": "0.15.3",
-  ...
-  "resource_changes": [
-    {
-      "change": {
-        "after": {
-          "description": "Some policy",
-          "name": "some_policy",
-          ...
+  "aws_iam_policy.basically_allow_all": {
+    "_provider": "aws",
+    "_type": "aws_iam_policy",
+    "description": "Some policy",
+    "id": "aws_iam_policy.basically_allow_all",
+    "name": "some_policy",
+    "path": "/",
+    "policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"*\",\n      \"Effect\": \"Allow\",\n      \"Resource\": \"*\"\n    }\n  ]\n}\n"
+  },
+  "aws_iam_policy.basically_deny_all": {
+    "_provider": "aws",
+    "_type": "aws_iam_policy",
+    "description": "Some policy with a long description that denies anything",
+    "id": "aws_iam_policy.basically_deny_all",
+    "name": "some_policy",
+    "path": "/",
+    "policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": [\n        \"*\"\n      ],\n      \"Effect\": \"Deny\",\n      \"Resource\": \"*\"\n    }\n  ]\n}\n"
+  }
+}
 ```
 
-We consider anything immediately below `after` to be a top-level property, and anything below that to be nested. In this case, we can see that `description` is the field we want, and it's top-level.
+Here you can see that there are two resources defined, both of the type `aws_iam_policy`. The attribute `description` is what we're looking for, and it's located at the level directly beneath the resource ID. That means it's a top-level attribute -- it's not nested under any other attribute.
+
+If you'd like to learn more about using the REPL for developing rules, take a detour to [Rule Development](../development/rule-development.md).
 
 ### Specify the condition
 
@@ -201,21 +203,25 @@ You can use Regula to check your Terraform IaC against this rule if you clone th
 
 If you completed the Getting Started [tutorial](../getting-started.md#tutorial-run-regula-locally-on-terraform-iac) and already cloned the example IaC, you can [skip to the next section](#run-regula).
 
-1. Clone the sample infrastructure repo:
+1. [Install Regula](../getting-started.md#installation).
+
+2. Clone the sample infrastructure repo:
 
         git clone https://github.com/fugue/regula-ci-example.git
 
-2. [Install Regula](../getting-started.md#installation).
+3. Move into the `regula-ci-example` directory:
+
+        cd regula-ci-example
 
 ### Run Regula
 
-`cd` into the `regula` directory and use the following command to check the sample Terraform project in [`regula-ci-example/infra_tf/main.tf`](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) against our custom rule, [`long_description.rego`](https://github.com/fugue/regula-ci-example/blob/master/example_custom_rule/long_description.rego):
+Make sure you're in the `regula-ci-example` directory and use the following command to check the sample Terraform project in [`regula-ci-example/infra_tf/main.tf`](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) against our custom rule, [`long_description.rego`](https://github.com/fugue/regula-ci-example/blob/master/example_custom_rule/long_description.rego):
 
 ```
-./bin/regula -d lib \
-  -d ../regula-ci-example/example_custom_rule/ \
-  ../regula-ci-example/infra_tf/
+regula run --user-only --include example_custom_rule infra_tf
 ```
+
+Note that we've used the `--user-only` option because we want to test _only_ this custom rule. We don't need to apply Regula's library of rules.
 
 You'll see this output:
 
@@ -226,7 +232,7 @@ You'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
@@ -243,7 +249,7 @@ You'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
@@ -259,7 +265,7 @@ You'll see this output:
   ],
   "summary": {
     "filepaths": [
-      "../regula-ci-example/infra_tf/"
+      "infra_tf"
     ],
     "rule_results": {
       "FAIL": 1,

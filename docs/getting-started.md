@@ -2,46 +2,91 @@
 
 ## Installation
 
-1. Clone the Regula repo and move to the new directory:
+### Homebrew (macOS & Linux)
 
-        git clone -b {{ version }} https://github.com/fugue/regula.git
-        cd regula
+To install Regula via [Homebrew](https://brew.sh/):
 
-2. Install the following:
+```
+brew tap fugue/regula
+brew install regula
+```
 
-    - [OPA](https://www.openpolicyagent.org/docs/latest/#1-download-opa)
-    - [Terraform 0.12+](https://www.terraform.io/downloads.html)
-    - [cfn-flip](https://github.com/awslabs/aws-cfn-template-flip)
+To upgrade Regula:
 
-    To install cfn-flip, create a virtualenv if you don't already have one (recommended), and install python requirements:
+```
+brew upgrade regula
+```
 
-        python3 -m venv venv
-        . ./venv/bin/activate
-        pip install -r requirements.txt
+### Prebuilt binary (all platforms)
 
-Keep reading for a simple tutorial on using Regula, or jump ahead to [Usage](usage.md).
+1. Download the Regula archive for your platform from the [Releases](https://github.com/fugue/regula/releases) page.
+2. Extract the downloaded archive.
+3. Move the extracted `regula` binary to somewhere in your PATH:
+
+    === "macOS"
+
+        ```
+        mv regula /usr/local/bin
+        ```
+
+    === "Linux"
+
+        ```
+        sudo mv regula /usr/local/bin
+        ```
+
+    === "Windows (cmd)"
+
+        ```
+        md C:\regula\bin
+        move regula.exe C:\regula\bin
+        setx PATH "%PATH%;C:\regula\bin"
+        ```
+
+4. _Windows users only:_ Close cmd and re-open it so the changes take effect.
+5. You can now run `regula`.
+
+!!! note
+    On some versions of macOS, you might see an error message that "regula cannot be opened because the developer cannot be verified." You can safely run regula by taking the following steps:
+
+    1. Select "Cancel" to dismiss the error message.
+    2. In macOS, access System Preferences > Security & Privacy.
+    3. Select the General tab and click the "Allow Anyway" button.
+    4. Run regula again:
+
+            regula
+
+    5. macOS will ask you to confirm that you want to open it. Select "Open."
+    
+    You can now execute regula commands.
+
+### Docker (all platforms)
+
+!!! note
+    Windows users can run Linux containers using a method described in the [Microsoft documentation](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/linux-containers).
+
+Regula is available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
+
+For usage, see [Running Regula with Docker](usage.md#running-regula-with-docker).
 
 ## Tutorial: Run Regula locally on Terraform IaC
 
+!!! tip
+    Don't need a tutorial? Jump ahead to [Usage](usage.md).
+
 For this example, we'll be running Regula on some example Terraform infrastructure as code (IaC) in our [regula-ci-example](https://github.com/fugue/regula-ci-example) repo.
 
-We'll assume you're cloning Regula and the sample code at the same level within a parent directory.
-
-1. If you're still in the `regula` directory, move to the parent directory:
-
-        cd ..
-
-2. Clone the example IaC repo:
+1. Clone the example IaC repo:
 
         git clone https://github.com/fugue/regula-ci-example.git
 
-3. Move into the `regula` directory:
+2. Move into the `regula-ci-example` directory:
 
-        cd regula
+        cd regula-ci-example
 
-4. Run Regula against the [example Terraform](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf):
+3. Run Regula against the [example Terraform](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf):
 
-        ./bin/regula -d lib -d rules ../regula-ci-example/infra_tf/
+        regula run infra_tf
 
 You'll see output like this:
 
@@ -52,7 +97,7 @@ You'll see output like this:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filename": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
@@ -69,7 +114,7 @@ You'll see output like this:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filename": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
@@ -84,8 +129,8 @@ You'll see output like this:
     }
   ],
   "summary": {
-    "filenames": [
-      "../regula-ci-example/infra_tf/"
+    "filepaths": [
+      "infra_tf"
     ],
     "rule_results": {
       "FAIL": 1,
@@ -108,14 +153,14 @@ You'll see output like this:
 
 Regula just showed us that our [sample Terraform](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) is noncompliant and a security vulnerability. In this example, there are two rule results: one PASS and one FAIL.
 
-The AWS IAM policy resource `aws_iam_policy.basically_allow_all` failed the Regula rule ["IAM policies should not have full `"*:*"` administrative privileges."](https://github.com/fugue/regula/blob/master/rules/tf/aws/iam/admin_policy.rego) The report includes lots of other info, such as the filename the resource was found in, the rule severity, a full description of the rule, and more:
+The AWS IAM policy resource `aws_iam_policy.basically_allow_all` failed the Regula rule ["IAM policies should not have full `"*:*"` administrative privileges."](https://github.com/fugue/regula/blob/master/rego/rules/tf/aws/iam/admin_policy.rego) The report includes lots of other info, such as the filename the resource was found in, the rule severity, a full description of the rule, and more:
 
 ```json
     {
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filename": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
@@ -137,7 +182,7 @@ In contrast, the policy `aws_iam_policy.basically_deny_all` passed the rule:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filename": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
@@ -149,15 +194,15 @@ In contrast, the policy `aws_iam_policy.basically_deny_all` passed the rule:
       "rule_result": "PASS",
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges"
-    },
+    }
 ```
 
 The summary lists the filenames evaluated, the number of FAIL/PASS/[WAIVED](configuration.md#waiving-rule-results) rule results, and the severity of the failed rules:
 
 ```json
   "summary": {
-    "filenames": [
-      "../regula-ci-example/infra_tf/"
+    "filepaths": [
+      "infra_tf"
     ],
     "rule_results": {
       "FAIL": 1,
@@ -176,4 +221,6 @@ The summary lists the filenames evaluated, the number of FAIL/PASS/[WAIVED](conf
 }
 ```
 
-Now that you've tried running Regula locally on sample infrastructure, [learn other ways in which you can use Regula](usage.md) -- such as with the CLI or Docker.
+## What's next?
+
+Congratulations on finishing this example! :tada: Now, [learn more about how to use Regula](usage.md).

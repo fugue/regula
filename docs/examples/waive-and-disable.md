@@ -12,31 +12,26 @@ We're going to run Regula on some sample IaC in our [regula-ci-example](https://
 
 If you completed the Getting Started [tutorial](../getting-started.md#tutorial-run-regula-locally-on-terraform-iac) and already cloned the example IaC, you can [skip to the next section](#running-regula-without-the-config-file).
 
-1. Clone the sample infrastructure repo:
+1. [Install Regula](../getting-started.md#installation).
+
+2. Clone the sample infrastructure repo:
 
         git clone https://github.com/fugue/regula-ci-example.git
 
-2. [Install Regula](../getting-started.md#installation).
+3. Move into the `regula-ci-example` directory:
+
+        cd regula-ci-example
 
 ## Running Regula without the config file
 
 We'll start by running Regula without the config file.
 
-The command we're going to use specifies a number of data files:
+We'll be running Regula on the [`regula-ci-example/infra_tf`](https://github.com/fugue/regula-ci-example/tree/master/infra_tf) Terraform project, and checking it against the Regula rule library and an example [custom rule](https://github.com/fugue/regula-ci-example/blob/master/example_custom_rule/long_description.rego).
 
-- `-d lib` includes the Regula library **(required)**
-- `-d rules/tf/aws/iam/admin_policy.rego` includes the Regula rule [`tf_aws_iam_admin_policy`](https://github.com/fugue/regula/blob/master/rules/tf/aws/iam/admin_policy.rego)
-- `-d ../regula-ci-example/example_custom_rule/` includes a [custom rule](https://github.com/fugue/regula-ci-example/blob/master/example_custom_rule/long_description.rego) in the example IaC repo
-
-We'll be running Regula on the `../regula-ci-example/infra_tf/` Terraform project.
-
-`cd` into the `regula` directory and run this command:
+Make sure you're in the `regula-ci-example` directory and run this command:
 
 ```
-./bin/regula -d lib \
-  -d rules/tf/aws/iam/admin_policy.rego \
-  -d ../regula-ci-example/example_custom_rule/ \
-  ../regula-ci-example/infra_tf/
+regula run --include example_custom_rule infra_tf
 ```
 
 We see this output:
@@ -48,7 +43,7 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
@@ -65,7 +60,7 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
@@ -82,7 +77,7 @@ We see this output:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
@@ -99,7 +94,7 @@ We see this output:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
@@ -115,7 +110,7 @@ We see this output:
   ],
   "summary": {
     "filepaths": [
-      "../regula-ci-example/infra_tf/"
+      "infra_tf"
     ],
     "rule_results": {
       "FAIL": 2,
@@ -163,16 +158,12 @@ This configuration will waive the rule `long_description` for the resource `aws_
 
 ## Running Regula with the config file
 
-Now, let's run Regula again. The command is identical to the previous one, but adds a new data file, the config: `-d ../regula-ci-example/config.rego`
+Now, let's run Regula again. The command is identical to the previous one, but adds the config file: `--include config.rego`
 
 Here's the full command:
 
 ```
-./bin/regula -d lib \
-  -d rules/tf/aws/iam/admin_policy.rego \
-  -d ../regula-ci-example/example_custom_rule/ \
-  -d ../regula-ci-example/config.rego \
-  ../regula-ci-example/infra_tf/
+regula run --include example_custom_rule --include config.rego infra_tf
 ```
 
 We see this output:
@@ -184,7 +175,7 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
@@ -201,7 +192,7 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
@@ -218,7 +209,7 @@ We see this output:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
@@ -235,7 +226,7 @@ We see this output:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
@@ -251,7 +242,7 @@ We see this output:
   ],
   "summary": {
     "filepaths": [
-      "../regula-ci-example/infra_tf/"
+      "infra_tf"
     ],
     "rule_results": {
       "FAIL": 1,
@@ -292,11 +283,7 @@ rules[rule] {
 Run the same command we ran a moment ago:
 
 ```
-./bin/regula -d lib \
-  -d rules/tf/aws/iam/admin_policy.rego \
-  -d ../regula-ci-example/example_custom_rule/ \
-  -d ../regula-ci-example/config.rego \
-  ../regula-ci-example/infra_tf/
+regula run --include example_custom_rule --include config.rego infra_tf
 ```
 
 We'll see this output:
@@ -308,7 +295,7 @@ We'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
@@ -325,7 +312,7 @@ We'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "filepath": "infra_tf",
       "platform": "terraform",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
@@ -341,7 +328,7 @@ We'll see this output:
   ],
   "summary": {
     "filepaths": [
-      "../regula-ci-example/infra_tf/"
+      "infra_tf"
     ],
     "rule_results": {
       "FAIL": 0,

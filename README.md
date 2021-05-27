@@ -4,7 +4,7 @@
 
 - [Introduction](#introduction)
 - [Installation](#installation)
-  - [Homebrew](#homebrew-macos-linux)
+  - [Homebrew](#homebrew-macos--linux)
   - [Prebuilt binary (all platforms)](#prebuilt-binary-all-platforms)
   - [Docker (all platforms)](#docker-all-platforms)
 - [Usage](#usage)

@@ -16,7 +16,7 @@ Regula is also available as a Docker image on DockerHub [here](https://hub.docke
 
 ## How does Regula work?
 
-Regula's CLI tool uses an embedded [OPA](https://www.openpolicyagent.org/) preloaded with the Regula [rule library](https://github.com/fugue/regula/tree/master/rego/rules). The Regula CLI is built using Go, which means it is installed as a single self-contained binary. It reads in CloudFormation templates, Terraform HCL code, and JSON-formatted Terraform plans and evaluates them using Regula's library of rules, generating a [report](report.md). Regula also supports [custom rules](development/writing-rules.md) written in Rego. For usage details, see [Usage](usage.md).
+The Regula CLI is built using Go, which means it is installed as a single self-contained binary. It reads in CloudFormation templates, Terraform HCL code, and JSON-formatted Terraform plans and uses OPA to evaluate them against Regula's [library of rules](https://github.com/fugue/regula/tree/master/rego/rules), generating a [report](report.md). Regula also supports [custom rules](development/writing-rules.md) written in Rego. For usage details, see [Usage](usage.md).
 
 ## Get Started
 

@@ -43,8 +43,8 @@ brew upgrade regula
         setx PATH "%PATH%;C:\regula\bin"
         ```
 
-5. _Windows users only:_ Close cmd and re-open it so the changes take effect.
-6. You can now run `regula`.
+4. _Windows users only:_ Close cmd and re-open it so the changes take effect.
+5. You can now run `regula`.
 
 !!! note
     On some versions of macOS, you might see an error message that "regula cannot be opened because the developer cannot be verified." You can safely run regula by taking the following steps:

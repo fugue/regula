@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Bad KMS Key
+Resources:
+  BadKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: Bad KMS Key
+      Enabled: true
+      EnableKeyRotation: false
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: 'my-key-policy'
+        Statement:
+          - Sid: 'Enable IAM User Permissions'
+            Effect: 'Allow'
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+
+  BadKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/regula/bad-key
+      TargetKeyId: !Ref BadKey

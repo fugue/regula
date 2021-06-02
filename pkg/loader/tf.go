@@ -281,11 +281,15 @@ func (c *HclConfiguration) renderResources() map[string]interface{} {
 
 	for resourceId, resource := range c.module.ManagedResources {
 		resourceId = c.qualifiedResourceId(resourceId)
-		resources[resourceId] = c.renderResource(resourceId, resource)
+		if r := c.renderResource(resourceId, resource); r != nil {
+			resources[resourceId] = r
+		}
 	}
 	for resourceId, resource := range c.module.DataResources {
 		resourceId = c.qualifiedResourceId(resourceId)
-		resources[resourceId] = c.renderResource(resourceId, resource)
+		if r := c.renderResource(resourceId, resource); r != nil {
+			resources[resourceId] = r
+		}
 	}
 
 	for key, _ := range c.children {
@@ -304,6 +308,15 @@ func (c *HclConfiguration) renderResource(
 ) interface{} {
 	context := c.renderContext(resourceId)
 	context.schema = c.schemas[resource.Type]
+
+	// Skip resources if `count = 0`
+	if resource.Count != nil {
+		count := context.EvaluateExpr(resource.Count)
+		if n, ok := count.(int64); ok && n == 0 {
+			logrus.Debugf("Skipping resource %s (count=0)", resourceId)
+			return nil
+		}
+	}
 
 	properties := make(map[string]interface{})
 	properties["_type"] = resource.Type
@@ -651,9 +664,6 @@ func (c *renderContext) EvaluateExpr(expr hcl.Expression) interface{} {
 			"module": cty.StringVal(c.dir),
 		}),
 		"var": makeValue(c.vars),
-	}
-	for k := range c.vars {
-		logrus.Debugf("Passing in variable %s", k)
 	}
 	ctx := hcl.EvalContext{
 		Functions: scope.Functions(),

@@ -158,6 +158,14 @@ func parseFiles(
 
 	configuration.schemas = tf_resource_schemas.LoadResourceSchemas()
 
+	// We're evaluating a few things but here, like the source attribute, and
+	// the values of default variables.  We do this with a minimal context
+	// that doesn't have any variables itself.
+	ctx := renderContext{
+		dir:     dir,
+		resolve: func(path []string) interface{} { return nil },
+	}
+
 	// Load children
 	configuration.children = make(map[string]*HclConfiguration)
 	if recurse {
@@ -165,12 +173,6 @@ func parseFiles(
 			logrus.Debugf("Loading submodule %s", key)
 			body, ok := moduleCall.Config.(*hclsyntax.Body)
 			if ok {
-				// We're only interested in getting the `source` attribute, this
-				// should not have any variables in it.
-				ctx := renderContext{
-					dir:     dir,
-					resolve: func(path []string) interface{} { return nil },
-				}
 				properties := ctx.RenderBody(body)
 				if source, ok := properties["source"]; ok {
 					if str, ok := source.(string); ok {
@@ -199,16 +201,30 @@ func parseFiles(
 	}
 
 	configuration.childrenVars = make(map[string]map[string]interface{})
+
 	configuration.vars = make(map[string]interface{})
+	for k, variable := range module.Variables {
+		if !variable.Default.IsNull() {
+			val := ctx.RenderValue(variable.Default)
+			configuration.vars[k] = val
+			logrus.Debugf("Setting default value for %s -> %v", k, val)
+		}
+	}
 
 	return configuration, nil
 }
 
 // Return a copy of a HclConfiguration with updated variables.
 func (c0 *HclConfiguration) withVars(vars map[string]interface{}) *HclConfiguration {
-	c1 := c0
-	c1.vars = vars
-	return c1
+	c1 := *c0
+	c1.vars = make(map[string]interface{})
+	for k, v := range c0.vars {
+		c1.vars[k] = v // Set defaults
+	}
+	for k, v := range vars {
+		c1.vars[k] = v // Set overrides
+	}
+	return &c1
 }
 
 func (c *HclConfiguration) LoadedFiles() []string {
@@ -442,6 +458,7 @@ func (c *HclConfiguration) GetOutput(name string) interface{} {
 func (c *HclConfiguration) renderContext(self string) renderContext {
 	return renderContext{
 		dir:     c.dir,
+		vars:    c.vars,
 		resolve: func(path []string) interface{} { return c.resolveResourceReference(self, path) },
 	}
 }
@@ -451,6 +468,7 @@ func (c *HclConfiguration) renderContext(self string) renderContext {
 type renderContext struct {
 	dir     string
 	schema  *tf_resource_schemas.Schema
+	vars    map[string]interface{}
 	resolve func([]string) interface{}
 }
 
@@ -632,6 +650,10 @@ func (c *renderContext) EvaluateExpr(expr hcl.Expression) interface{} {
 		"path": cty.MapVal(map[string]cty.Value{
 			"module": cty.StringVal(c.dir),
 		}),
+		"var": makeValue(c.vars),
+	}
+	for k := range c.vars {
+		logrus.Debugf("Passing in variable %s", k)
 	}
 	ctx := hcl.EvalContext{
 		Functions: scope.Functions(),
@@ -760,7 +782,7 @@ func (c *renderContext) GetTerraformAttr(addrs.TerraformAttr, tfdiags.SourceRang
 	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
 }
 
-func (c *renderContext) GetInputVariable(addrs.InputVariable, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+func (c *renderContext) GetInputVariable(v addrs.InputVariable, s tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
 	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
 }
 
@@ -887,4 +909,50 @@ func (r *terraformModuleRegister) getDir(source string) *string {
 		}
 	}
 	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Utility for converting from regula go structures to `cty.Value`
+
+func makeValue(val interface{}) cty.Value {
+	if val == nil {
+		return cty.NullVal(cty.DynamicPseudoType)
+	}
+	switch v := val.(type) {
+	case string:
+		return cty.StringVal(v)
+	case bool:
+		return cty.BoolVal(v)
+	case float32:
+		return cty.NumberFloatVal(float64(v))
+	case float64:
+		return cty.NumberFloatVal(v)
+	case int:
+		return cty.NumberIntVal(int64(v))
+	case int32:
+		return cty.NumberIntVal(int64(v))
+	case int64:
+		return cty.NumberIntVal(v)
+	case []interface{}:
+		if len(v) == 0 {
+			return cty.ListValEmpty(cty.DynamicPseudoType)
+		} else {
+			arr := make([]cty.Value, len(v))
+			for i, x := range v {
+				arr[i] = makeValue(x)
+			}
+			return cty.ListVal(arr)
+		}
+	case map[string]interface{}:
+		if len(v) == 0 {
+			return cty.EmptyObjectVal
+		} else {
+			obj := make(map[string]cty.Value)
+			for k, x := range v {
+				obj[k] = makeValue(x)
+			}
+			return cty.ObjectVal(obj)
+		}
+	}
+	return cty.UnknownVal(cty.DynamicPseudoType)
 }

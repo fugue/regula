@@ -1,0 +1,15 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_s3_bucket.optional_bucket": {
+        "_provider": "aws",
+        "_type": "aws_s3_bucket",
+        "count": 0,
+        "force_destroy": true,
+        "id": "aws_s3_bucket.optional_bucket"
+      }
+    }
+  },
+  "filepath": "tf_test/count-var"
+}

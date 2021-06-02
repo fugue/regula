@@ -1,0 +1,3 @@
+kind: Fixed
+body: '#126 Remove coloring for WAIVED status and severity in table output so that
+  it''s readable against a black background.'

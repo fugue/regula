@@ -95,6 +95,9 @@ type HclConfiguration struct {
 	// better?
 	vars map[string]interface{}
 
+	// Cached values of locals.
+	locals map[string]interface{}
+
 	// Locations of terraform modules.
 	moduleRegister *terraformModuleRegister
 }
@@ -211,6 +214,8 @@ func parseFiles(
 		}
 	}
 
+	configuration.locals = nil
+
 	return configuration, nil
 }
 
@@ -224,6 +229,7 @@ func (c0 *HclConfiguration) withVars(vars map[string]interface{}) *HclConfigurat
 	for k, v := range vars {
 		c1.vars[k] = v // Set overrides
 	}
+	c1.locals = nil // Needs to be recomputed.
 	return &c1
 }
 
@@ -469,11 +475,22 @@ func (c *HclConfiguration) GetOutput(name string) interface{} {
 }
 
 func (c *HclConfiguration) renderContext(self string) renderContext {
-	return renderContext{
+	ctx := renderContext{
 		dir:     c.dir,
 		vars:    c.vars,
+		locals:  c.locals,
 		resolve: func(path []string) interface{} { return c.resolveResourceReference(self, path) },
 	}
+
+	if ctx.locals == nil {
+		ctx.locals = make(map[string]interface{})
+		for k, local := range c.module.Locals {
+			ctx.locals[k] = ctx.EvaluateExpr(local.Expr)
+		}
+		c.locals = ctx.locals
+	}
+
+	return ctx
 }
 
 // This is a structure passed down that contains all additional information
@@ -482,6 +499,7 @@ type renderContext struct {
 	dir     string
 	schema  *tf_resource_schemas.Schema
 	vars    map[string]interface{}
+	locals  map[string]interface{}
 	resolve func([]string) interface{}
 }
 
@@ -663,7 +681,8 @@ func (c *renderContext) EvaluateExpr(expr hcl.Expression) interface{} {
 		"path": cty.MapVal(map[string]cty.Value{
 			"module": cty.StringVal(c.dir),
 		}),
-		"var": makeValue(c.vars),
+		"var":   makeValue(c.vars),
+		"local": makeValue(c.locals),
 	}
 	ctx := hcl.EvalContext{
 		Functions: scope.Functions(),

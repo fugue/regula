@@ -3,5 +3,5 @@
     "hcl_resource_view_version": "0.0.1",
     "resources": {}
   },
-  "filepath": "tf_test/count-var"
+  "filepath": "tf_test/count-local"
 }

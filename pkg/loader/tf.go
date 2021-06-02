@@ -716,7 +716,7 @@ func (c *renderContext) RenderTraversal(traversal hcl.Traversal) []string {
 }
 
 func (c *renderContext) RenderValue(val cty.Value) interface{} {
-	if !val.IsKnown() {
+	if !val.IsKnown() || val.IsNull() {
 		return nil
 	}
 

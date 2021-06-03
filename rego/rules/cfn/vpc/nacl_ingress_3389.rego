@@ -32,6 +32,9 @@ __rego__metadoc__ := {
 
 nacls = fugue.resources("AWS::EC2::NetworkAcl")
 
+input_type = "cloudformation"
+resource_type = "MULTIPLE"
+
 policy[p] {
   nacl = nacls[_]
   not nacl_library.nacl_ingress_zero_cidr_to_port(nacl.id, 3389)

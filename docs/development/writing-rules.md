@@ -25,6 +25,22 @@ allow {
 }
 ```
 
+### Custom error messages and attributes
+
+If you want to return more information to the user, you can also define a
+custom error message in a simple rule.
+This is done by writing a `deny[msg]` style rule.
+
+```rego
+package rules.simple_rule_custom_message
+resource_type = "aws_ebs_volume"
+
+deny[msg] {
+  not input.encrypted
+  msg = "EBS volumes should be encrypted"
+}
+```
+
 ## Advanced rules
 
 Advanced rules are harder to write, but more powerful. They allow you to
@@ -72,21 +88,6 @@ The `fugue` API consists of four functions:
 -   `fugue.deny_resource(resource)` marks a resource as invalid.
 -   `fugue.missing_resource(resource_type)` marks a resource as **missing**.
     This is useful if you for example _require_ a log group to be present.
-
-## Custom error messages
-
-If you want to return more information to the user, you can also define a
-custom error message.  This is done by writing a `deny[msg]` style rule.
-
-```rego
-package rules.simple_rule_custom_message
-resource_type = "aws_ebs_volume"
-
-deny[msg] {
-  not input.encrypted
-  msg = "EBS volumes should be encrypted"
-}
-```
 
 ## Adding rule metadata
 

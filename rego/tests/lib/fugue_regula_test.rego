@@ -60,13 +60,13 @@ test_judgement_from_allow_denies_08 {
   not j.valid
 }
 
-test_judgement_from_deny_messages_01 {
-  j = judgement_from_deny_messages(testutil_resource, [])
+test_judgement_from_deny_set_01 {
+  j = judgements_from_deny_set(testutil_resource, set())[_]
   j.valid
 }
 
-test_judgement_from_deny_messages_02 {
-  j = judgement_from_deny_messages(testutil_resource, ["bad"])
+test_judgement_from_deny_set_02 {
+  j = judgements_from_deny_set(testutil_resource, ["bad"])[_]
   not j.valid
   j.message == "bad"
 }

@@ -41,22 +41,6 @@ deny[msg] {
 }
 ```
 
-It's also possible to include more metadata than just the error message, such
-as the path of the offending attribute.
-
-```rego
-package rules.simple_rule_custom_message
-resource_type = "aws_ebs_volume"
-
-deny[params] {
-  not input.encrypted
-  params = {
-    "message": "EBS volumes should be encrypted",
-    "attribute": ["encrypted"]
-  }
-}
-```
-
 ## Advanced rules
 
 Advanced rules are harder to write, but more powerful. They allow you to

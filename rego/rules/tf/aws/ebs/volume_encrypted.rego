@@ -19,6 +19,9 @@ __rego__metadoc__ := {
   "description": "EBS volume encryption should be enabled. Enabling encryption on EBS volumes protects data at rest inside the volume, data in transit between the volume and the instance, snapshots created from the volume, and volumes created from those snapshots. EBS volumes are encrypted using KMS keys.",
   "custom": {
     "controls": {
+      "CIS-AWS_v1.3.0": [
+        "CIS-AWS_v1.3.0_2.2.1"
+      ],
       "NIST-800-53_vRev4": [
         "NIST-800-53_vRev4_SC-13"
       ]

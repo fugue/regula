@@ -16,15 +16,19 @@
 package rules.tf_google_compute_subnet_flow_log_enabled
 
 __rego__metadoc__ := {
-  "id": "FG_R00381",
-  "title": "VPC subnet flow logging should be enabled",
-  "description": "Flow logs provide visibility into network traffic that traverses a VPC, and can be used to detect anomalous traffic and additional insights.",
+  "id": "FG_R00409",
+  "title": "Network subnet flow logs should be enabled",
+  "description": "It is recommended that flow logs be enabled for every business-critical VPC subnet, as they provide visibility into network traffic for each VM inside the subnet and can be used to detect anomalous traffic or insight during security workflows.",
   "custom": {
     "controls": {
       "CIS-Google_v1.0.0": [
         "CIS-Google_v1.0.0_3.9"
+      ],
+      "CIS-Google_v1.1.0": [
+        "CIS-Google_v1.1.0_3.8"
       ]
-    }
+    },
+    "severity": "Medium"
   }
 }
 

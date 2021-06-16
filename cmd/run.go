@@ -120,6 +120,7 @@ func NewRunCommand() *cobra.Command {
 		enumflag.New(&format, "format", reporter.FormatIds, enumflag.EnumCaseInsensitive),
 		"format", "f",
 		"Set the output format")
+	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }
 

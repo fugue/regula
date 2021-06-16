@@ -47,7 +47,7 @@ const (
 // CLI options.
 var InputTypeIDs = map[InputType][]string{
 	Auto:   {"auto"},
-	TfPlan: {"tf-plan"},
+	TfPlan: {"tf-plan", "tf_plan"},
 	Cfn:    {"cfn"},
 	Tf:     {"tf"},
 }

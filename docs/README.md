@@ -4,7 +4,7 @@
 
 To add a new page to the docs site: 
 
-1. Create a `.md` file in the `regula/docs` directory
+1. Create a `.md` file in the `regula/docs/src` directory
 2. Add the filename to `regula/mkdocs.yml`
 
 To link to other pages on the docs site, use relative links and specify the `.md` filename, not `.html`

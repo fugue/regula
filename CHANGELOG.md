@@ -3,7 +3,7 @@
 ## v0.9.1 (2021-06-10)
 
 ### Fixed
-* #126 Remove coloring for WAIVED status and severity in table output so that it's readable against a black background
+* Remove coloring for WAIVED status and severity in table output so that it's readable against a black background (#126)
 * Improve support for conditional resources (count = 0) in Terraform HCL
 
 ## v0.9.0 (2021-05-27)

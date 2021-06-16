@@ -29,6 +29,7 @@ GOLINT = $(GO_BIN_DIR)/golint
 MOCKGEN = $(GO_BIN_DIR)/mockgen
 CHANGIE = $(GO_BIN_DIR)/changie
 GORELEASER = $(GO_BIN_DIR)/goreleaser
+YQ = docker run --rm -v $(shell pwd):/workdir mikefarah/yq:4
 
 $(GOLINT):
 	go install golang.org/x/lint/golint
@@ -98,7 +99,8 @@ define bump_rule
 bump_$(1)_version: $$(CHANGIE)
 	$$(CHANGIE) batch $(2)
 	$$(CHANGIE) merge
-	git add changes CHANGELOG.md
+	$$(YQ) eval --inplace '.extra.version = "$(2)"' ./mkdocs.yml
+	git add changes CHANGELOG.md mkdocs.yml
 	@echo "Run the following to complete the release:"
 	@echo "    git commit -m 'Bump version to $(2)'"
 	@echo "    git tag -a -F changes/$(2).md $(2)"

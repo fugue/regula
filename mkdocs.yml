@@ -1,23 +1,24 @@
+docs_dir: docs/src
 site_name: Regula
 nav:
-    - Home: 'index.md'
-    - 'getting-started.md'
-    - 'usage.md'
-    - 'report.md'
-    - 'configuration.md'
-    - Integrations:
-        - 'integrations/conftest.md'
-        - 'integrations/gh-actions.md'
-        - 'integrations/travis.md'
-    - Custom Rule Development:
-        - 'development/rule-development.md'
-        - 'development/writing-rules.md'
-    - Examples:
-        - 'examples/waive-and-disable.md'
-        - 'examples/writing-a-rule.md'
-    - 'contributing.md'
-    - CHANGELOG: 'docs-changelog.md'
-    - 'about.md'
+  - Home: "index.md"
+  - "getting-started.md"
+  - "usage.md"
+  - "report.md"
+  - "configuration.md"
+  - Integrations:
+    - "integrations/conftest.md"
+    - "integrations/gh-actions.md"
+    - "integrations/travis.md"
+  - Custom Rule Development:
+    - "development/rule-development.md"
+    - "development/writing-rules.md"
+  - Examples:
+    - "examples/waive-and-disable.md"
+    - "examples/writing-a-rule.md"
+  - "contributing.md"
+  - CHANGELOG: "docs-changelog.md"
+  - "about.md"
 theme:
   name: material
   palette:
@@ -42,6 +43,11 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: fugue
+      repo: regula
+  - pymdownx.mark
   - toc:
       permalink: ⚓︎
 site_url: https://regula.dev
@@ -69,6 +75,6 @@ plugins:
   - search
   - redirects:
       redirect_maps:
-          'integrations/regula-conftest.md': 'integrations/conftest.md'
-          'integrations/regula-gh-actions.md': 'integrations/gh-actions.md'
-          'integrations/regula-travis.md': 'integrations/travis.md'
+        "integrations/regula-conftest.md": "integrations/conftest.md"
+        "integrations/regula-gh-actions.md": "integrations/gh-actions.md"
+        "integrations/regula-travis.md": "integrations/travis.md"

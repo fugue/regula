@@ -47,7 +47,6 @@ markdown_extensions:
       repo_url_shorthand: true
       user: fugue
       repo: regula
-  - pymdownx.mark
   - toc:
       permalink: ⚓︎
 site_url: https://regula.dev

@@ -17,14 +17,15 @@ package rules.tf_google_kms_cryptokey_rotate
 
 __rego__metadoc__ := {
   "id": "FG_R00378",
-  "title": "KMS crypto keys should be rotated at least once every 365 days",
-  "description": "Key rotation is a security best practice that helps reduce the potential impact of a compromised key, as users cannot use deprecated/older keys.",
+  "title": "KMS keys should be rotated every 90 days or less",
+  "description": "KMS keys should be rotated frequently because rotation helps reduce the potential impact of a compromised key as users cannot use the old key to access the data.",
   "custom": {
     "controls": {
-      "CIS-Google_v1.0.0": [
-        "CIS-Google_v1.0.0_1.8"
+      "CIS-Google_v1.1.0": [
+        "CIS-Google_v1.1.0_1.10"
       ]
-    }
+    },
+    "severity": "Medium"
   }
 }
 
@@ -37,5 +38,6 @@ allow {
   is_string(rotation_per)
   trimmed_rotation_per = trim_right(rotation_per, "s")
   num_rotation_per = to_number(trimmed_rotation_per)
-  num_rotation_per <= 31536000
+  # 90 days in seconds
+  num_rotation_per <= 7776000
 }

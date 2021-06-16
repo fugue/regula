@@ -20,15 +20,19 @@ package rules.tf_google_compute_firewall_no_ingress_22
 import data.fugue.gcp.compute_firewall
 
 __rego__metadoc__ := {
-  "id": "FG_R00379",
-  "title": "VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)",
-  "description": "VPC firewall rules should not permit unrestricted access from the internet to port 22 (SSH). Removing unfettered connectivity to remote console services, such as SSH, reduces a server's exposure to risk.",
+  "id": "FG_R00407",
+  "title": "Network firewall rules should not permit ingress from 0.0.0.0/0 to port 22 (SSH)",
+  "description": "If SSH is open to the internet, attackers can attempt to gain access to VM instances. Removing unfettered connectivity to remote console services, such as SSH, reduces a server's exposure to risk.",
   "custom": {
     "controls": {
       "CIS-Google_v1.0.0": [
         "CIS-Google_v1.0.0_3.6"
+      ],
+      "CIS-Google_v1.1.0": [
+        "CIS-Google_v1.1.0_3.6"
       ]
-    }
+    },
+    "severity": "High"
   }
 }
 

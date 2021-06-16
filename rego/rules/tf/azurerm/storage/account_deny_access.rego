@@ -22,7 +22,8 @@ __rego__metadoc__ := {
       "CIS-Azure_v1.1.0": [
         "CIS-Azure_v1.1.0_3.7"
       ]
-    }
+    },
+    "severity": "High"
   }
 }
 

@@ -33,18 +33,18 @@ mock_input := [
 mock_rules := {
   "deny_cloudtrails": {
     "resource_type": "AWS::CloudTrail::Trail",
-    "input_type": "cloudformation",
+    "input_type": "cfn",
     "allow": false
   },
   "deny_buckets": {
     "__rego__metadoc__": {"id": "TEST_123"},
     "resource_type": "AWS::S3::Bucket",
-    "input_type": "cloudformation",
+    "input_type": "cfn",
     "allow": false
   },
   "allow_buckets": {
     "resource_type": "AWS::S3::Bucket",
-    "input_type": "cloudformation",
+    "input_type": "cfn",
     "deny": false
   }
 }

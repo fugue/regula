@@ -96,11 +96,3 @@ report_v0(message, policy) = ret {
 
 # Provided for backward-compatibility with older Fugue rules only.
 resource_types_v0 = resource_types
-
-# Predicate to determine if we support the input type.
-# See the `input_type.rego` module for more.
-# This replaces the `engine` field in earlier versions.
-supported_input_type(input_type) {
-  supported := {"tf", "tf_plan", "cfn"}
-  supported[input_type]
-}

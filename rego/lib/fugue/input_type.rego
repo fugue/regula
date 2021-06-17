@@ -23,9 +23,7 @@ package fugue.input_type
 #  -  "cfn"
 #
 # To check the current resource type, use `input_type`.
-# To check if this input type is supported, use `fugue.supported_input_type`.
-# To check if a rule applies for this input type, use
-# `compatibility`.
+# To check if a rule applies for this input type, use `compatibility`.
 
 input_type = "tf" {
   _ = input.hcl_resource_view_version

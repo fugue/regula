@@ -15,26 +15,40 @@
 # This module detects the input format based on fields set in it.
 package fugue.input_type
 
-input_type = "terraform" {
-  terraform_input_type
-} else = "cloudformation" {
-  cloudformation_input_type
+# These are the currently supported input types:
+#
+#  -  "tf"
+#  -  "tf_plan"
+#  -  "tf_runtime"
+#  -  "cfn"
+#
+# To check the current resource type, use `input_type`.
+# To check if this input type is supported, use `fugue.supported_input_type`.
+# To check if a rule applies for this input type, use
+# `compatibility`.
+
+input_type = "tf" {
+  _ = input.hcl_resource_view_version
+} else = "tf_plan" {
+  _ = input.terraform_version
+} else = "tf_plan" {
+  _ = input.resource_changes
+} else = "tf_plan" {
+  _ = input.planned_values
+} else = "cfn" {
+  _ = input.Resources
+} else = "cfn" {
+  _ = input.AWSTemplateFormatVersion
 }
 
 terraform_input_type {
-  _ = input.hcl_resource_view_version
+  input_type == "tf"
 } {
-  _ = input.terraform_version
-} {
-  _ = input.resource_changes
-} {
-  _ = input.planned_values
+  input_type == "tf_plan"
 }
 
 cloudformation_input_type {
-  _ = input.Resources
-} {
-  _ = input.AWSTemplateFormatVersion
+  input_type == "cfn"
 }
 
 rule_input_type(pkg) = ret {
@@ -44,5 +58,15 @@ rule_input_type(pkg) = ret {
   ret = data["rules"][pkg][k]
   k = "input_type"
 } else = ret {
-  ret = "terraform"
+  ret = "tf"
+}
+
+# Which rule input type is applicable for which input types?
+compatibility := {
+  "tf":             {"tf", "tf_plan", "tf_runtime"},
+  "terraform":      {"tf", "tf_plan", "tf_runtime"},  # Backwards-compatibility
+  "tf_plan":        {"tf_plan"},
+  "tf_runtime":     {"tf_runtime"},
+  "cfn":            {"cfn"},
+  "cloudformation": {"cfn"},  # Backwards-compatibility
 }

@@ -33,7 +33,7 @@ __rego__metadoc__ := {
 }
 
 resource_type = "MULTIPLE"
-input_type = "cloudformation"
+input_type = "cfn"
 
 vpcs = fugue.resources("AWS::EC2::VPC")
 flow_logs = fugue.resources("AWS::EC2::FlowLog")

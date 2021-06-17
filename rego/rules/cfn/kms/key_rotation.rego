@@ -30,7 +30,7 @@ __rego__metadoc__ := {
   "title": "KMS CMK rotation should be enabled"
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 resource_type := "AWS::KMS::Key"
 
 default allow = false

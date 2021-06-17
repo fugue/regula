@@ -30,7 +30,7 @@ __rego__metadoc__ := {
   "title": "S3 bucket policies should only allow requests that use HTTPS"
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 resource_type := "MULTIPLE"
 
 buckets := fugue.resources("AWS::S3::Bucket")

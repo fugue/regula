@@ -121,7 +121,7 @@ rule_resource_result(rule, judgement) = ret {
     "rule_message": judgement.message,
     "rule_result": result_string(judgement),
     "rule_name": rule["package"],
-    "platform": rule.input_type,
+    "platform": rule.input_type,  # TODO: Does the naming here still make sense?
     "rule_id": rule.metadata.id,
     "rule_summary": rule.metadata.summary,
     "rule_description": rule.metadata.description,
@@ -198,7 +198,7 @@ single_report := ret {
   rules = [rule |
     resource_type = data.rules[pkg].resource_type
     rule_input_type = input_type.rule_input_type(pkg)
-    rule_input_type == input_type.input_type
+    input_type.compatibility[rule_input_type][input_type.input_type]
     rule = {
       "package": pkg,
       "input_type": rule_input_type,

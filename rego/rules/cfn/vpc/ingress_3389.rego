@@ -33,7 +33,7 @@ __rego__metadoc__ := {
   "title": "VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)"
 }
 
-input_type = "cloudformation"
+input_type = "cfn"
 resource_type = "MULTIPLE"
 
 policy[p] {

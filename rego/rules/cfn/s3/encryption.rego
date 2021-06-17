@@ -27,7 +27,7 @@ __rego__metadoc__ := {
   "title": "S3 bucket server side encryption should be enabled"
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 resource_type := "AWS::S3::Bucket"
 
 default allow = false

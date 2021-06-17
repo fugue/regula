@@ -33,7 +33,7 @@ __rego__metadoc__ := {
   "title": "S3 bucket ACLs should not have public access on S3 buckets that store CloudTrail log files"
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 cloudtrails := fugue.resources("AWS::CloudTrail::Trail")
 buckets := fugue.resources("AWS::S3::Bucket")
 

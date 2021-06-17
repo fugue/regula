@@ -27,7 +27,7 @@ __rego__metadoc__ := {
   "title": "S3 buckets should have all `block public access` options enabled"
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 resource_type := "AWS::S3::Bucket"
 
 default allow = false

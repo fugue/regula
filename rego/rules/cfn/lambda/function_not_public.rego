@@ -25,7 +25,7 @@ __rego__metadoc__ := {
   "title": "Lambda function policies should not allow global access"
 }
 
-input_type = "cloudformation"
+input_type = "cfn"
 resource_type = "MULTIPLE"
 
 permissions = fugue.resources("AWS::Lambda::Permission")

@@ -32,7 +32,7 @@ __rego__metadoc__ := {
   "title": "IAM policies should not be attached to users"
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 resource_type := "MULTIPLE"
 
 iam_policies := fugue.resources("AWS::IAM::Policy")

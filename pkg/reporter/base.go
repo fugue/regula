@@ -164,7 +164,7 @@ func (o RegulaOutput) AggregateByFilepath() ResultsByFilepath {
 type RuleResult struct {
 	Controls        []string `json:"controls"`
 	Filepath        string   `json:"filepath"`
-	Platform        string   `json:"platform"`
+	InputType       string   `json:"input_type"`
 	Provider        string   `json:"provider"`
 	ResourceID      string   `json:"resource_id"`
 	ResourceType    string   `json:"resource_type"`

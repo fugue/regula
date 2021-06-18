@@ -30,6 +30,7 @@ import (
 	"github.com/hashicorp/terraform/lang"
 	"github.com/hashicorp/terraform/tfdiags"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 	"github.com/zclconf/go-cty/cty"
 
 	"tf_resource_schemas"
@@ -43,7 +44,16 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 	}
 	dir := filepath.Dir(i.Path())
 
-	return parseFiles([]string{}, dir, nil, false, []string{i.Path()})
+	var inputFs afero.Fs
+	var err error
+	if i.Path() == stdIn {
+		inputFs, err = makeStdInFs(i)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return parseFiles([]string{}, dir, nil, false, []string{i.Path()}, inputFs)
 }
 
 func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
@@ -115,7 +125,7 @@ func ParseDirectory(
 		return nil, diags
 	}
 
-	return parseFiles(path, dir, moduleRegister, true, primary)
+	return parseFiles(path, dir, moduleRegister, true, primary, nil)
 }
 
 func parseFiles(
@@ -124,6 +134,7 @@ func parseFiles(
 	moduleRegister *terraformModuleRegister,
 	recurse bool,
 	filepaths []string,
+	parserFs afero.Fs,
 ) (*HclConfiguration, error) {
 	configuration := new(HclConfiguration)
 	configuration.path = path
@@ -137,7 +148,7 @@ func parseFiles(
 		configuration.moduleRegister = moduleRegister
 	}
 
-	parser := configs.NewParser(nil)
+	parser := configs.NewParser(parserFs)
 	var diags hcl.Diagnostics
 	parsedFiles := make([]*configs.File, 0)
 	overrideFiles := make([]*configs.File, 0)
@@ -984,4 +995,14 @@ func makeValue(val interface{}) cty.Value {
 		}
 	}
 	return cty.UnknownVal(cty.DynamicPseudoType)
+}
+
+func makeStdInFs(i InputFile) (afero.Fs, error) {
+	contents, err := i.Contents()
+	if err != nil {
+		return nil, err
+	}
+	inputFs := afero.NewMemMapFs()
+	afero.WriteFile(inputFs, i.Path(), contents, 0644)
+	return inputFs, nil
 }

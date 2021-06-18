@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # This module detects the input format based on fields set in it.
-package fugue.input_type
+package fugue.input_type_internal
 
 # These are the currently supported input types:
 #

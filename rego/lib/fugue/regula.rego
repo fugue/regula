@@ -14,7 +14,7 @@
 package fugue.regula
 
 import data.fugue
-import data.fugue.input_type
+import data.fugue.input_type_internal
 import data.fugue.resource_view
 
 # Construct a judgement using results from a single- resource rule.
@@ -121,12 +121,12 @@ rule_resource_result(rule, judgement) = ret {
     "rule_message": judgement.message,
     "rule_result": result_string(judgement),
     "rule_name": rule["package"],
-    "platform": rule.input_type,  # TODO: Does the naming here still make sense?
     "rule_id": rule.metadata.id,
     "rule_summary": rule.metadata.summary,
     "rule_description": rule.metadata.description,
     "rule_severity": rule.metadata.severity,
     "controls": rule.metadata.controls,
+    "input_type": rule.input_type,
   }
 }
 
@@ -197,8 +197,8 @@ single_report := ret {
   # We filter down the applicable rules by input kind.
   rules = [rule |
     resource_type = data.rules[pkg].resource_type
-    rule_input_type = input_type.rule_input_type(pkg)
-    input_type.compatibility[rule_input_type][input_type.input_type]
+    rule_input_type = input_type_internal.rule_input_type(pkg)
+    input_type_internal.compatibility[rule_input_type][input_type_internal.input_type]
     rule = {
       "package": pkg,
       "input_type": rule_input_type,

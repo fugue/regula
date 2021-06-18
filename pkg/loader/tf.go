@@ -357,6 +357,8 @@ func (c *HclConfiguration) renderResource(
 		properties["_provider"] = formatProvider(resource.Provider.ForDisplay())
 	}
 
+	properties["_filepath"] = resource.DeclRange.Filename
+
 	return properties
 }
 

@@ -99,6 +99,6 @@ report_v0(message, policy) = ret {
 # Provided for backward-compatibility with older Fugue rules only.
 resource_types_v0 = resource_types
 
-input_type() = ret {
+input_type = ret {
   ret := input_type_internal.input_type
 }

@@ -33,7 +33,7 @@ __rego__metadoc__ := {
   "title": "VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 22 (SSH)"
 }
 
-input_type = "cloudformation"
+input_type = "cfn"
 resource_type = "MULTIPLE"
 
 policy[p] {

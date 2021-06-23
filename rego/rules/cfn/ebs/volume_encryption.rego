@@ -27,7 +27,7 @@ __rego__metadoc__ := {
   "title": "EBS volume encryption should be enabled"
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 resource_type := "AWS::EC2::Volume"
 
 default allow = false

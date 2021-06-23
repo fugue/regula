@@ -13,6 +13,8 @@
 # limitations under the License.
 package fugue
 
+import data.fugue.input_type_internal
+
 resource_types = {rt |
   r = input.resources[_]
   rt = r._type
@@ -97,8 +99,6 @@ report_v0(message, policy) = ret {
 # Provided for backward-compatibility with older Fugue rules only.
 resource_types_v0 = resource_types
 
-# Engine running the rule.  Will be one of:
-#
-#  -  "regula"
-#  -  "runtime"
-engine = "regula"
+input_type = ret {
+  ret := input_type_internal.input_type
+}

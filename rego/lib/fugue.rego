@@ -49,6 +49,7 @@ allow(params) = ret {
     "type": params.resource._type,
     "message": object.get(params, "message", ""),
     "provider": params.resource._provider,
+    "filepath": object.get(params.resource, "_filepath", ""),
   }
 }
 
@@ -68,6 +69,7 @@ deny(params) = ret {
     "message": object.get(params, "message", ""),
     "attribute": object.get(params, "attribute", null),
     "provider": params.resource._provider,
+    "filepath": object.get(params.resource, "_filepath", ""),
   }
 }
 

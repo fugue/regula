@@ -127,7 +127,6 @@ rule_resource_result(rule, judgement) = ret {
     "rule_severity": rule.metadata.severity,
     "controls": rule.metadata.controls,
     "input_type": input_type_internal.input_type,
-    "rule_input_type": rule.input_type,
   }
 }
 

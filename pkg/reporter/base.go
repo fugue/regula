@@ -175,7 +175,6 @@ type RuleResult struct {
 	RuleResult      string   `json:"rule_result"`
 	RuleSeverity    string   `json:"rule_severity"`
 	RuleSummary     string   `json:"rule_summary"`
-	RuleInputType   string   `json:"rule_input_type"`
 }
 
 func (r RuleResult) IsWaived() bool {

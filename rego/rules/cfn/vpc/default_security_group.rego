@@ -32,7 +32,7 @@ __rego__metadoc__ := {
   "title": "VPC default security group should restrict all traffic"
 }
 
-input_type = "cloudformation"
+input_type = "cfn"
 resource_type = "MULTIPLE"
 
 ingress_rules = fugue.resources("AWS::EC2::SecurityGroupIngress")

@@ -30,7 +30,7 @@ __rego__metadoc__ := {
   "title": "CloudTrail trails should have CloudWatch log integration enabled"
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 resource_type := "AWS::CloudTrail::Trail"
 
 default allow = false

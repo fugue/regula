@@ -32,7 +32,7 @@ __rego__metadoc__ := {
 
 nacls = fugue.resources("AWS::EC2::NetworkAcl")
 
-input_type = "cloudformation"
+input_type = "cfn"
 resource_type = "MULTIPLE"
 
 policy[p] {

@@ -180,10 +180,10 @@ func (o RegulaOutput) AggregateByFilepath() ResultsByFilepath {
 // AggregateByRule returns all rule results grouped by rule
 func (o RegulaOutput) AggregateByRule() ResultsByRule {
 
-	// Collect all results by rule ID
+	// Collect all results by rule name
 	byRule := map[string][]*RuleResult{}
 	for i, rr := range o.RuleResults {
-		byRule[rr.RuleID] = append(byRule[rr.RuleID], &o.RuleResults[i])
+		byRule[rr.RuleName] = append(byRule[rr.RuleName], &o.RuleResults[i])
 	}
 
 	// Sort rule results for each rule individually by:
@@ -194,7 +194,7 @@ func (o RegulaOutput) AggregateByRule() ResultsByRule {
 			resultA := results[a]
 			resultB := results[b]
 			if resultA.RuleResult != resultB.RuleResult {
-				return ResultSort(resultA.RuleResult, resultB.RuleResult)
+				return ResultCompare(resultA.RuleResult, resultB.RuleResult)
 			}
 			if resultA.Filepath != resultB.Filepath {
 				return resultA.Filepath < resultB.Filepath
@@ -203,20 +203,25 @@ func (o RegulaOutput) AggregateByRule() ResultsByRule {
 		})
 		output = append(output, RuleResults{
 			RuleID:       results[0].RuleID,
+			RuleName:     results[0].RuleName,
 			RuleSummary:  results[0].RuleSummary,
 			RuleSeverity: results[0].RuleSeverity,
 			Results:      results,
 		})
 	}
 
-	// Sort the rules themselves by severity then rule ID
+	// Sort the rules themselves by:
+	// severity > rule id > rule name
 	sort.SliceStable(output, func(a, b int) bool {
 		ruleA := output[a]
 		ruleB := output[b]
 		if ruleA.RuleSeverity != ruleB.RuleSeverity {
-			return SeveritySort(ruleA.RuleSeverity, ruleB.RuleSeverity)
+			return SeverityCompare(ruleA.RuleSeverity, ruleB.RuleSeverity)
 		}
-		return ruleA.RuleID < ruleB.RuleID
+		if ruleA.RuleID != ruleB.RuleID {
+			return ruleA.RuleID < ruleB.RuleID
+		}
+		return ruleA.RuleName < ruleB.RuleName
 	})
 	return output
 }
@@ -298,6 +303,7 @@ type Reporter func(r *RegulaOutput) (string, error)
 // A minimal amount of rule metadata is duplicated here for convenience.
 type RuleResults struct {
 	RuleID       string
+	RuleName     string
 	RuleSummary  string
 	RuleSeverity string
 	Results      []*RuleResult
@@ -306,13 +312,13 @@ type RuleResults struct {
 // ResultsByRule is used to carry all rule results grouped by rule
 type ResultsByRule []RuleResults
 
-// SeveritySort returns true if the first severity is more important than
-// the second. E.g. SeveritySort("High", "Medium") yields true.
-func SeveritySort(sevA, sevB string) bool {
+// SeverityCompare returns true if the first severity is more important than
+// the second. E.g. SeverityCompare("High", "Medium") yields true.
+func SeverityCompare(sevA, sevB string) bool {
 	return int(regulaSeverities[sevA]) > int(regulaSeverities[sevB])
 }
 
-// ResultSort orders "FAIL" > "PASS" > "WAIVED"
-func ResultSort(resA, resB string) bool {
+// ResultCompare orders "FAIL" > "PASS" > "WAIVED"
+func ResultCompare(resA, resB string) bool {
 	return int(regulaResults[resA]) > int(regulaResults[resB])
 }

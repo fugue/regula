@@ -1,7 +1,7 @@
 
 Passed: {{GreenInt .Summary.RuleResults.PASS}}, Failed: {{RedInt .Summary.RuleResults.FAIL}}, Waived: {{CyanInt .Summary.RuleResults.WAIVED}}
 {{range $ruleResults := .FailuresByRule}}{{if $ruleResults.Results}}
-{{Cyan $ruleResults.RuleID}}: {{Bold $ruleResults.RuleSummary}} {{Severity $ruleResults.RuleSeverity}}
+{{if $ruleResults.RuleID}}{{Cyan $ruleResults.RuleID}}{{else}}{{Cyan $ruleResults.RuleName}}{{end}}: {{Bold $ruleResults.RuleSummary}} {{Severity $ruleResults.RuleSeverity}}
 {{range $index, $rr := $ruleResults.Results}}
     {{ResultIndex $rr $index}} {{$rr.ResourceType}}.{{$rr.ResourceID}}
          in {{$rr.Filepath}}

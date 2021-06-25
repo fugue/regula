@@ -1,6 +1,6 @@
 # Report Output
 
-Here's a snippet of test results from a Regula report: 
+Here's a snippet of test results from a Regula JSON report:
 
 ```json
 {
@@ -81,8 +81,10 @@ Here's a snippet of test results from a Regula report:
 
 **These are the important bits:**
 
-- [Rule Results](#rule-results)
-- [Summary](#summary)
+- [Report Output](#report-output)
+  - [Rule Results](#rule-results)
+  - [Summary](#summary)
+  - [Compliance controls vs. rules](#compliance-controls-vs-rules)
 
 ## Rule Results
 

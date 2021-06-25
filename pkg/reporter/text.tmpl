@@ -1,3 +1,4 @@
+
 Passed: {{GreenInt .Summary.RuleResults.PASS}}, Failed: {{RedInt .Summary.RuleResults.FAIL}}, Waived: {{CyanInt .Summary.RuleResults.WAIVED}}
 {{range $ruleResults := .FailuresByRule}}{{if $ruleResults.Results}}
 {{Cyan $ruleResults.RuleID}}: {{Bold $ruleResults.RuleSummary}} {{Severity $ruleResults.RuleSeverity}}

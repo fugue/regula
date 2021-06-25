@@ -52,14 +52,16 @@ const (
 	Junit
 	Tap
 	None
+	Friendly
 )
 
 var FormatIds = map[Format][]string{
-	JSON:  {"json"},
-	Table: {"table"},
-	Junit: {"junit"},
-	Tap:   {"tap"},
-	None:  {"none"},
+	JSON:     {"json"},
+	Table:    {"table"},
+	Junit:    {"junit"},
+	Tap:      {"tap"},
+	None:     {"none"},
+	Friendly: {"friendly"},
 }
 
 type RegulaOutput struct {

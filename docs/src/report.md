@@ -81,10 +81,8 @@ Here's a snippet of test results from a Regula JSON report:
 
 **These are the important bits:**
 
-- [Report Output](#report-output)
-  - [Rule Results](#rule-results)
-  - [Summary](#summary)
-  - [Compliance controls vs. rules](#compliance-controls-vs-rules)
+- [Rule Results](#rule-results)
+- [Summary](#summary)
 
 ## Rule Results
 

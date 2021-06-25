@@ -52,16 +52,16 @@ const (
 	Junit
 	Tap
 	None
-	Friendly
+	Text
 )
 
 var FormatIds = map[Format][]string{
-	JSON:     {"json"},
-	Table:    {"table"},
-	Junit:    {"junit"},
-	Tap:      {"tap"},
-	None:     {"none"},
-	Friendly: {"friendly"},
+	JSON:  {"json"},
+	Table: {"table"},
+	Junit: {"junit"},
+	Tap:   {"tap"},
+	None:  {"none"},
+	Text:  {"text"},
 }
 
 type Result int

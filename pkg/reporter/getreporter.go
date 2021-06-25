@@ -28,8 +28,8 @@ func GetReporter(format Format) (Reporter, error) {
 		return TapReporter, nil
 	case None:
 		return noneReporter, nil
-	case Friendly:
-		return FriendlyReporter, nil
+	case Text:
+		return TextReporter, nil
 	default:
 		return nil, fmt.Errorf("Unsupported or unrecognized reporter: %v", FormatIds[format])
 	}

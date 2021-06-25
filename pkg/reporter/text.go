@@ -16,13 +16,17 @@ package reporter
 
 import (
 	"bytes"
+	_ "embed"
 	"fmt"
 	"text/template"
 
 	"github.com/fatih/color"
 )
 
-var friendlyTemplate *template.Template
+var textTemplate *template.Template
+
+//go:embed text.tmpl
+var textTemplateDefinition string
 
 func init() {
 
@@ -43,7 +47,7 @@ func init() {
 
 	// We'll use a Go template to describe and create the friendly output
 	var err error
-	friendlyTemplate, err = template.New("friendly").Funcs(
+	textTemplate, err = template.New("friendly").Funcs(
 		template.FuncMap{
 			"Bold": func(item interface{}) string {
 				return color.New(color.Bold).Sprint(item)
@@ -77,16 +81,7 @@ func init() {
 				return c.Sprintf("[%s]", severity)
 			},
 		},
-	).Parse(`
-Passed: {{GreenInt .Summary.RuleResults.PASS}}, Failed: {{RedInt .Summary.RuleResults.FAIL}}, Waived: {{CyanInt .Summary.RuleResults.WAIVED}}
-{{range $ruleResults := .FailuresByRule}}{{if $ruleResults.Results}}
-{{Cyan $ruleResults.RuleID}}: {{Bold $ruleResults.RuleSummary}} {{Severity $ruleResults.RuleSeverity}}
-{{range $index, $rr := $ruleResults.Results}}
-    {{ResultIndex $rr $index}} {{$rr.ResourceType}}.{{$rr.ResourceID}}
-         in {{$rr.Filepath}}
-    {{if $rr.RuleMessage}}{{$rr.RuleMessage}}
-{{end}}{{end}}{{end}}{{end}}
-	`)
+	).Parse(textTemplateDefinition)
 
 	if err != nil {
 		// This will only happen during development, if the template is invalid
@@ -94,10 +89,10 @@ Passed: {{GreenInt .Summary.RuleResults.PASS}}, Failed: {{RedInt .Summary.RuleRe
 	}
 }
 
-// FriendlyReporter returns the Regula report in a human-friendly format
-func FriendlyReporter(o *RegulaOutput) (string, error) {
+// TextReporter returns the Regula report in a human-friendly format
+func TextReporter(o *RegulaOutput) (string, error) {
 	buf := &bytes.Buffer{}
-	if err := friendlyTemplate.Execute(buf, o); err != nil {
+	if err := textTemplate.Execute(buf, o); err != nil {
 		return "", err
 	}
 	return buf.String(), nil

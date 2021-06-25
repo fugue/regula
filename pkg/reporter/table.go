@@ -82,7 +82,7 @@ func TableReporter(o *RegulaOutput) (string, error) {
 			{},
 			{},
 			{Align: simpletable.AlignRight, Text: "Overall"},
-			{Align: simpletable.AlignRight, Text: colorizeResult(overall)},
+			{Align: simpletable.AlignLeft, Text: colorizeResult(overall)},
 		},
 	}
 

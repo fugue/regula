@@ -33,7 +33,7 @@ var longDescription string
 
 func NewRunCommand() *cobra.Command {
 	var inputType loader.InputType
-	var format reporter.Format
+	format := reporter.Friendly
 	severity := reporter.Unknown
 	cmd := &cobra.Command{
 		Use:   "run [input...]",

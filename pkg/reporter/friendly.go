@@ -25,52 +25,79 @@ import (
 var friendlyTemplate *template.Template
 
 func init() {
-	friendlyTemplate = template.New("friendly").Funcs(template.FuncMap{
-		"Highlight": func(item interface{}) string {
-			return color.New(color.Bold).Sprint(item)
-		},
-		"Colorize": func(rr *RuleResult, item interface{}) string {
-			if rr.RuleResult == "PASS" {
-				return color.New(color.FgGreen).Sprint(item)
-			} else if rr.RuleResult == "FAIL" {
-				return color.New(color.FgRed).Sprint(item)
-			} else if rr.RuleResult == "WAIVED" {
-				return color.New(color.FgBlue).Sprint(item)
-			}
-			return fmt.Sprintf("%v", item)
-		},
-	})
-	tmpl := `
-Passed: {{.Summary.RuleResults.PASS}}, Failed: {{.Summary.RuleResults.FAIL}}, Waived: {{.Summary.RuleResults.WAIVED}}
-{{range $ruleFailures := .FailuresByRule}}{{with (index $ruleFailures 0)}}
-{{.RuleID}}: {{Highlight .RuleSummary}}{{end}}
-{{range $ruleResult := $ruleFailures}}
-    {{Colorize $ruleResult $ruleResult.RuleResult}}: {{$ruleResult.ResourceType}}.{{$ruleResult.ResourceID}}
-    File: {{$ruleResult.Filepath}}
-    {{if $ruleResult.RuleMessage}}{{$ruleResult.RuleMessage}}
-{{end}}{{end}}{{end}}
-	`
-	friendlyTemplate.Parse(tmpl)
-}
 
-type friendlyReport struct {
-	*RegulaOutput
-}
-
-func (r *friendlyReport) FailuresByRule() map[string][]*RuleResult {
-	result := map[string][]*RuleResult{}
-	for i, rr := range r.RuleResults {
-		if rr.RuleResult == "FAIL" {
-			result[rr.RuleID] = append(result[rr.RuleID], &r.RuleResults[i])
+	getSeverityColor := func(severity string) *color.Color {
+		switch severity {
+		case "Low":
+			return color.New(color.FgBlue)
+		case "Medium":
+			return color.New(color.FgYellow)
+		case "High":
+			return color.New(color.FgRed)
+		case "Critical":
+			return color.New(color.BgRed)
+		default:
+			return color.New()
 		}
 	}
-	return result
+
+	// We'll use a Go template to describe and create the friendly output
+	var err error
+	friendlyTemplate, err = template.New("friendly").Funcs(
+		template.FuncMap{
+			"Bold": func(item interface{}) string {
+				return color.New(color.Bold).Sprint(item)
+			},
+			"Cyan": func(item interface{}) string {
+				return color.New(color.FgCyan).Sprint(item)
+			},
+			"ResultIndex": func(rr *RuleResult, index int) string {
+				return getSeverityColor(rr.RuleSeverity).Sprintf("[%d]:", index+1)
+			},
+			"RedInt": func(num int) string {
+				if num == 0 {
+					return fmt.Sprintf("%d", num)
+				}
+				return color.New(color.FgRed).Sprint(num)
+			},
+			"GreenInt": func(num int) string {
+				if num == 0 {
+					return fmt.Sprintf("%d", num)
+				}
+				return color.New(color.FgGreen).Sprint(num)
+			},
+			"CyanInt": func(num int) string {
+				if num == 0 {
+					return fmt.Sprintf("%d", num)
+				}
+				return color.New(color.FgGreen).Sprint(num)
+			},
+			"Severity": func(severity string) string {
+				c := getSeverityColor(severity)
+				return c.Sprintf("[%s]", severity)
+			},
+		},
+	).Parse(`
+Passed: {{GreenInt .Summary.RuleResults.PASS}}, Failed: {{RedInt .Summary.RuleResults.FAIL}}, Waived: {{CyanInt .Summary.RuleResults.WAIVED}}
+{{range $ruleResults := .FailuresByRule}}{{if $ruleResults.Results}}
+{{Cyan $ruleResults.RuleID}}: {{Bold $ruleResults.RuleSummary}} {{Severity $ruleResults.RuleSeverity}}
+{{range $index, $rr := $ruleResults.Results}}
+    {{ResultIndex $rr $index}} {{$rr.ResourceType}}.{{$rr.ResourceID}}
+         in {{$rr.Filepath}}
+    {{if $rr.RuleMessage}}{{$rr.RuleMessage}}
+{{end}}{{end}}{{end}}{{end}}
+	`)
+
+	if err != nil {
+		// This will only happen during development, if the template is invalid
+		panic(fmt.Errorf("unable to parse friendly format template: %w", err))
+	}
 }
 
+// FriendlyReporter returns the Regula report in a human-friendly format
 func FriendlyReporter(o *RegulaOutput) (string, error) {
-	fr := &friendlyReport{o}
 	buf := &bytes.Buffer{}
-	if err := friendlyTemplate.Execute(buf, fr); err != nil {
+	if err := friendlyTemplate.Execute(buf, o); err != nil {
 		return "", err
 	}
 	return buf.String(), nil

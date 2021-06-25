@@ -31,7 +31,7 @@ We'll be running Regula on the [`regula-ci-example/infra_tf`](https://github.com
 Make sure you're in the `regula-ci-example` directory and run this command:
 
 ```
-regula run --include example_custom_rule infra_tf
+regula run -f json --include example_custom_rule infra_tf
 ```
 
 We see this output:
@@ -163,7 +163,7 @@ Now, let's run Regula again. The command is identical to the previous one, but a
 Here's the full command:
 
 ```
-regula run --include example_custom_rule --include config.rego infra_tf
+regula run -f json --include example_custom_rule --include config.rego infra_tf
 ```
 
 We see this output:
@@ -283,7 +283,7 @@ rules[rule] {
 Run the same command we ran a moment ago:
 
 ```
-regula run --include example_custom_rule --include config.rego infra_tf
+regula run -f json --include example_custom_rule --include config.rego infra_tf
 ```
 
 We'll see this output:

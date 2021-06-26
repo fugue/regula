@@ -18,6 +18,8 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
+	"math/rand"
+	"strings"
 	"text/template"
 
 	"github.com/fatih/color"
@@ -27,6 +29,9 @@ var textTemplate *template.Template
 
 //go:embed text.tmpl
 var textTemplateDefinition string
+
+//go:embed praise.txt
+var praiseText string
 
 func init() {
 
@@ -49,11 +54,23 @@ func init() {
 	var err error
 	textTemplate, err = template.New("friendly").Funcs(
 		template.FuncMap{
-			"Bold": func(item interface{}) string {
-				return color.New(color.Bold).Sprint(item)
+			"Bold": func(items ...interface{}) string {
+				return color.New(color.Bold).Sprint(items...)
 			},
-			"Cyan": func(item interface{}) string {
-				return color.New(color.FgCyan).Sprint(item)
+			"Italic": func(items ...interface{}) string {
+				return color.New(color.Italic).Sprint(items...)
+			},
+			"Cyan": func(items ...interface{}) string {
+				return color.New(color.FgCyan).Sprint(items...)
+			},
+			"Green": func(items ...interface{}) string {
+				return color.New(color.FgGreen).Sprint(items...)
+			},
+			"Red": func(items ...interface{}) string {
+				return color.New(color.FgRed).Sprint(items...)
+			},
+			"Praise": func() string {
+				return randomPraise()
 			},
 			"ResultIndex": func(rr *RuleResult, index int) string {
 				return getSeverityColor(rr.RuleSeverity).Sprintf("[%d]:", index+1)
@@ -74,7 +91,7 @@ func init() {
 				if num == 0 {
 					return fmt.Sprintf("%d", num)
 				}
-				return color.New(color.FgGreen).Sprint(num)
+				return color.New(color.FgCyan).Sprint(num)
 			},
 			"Severity": func(severity string) string {
 				c := getSeverityColor(severity)
@@ -96,4 +113,9 @@ func TextReporter(o *RegulaOutput) (string, error) {
 		return "", err
 	}
 	return buf.String(), nil
+}
+
+func randomPraise() string {
+	lines := strings.Split(praiseText, "\n")
+	return lines[rand.Intn(len(lines))]
 }

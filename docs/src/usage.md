@@ -191,12 +191,12 @@ Use the `--f | --format FORMAT` flag to specify the output format:
 
     ```
 
-    Passed: 1, Failed: 1, Waived: 0
-
     CUSTOM_0001: IAM policies must have a description of at least 25 characters [Low]
 
         [1]: AWS::IAM::ManagedPolicy.InvalidManagedPolicy01
              in infra_cfn/invalid_long_description.yaml
+
+    Found one problem.
 
     ```
 

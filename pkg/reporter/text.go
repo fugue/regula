@@ -73,7 +73,12 @@ func init() {
 				return randomPraise()
 			},
 			"ResultIndex": func(rr *RuleResult, index int) string {
-				return getSeverityColor(rr.RuleSeverity).Sprintf("[%d]:", index+1)
+				severity := rr.RuleSeverity
+				if severity == "Critical" {
+					// The critical color scheme doesn't work well for the index
+					severity = "High"
+				}
+				return getSeverityColor(severity).Sprintf("[%d]:", index+1)
 			},
 			"RedInt": func(num int) string {
 				if num == 0 {

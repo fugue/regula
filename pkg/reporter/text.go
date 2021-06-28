@@ -80,6 +80,13 @@ func init() {
 				}
 				return getSeverityColor(severity).Sprintf("[%d]:", index+1)
 			},
+			"PadIndex": func(rr *RuleResult, index int) string {
+				// Used to adjust vertical alignment for rule result data
+				if index < 9 {
+					return strings.Repeat(" ", 4)
+				}
+				return strings.Repeat(" ", 5)
+			},
 			"RedInt": func(num int) string {
 				if num == 0 {
 					return fmt.Sprintf("%d", num)

@@ -22,6 +22,7 @@ package fugue.input_type_internal
 #  -  "tf_runtime"
 #  -  "cfn"
 #  -  "k8s"
+#  -  "dockerfile"
 #
 # To check the current resource type, use `input_type`.
 # To check if a rule applies for this input type, use `compatibility`.
@@ -40,6 +41,8 @@ input_type = "tf" {
   _ = input.AWSTemplateFormatVersion
 } else = "k8s" {
   _ = input.k8s_resource_view_version
+} else = "dockerfile" {
+  _ = input.dockerfile_resource_view_version
 }
 
 terraform_input_type {
@@ -54,6 +57,10 @@ cloudformation_input_type {
 
 kubernetes_input_type {
   input_type == "k8s"
+}
+
+dockerfile_input_type {
+  input_type == "dockerfile"
 }
 
 rule_input_type(pkg) = ret {
@@ -75,4 +82,5 @@ compatibility := {
   "cfn":            {"cfn"},
   "cloudformation": {"cfn"},  # Backwards-compatibility
   "k8s":            {"k8s"},
+  "dockerfile":     {"dockerfile"},
 }

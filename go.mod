@@ -12,6 +12,7 @@ require (
 	github.com/hashicorp/terraform v0.15.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.5.0
 	github.com/hashicorp/terraform-provider-google v1.20.0 // indirect
+	github.com/moby/buildkit v0.8.3
 	github.com/open-policy-agent/opa v0.28.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.2.2

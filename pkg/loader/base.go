@@ -43,16 +43,19 @@ const (
 	Tf
 	// k8s
 	K8s
+	// Dockerfiles
+	Dockerfile
 )
 
 // InputTypeIDs maps the InputType enums to string values that can be specified in
 // CLI options.
 var InputTypeIDs = map[InputType][]string{
-	Auto:   {"auto"},
-	TfPlan: {"tf-plan", "tf_plan"},
-	Cfn:    {"cfn"},
-	Tf:     {"tf"},
-	K8s:    {"k8s", "kubernetes"},
+	Auto:       {"auto"},
+	TfPlan:     {"tf-plan", "tf_plan"},
+	Cfn:        {"cfn"},
+	Tf:         {"tf"},
+	K8s:        {"k8s", "kubernetes"},
+	Dockerfile: {"dockerfile"},
 }
 
 // InputTypeForString is a utility function to translate the string name of an input
@@ -69,6 +72,8 @@ func InputTypeForString(typeStr string) (InputType, error) {
 		return Tf, nil
 	case "k8s":
 		return K8s, nil
+	case "dockerfile":
+		return Dockerfile, nil
 	default:
 		return -1, fmt.Errorf("Unrecognized input type %v", typeStr)
 	}

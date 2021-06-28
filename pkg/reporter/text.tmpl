@@ -9,7 +9,7 @@
 {{- end -}}: {{- Bold " " $ruleResults.RuleSummary }} {{ Severity $ruleResults.RuleSeverity }}
 {{/* RULE RESULTS FOR A SINGLE RULE */}}
 {{- range $index, $rr := $ruleResults.Results }}
-  {{ ResultIndex $rr $index }} {{ $rr.ResourceType }}.{{ $rr.ResourceID }}
+  {{ ResultIndex $rr $index }} {{ $rr.ResourceID }}
   {{ PadIndex $rr $index }} in {{ $rr.Filepath }}
   {{- if $rr.RuleMessage }}
   {{ PadIndex $rr $index }} {{ Italic $rr.RuleMessage }}

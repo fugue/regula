@@ -95,6 +95,13 @@ resource_values(resource) = ret {
   ret = {}
 }
 
+render_resource_type(resource) = ret {
+  resource.mode == "data"
+  ret = concat(".", [resource.mode, resource.type])
+} else = ret {
+  ret = resource.type
+}
+
 # Grab resources from planned values.  Add "id" and "_type" keys.
 planned_values_resources = {id: ret |
   planned_values_module_resources[_] = resource_section
@@ -104,7 +111,7 @@ planned_values_resources = {id: ret |
   provider = split_provider[count(split_provider)-1]
   ret = json.patch(resource_values(resource), [
     {"op": "add", "path": ["id"], "value": id},
-    {"op": "add", "path": ["_type"], "value": resource.type},
+    {"op": "add", "path": ["_type"], "value": render_resource_type(resource)},
     {"op": "add", "path": ["_provider"], "value": provider},
   ])
 }

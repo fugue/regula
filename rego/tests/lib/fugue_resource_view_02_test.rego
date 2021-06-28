@@ -37,7 +37,7 @@ test_resource_view_02 {
     },
     "data.aws_iam_policy_document.example": {
       "_provider": "aws",
-      "_type": "aws_iam_policy_document",
+      "_type": "data.aws_iam_policy_document",
       "id": "data.aws_iam_policy_document.example",
       "override_json": null,
       "override_policy_documents": null,

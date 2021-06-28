@@ -20,5 +20,3 @@ jobs:
         cd rego
         ../bin/regula test examples rules tests
         ../bin/regula test --no-test-inputs examples rules tests
-    - name: Validate rule tests and test inputs
-      run: cd rego && ./scripts/check-naming.sh

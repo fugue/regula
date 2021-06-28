@@ -86,7 +86,26 @@ For this example, we'll be running Regula on some example Terraform infrastructu
 
 3. Run Regula against the [example Terraform](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf):
 
-        regula run infra_tf -f json
+        regula run infra_tf
+
+You'll see output like this:
+
+```
+FG_R00092: IAM policies should not have full "*:*" administrative privileges [High]
+
+  [1]: aws_iam_policy.basically_allow_all
+       in ../regula-ci-example/infra_tf/main.tf
+
+Found one problem.
+```
+
+Looks like there is one problem with the Terraform! Let's get a full JSON report.
+
+### Dig into the details
+
+To get a full JSON report, run Regula with the `-f json` flag:
+
+    regula run infra_tf -f json
 
 You'll see output like this:
 
@@ -94,11 +113,42 @@ You'll see output like this:
 {
   "rule_results": [
     {
+      "controls": [],
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
+      "provider": "aws",
+      "resource_id": "aws_iam_policy.basically_allow_all",
+      "resource_type": "aws_iam_policy",
+      "rule_description": "IAM policies should not allow broad list actions on S3 buckets. Should a malicious actor gain access to a role with a policy that includes broad list actions such as ListAllMyBuckets, the malicious actor would be able to enumerate all buckets and potentially extract sensitive data.",
+      "rule_id": "FG_R00218",
+      "rule_message": "",
+      "rule_name": "aws_iam_s3_nolist",
+      "rule_result": "PASS",
+      "rule_severity": "Medium",
+      "rule_summary": "IAM policies should not allow broad list actions on S3 buckets"
+    },
+    {
+      "controls": [],
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
+      "provider": "aws",
+      "resource_id": "aws_iam_policy.basically_deny_all",
+      "resource_type": "aws_iam_policy",
+      "rule_description": "IAM policies should not allow broad list actions on S3 buckets. Should a malicious actor gain access to a role with a policy that includes broad list actions such as ListAllMyBuckets, the malicious actor would be able to enumerate all buckets and potentially extract sensitive data.",
+      "rule_id": "FG_R00218",
+      "rule_message": "",
+      "rule_name": "aws_iam_s3_nolist",
+      "rule_result": "PASS",
+      "rule_severity": "Medium",
+      "rule_summary": "IAM policies should not allow broad list actions on S3 buckets"
+    },
+    {
       "controls": [
-        "CIS-AWS_v1.2.0_1.22"
+        "CIS-AWS_v1.2.0_1.22",
+        "CIS-AWS_v1.3.0_1.16"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -112,10 +162,11 @@ You'll see output like this:
     },
     {
       "controls": [
-        "CIS-AWS_v1.2.0_1.22"
+        "CIS-AWS_v1.2.0_1.22",
+        "CIS-AWS_v1.3.0_1.16"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -130,11 +181,11 @@ You'll see output like this:
   ],
   "summary": {
     "filepaths": [
-      "infra_tf"
+      "infra_tf/main.tf"
     ],
     "rule_results": {
       "FAIL": 1,
-      "PASS": 1,
+      "PASS": 3,
       "WAIVED": 0
     },
     "severities": {
@@ -151,17 +202,18 @@ You'll see output like this:
 
 ### What does it mean?
 
-Regula just showed us that our [sample Terraform](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) is noncompliant and a security vulnerability. In this example, there are two rule results: one PASS and one FAIL.
+Regula just showed us that our [sample Terraform](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) is noncompliant and a security vulnerability. In this example, there are 4 rule results: 3 PASS and 1 FAIL.
 
 The AWS IAM policy resource `aws_iam_policy.basically_allow_all` failed the Regula rule ["IAM policies should not have full `"*:*"` administrative privileges."](https://github.com/fugue/regula/blob/master/rego/rules/tf/aws/iam/admin_policy.rego) The report includes lots of other info, such as the filename the resource was found in, the rule severity, a full description of the rule, and more:
 
 ```json
     {
       "controls": [
-        "CIS-AWS_v1.2.0_1.22"
+        "CIS-AWS_v1.2.0_1.22",
+        "CIS-AWS_v1.3.0_1.16"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -180,10 +232,11 @@ In contrast, the policy `aws_iam_policy.basically_deny_all` passed the rule:
 ```json
     {
       "controls": [
-        "CIS-AWS_v1.2.0_1.22"
+        "CIS-AWS_v1.2.0_1.22",
+        "CIS-AWS_v1.3.0_1.16"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -202,11 +255,11 @@ The summary lists the filenames evaluated, the number of FAIL/PASS/[WAIVED](conf
 ```json
   "summary": {
     "filepaths": [
-      "infra_tf"
+      "infra_tf/main.tf"
     ],
     "rule_results": {
       "FAIL": 1,
-      "PASS": 1,
+      "PASS": 3,
       "WAIVED": 0
     },
     "severities": {

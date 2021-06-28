@@ -43,8 +43,8 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -60,8 +60,8 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -77,8 +77,8 @@ We see this output:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -94,8 +94,8 @@ We see this output:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -106,15 +106,16 @@ We see this output:
       "rule_result": "PASS",
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges"
-    }
+    },
+    <cut for length>
   ],
   "summary": {
     "filepaths": [
-      "infra_tf"
+      "infra_tf/main.tf"
     ],
     "rule_results": {
       "FAIL": 2,
-      "PASS": 2,
+      "PASS": 4,
       "WAIVED": 0
     },
     "severities": {
@@ -175,8 +176,8 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -192,8 +193,8 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -209,8 +210,8 @@ We see this output:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -226,8 +227,8 @@ We see this output:
       "controls": [
         "CIS-AWS_v1.2.0_1.22"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -239,14 +240,15 @@ We see this output:
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges"
     }
+    <cut for length>
   ],
   "summary": {
     "filepaths": [
-      "infra_tf"
+      "infra_tf/main.tf"
     ],
     "rule_results": {
       "FAIL": 1,
-      "PASS": 2,
+      "PASS": 4,
       "WAIVED": 1
     },
     "severities": {
@@ -261,7 +263,7 @@ We see this output:
 }
 ```
 
-This time, there are 1 FAIL, 2 PASS, and 1 WAIVED rule results! You can see in the output that the `rule_result` value is `WAIVED` for the rule `long_description` and resource `aws_iam_policy.basically_allow_all`.
+This time, there are 1 FAIL, 4 PASS, and 1 WAIVED rule results! You can see in the output that the `rule_result` value is `WAIVED` for the rule `long_description` and resource `aws_iam_policy.basically_allow_all`.
 
 Hooray! You've just configured Regula to waive a rule result for a resource. Your next mission: disabling a rule!
 
@@ -295,8 +297,8 @@ We'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -312,8 +314,8 @@ We'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -325,14 +327,15 @@ We'll see this output:
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters"
     }
+    <cut for length>
   ],
   "summary": {
     "filepaths": [
-      "infra_tf"
+      "infra_tf/main.tf"
     ],
     "rule_results": {
       "FAIL": 0,
-      "PASS": 1,
+      "PASS": 3,
       "WAIVED": 1
     },
     "severities": {
@@ -347,7 +350,7 @@ We'll see this output:
 }
 ```
 
-Now there are just two rule results: 1 PASS and 1 WAIVED. As you can see, the rule `tf_aws_iam_admin_policy` was totally ignored.
+Now there are just 4 rule results: 3 PASS and 1 WAIVED. As you can see, the rule `tf_aws_iam_admin_policy` was totally ignored.
 
 Nice job! You just configured Regula to disable a rule. 
 

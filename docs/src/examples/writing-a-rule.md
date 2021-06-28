@@ -94,7 +94,7 @@ Now we just need the condition. In this case, we want to allow a resource **if**
 
 ### Specify the attribute(s) to check
 
-First, we check how to specify the "description" attribute. The best way to do this is to check the [`mock_resources`](../development/rule-development.md#test-inputs) dynamically generated from the test IaC file. In this case, we'll use [infra_tf/main.tf](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) as our test file.
+First, we check how to specify the "description" attribute. The best way to do this is to check the [`mock_resources`](../development/test-inputs.md) dynamically generated from the test IaC file. In this case, we'll use [infra_tf/main.tf](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) as our test file.
 
 To view the `mock_resources`, let's fire up the [REPL](../usage.md#repl):
 
@@ -108,7 +108,7 @@ Now, we enter the package name of the input file, specifying `mock_resources` as
 data.infra_tf.main_tf.mock_resources
 ```
 
-For more details on the package name format, see [our note about test inputs](../development/rule-development.md#a-note-about-test-input).
+For more details on the package name format, see [our note about test inputs](../development/test-inputs.md#a-note-about-test-input-package-names).
 
 You'll see this output:
 
@@ -137,7 +137,7 @@ You'll see this output:
 
 Here you can see that there are two resources defined, both of the type `aws_iam_policy`. The attribute `description` is what we're looking for, and it's located at the level directly beneath the resource ID. That means it's a top-level attribute -- it's not nested under any other attribute.
 
-If you'd like to learn more about using the REPL for developing rules, take a detour to [Rule Development](../development/rule-development.md).
+If you'd like to learn more about using the REPL for developing rules, take a detour to [Test Inputs](../development/test-inputs.md).
 
 ### Specify the condition
 
@@ -232,8 +232,8 @@ You'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -249,8 +249,8 @@ You'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -265,7 +265,7 @@ You'll see this output:
   ],
   "summary": {
     "filepaths": [
-      "infra_tf"
+      "infra_tf/main.tf"
     ],
     "rule_results": {
       "FAIL": 1,
@@ -288,7 +288,7 @@ As you can see, the IAM policy `aws_iam_policy.basically_deny_all` passed the cu
 
 ## CloudFormation example rule
 
-The process for writing custom rules to check CloudFormation is mostly the same as for Terraform -- the main difference is how you specify the resource type and attribute to check. Additionally, you need to specify `input_type := "cloudformation"` somewhere in the rule.
+The process for writing custom rules to check CloudFormation is mostly the same as for Terraform -- the main difference is how you specify the resource type and attribute to check. Additionally, you need to specify `input_type := "cfn"` somewhere in the rule.
 
 For instance, this is how you'd write `long_description` as a CloudFormation rule. Note that `resource_type` and `Description` are different from the Terraform rule, and `input_type` is present:
 
@@ -309,7 +309,7 @@ __rego__metadoc__ := {
   }
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 
 resource_type = "AWS::IAM::ManagedPolicy"
 

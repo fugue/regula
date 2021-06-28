@@ -4,6 +4,7 @@ nav:
   - Home: "index.md"
   - "getting-started.md"
   - "usage.md"
+  - "rules.md"
   - "report.md"
   - "configuration.md"
   - Integrations:

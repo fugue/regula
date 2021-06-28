@@ -37,6 +37,8 @@ input_type = "tf" {
   _ = input.Resources
 } else = "cfn" {
   _ = input.AWSTemplateFormatVersion
+} else = "unknown" {
+  true
 }
 
 terraform_input_type {

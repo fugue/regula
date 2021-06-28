@@ -1,6 +1,6 @@
 # Report Output
 
-Here's a snippet of test results from a Regula report: 
+Here's a snippet of test results from a Regula JSON report:
 
 ```json
 {

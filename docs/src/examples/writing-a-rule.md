@@ -218,7 +218,7 @@ If you completed the Getting Started [tutorial](../getting-started.md#tutorial-r
 Make sure you're in the `regula-ci-example` directory and use the following command to check the sample Terraform project in [`regula-ci-example/infra_tf/main.tf`](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) against our custom rule, [`long_description.rego`](https://github.com/fugue/regula-ci-example/blob/master/example_custom_rule/long_description.rego):
 
 ```
-regula run --user-only --include example_custom_rule infra_tf
+regula run -f json --user-only --include example_custom_rule infra_tf
 ```
 
 Note that we've used the `--user-only` option because we want to test _only_ this custom rule. We don't need to apply Regula's library of rules.

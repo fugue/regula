@@ -4,7 +4,7 @@
 
 BINARY = bin/regula
 INSTALLED_BINARY = /usr/local/bin/regula
-GO_SOURCE = $(shell find cmd pkg -type f -name '*.go') $(shell find cmd pkg -type f -name '*.tpl')
+GO_SOURCE = $(shell find cmd pkg -type f -name '*.go') $(shell find cmd pkg -type f -name '*.tmpl')
 CLI_SOURCE = $(GO_SOURCE) $(wildcard cmd/*.txt) go.mod go.sum
 MOCKS = $(wildcard pkg/mocks/*.go)
 REGO_LIB_SOURCE = $(shell find rego/lib -type f -name '*.rego')

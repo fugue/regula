@@ -15,6 +15,9 @@
 package cmd
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -38,6 +41,9 @@ func Execute() {
 }
 
 func init() {
+
+	rand.Seed(time.Now().Unix())
+
 	logrus.SetFormatter(&logrus.TextFormatter{
 		DisableTimestamp:       true,
 		DisableLevelTruncation: true,

@@ -13,7 +13,7 @@ import (
 	"github.com/fugue/regula/pkg/loader"
 )
 
-//go:embed testinput.tpl
+//go:embed testinput.tmpl
 var inputTemplate string
 
 type templateArgs struct {

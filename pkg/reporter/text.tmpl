@@ -1,0 +1,8 @@
+{{range $ruleResults := .FailuresByRule}}{{if $ruleResults.Results}}
+{{if $ruleResults.RuleID}}{{Cyan $ruleResults.RuleID}}{{else}}{{Cyan $ruleResults.RuleName}}{{end}}: {{Bold $ruleResults.RuleSummary}} {{Severity $ruleResults.RuleSeverity}}
+{{range $index, $rr := $ruleResults.Results}}
+    {{ResultIndex $rr $index}} {{$rr.ResourceType}}.{{$rr.ResourceID}}
+         in {{$rr.Filepath}}
+         {{if $rr.RuleMessage}}{{Italic $rr.RuleMessage}}
+{{end}}{{end}}{{end}}{{end}}
+{{if eq .Summary.RuleResults.FAIL 0}}{{Green "No problems found."}} {{if gt .Summary.RuleResults.PASS 0}}{{Praise | Green | Italic}}{{end}}{{else if eq .Summary.RuleResults.FAIL 1}}{{Red "Found one problem."}}{{else}}{{Red "Found " .Summary.RuleResults.FAIL " problems."}}{{end}}

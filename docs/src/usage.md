@@ -35,7 +35,7 @@ Usage:
   regula run [input...] [flags]
 
 Flags:
-  -f, --format format           Set the output format (default json)
+  -f, --format format           Set the output format (default text)
   -h, --help                    help for run
   -i, --include strings         Specify additional rego files or directories to include
   -t, --input-type input-type   Set the input type for the given paths (default auto)
@@ -113,7 +113,8 @@ Regula operates on CloudFormation templates formatted as JSON or YAML, including
 
 `-f, --format FORMAT` values:
 
-- `json` -- A JSON report containing rule results and a summary (default)
+- `text` -- A human friendly format (default)
+- `json` -- A JSON report containing rule results and a summary
 - `table` -- An ASCII table of rule results
 - `junit` -- The JUnit XML format
 - `tap` -- The Test Anything Protocol format
@@ -186,7 +187,20 @@ Regula operates on CloudFormation templates formatted as JSON or YAML, including
 
 Use the `--f | --format FORMAT` flag to specify the output format:
 
-=== "json (default)"
+=== "text"
+
+    ```
+
+    CUSTOM_0001: IAM policies must have a description of at least 25 characters [Low]
+
+        [1]: AWS::IAM::ManagedPolicy.InvalidManagedPolicy01
+             in infra_cfn/invalid_long_description.yaml
+
+    Found one problem.
+
+    ```
+
+=== "json"
     
     ```
     {

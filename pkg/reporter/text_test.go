@@ -25,11 +25,11 @@ func TestTextOutput(t *testing.T) {
 	}
 
 	assert.True(t, foundLines["RULE_001: checks tags [High]"])
-	assert.True(t, foundLines["[1]: t1.r1"])
+	assert.True(t, foundLines["[1]: r1"])
 	assert.True(t, foundLines["in src/infra/compute.yaml"])
 
 	assert.True(t, foundLines["RULE_002: checks databases [Medium]"])
-	assert.True(t, foundLines["[1]: t2.r2"])
+	assert.True(t, foundLines["[1]: r2"])
 	assert.True(t, foundLines["in src/infra/database.yaml"])
 
 	assert.True(t, foundLines["Found 2 problems."])

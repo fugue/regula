@@ -320,6 +320,14 @@ func (c *HclConfiguration) renderResources() map[string]interface{} {
 	return resources
 }
 
+func renderResourceType(r *configs.Resource) string {
+	if r.Mode == addrs.DataResourceMode {
+		return "data." + r.Type
+	}
+
+	return r.Type
+}
+
 func (c *HclConfiguration) renderResource(
 	resourceId string, resource *configs.Resource,
 ) interface{} {
@@ -336,7 +344,7 @@ func (c *HclConfiguration) renderResource(
 	}
 
 	properties := make(map[string]interface{})
-	properties["_type"] = resource.Type
+	properties["_type"] = renderResourceType(resource)
 	properties["id"] = resourceId
 
 	body, ok := resource.Config.(*hclsyntax.Body)

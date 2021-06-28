@@ -64,7 +64,7 @@ test_resource_view_01 {
       "source_json": null,
       "version": null,
       "policy_id": null,
-      "_type": "aws_iam_policy_document",
+      "_type": "data.aws_iam_policy_document",
       "_provider": "aws",
     }
   }

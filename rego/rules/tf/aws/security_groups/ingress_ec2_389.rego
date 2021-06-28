@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.aws_security_groups_ingress_ec2_389
+package rules.tf_aws_security_groups_ingress_ec2_389
 
 import data.aws.security_groups.library
 import data.fugue

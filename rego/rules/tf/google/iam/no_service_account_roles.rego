@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.google_iam_no_service_account_roles
+package rules.tf_google_iam_no_service_account_roles
 
 import data.fugue
 import data.google.iam.policy_library as lib

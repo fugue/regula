@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.google_compute_no_default_service_account_with_scopes
+package rules.tf_google_compute_no_default_service_account_with_scopes
 
 import data.google.compute.compute_instance_library as lib
 

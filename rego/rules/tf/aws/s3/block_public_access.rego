@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.aws_s3_block_public_access
+package rules.tf_aws_s3_block_public_access
 
 import data.fugue
 import data.aws.s3.s3_library as lib

@@ -20,9 +20,6 @@ import data.google.logging.audit_config_library as lib
 __rego__metadoc__ := {
   "custom": {
     "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_6.2"
-      ],
       "CIS-Google_v1.1.0": [
         "CIS-Google_v1.1.0_2.1"
       ]

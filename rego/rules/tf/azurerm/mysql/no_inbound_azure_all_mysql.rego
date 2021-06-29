@@ -19,13 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_12.4",
-        "CIS-Controls_v7.1_9.2",
-        "CIS-Controls_v7.1_9.4"
-      ]
-    },
+    "controls": {},
     "severity": "High"
   },
   "description": "MySQL Database server firewall rules should not permit start and end IP addresses to be 0.0.0.0. Adding a rule with range 0.0.0.0 to 0.0.0.0 is the same as enabling the \"Allow access to Azure services\" setting, which allows all connections from Azure, including from other subscriptions. Disabling this setting helps prevent malicious Azure users from connecting to your database and accessing sensitive data.",

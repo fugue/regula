@@ -19,11 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_14.8"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "DynamoDB tables should be encrypted with AWS or customer managed KMS CMKs. Although DynamoDB tables are encrypted at rest by default with AWS owned CMKs, using AWS managed CMKs or customer managed CMKs provides additional functionality via AWS KMS, such as viewing key policies, auditing usage, and rotating cryptographic material.",

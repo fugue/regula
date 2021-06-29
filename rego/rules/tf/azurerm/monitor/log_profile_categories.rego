@@ -19,9 +19,6 @@ __rego__metadoc__ := {
     "controls": {
       "CIS-Azure_v1.1.0": [
         "CIS-Azure_v1.1.0_5.1.3"
-      ],
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_6.2"
       ]
     },
     "severity": "Medium"

@@ -19,11 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_4.4"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "IAM password policies should prevent reuse of the four previously used passwords. IAM password policies should prevent users from reusing any of their previous 4 passwords. Preventing password reuse increases account resiliency against brute force login attempts.",

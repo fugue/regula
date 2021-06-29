@@ -16,11 +16,7 @@ package rules.tf_aws_cloudtrail_management_events
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_6.2"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "CloudTrail trails should be configured to log management events. Management events provide visibility into management operations that are performed on resources in your AWS account. Management events can also include non-API events that occur in your account. For example, when a user logs in to your account, CloudTrail logs the ConsoleLogin event. CloudTrail logging enables security analysis, resource change tracking, and compliance auditing.",

@@ -19,11 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_6.2"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "Load balancer access logging should be enabled. Load balancer access logging should be enabled. Access logs record information about every HTTP and TCP request a load balancer processes. Access logging should be enabled in order to analyze statistics, diagnose issues, and retain data for regulatory or legal purposes.",

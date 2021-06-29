@@ -19,11 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_6.2"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "CloudFront access logging should be enabled. CloudFront access logs record information about every user request that CloudFront receives. CloudFront distribution access logging should be enabled in order to track viewer requests for content, analyze statistics, and perform security audits.",

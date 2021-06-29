@@ -20,12 +20,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_9.2",
-        "CIS-Controls_v7.1_9.4"
-      ]
-    },
+    "controls": {},
     "severity": "High"
   },
   "description": "VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 5500 (Virtual Network Computing). Security groups provide stateful filtering of ingress/egress network traffic to AWS resources. AWS recommends that no security group allows unrestricted ingress access to port 5500. Removing unfettered connectivity to remote console services reduces a server's exposure to risk.",

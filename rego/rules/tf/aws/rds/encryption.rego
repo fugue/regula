@@ -20,11 +20,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_14.8"
-      ]
-    },
+    "controls": {},
     "severity": "High"
   },
   "description": "RDS instances should be encrypted (AWS-managed or customer-managed KMS CMKs). Encrypting your RDS DB instances provides an extra layer of security by securing your data from unauthorized access.",

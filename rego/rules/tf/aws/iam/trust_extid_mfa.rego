@@ -22,12 +22,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_16.3",
-        "CIS-Controls_v7.1_4.5"
-      ]
-    },
+    "controls": {},
     "severity": "High"
   },
   "description": "IAM roles used for trust relationships should have MFA or external IDs. IAM roles that establish trust with other AWS accounts should use additional security measures such as MFA or external IDs. This can protect your account if the trusted account is compromised and can also prevent the \"confused deputy problem.\"",

@@ -16,11 +16,7 @@ package rules.tf_aws_s3_bucket_access_logging
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_6.2"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "S3 bucket access logging should be enabled. Enabling server access logging provides detailed records for the requests that are made to a S3 bucket. This information is useful for security and compliance auditing purposes.",

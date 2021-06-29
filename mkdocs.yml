@@ -11,9 +11,12 @@ nav:
     - "integrations/conftest.md"
     - "integrations/gh-actions.md"
     - "integrations/travis.md"
+    - "integrations/pre-commit.md"
   - Custom Rule Development:
-    - "development/rule-development.md"
     - "development/writing-rules.md"
+    - "development/writing-tests.md"
+    - "development/testing-rules.md"
+    - "development/test-inputs.md"
   - Examples:
     - "examples/waive-and-disable.md"
     - "examples/writing-a-rule.md"
@@ -78,3 +81,4 @@ plugins:
         "integrations/regula-conftest.md": "integrations/conftest.md"
         "integrations/regula-gh-actions.md": "integrations/gh-actions.md"
         "integrations/regula-travis.md": "integrations/travis.md"
+        "development/rule-development.md": "development/writing-rules.md"

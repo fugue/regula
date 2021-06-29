@@ -10,7 +10,7 @@ Here's a snippet of test results from a Regula JSON report:
         "CIS-AWS_v1.3.0_1.20"
       ],
       "filepath": "../test_infra/cfn/cfntest2.yaml",
-      "platform": "cloudformation",
+      "input_type": "cfn",
       "provider": "aws",
       "resource_id": "S3Bucket1",
       "resource_type": "AWS::S3::Bucket",
@@ -27,7 +27,7 @@ Here's a snippet of test results from a Regula JSON report:
         "CIS-AWS_v1.3.0_2.1.1"
       ],
       "filepath": "../test_infra/cfn/cfntest2.yaml",
-      "platform": "cloudformation",
+      "input_type": "cfn",
       "provider": "aws",
       "resource_id": "S3BucketLogs",
       "resource_type": "AWS::S3::Bucket",
@@ -44,7 +44,7 @@ Here's a snippet of test results from a Regula JSON report:
         "CIS-Google_v1.0.0_3.6"
       ],
       "filepath": "../test_infra/tf/",
-      "platform": "terraform",
+      "input_type": "tf",
       "provider": "google",
       "resource_id": "google_compute_firewall.rule-2",
       "resource_type": "google_compute_firewall",

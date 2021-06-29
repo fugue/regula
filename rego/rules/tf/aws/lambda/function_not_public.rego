@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.aws_lambda_function_not_public
+package rules.tf_aws_lambda_function_not_public
 
 import data.fugue
 import data.fugue.utils

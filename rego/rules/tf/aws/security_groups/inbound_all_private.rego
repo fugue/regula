@@ -14,7 +14,7 @@
 # This is a version of `aws.security_groups.inbound_all` that does not have the
 # public CIDR check, so it will flag more resources as invalid.  However, it has
 # a lower severity (Medium rather than High).
-package rules.aws_security_groups_inbound_all_private
+package rules.tf_aws_security_groups_inbound_all_private
 
 import data.fugue
 import data.aws.security_groups.library

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.aws_rds_rds_instance_publicly_accessible
+package rules.tf_aws_rds_rds_instance_publicly_accessible
 
 import data.fugue
 

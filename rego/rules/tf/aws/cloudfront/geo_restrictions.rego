@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.aws_cloudfront_geo_restrictions
+package rules.tf_aws_cloudfront_geo_restrictions
 
 import data.fugue
 

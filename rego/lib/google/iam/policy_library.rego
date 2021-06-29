@@ -17,8 +17,8 @@ import data.fugue
 
 policy_data_resources := {id: p |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["google_iam_policy"]
-  p = fugue.resources("google_iam_policy")[id]
+  fugue.resource_types_v0["data.google_iam_policy"]
+  p = fugue.resources("data.google_iam_policy")[id]
 }
 
 project_iam_member_resources := {id: m |

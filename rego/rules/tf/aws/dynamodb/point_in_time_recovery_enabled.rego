@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.aws_dynamodb_point_in_time_recovery_enabled
+package rules.tf_aws_dynamodb_point_in_time_recovery_enabled
 
 import data.fugue
 

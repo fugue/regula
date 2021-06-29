@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.azurerm_vm_data_disk_encryption
+package rules.tf_azurerm_vm_data_disk_encryption
 
 import data.azurerm.vm.disk_encryption_library as lib
 import data.fugue

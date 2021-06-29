@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.google_sql_database_pg_enable_log_checkpoints
+package rules.tf_google_sql_database_pg_enable_log_checkpoints
 
 import data.fugue
 import data.google.sql_database.sql_database_library as lib

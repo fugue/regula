@@ -19,11 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_14.4"
-      ]
-    },
+    "controls": {},
     "severity": "High"
   },
   "description": "ELBv1 listener protocol should not be set to http. Communication from an ELB to EC2 instances should be encrypted to help prevent unauthorized access to data. To protect data in transit, ELB listener protocol should not be set to HTTP.",

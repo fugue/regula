@@ -19,9 +19,6 @@ import data.google.sql_database.sql_database_library as lib
 __rego__metadoc__ := {
   "custom": {
     "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_10.4"
-      ],
       "CIS-Google_v1.1.0": [
         "CIS-Google_v1.1.0_6.7"
       ]

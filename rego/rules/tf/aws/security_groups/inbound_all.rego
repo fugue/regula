@@ -20,12 +20,7 @@ import data.fugue.cidr
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_9.2",
-        "CIS-Controls_v7.1_9.4"
-      ]
-    },
+    "controls": {},
     "severity": "High"
   },
   "description": "VPC security group inbound rules should not permit ingress from a public address to all ports and protocols. Security groups provide stateful filtering of ingress/egress network traffic to AWS resources. AWS recommends that no security groups explicitly allow inbound ports.",

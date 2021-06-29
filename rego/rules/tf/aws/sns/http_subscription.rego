@@ -19,11 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_14.4"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "SNS subscriptions should deny access via HTTP. SNS subscriptions should not use HTTP as the delivery protocol. To enforce encryption in transit, any subscription to an HTTP endpoint should use HTTPS instead.",

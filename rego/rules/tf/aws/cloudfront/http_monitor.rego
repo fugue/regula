@@ -19,12 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_12.9",
-        "CIS-Controls_v7.1_9.5"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "CloudFront distributions should be protected by WAFs. WAF should be deployed on CloudFront distributions to protect web applications from common web exploits that could affect application availability, compromise security, or consume excessive resources.",

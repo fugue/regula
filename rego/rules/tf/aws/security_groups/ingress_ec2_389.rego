@@ -20,13 +20,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_12.4",
-        "CIS-Controls_v7.1_9.2",
-        "CIS-Controls_v7.1_9.4"
-      ]
-    },
+    "controls": {},
     "severity": "High"
   },
   "description": "VPC security groups attached to EC2 instances should not permit ingress from '0.0.0.0/0' to TCP/UDP port 389 (LDAP). Removing unfettered connectivity to LDAP reduces the chance of exposing critical data.",

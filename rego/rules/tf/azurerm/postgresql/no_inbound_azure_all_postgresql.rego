@@ -22,11 +22,6 @@ __rego__metadoc__ := {
     "controls": {
       "CIS-Azure_v1.3.0": [
         "CIS-Azure_v1.3.0_4.3.8"
-      ],
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_12.4",
-        "CIS-Controls_v7.1_9.2",
-        "CIS-Controls_v7.1_9.4"
       ]
     },
     "severity": "High"

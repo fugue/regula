@@ -20,13 +20,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_12.4",
-        "CIS-Controls_v7.1_9.2",
-        "CIS-Controls_v7.1_9.4"
-      ]
-    },
+    "controls": {},
     "severity": "High"
   },
   "description": "ELB listener security groups should not be set to TCP all. ELB security groups should permit access only to necessary ports to prevent access to potentially vulnerable services on other ports.",

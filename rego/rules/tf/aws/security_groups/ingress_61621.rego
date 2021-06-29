@@ -18,13 +18,7 @@ import data.aws.security_groups.library
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_12.4",
-        "CIS-Controls_v7.1_9.2",
-        "CIS-Controls_v7.1_9.4"
-      ]
-    },
+    "controls": {},
     "severity": "High"
   },
   "description": "VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP port 61621 (Cassandra OpsCenter Agent). Removing unfettered connectivity to a Cassandra OpsCenter Agent server reduces its exposure to risk.",

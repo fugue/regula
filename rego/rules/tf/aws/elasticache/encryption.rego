@@ -19,11 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_14.4"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "ElastiCache transport encryption should be enabled. In-transit encryption should be enabled for ElastiCache replication groups. Encryption protects data from unauthorized access when it is moved from one location to another, such as from a primary node to a read replica mode in a replication group or between a replication group and application.",

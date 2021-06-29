@@ -17,12 +17,7 @@ package rules.tf_aws_s3_versioning_lifecycle_enabled
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_10.1",
-        "CIS-Controls_v7.1_13.2"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "S3 bucket versioning and lifecycle policies should be enabled. S3 bucket versioning and lifecycle policies are used to protect data availability and integrity. By enabling object versioning, data is protected from overwrites and deletions. Lifecycle policies ensure sensitive data is deleted when appropriate.",

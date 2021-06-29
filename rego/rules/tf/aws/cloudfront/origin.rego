@@ -19,11 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_14.4"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "CloudFront distribution origin should be set to S3 or origin protocol policy should be set to https-only. CloudFront connections should be encrypted during transmission over networks that can be accessed by malicious individuals. If a CloudFront distribution uses a custom origin, CloudFront should only use HTTPS to communicate with it. This does not apply if the CloudFront distribution is configured to use S3 as origin.",

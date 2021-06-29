@@ -19,11 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_10.1"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "DynamoDB tables Point in Time Recovery should be enabled. Point in Time Recovery should be enabled on DynamoDB tables. If an organization allows AWS to automatically back up DDB data, AWS takes on the risk of handling it and the organization can limit its own backup storage.",

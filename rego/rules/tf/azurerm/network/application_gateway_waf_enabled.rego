@@ -19,12 +19,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_12.9",
-        "CIS-Controls_v7.1_9.5"
-      ]
-    },
+    "controls": {},
     "severity": "Medium"
   },
   "description": "Ensure Azure Application Gateway Web application firewall (WAF) is enabled. Azure Application Gateway offers a web application firewall (WAF) that provides centralized protection of your web applications from common exploits and vulnerabilities. Web applications are increasingly targeted by malicious attacks that exploit commonly known vulnerabilities.",

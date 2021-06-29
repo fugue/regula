@@ -20,13 +20,7 @@ import data.fugue
 
 __rego__metadoc__ := {
   "custom": {
-    "controls": {
-      "CIS-Controls_v7.1": [
-        "CIS-Controls_v7.1_12.4",
-        "CIS-Controls_v7.1_9.2",
-        "CIS-Controls_v7.1_9.4"
-      ]
-    },
+    "controls": {},
     "severity": "High"
   },
   "description": "VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 27017 (MongoDB). Removing unfettered connectivity to a MongoDB server reduces the chance of exposing critical data.",

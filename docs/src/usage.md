@@ -559,7 +559,7 @@ Here's an example CloudFormation file and its generated test inputs file:
 
 === "cfn_resources_yaml.rego"
 
-    ```rego
+    ```ruby
     package infra.cfn_resources_yaml
 
     import data.fugue.resource_view.resource_view_input

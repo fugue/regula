@@ -15,7 +15,7 @@ For a deep dive into test input, see [Test Inputs](test-inputs.md).
 
 Suppose you're writing a **simple rule** that checks whether AWS EBS volumes are encrypted:
 
-```rego
+```ruby
 package rules.tf_aws_ebs_volume_encrypted
 
 resource_type = "aws_ebs_volume"
@@ -74,7 +74,7 @@ Here's the **test IaC** you might use as test input, containing a valid (encrypt
 
 Finally, here is the **test file** for the simple rule. It contains two tests, a valid and invalid case. Note that because this is a simple rule, `mock_resources` is imported as [test input](test-inputs.md) (see [this note](test-inputs.md#a-note-about-test-input-package-names) about the package name):
 
-```rego hl_lines="3"
+```ruby hl_lines="3"
 package rules.tf_aws_ebs_volume_encrypted_simple
 
 import data.volume_encrypted_infra_tf.mock_resources
@@ -92,7 +92,7 @@ test_invalid_ebs_volume_encrypted {
 
 Suppose you've written an **advanced rule** that checks whether AWS EBS volumes are encrypted. For this example, we've just converted the simple rule above to an advanced rule:
 
-```rego
+```ruby
 package rules.tf_aws_ebs_volume_encrypted_advanced
 
 import data.fugue
@@ -161,7 +161,7 @@ You can use the **same test IaC** for test input, but this time, you'd use the [
 
 Finally, here is the **test file** for the advanced rule. It contains one test that checks a valid and invalid case. Because we're testing an advanced rule, `mock_input` is imported as [test input](test-inputs.md) (see [this note](test-inputs.md#a-note-about-test-input-package-names) about the package name):
 
-```rego hl_lines="3"
+```ruby hl_lines="3"
 package rules.tf_aws_ebs_volume_encrypted_advanced
 
 import data.volume_encrypted_infra_tf.mock_input

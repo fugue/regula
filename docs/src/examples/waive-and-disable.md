@@ -138,7 +138,7 @@ Let's say we want to make an exception for this resource. We're going to waive t
 
 Copy the configuration below into a file named `config.rego` in the root of the `regula-ci-example` directory:
 
-```
+```ruby
 package fugue.regula.config
 
 waivers[waiver] {
@@ -273,7 +273,7 @@ For demonstrative purposes, let's [disable](../configuration.md#disabling-rules)
 
 Add the following chunk to the end of `config.rego`:
 
-```
+```ruby
 rules[rule] {
   rule := {
     "rule_name": "tf_aws_iam_admin_policy",

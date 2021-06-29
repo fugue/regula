@@ -49,7 +49,7 @@ import data.infra.cfn_resources_yaml
 
 When referenced in a `test_` for a simple rule, refer to the `mock_resources`:
 
-```
+```ruby
 test_valid_my_simple_rule {
   my_rule.allow with input as cfn_resources_yaml.mock_resources["ValidResourceIDHere"]
 }
@@ -57,7 +57,7 @@ test_valid_my_simple_rule {
 
 When referenced in a `test_` for an advanced rule, refer to the `mock_input`:
 
-```
+```ruby
 test_my_advanced_rule {
   pol = policy with input as cfn_resources_yaml.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
@@ -87,7 +87,7 @@ Here's how all three input types look for an example CloudFormation file:
 
 === "cfn_resources.yaml"
 
-    ```
+    ```yaml
     AWSTemplateFormatVersion: '2010-09-09'
     Resources:
       ValidManagedPolicy01:
@@ -115,7 +115,7 @@ Here's how all three input types look for an example CloudFormation file:
 
 === "mock_config"
 
-    ```
+    ```json
     {
       "AWSTemplateFormatVersion": "2010-09-09",
       "Resources": {
@@ -157,7 +157,7 @@ Here's how all three input types look for an example CloudFormation file:
 
 === "mock_input"
 
-    ```
+    ```json
     {
       "_template": {
         "AWSTemplateFormatVersion": "2010-09-09",
@@ -235,7 +235,7 @@ Here's how all three input types look for an example CloudFormation file:
 
 === "mock_resources"
 
-    ```
+    ```json
     {
       "InvalidManagedPolicy01": {
         "Description": "too short",

@@ -19,7 +19,7 @@ Regula rules are written in [Rego](https://www.openpolicyagent.org/docs/latest/p
 Simple rules are useful when the policy applies to a single resource type only,
 and you want to make simple yes/no decision.
 
-```rego
+```ruby
 # Rules must always be located right below the `rules` package.
 package rules.my_simple_rule
 
@@ -40,7 +40,7 @@ If you want to return more information to the user, you can also define a
 custom error message in a simple rule.
 This is done by writing a `deny[msg]` style rule.
 
-```rego
+```ruby
 package rules.simple_rule_custom_message
 resource_type = "aws_ebs_volume"
 
@@ -56,7 +56,7 @@ Advanced rules are harder to write, but more powerful. They allow you to
 observe different kinds of resource types and decide which specific resources
 are valid or invalid.
 
-```rego
+```ruby
 # Rules still must be located in the `rules` package.
 package rules.user_attached_policy
 
@@ -103,7 +103,7 @@ The `fugue` API consists of these functions for advanced rules:
 
 As stated above, the functions `fugue.deny_resource_with_message(resource, msg)` and `fugue.missing_resource_with_message(resource_type, msg)` allow Regula to display a custom `rule_message` in its report. This rule demonstrates both functions:
 
-```rego hl_lines="17 21"
+```ruby hl_lines="17 21"
 package rules.account_password_policy
 
 import data.fugue
@@ -154,7 +154,7 @@ Here's an example rule result demonstrating a missing resource message:
 
 You can add metadata to a rule to enhance Regula's [report](../report.md):
 
-```
+```ruby
 __rego__metadoc__ := {
   "id": "CUSTOM_0001",
   "title": "IAM policies must have a description of at least 25 characters",
@@ -204,7 +204,7 @@ Here's an example rule result to show how this metadata looks in the report:
 
 CloudFormation rules are written the same way Terraform rules are, but require the line `input_type := "cfn"`, as shown in the simple rule below:
 
-```rego hl_lines="3"
+```ruby hl_lines="3"
 package rules.cfn_ebs_volume_encryption
 
 input_type := "cfn"

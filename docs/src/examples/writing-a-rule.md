@@ -18,7 +18,7 @@ We can rephrase this rule as "**Allow** a resource if its description is 25 or m
 
 First, we declare the package name. It should be unique, and it **must** start with `rules.` as we've done here:
 
-```
+```ruby
 package rules.long_description
 ```
 
@@ -26,7 +26,7 @@ package rules.long_description
 
 Adding metadata is optional but strongly encouraged, as it will make Regula's report much more useful:
 
-```
+```ruby
 __rego__metadoc__ := {
   "id": "CUSTOM_0001",
   "title": "IAM policies must have a description of at least 25 characters",
@@ -48,7 +48,7 @@ For details on each of these attributes, see [Adding rule metadata](../developme
 
 Next, specify the Terraform resource type. For simple rules, there must be exactly one `resource_type` declared, and in this case, that's [`aws_iam_policy`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy):
 
-```
+```ruby
 resource_type = "aws_iam_policy"
 ```
 
@@ -58,7 +58,7 @@ When evaluating a rule with [OPA](https://www.openpolicyagent.org/docs/latest/),
 
 However, Regula expects a `false` rather than `undefined` value. We can provide an explicit `false` by setting a default value:
 
-```
+```ruby
 default allow = false
 ```
 
@@ -68,7 +68,7 @@ This way, if the input doesn't contain any resources that meet the `allow` condi
 
 If you're not very familiar with Rego, here's a tip. You can restate a Rego rule like so:
 
-```
+```ruby
 this variable = this value {
   if this condition is met
 }
@@ -76,7 +76,7 @@ this variable = this value {
 
 That means we can start with a skeleton of the `allow` rule (using some pseudocode):
 
-```
+```ruby
 allow = true {
   if this condition is met
 }
@@ -84,7 +84,7 @@ allow = true {
 
 In Rego, the default value given to a variable in the head of a rule is `true`, so you can omit the `= true` in this case:
 
-```
+```ruby
 allow {
   if this condition is met
 }
@@ -112,7 +112,7 @@ For more details on the package name format, see [our note about test inputs](..
 
 You'll see this output:
 
-```
+```json
 {
   "aws_iam_policy.basically_allow_all": {
     "_provider": "aws",
@@ -143,19 +143,19 @@ If you'd like to learn more about using the REPL for developing rules, take a de
 
 With simple rules, we always preface the attribute with `input.` because it represents the resource currently being examined by Regula. So now we have this:
 
-```
+```ruby
 input.description
 ```
 
 We can use the Rego built-in function [`count(collection_or_string)`](https://www.openpolicyagent.org/docs/latest/policy-reference/#aggregates) to check how many characters are in a string. Because we only want to allow strings that are 25 characters or more, our rule logic looks like this:
 
-```
+```ruby
   count(input.description) >= 25
 ```
 
 And when we put the condition inside the `allow` rule, we get this:
 
-```
+```ruby
 allow {
   count(input.description) >= 25
 }
@@ -165,7 +165,7 @@ allow {
 
 Now, here's the complete rule:
 
-```
+```ruby
 package rules.long_description
 
 __rego__metadoc__ := {
@@ -292,7 +292,7 @@ The process for writing custom rules to check CloudFormation is mostly the same 
 
 For instance, this is how you'd write `long_description` as a CloudFormation rule. Note that `resource_type` and `Description` are different from the Terraform rule, and `input_type` is present:
 
-```
+```ruby
 package rules.long_description_cfn
 
 __rego__metadoc__ := {

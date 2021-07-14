@@ -61,7 +61,6 @@ func getEnvWithDefault(name, defaultValue string) string {
 }
 
 func getFugueClient() (*client.Fugue, runtime.ClientAuthInfoWriter) {
-
 	clientID := mustGetEnv("FUGUE_API_ID")
 	clientSecret := mustGetEnv("FUGUE_API_SECRET")
 
@@ -178,7 +177,11 @@ func NewScanCommand() *cobra.Command {
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			logrus.Infof("Upload response: %d", uploadResponse.StatusCode)
+			if uploadResponse.StatusCode != 200 {
+				logrus.Fatalf("Upload response: %d", uploadResponse.Status)
+			}
+
+			logrus.Infof("OK")
 		},
 	}
 

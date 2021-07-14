@@ -178,7 +178,7 @@ func NewScanCommand() *cobra.Command {
 				logrus.Fatal(err)
 			}
 			if uploadResponse.StatusCode != 200 {
-				logrus.Fatalf("Upload response: %d", uploadResponse.Status)
+				logrus.Fatalf("Upload response: %s", uploadResponse.Status)
 			}
 
 			logrus.Infof("OK")

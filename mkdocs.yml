@@ -1,23 +1,28 @@
+docs_dir: docs/src
 site_name: Regula
 nav:
-    - Home: 'index.md'
-    - 'getting-started.md'
-    - 'usage.md'
-    - 'report.md'
-    - 'configuration.md'
-    - Integrations:
-        - 'integrations/conftest.md'
-        - 'integrations/gh-actions.md'
-        - 'integrations/travis.md'
-    - Custom Rule Development:
-        - 'development/rule-development.md'
-        - 'development/writing-rules.md'
-    - Examples:
-        - 'examples/waive-and-disable.md'
-        - 'examples/writing-a-rule.md'
-    - 'contributing.md'
-    - CHANGELOG: 'docs-changelog.md'
-    - 'about.md'
+  - Home: "index.md"
+  - "getting-started.md"
+  - "usage.md"
+  - "rules.md"
+  - "report.md"
+  - "configuration.md"
+  - Integrations:
+      - "integrations/conftest.md"
+      - "integrations/gh-actions.md"
+      - "integrations/travis.md"
+      - "integrations/pre-commit.md"
+  - Custom Rule Development:
+      - "development/writing-rules.md"
+      - "development/writing-tests.md"
+      - "development/testing-rules.md"
+      - "development/test-inputs.md"
+  - Examples:
+      - "examples/waive-and-disable.md"
+      - "examples/writing-a-rule.md"
+  - "contributing.md"
+  - CHANGELOG: "docs-changelog.md"
+  - "about.md"
 theme:
   name: material
   palette:
@@ -42,12 +47,16 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: fugue
+      repo: regula
   - toc:
       permalink: ⚓︎
 site_url: https://regula.dev
 edit_uri: blob/master/docs/
 extra:
-  version: v0.9.0
+  version: v1.0.0
   social:
     - icon: fontawesome/solid/globe
       link: https://www.fugue.co
@@ -69,6 +78,7 @@ plugins:
   - search
   - redirects:
       redirect_maps:
-          'integrations/regula-conftest.md': 'integrations/conftest.md'
-          'integrations/regula-gh-actions.md': 'integrations/gh-actions.md'
-          'integrations/regula-travis.md': 'integrations/travis.md'
+        "integrations/regula-conftest.md": "integrations/conftest.md"
+        "integrations/regula-gh-actions.md": "integrations/gh-actions.md"
+        "integrations/regula-travis.md": "integrations/travis.md"
+        "development/rule-development.md": "development/writing-rules.md"

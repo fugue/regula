@@ -30,7 +30,7 @@ __rego__metadoc__ := {
   "title": "CloudTrail log files should be encrypted using KMS CMKs"
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 resource_type := "AWS::CloudTrail::Trail"
 
 default allow = false

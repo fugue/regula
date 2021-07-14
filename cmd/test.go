@@ -51,6 +51,7 @@ func NewTestCommand() *cobra.Command {
 	}
 	cmd.Flags().BoolP("trace", "t", false, "Enable trace output")
 	cmd.Flags().Bool("no-test-inputs", false, "Disable loading test inputs")
+	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }
 

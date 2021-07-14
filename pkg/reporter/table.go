@@ -82,7 +82,7 @@ func TableReporter(o *RegulaOutput) (string, error) {
 			{},
 			{},
 			{Align: simpletable.AlignRight, Text: "Overall"},
-			{Align: simpletable.AlignRight, Text: colorizeResult(overall)},
+			{Align: simpletable.AlignLeft, Text: colorizeResult(overall)},
 		},
 	}
 
@@ -114,7 +114,6 @@ func (r TableRow) toCell() []*simpletable.Cell {
 	}
 }
 
-var waivedColor func(...interface{}) string = color.New(color.FgBlack).SprintFunc()
 var failedColor func(...interface{}) string = color.New(color.FgRed).SprintFunc()
 var passedColor func(...interface{}) string = color.New(color.FgGreen).SprintFunc()
 var unknownColor func(...interface{}) string = color.New(color.FgMagenta).SprintFunc()
@@ -129,20 +128,14 @@ func colorizeResult(result string) string {
 		return passedColor(result)
 	case "FAIL":
 		return failedColor(result)
-	case "WAIVED":
-		return waivedColor(result)
 	default:
 		return result
 	}
 }
 
 func colorizeSeverity(r RuleResult) string {
-	if r.RuleResult == "PASS" {
+	if r.RuleResult == "PASS" || r.RuleResult == "WAIVED" {
 		return r.RuleSeverity
-	}
-
-	if r.RuleResult == "WAIVED" {
-		return waivedColor(r.RuleSeverity)
 	}
 
 	switch r.RuleSeverity {

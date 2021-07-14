@@ -17,7 +17,7 @@
 # see `lib/fugue/resource_view/`.
 package fugue.resource_view
 
-import data.fugue.input_type
+import data.fugue.input_type_internal
 import data.fugue.resource_view.cloudformation
 import data.fugue.resource_view.terraform
 
@@ -26,10 +26,10 @@ resource_view = ret {
   _ = input.hcl_resource_view_version
   ret = input.resources
 } else = ret {
-  input_type.terraform_input_type
+  input_type_internal.terraform_input_type
   ret = terraform.resource_view
 } else = ret {
-  input_type.cloudformation_input_type
+  input_type_internal.cloudformation_input_type
   ret = cloudformation.resource_view
 }
 
@@ -37,9 +37,9 @@ resource_view_input = ret {
   _ = input.hcl_resource_view_version
   ret = {"resources": resource_view}
 } else = ret {
-  input_type.terraform_input_type
+  input_type_internal.terraform_input_type
   ret = {"resources": resource_view, "_plan": input}
 } else = ret {
-  input_type.cloudformation_input_type
+  input_type_internal.cloudformation_input_type
   ret = {"resources": resource_view, "_template": input}
 }

@@ -24,7 +24,7 @@ __rego__metadoc__ := {
   "title": "API Gateway classic custom domains should use secure TLS protocol versions (1.2 and above)"
 }
 
-input_type = "cloudformation"
+input_type = "cfn"
 resource_type = "MULTIPLE"
 
 domain_names = fugue.resources("AWS::ApiGateway::DomainName")

@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## v1.0.0 (2021-06-29)
+
+### Added
+* Support for _ in flag names, e.g. --input_type=tf_plan
+* A new text format as the default output format
+* Many new Terraform rules! [See the full list on our docs site](https://regula.dev/rules.html).
+
+### Changed
+* Unified input_type values in rules with --input-type flag
+
+### Fixed
+* Bug when reading .tf files from stdin
+* Use specific filepath in report output for tf inputs (#128)
+* Include `data.` prefix in data source type names (e.g. `data.aws_iam_policy_document`) for tf inputs
+
+## v0.9.1 (2021-06-10)
+
+### Fixed
+* Remove coloring for WAIVED status and severity in table output so that it's readable against a black background (#126)
+* Improve support for conditional resources (count = 0) in Terraform HCL
+
 ## v0.9.0 (2021-05-27)
 
 ### Added

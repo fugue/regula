@@ -53,7 +53,7 @@ mock_config := {
               "constant_value": "crypto-key-example"
             },
             "rotation_period": {
-              "constant_value": "31536002s"
+              "constant_value": "7776002s"
             }
           },
           "mode": "managed",
@@ -74,7 +74,7 @@ mock_config := {
               "constant_value": "crypto-key-example"
             },
             "rotation_period": {
-              "constant_value": "31536000s"
+              "constant_value": "7776000s"
             }
           },
           "mode": "managed",
@@ -118,7 +118,7 @@ mock_config := {
             "name": "crypto-key-example",
             "purpose": "ENCRYPT_DECRYPT",
             "rotation_period": null,
-            "skip_initial_version_creation": false,
+            "skip_initial_version_creation": null,
             "timeouts": null
           }
         },
@@ -133,8 +133,8 @@ mock_config := {
             "labels": null,
             "name": "crypto-key-example",
             "purpose": "ENCRYPT_DECRYPT",
-            "rotation_period": "31536002s",
-            "skip_initial_version_creation": false,
+            "rotation_period": "7776002s",
+            "skip_initial_version_creation": null,
             "timeouts": null
           }
         },
@@ -149,8 +149,8 @@ mock_config := {
             "labels": null,
             "name": "crypto-key-example",
             "purpose": "ENCRYPT_DECRYPT",
-            "rotation_period": "31536000s",
-            "skip_initial_version_creation": false,
+            "rotation_period": "7776000s",
+            "skip_initial_version_creation": null,
             "timeouts": null
           }
         },
@@ -182,7 +182,7 @@ mock_config := {
           "name": "crypto-key-example",
           "purpose": "ENCRYPT_DECRYPT",
           "rotation_period": null,
-          "skip_initial_version_creation": false,
+          "skip_initial_version_creation": null,
           "timeouts": null
         },
         "after_unknown": {
@@ -208,8 +208,8 @@ mock_config := {
           "labels": null,
           "name": "crypto-key-example",
           "purpose": "ENCRYPT_DECRYPT",
-          "rotation_period": "31536002s",
-          "skip_initial_version_creation": false,
+          "rotation_period": "7776002s",
+          "skip_initial_version_creation": null,
           "timeouts": null
         },
         "after_unknown": {
@@ -235,8 +235,8 @@ mock_config := {
           "labels": null,
           "name": "crypto-key-example",
           "purpose": "ENCRYPT_DECRYPT",
-          "rotation_period": "31536000s",
-          "skip_initial_version_creation": false,
+          "rotation_period": "7776000s",
+          "skip_initial_version_creation": null,
           "timeouts": null
         },
         "after_unknown": {

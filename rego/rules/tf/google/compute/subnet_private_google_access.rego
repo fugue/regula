@@ -26,7 +26,8 @@ __rego__metadoc__ := {
       "CIS-Google_v1.0.0": [
         "CIS-Google_v1.0.0_3.8"
       ]
-    }
+    },
+    "severity": "Low"
   }
 }
 

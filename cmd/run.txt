@@ -16,7 +16,8 @@ Input types:
     tf          Terraform directory or file
 
 Output formats:
-    json    A JSON report containing rule results and a summary (default)
+    text    A human friendly format (default)
+    json    A JSON report containing rule results and a summary
     table   An ASCII table of rule results
     junit   The JUnit XML format
     tap     The Test Anything Protocol format

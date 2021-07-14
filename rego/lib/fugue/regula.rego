@@ -14,7 +14,7 @@
 package fugue.regula
 
 import data.fugue
-import data.fugue.input_type
+import data.fugue.input_type_internal
 import data.fugue.resource_view
 
 # Construct a judgement using results from a single- resource rule.
@@ -63,13 +63,22 @@ judgement_from_allow_denies(resource, allows, denies) = ret {
   }
 }
 
-# Construct judgements from simple `deny[msg]` style rules.
-judgement_from_deny_messages(resource, messages) = ret {
-  count(messages) == 0
-  ret = fugue.allow_resource(resource)
+# Construct judgements from simple `deny[msg]` or `deny[obj]` style rules.
+judgements_from_deny_set(resource, infos) = ret {
+  count(infos) == 0
+  ret = [fugue.allow_resource(resource)]
 } else = ret {
-  msg = concat(", ", messages)
-  ret = fugue.deny_resource_with_message(resource, msg)
+  all([is_string(info) | info := infos[_]])
+  msg = concat(", ", infos)
+  ret = [fugue.deny_resource_with_message(resource, msg)]
+} else = ret {
+  all([is_object(info) | info := infos[_]])
+  ret := [fugue.deny(params) |
+    info := infos[_]
+    params := json.patch(info,
+      [{"op": "add", "path": "resource", "value": resource}]
+    )
+  ]
 }
 
 # Construct judgements from a multi-resource rule that has a `policy` set.
@@ -90,18 +99,19 @@ evaluate_denies(pkg, resource) = ret {
   ret = [a | a = data["rules"][pkg]["deny"] with input as resource]
 }
 
-# Evaluate the judgement for a simple rule.
-evaluate_rule_judgement(pkg, resource) = ret {
+# Evaluate the judgement for a simple rule.  This may return multiple
+# judgements.
+evaluate_rule_judgements(pkg, resource) = ret {
   # Specifies `deny[msg]` as a set.
   denies = evaluate_denies(pkg, resource)
   any([is_set(d) | d = denies[_]])
-  msgs = [msg | d = denies[_]; d[msg]]
-  ret = judgement_from_deny_messages(resource, msgs)
+  infos = [info | d = denies[_]; d[info]]
+  ret = judgements_from_deny_set(resource, infos)
 } else = ret {
   # Specifies allow / deny as a boolean rule.
   allows = evaluate_allows(pkg, resource)
   denies = evaluate_denies(pkg, resource)
-  ret = judgement_from_allow_denies(resource, allows, denies)
+  ret = [judgement_from_allow_denies(resource, allows, denies)]
 }
 
 # Stringify judgement
@@ -121,12 +131,13 @@ rule_resource_result(rule, judgement) = ret {
     "rule_message": judgement.message,
     "rule_result": result_string(judgement),
     "rule_name": rule["package"],
-    "platform": rule.input_type,
     "rule_id": rule.metadata.id,
     "rule_summary": rule.metadata.summary,
     "rule_description": rule.metadata.description,
     "rule_severity": rule.metadata.severity,
     "controls": rule.metadata.controls,
+    "filepath": judgement.filepath,
+    "input_type": input_type_internal.input_type,
   }
 }
 
@@ -140,7 +151,7 @@ evaluate_rule(rule) = ret {
   judgements = {j |
     resource = resource_view.resource_view[_]
     resource._type == resource_type
-    j = evaluate_rule_judgement(pkg, resource)
+    j = evaluate_rule_judgements(pkg, resource)[_]
   }
 
   ret = [r | r = rule_resource_result(rule, judgements[_])]
@@ -197,8 +208,8 @@ single_report := ret {
   # We filter down the applicable rules by input kind.
   rules = [rule |
     resource_type = data.rules[pkg].resource_type
-    rule_input_type = input_type.rule_input_type(pkg)
-    rule_input_type == input_type.input_type
+    rule_input_type = input_type_internal.rule_input_type(pkg)
+    input_type_internal.compatibility[rule_input_type][input_type_internal.input_type]
     rule = {
       "package": pkg,
       "input_type": rule_input_type,
@@ -318,12 +329,19 @@ report_summary(rule_results) = ret {
 # Add filepaths to a report.
 report_add_filepath(report_0, filepath) = report_1 {
   report_1 := {
-    "rule_results": [rule_result_1 |
-      rule_result_0 := report_0.rule_results[_]
-      rule_result_1 := json.patch(rule_result_0, [
-        {"op": "add", "path": ["filepath"], "value": filepath}
-      ])
-    ],
+    "rule_results": array.concat(
+      [rule_result_1 |
+        rule_result_0 := report_0.rule_results[_]
+        rule_result_0.filepath == ""
+        rule_result_1 := json.patch(rule_result_0, [
+          {"op": "add", "path": ["filepath"], "value": filepath}
+        ])
+      ],
+      [rule_result_1 |
+        rule_result_0 := report_0.rule_results[_]
+        rule_result_0.filepath != ""
+        rule_result_1 := rule_result_0
+      ]),
     "summary": report_0.summary
   }
 }

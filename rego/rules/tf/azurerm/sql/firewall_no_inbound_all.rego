@@ -32,8 +32,6 @@ __rego__metadoc__ := {
 
 resource_type = "azurerm_sql_firewall_rule"
 
-default deny = false
-
 # An invalid range has start IP set to `0.0.0.0`; or end IP set to `0.0.0.0` or
 # `255.255.255.255`
 #
@@ -41,10 +39,13 @@ default deny = false
 # setting start_ip_address and end_ip_address to 0.0.0.0.  However, the CIS Azure
 # Foundations Benchmark recommends disallowing this
 
-deny {
+deny[info] {
   input.start_ip_address == "0.0.0.0"
+  info := {"message": "start_ip_address should not be 0.0.0.0"}
 } {
   input.end_ip_address == "0.0.0.0"
+  info := {"message": "end_ip_address should not be 0.0.0.0"}
 } {
   input.end_ip_address == "255.255.255.255"
+  info := {"message": "end_ip_address should not be 255.255.255.255"}
 }

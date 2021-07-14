@@ -30,7 +30,7 @@ __rego__metadoc__ := {
   "title": "CloudTrail log file validation should be enabled"
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 resource_type := "AWS::CloudTrail::Trail"
 
 default allow = false

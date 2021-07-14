@@ -52,6 +52,7 @@ const (
 	Junit
 	Tap
 	None
+	Text
 )
 
 var FormatIds = map[Format][]string{
@@ -60,6 +61,21 @@ var FormatIds = map[Format][]string{
 	Junit: {"junit"},
 	Tap:   {"tap"},
 	None:  {"none"},
+	Text:  {"text"},
+}
+
+type Result int
+
+const (
+	WAIVED Result = iota
+	PASS
+	FAIL
+)
+
+var regulaResults map[string]Result = map[string]Result{
+	"WAIVED": WAIVED,
+	"PASS":   PASS,
+	"FAIL":   FAIL,
 }
 
 type RegulaOutput struct {
@@ -161,10 +177,74 @@ func (o RegulaOutput) AggregateByFilepath() ResultsByFilepath {
 	return byFilepath
 }
 
+// AggregateByRule returns all rule results grouped by rule
+func (o RegulaOutput) AggregateByRule() ResultsByRule {
+
+	// Collect all results by rule name
+	byRule := map[string][]*RuleResult{}
+	for i, rr := range o.RuleResults {
+		byRule[rr.RuleName] = append(byRule[rr.RuleName], &o.RuleResults[i])
+	}
+
+	// Sort rule results for each rule individually by:
+	// result > filepath > resource ID
+	var output ResultsByRule
+	for _, results := range byRule {
+		sort.Slice(results, func(a, b int) bool {
+			resultA := results[a]
+			resultB := results[b]
+			if resultA.RuleResult != resultB.RuleResult {
+				return ResultCompare(resultA.RuleResult, resultB.RuleResult)
+			}
+			if resultA.Filepath != resultB.Filepath {
+				return resultA.Filepath < resultB.Filepath
+			}
+			return resultA.ResourceID < resultB.ResourceID
+		})
+		output = append(output, RuleResults{
+			RuleID:       results[0].RuleID,
+			RuleName:     results[0].RuleName,
+			RuleSummary:  results[0].RuleSummary,
+			RuleSeverity: results[0].RuleSeverity,
+			Results:      results,
+		})
+	}
+
+	// Sort the rules themselves by:
+	// severity > rule id > rule name
+	sort.SliceStable(output, func(a, b int) bool {
+		ruleA := output[a]
+		ruleB := output[b]
+		if ruleA.RuleSeverity != ruleB.RuleSeverity {
+			return SeverityCompare(ruleA.RuleSeverity, ruleB.RuleSeverity)
+		}
+		if ruleA.RuleID != ruleB.RuleID {
+			return ruleA.RuleID < ruleB.RuleID
+		}
+		return ruleA.RuleName < ruleB.RuleName
+	})
+	return output
+}
+
+// FailuresByRule returns failing rule results grouped by rule
+func (o RegulaOutput) FailuresByRule() ResultsByRule {
+	results := o.AggregateByRule()
+	for i, rule := range results {
+		var filtered []*RuleResult
+		for _, result := range rule.Results {
+			if result.RuleResult == "FAIL" {
+				filtered = append(filtered, result)
+			}
+		}
+		results[i].Results = filtered
+	}
+	return results
+}
+
 type RuleResult struct {
 	Controls        []string `json:"controls"`
 	Filepath        string   `json:"filepath"`
-	Platform        string   `json:"platform"`
+	InputType       string   `json:"input_type"`
 	Provider        string   `json:"provider"`
 	ResourceID      string   `json:"resource_id"`
 	ResourceType    string   `json:"resource_type"`
@@ -218,3 +298,27 @@ func ParseRegulaOutput(_ loader.LoadedConfigurations, r rego.Result) (*RegulaOut
 }
 
 type Reporter func(r *RegulaOutput) (string, error)
+
+// RuleResults carries a slice of RuleResults associated with a specific rule.
+// A minimal amount of rule metadata is duplicated here for convenience.
+type RuleResults struct {
+	RuleID       string
+	RuleName     string
+	RuleSummary  string
+	RuleSeverity string
+	Results      []*RuleResult
+}
+
+// ResultsByRule is used to carry all rule results grouped by rule
+type ResultsByRule []RuleResults
+
+// SeverityCompare returns true if the first severity is more important than
+// the second. E.g. SeverityCompare("High", "Medium") yields true.
+func SeverityCompare(sevA, sevB string) bool {
+	return int(regulaSeverities[sevA]) > int(regulaSeverities[sevB])
+}
+
+// ResultCompare orders "FAIL" > "PASS" > "WAIVED"
+func ResultCompare(resA, resB string) bool {
+	return int(regulaResults[resA]) > int(regulaResults[resB])
+}

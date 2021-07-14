@@ -30,7 +30,7 @@ __rego__metadoc__ := {
   "title": "S3 bucket object-level logging for write events should be enabled"
 }
 
-input_type = "cloudformation"
+input_type = "cfn"
 resource_type = "MULTIPLE"
 
 trails = fugue.resources("AWS::CloudTrail::Trail")

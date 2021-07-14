@@ -33,7 +33,7 @@ var longDescription string
 
 func NewRunCommand() *cobra.Command {
 	var inputType loader.InputType
-	var format reporter.Format
+	format := reporter.Text
 	severity := reporter.Unknown
 	cmd := &cobra.Command{
 		Use:   "run [input...]",
@@ -109,17 +109,18 @@ func NewRunCommand() *cobra.Command {
 	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
 	cmd.Flags().BoolP("no-ignore", "n", false, "Disable use of .gitignore")
 	cmd.Flags().VarP(
-		enumflag.New(&inputType, "input-type", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
+		enumflag.New(&inputType, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
 		"input-type", "t",
 		"Set the input type for the given paths")
 	cmd.Flags().VarP(
-		enumflag.New(&severity, "severity", reporter.SeverityIds, enumflag.EnumCaseInsensitive),
+		enumflag.New(&severity, "string", reporter.SeverityIds, enumflag.EnumCaseInsensitive),
 		"severity", "s",
 		"Set the minimum severity that will result in a non-zero exit code.")
 	cmd.Flags().VarP(
-		enumflag.New(&format, "format", reporter.FormatIds, enumflag.EnumCaseInsensitive),
+		enumflag.New(&format, "string", reporter.FormatIds, enumflag.EnumCaseInsensitive),
 		"format", "f",
 		"Set the output format")
+	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }
 

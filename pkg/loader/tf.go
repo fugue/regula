@@ -30,6 +30,7 @@ import (
 	"github.com/hashicorp/terraform/lang"
 	"github.com/hashicorp/terraform/tfdiags"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 	"github.com/zclconf/go-cty/cty"
 
 	"tf_resource_schemas"
@@ -43,7 +44,16 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 	}
 	dir := filepath.Dir(i.Path())
 
-	return parseFiles([]string{}, dir, nil, false, []string{i.Path()})
+	var inputFs afero.Fs
+	var err error
+	if i.Path() == stdIn {
+		inputFs, err = makeStdInFs(i)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return parseFiles([]string{}, dir, nil, false, []string{i.Path()}, inputFs)
 }
 
 func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
@@ -95,6 +105,9 @@ type HclConfiguration struct {
 	// better?
 	vars map[string]interface{}
 
+	// Cached values of locals.
+	locals map[string]interface{}
+
 	// Locations of terraform modules.
 	moduleRegister *terraformModuleRegister
 }
@@ -112,7 +125,7 @@ func ParseDirectory(
 		return nil, diags
 	}
 
-	return parseFiles(path, dir, moduleRegister, true, primary)
+	return parseFiles(path, dir, moduleRegister, true, primary, nil)
 }
 
 func parseFiles(
@@ -121,6 +134,7 @@ func parseFiles(
 	moduleRegister *terraformModuleRegister,
 	recurse bool,
 	filepaths []string,
+	parserFs afero.Fs,
 ) (*HclConfiguration, error) {
 	configuration := new(HclConfiguration)
 	configuration.path = path
@@ -134,7 +148,7 @@ func parseFiles(
 		configuration.moduleRegister = moduleRegister
 	}
 
-	parser := configs.NewParser(nil)
+	parser := configs.NewParser(parserFs)
 	var diags hcl.Diagnostics
 	parsedFiles := make([]*configs.File, 0)
 	overrideFiles := make([]*configs.File, 0)
@@ -158,6 +172,14 @@ func parseFiles(
 
 	configuration.schemas = tf_resource_schemas.LoadResourceSchemas()
 
+	// We're evaluating a few things but here, like the source attribute, and
+	// the values of default variables.  We do this with a minimal context
+	// that doesn't have any variables itself.
+	ctx := renderContext{
+		dir:     dir,
+		resolve: func(path []string) interface{} { return nil },
+	}
+
 	// Load children
 	configuration.children = make(map[string]*HclConfiguration)
 	if recurse {
@@ -165,12 +187,6 @@ func parseFiles(
 			logrus.Debugf("Loading submodule %s", key)
 			body, ok := moduleCall.Config.(*hclsyntax.Body)
 			if ok {
-				// We're only interested in getting the `source` attribute, this
-				// should not have any variables in it.
-				ctx := renderContext{
-					dir:     dir,
-					resolve: func(path []string) interface{} { return nil },
-				}
 				properties := ctx.RenderBody(body)
 				if source, ok := properties["source"]; ok {
 					if str, ok := source.(string); ok {
@@ -199,16 +215,33 @@ func parseFiles(
 	}
 
 	configuration.childrenVars = make(map[string]map[string]interface{})
+
 	configuration.vars = make(map[string]interface{})
+	for k, variable := range module.Variables {
+		if !variable.Default.IsNull() {
+			val := ctx.RenderValue(variable.Default)
+			configuration.vars[k] = val
+			logrus.Debugf("Setting default value for %s -> %v", k, val)
+		}
+	}
+
+	configuration.locals = nil
 
 	return configuration, nil
 }
 
 // Return a copy of a HclConfiguration with updated variables.
 func (c0 *HclConfiguration) withVars(vars map[string]interface{}) *HclConfiguration {
-	c1 := c0
-	c1.vars = vars
-	return c1
+	c1 := *c0
+	c1.vars = make(map[string]interface{})
+	for k, v := range c0.vars {
+		c1.vars[k] = v // Set defaults
+	}
+	for k, v := range vars {
+		c1.vars[k] = v // Set overrides
+	}
+	c1.locals = nil // Needs to be recomputed.
+	return &c1
 }
 
 func (c *HclConfiguration) LoadedFiles() []string {
@@ -265,11 +298,15 @@ func (c *HclConfiguration) renderResources() map[string]interface{} {
 
 	for resourceId, resource := range c.module.ManagedResources {
 		resourceId = c.qualifiedResourceId(resourceId)
-		resources[resourceId] = c.renderResource(resourceId, resource)
+		if r := c.renderResource(resourceId, resource); r != nil {
+			resources[resourceId] = r
+		}
 	}
 	for resourceId, resource := range c.module.DataResources {
 		resourceId = c.qualifiedResourceId(resourceId)
-		resources[resourceId] = c.renderResource(resourceId, resource)
+		if r := c.renderResource(resourceId, resource); r != nil {
+			resources[resourceId] = r
+		}
 	}
 
 	for key, _ := range c.children {
@@ -283,14 +320,31 @@ func (c *HclConfiguration) renderResources() map[string]interface{} {
 	return resources
 }
 
+func renderResourceType(r *configs.Resource) string {
+	if r.Mode == addrs.DataResourceMode {
+		return "data." + r.Type
+	}
+
+	return r.Type
+}
+
 func (c *HclConfiguration) renderResource(
 	resourceId string, resource *configs.Resource,
 ) interface{} {
 	context := c.renderContext(resourceId)
 	context.schema = c.schemas[resource.Type]
 
+	// Skip resources if `count = 0`
+	if resource.Count != nil {
+		count := context.EvaluateExpr(resource.Count)
+		if n, ok := count.(int64); ok && n == 0 {
+			logrus.Debugf("Skipping resource %s (count=0)", resourceId)
+			return nil
+		}
+	}
+
 	properties := make(map[string]interface{})
-	properties["_type"] = resource.Type
+	properties["_type"] = renderResourceType(resource)
 	properties["id"] = resourceId
 
 	body, ok := resource.Config.(*hclsyntax.Body)
@@ -310,6 +364,8 @@ func (c *HclConfiguration) renderResource(
 	} else {
 		properties["_provider"] = formatProvider(resource.Provider.ForDisplay())
 	}
+
+	properties["_filepath"] = resource.DeclRange.Filename
 
 	return properties
 }
@@ -440,10 +496,22 @@ func (c *HclConfiguration) GetOutput(name string) interface{} {
 }
 
 func (c *HclConfiguration) renderContext(self string) renderContext {
-	return renderContext{
+	ctx := renderContext{
 		dir:     c.dir,
+		vars:    c.vars,
+		locals:  c.locals,
 		resolve: func(path []string) interface{} { return c.resolveResourceReference(self, path) },
 	}
+
+	if ctx.locals == nil {
+		ctx.locals = make(map[string]interface{})
+		for k, local := range c.module.Locals {
+			ctx.locals[k] = ctx.EvaluateExpr(local.Expr)
+		}
+		c.locals = ctx.locals
+	}
+
+	return ctx
 }
 
 // This is a structure passed down that contains all additional information
@@ -451,6 +519,8 @@ func (c *HclConfiguration) renderContext(self string) renderContext {
 type renderContext struct {
 	dir     string
 	schema  *tf_resource_schemas.Schema
+	vars    map[string]interface{}
+	locals  map[string]interface{}
 	resolve func([]string) interface{}
 }
 
@@ -632,6 +702,8 @@ func (c *renderContext) EvaluateExpr(expr hcl.Expression) interface{} {
 		"path": cty.MapVal(map[string]cty.Value{
 			"module": cty.StringVal(c.dir),
 		}),
+		"var":   makeValue(c.vars),
+		"local": makeValue(c.locals),
 	}
 	ctx := hcl.EvalContext{
 		Functions: scope.Functions(),
@@ -665,7 +737,7 @@ func (c *renderContext) RenderTraversal(traversal hcl.Traversal) []string {
 }
 
 func (c *renderContext) RenderValue(val cty.Value) interface{} {
-	if !val.IsKnown() {
+	if !val.IsKnown() || val.IsNull() {
 		return nil
 	}
 
@@ -760,7 +832,7 @@ func (c *renderContext) GetTerraformAttr(addrs.TerraformAttr, tfdiags.SourceRang
 	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
 }
 
-func (c *renderContext) GetInputVariable(addrs.InputVariable, tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
+func (c *renderContext) GetInputVariable(v addrs.InputVariable, s tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
 	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
 }
 
@@ -887,4 +959,60 @@ func (r *terraformModuleRegister) getDir(source string) *string {
 		}
 	}
 	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Utility for converting from regula go structures to `cty.Value`
+
+func makeValue(val interface{}) cty.Value {
+	if val == nil {
+		return cty.NullVal(cty.DynamicPseudoType)
+	}
+	switch v := val.(type) {
+	case string:
+		return cty.StringVal(v)
+	case bool:
+		return cty.BoolVal(v)
+	case float32:
+		return cty.NumberFloatVal(float64(v))
+	case float64:
+		return cty.NumberFloatVal(v)
+	case int:
+		return cty.NumberIntVal(int64(v))
+	case int32:
+		return cty.NumberIntVal(int64(v))
+	case int64:
+		return cty.NumberIntVal(v)
+	case []interface{}:
+		if len(v) == 0 {
+			return cty.ListValEmpty(cty.DynamicPseudoType)
+		} else {
+			arr := make([]cty.Value, len(v))
+			for i, x := range v {
+				arr[i] = makeValue(x)
+			}
+			return cty.ListVal(arr)
+		}
+	case map[string]interface{}:
+		if len(v) == 0 {
+			return cty.EmptyObjectVal
+		} else {
+			obj := make(map[string]cty.Value)
+			for k, x := range v {
+				obj[k] = makeValue(x)
+			}
+			return cty.ObjectVal(obj)
+		}
+	}
+	return cty.UnknownVal(cty.DynamicPseudoType)
+}
+
+func makeStdInFs(i InputFile) (afero.Fs, error) {
+	contents, err := i.Contents()
+	if err != nil {
+		return nil, err
+	}
+	inputFs := afero.NewMemMapFs()
+	afero.WriteFile(inputFs, i.Path(), contents, 0644)
+	return inputFs, nil
 }

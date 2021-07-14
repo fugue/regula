@@ -20,6 +20,9 @@ __rego__metadoc__ := {
   "description": "S3 bucket server side encryption should be enabled. Enabling server-side encryption (SSE) on S3 buckets at the object level protects data at rest and helps prevent the breach of sensitive information assets. Objects can be encrypted with S3-Managed Keys (SSE-S3), KMS-Managed Keys (SSE-KMS), or Customer-Provided Keys (SSE-C).",
   "custom": {
     "controls": {
+      "CIS-AWS_v1.3.0": [
+        "CIS-AWS_v1.3.0_2.1.1"
+      ],
       "NIST-800-53_vRev4": [
         "NIST-800-53_vRev4_SC-13"
       ]

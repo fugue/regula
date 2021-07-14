@@ -33,7 +33,7 @@ __rego__metadoc__ := {
 }
 
 resource_type := "MULTIPLE"
-input_type := "cloudformation"
+input_type := "cfn"
 
 policy_resources[resource_id] = ret {
   iam_policy := fugue.resources("AWS::IAM::Policy")[resource_id]

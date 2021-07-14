@@ -33,7 +33,7 @@ __rego__metadoc__ := {
   "title": "S3 bucket access logging should be enabled on S3 buckets that store CloudTrail log files"
 }
 
-input_type = "cloudformation"
+input_type = "cfn"
 resource_type = "MULTIPLE"
 
 cloudtrails = fugue.resources("AWS::CloudTrail::Trail")

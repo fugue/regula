@@ -3,6 +3,7 @@
     "hcl_resource_view_version": "0.0.1",
     "resources": {
       "aws_s3_bucket.trail_bucket": {
+        "_filepath": "tf_test/file/main.tf",
         "_provider": "aws",
         "_type": "aws_s3_bucket",
         "force_destroy": true,

@@ -24,11 +24,15 @@ __rego__metadoc__ := {
       "CIS-AWS_v1.2.0": [
         "CIS-AWS_v1.2.0_4.2"
       ],
+      "CIS-AWS_v1.3.0": [
+        "CIS-AWS_v1.3.0_5.2"
+      ],
       "NIST": [
         "NIST-800-53_vRev4_AC-4",
         "NIST-800-53_vRev4_AC-17(3)"
       ]
-    }
+    },
+    "severity": "High"
   }
 }
 

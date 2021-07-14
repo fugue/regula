@@ -76,7 +76,8 @@ expected_report = {
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
       "rule_severity": "High",
-      "controls": {"MOCK_1.2.3"}
+      "controls": {"MOCK_1.2.3"},
+      "filepath": "",
     },
     {
       "provider": "aws",
@@ -90,7 +91,8 @@ expected_report = {
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
       "rule_severity": "High",
-      "controls": {"MOCK_1.2.3"}
+      "controls": {"MOCK_1.2.3"},
+      "filepath": "",
     },
     {
       "provider": "aws",
@@ -104,7 +106,8 @@ expected_report = {
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
       "rule_severity": "High",
-      "controls": {"MOCK_1.2.3"}
+      "controls": {"MOCK_1.2.3"},
+      "filepath": "",
     },
     {
       "provider": "aws",
@@ -118,7 +121,8 @@ expected_report = {
       "rule_summary": "",
       "rule_description": "",
       "rule_severity": "Unknown",
-      "controls": set()
+      "controls": set(),
+      "filepath": "",
     },
     {
       "provider": "aws",
@@ -132,7 +136,8 @@ expected_report = {
       "rule_summary": "",
       "rule_description": "",
       "rule_severity": "Unknown",
-      "controls": set()
+      "controls": set(),
+      "filepath": "",
     },
     {
       "provider": "aws",
@@ -146,11 +151,12 @@ expected_report = {
       "rule_summary": "",
       "rule_description": "",
       "rule_severity": "Unknown",
-      "controls": set()
+      "controls": set(),
+      "filepath": "",
     }
   ],
   "summary": {
-    "filepaths": [],
+    "filepaths": [""],
     "rule_results": {
       "PASS": 3,
       "FAIL": 3,

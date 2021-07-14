@@ -61,10 +61,10 @@ func NewShowCommand() *cobra.Command {
 	}
 
 	cmd.Flags().VarP(
-		enumflag.New(&inputType, "input-type", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
+		enumflag.New(&inputType, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
 		"input-type", "t",
 		"Set the input type for the given paths")
-
+	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }
 

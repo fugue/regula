@@ -364,6 +364,7 @@ report = ret {
 
 scan_view = ret {
   ret := {
+    "regula_version": "v1.0.0",
     "report": report,
     "inputs": [input_resources |
       item := input[_]

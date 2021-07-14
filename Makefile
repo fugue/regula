@@ -21,6 +21,26 @@ NEXT_MINOR = $(shell $(CHANGIE) next minor)
 NEXT_PATCH = $(shell $(CHANGIE) next patch)
 VERSION = $(shell $(CHANGIE) latest)
 
+##############
+#   Swagger  #
+##############
+
+SWAGGER_URL=https://api.riskmanager.fugue.co/v0/swagger
+SWAGGER=swagger.yaml
+
+$(SWAGGER):
+	wget -q -O $@ $(SWAGGER_URL)
+
+.PHONY: swagger_gen
+swagger_gen: $(SWAGGER)
+	mkdir -p pkg/swagger
+	docker run --rm -it \
+    	--volume $(shell pwd):/regula \
+    	--user $(shell id -u):$(shell id -g) \
+    	--workdir /regula \
+    	quay.io/goswagger/swagger:v0.23.0 \
+    	generate client -t pkg/swagger -f "$(SWAGGER)"
+
 #############
 #   Tools   #
 #############

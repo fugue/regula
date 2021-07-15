@@ -71,6 +71,9 @@ If an [input type](#input-types) is set with `-t | --input-type`, Regula will on
 !!! note
     By default, Regula will exclude paths based on the patterns in the `.gitignore` file for a specified directory. This behavior can be disabled with the `--no-ignore` option.
 
+!!! note
+    See our note about how [Regula handles globbing](#globbing) in commands.
+
 #### Terraform input
 
 Regula operates on Terraform HCL code and JSON plans.
@@ -315,6 +318,9 @@ Flags:
 
 To view this dynamically generated data, start by loading one or more IaC files or a directory containing IaC files. Note that `regula repl` will only operate on individual files rather than interpreting the entire directory as a single configuration.
 
+!!! note
+    See our note about how [Regula handles globbing](#globbing) in commands.
+
 ### Examples
 This command loads the `infra` directory into the REPL:
 
@@ -415,6 +421,9 @@ Flags:
 
 This command is used to facilitate development of Regula itself. If you'd like to see the mock input, mock resources, or mock config for an IaC file so you can develop rules, see [`regula repl`](#repl) and [Test Inputs](development/test-inputs.md#viewing-test-inputs).
 
+!!! note
+    See our note about how [Regula handles globbing](#globbing) in commands.
+
 ### Flag values
 
 `-t, --input type INPUT-TYPE` values:
@@ -448,6 +457,9 @@ Files or directories passed in to `regula test` must include the following for e
 If passed one or more directories, `regula test` recurses through them and runs all `test_` rules it finds. Note that `regula test` will only operate on individual files rather than interpreting the entire directory as a single configuration.
 
 For more information about using `regula test`, see [Testing Rules](development/testing-rules.md).
+
+!!! note
+    See our note about how [Regula handles globbing](#globbing) in commands.
 
 ### Examples
 
@@ -495,6 +507,9 @@ Global Flags:
 `regula write-test-inputs` allows you to generate test input ([`mock_input`, `mock_resources`, `mock_config`](development/test-inputs.md)) for an IaC file and save the input as a `.rego` file for use with another Rego interpreter, such as [OPA](https://www.openpolicyagent.org/).
 
 The input is saved as `<iac filename without extension>_<extension>.rego` in the same directory as the IaC file. Dashes in the filename are replaced with `_`
+
+!!! note
+    See our note about how [Regula handles globbing](#globbing) in commands.
 
 ### Flag values
 
@@ -627,3 +642,10 @@ To run Regula on IaC directories or individual CloudFormation templates, HCL fil
 
 When integrating this in a CI pipeline, we recommend pinning the regula version, e.g. `docker run fugue/regula:{{ version }}`.
 
+## Globbing
+
+To pass an entire directory of files into Regula for any command, such as `regula run`, use the syntax `regula run .` rather than a glob such as `regula run ./*`.
+
+When your shell expands the glob to a list of individual filenames, it may pass in files that Regula doesn't recognize. Regula reports errors when individual files are passed in, but ignores unrecognized files when it recurses a directory.
+
+If you see a `FATAL Unable to detect input type of file` error, check whether you're using globbing.

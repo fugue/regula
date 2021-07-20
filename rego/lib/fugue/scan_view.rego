@@ -14,7 +14,7 @@
 package fugue.scan_view
 
 import data.fugue
-import data.fugue.input_type
+import data.fugue.input_type_internal
 import data.fugue.resource_view
 
 # Construct a judgement using results from a single- resource rule.
@@ -135,7 +135,7 @@ rule_resource_result(rule, judgement) = ret {
     "rule_valid": judgement.valid,
     # gets patched to true when waivers are applied
     "rule_waived": false,
-    "platform": rule.input_type,
+    "platform": input_type_internal.input_type,
     "rule_id": rule.metadata.id,
     "rule_summary": rule.metadata.summary,
     "rule_description": rule.metadata.description,
@@ -218,8 +218,8 @@ single_report := ret {
   # We filter down the applicable rules by input kind.
   rules = [rule |
     resource_type = data.rules[pkg].resource_type
-    rule_input_type = input_type.rule_input_type(pkg)
-    rule_input_type == input_type.input_type
+    rule_input_type = input_type_internal.rule_input_type(pkg)
+    input_type_internal.compatibility[rule_input_type][input_type_internal.input_type]
     metadata = rule_metadata(pkg)
     rule = {
       "package": pkg,

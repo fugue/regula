@@ -133,6 +133,9 @@ func NewScanCommand() *cobra.Command {
 				Includes: includes,
 				Input:    loadedFiles.RegulaInput(),
 			})
+			if err != nil {
+				logrus.Fatal(err)
+			}
 			scanViewString, err := jsonMarshal(result)
 			if err != nil {
 				logrus.Fatal(err)

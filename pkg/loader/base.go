@@ -101,9 +101,13 @@ type IACConfiguration interface {
 
 // Location is a filepath, line and column.
 type Location struct {
-	Path string
-	Line int
-	Col  int
+	Path string `json:"path"`
+	Line int    `json:"line"`
+	Col  int    `json:"column"`
+}
+
+func (l Location) String() string {
+	return fmt.Sprintf("%s:%d:%d", l.Path, l.Line, l.Col)
 }
 
 // DetectOptions are options passed to the configuration detectors.

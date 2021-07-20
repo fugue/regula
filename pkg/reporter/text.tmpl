@@ -10,7 +10,7 @@
 {{/* RULE RESULTS FOR A SINGLE RULE */}}
 {{- range $index, $rr := $ruleResults.Results }}
   {{ ResultIndex $rr $index }} {{ $rr.ResourceID }}
-  {{ PadIndex $rr $index }} in {{ $rr.Filepath }}
+  {{ PadIndex $rr $index }} in {{ LocationIndex $rr $index }}
   {{- if $rr.RuleMessage }}
   {{ PadIndex $rr $index }} {{ Italic $rr.RuleMessage }}
   {{- end }}

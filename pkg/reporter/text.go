@@ -87,6 +87,14 @@ func init() {
 				}
 				return strings.Repeat(" ", 5)
 			},
+			"LocationIndex": func(rr *RuleResult, index int) string {
+				loc := rr.SourceLocation
+				if loc == nil {
+					return rr.Filepath
+				} else {
+					return loc.String()
+				}
+			},
 			"RedInt": func(num int) string {
 				if num == 0 {
 					return fmt.Sprintf("%d", num)

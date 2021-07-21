@@ -26,7 +26,7 @@ import (
 
 type CfnSourceInfo struct {
 	filepath  string
-	Resources map[string]yaml.Node `yaml:"Resources"`
+	Resources yaml.Node `yaml:"Resources"`
 }
 
 func LoadCfnSourceInfo(filepath string, contents []byte) (*CfnSourceInfo, error) {
@@ -38,18 +38,18 @@ func LoadCfnSourceInfo(filepath string, contents []byte) (*CfnSourceInfo, error)
 	return &template, nil
 }
 
-func cfnSourceGetKey(node *yaml.Node, key string) (*yaml.Node, error) {
+func cfnSourceGetKeyBody(node *yaml.Node, key string) (*yaml.Node, *yaml.Node, error) {
 	if node.Kind != yaml.MappingNode {
-		return nil, fmt.Errorf("cfnSourceGetKey: Expected MappingNode")
+		return nil, nil, fmt.Errorf("cfnSourceGetKey: Expected MappingNode")
 	}
 
 	for i := 0; i+1 < len(node.Content); i += 2 {
 		if node.Content[i].Value == key {
-			return node.Content[i+1], nil
+			return node.Content[i], node.Content[i+1], nil
 		}
 	}
 
-	return nil, fmt.Errorf("cfnSourceGetKey: Key %s not found", key)
+	return nil, nil, fmt.Errorf("cfnSourceGetKey: Key %s not found", key)
 }
 
 func cfnSourceGetIndex(node *yaml.Node, index int) (*yaml.Node, error) {
@@ -72,7 +72,7 @@ func cfnSourceGetPath(node *yaml.Node, path []string) (*yaml.Node, error) {
 	key := path[0]
 	switch node.Kind {
 	case yaml.MappingNode:
-		child, err := cfnSourceGetKey(node, key)
+		_, child, err := cfnSourceGetKeyBody(node, key)
 		if err != nil {
 			return nil, err
 		} else {
@@ -102,19 +102,35 @@ func (source *CfnSourceInfo) Location(path []string) (*Location, error) {
 	resourceId := path[0]
 	attributePath := path[1:]
 
-	resource, ok := source.Resources[resourceId]
-	if !ok {
+	resourceKey, resource, err := cfnSourceGetKeyBody(&source.Resources, resourceId)
+	if err != nil {
 		return nil, fmt.Errorf("Resource %s not found", resourceId)
 	}
 
-	properties, err := cfnSourceGetKey(&resource, "Properties")
+	if len(attributePath) < 1 {
+		return &Location{
+			Path: source.filepath,
+			Line: resourceKey.Line,
+			Col:  resourceKey.Column,
+		}, nil
+	}
+
+	_, properties, err := cfnSourceGetKeyBody(resource, "Properties")
 	if err != nil {
-		return nil, err
+		return &Location{
+			Path: source.filepath,
+			Line: resource.Line,
+			Col:  resource.Column,
+		}, nil
 	}
 
 	attribute, err := cfnSourceGetPath(properties, attributePath)
 	if err != nil {
-		return nil, err
+		return &Location{
+			Path: source.filepath,
+			Line: resource.Line,
+			Col:  resource.Column,
+		}, nil
 	}
 
 	return &Location{

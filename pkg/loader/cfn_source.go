@@ -124,6 +124,9 @@ func (source *CfnSourceInfo) Location(path []string) (*Location, error) {
 		}, nil
 	}
 
+	// TODO: This code should return the start of the key rather than the start of the
+	// body. That's what people will expect once we've added support for attribute
+	// paths.
 	attribute, err := cfnSourceGetPath(properties, attributePath)
 	if err != nil {
 		return &Location{

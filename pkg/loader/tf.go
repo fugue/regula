@@ -266,8 +266,21 @@ func (c *HclConfiguration) Location(path []string) (*Location, error) {
 	}
 	resourceId := path[0]
 	attributePath := path[1:]
+	resourceOwner := c
+	for strings.HasPrefix(resourceId, "module.") {
+		resourcePath := strings.SplitN(resourceId, ".", 3)
+		if len(resourcePath) < 3 {
+			return nil, nil
+		}
+		// Avoiding shadowing resourceOwner
+		var ok bool
+		if resourceOwner, ok = resourceOwner.children[resourcePath[1]]; !ok {
+			return nil, nil
+		}
+		resourceId = resourcePath[2]
+	}
 
-	if resource, ok := c.getResource(resourceId); ok {
+	if resource, ok := resourceOwner.getResource(resourceId); ok {
 		resourceNode := TfNode{Object: resource.Config, Range: resource.DeclRange}
 		if node, err := resourceNode.GetDescendant(attributePath); err == nil {
 			return &Location{

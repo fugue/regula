@@ -119,8 +119,8 @@ func (source *CfnSourceInfo) Location(path []string) (*Location, error) {
 	if err != nil {
 		return &Location{
 			Path: source.filepath,
-			Line: resource.Line,
-			Col:  resource.Column,
+			Line: resourceKey.Line,
+			Col:  resourceKey.Column,
 		}, nil
 	}
 
@@ -128,8 +128,8 @@ func (source *CfnSourceInfo) Location(path []string) (*Location, error) {
 	if err != nil {
 		return &Location{
 			Path: source.filepath,
-			Line: resource.Line,
-			Col:  resource.Column,
+			Line: resourceKey.Line,
+			Col:  resourceKey.Column,
 		}, nil
 	}
 

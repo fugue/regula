@@ -22,6 +22,9 @@ __rego__metadoc__ := {
       "CIS-Azure_v1.1.0": [
         "CIS-Azure_v1.1.0_6.3"
       ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_6.3"
+      ],
       "NIST-800-53_vRev4": [
         "NIST-800-53_vRev4_SC-7(5)"
       ]

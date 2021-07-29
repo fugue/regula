@@ -16,7 +16,7 @@ For a deep dive into test input, see [Test Inputs](test-inputs.md).
 Suppose you're writing a **simple rule** that checks whether AWS EBS volumes are encrypted:
 
 ```ruby
-package rules.tf_aws_ebs_volume_encrypted
+package rules.tf_aws_ebs_volume_encrypted_simple
 
 resource_type = "aws_ebs_volume"
 

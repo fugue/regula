@@ -612,13 +612,7 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 		return c.RenderExpr(e.Wrapped)
 	case *hclsyntax.ScopeTraversalExpr:
 		path := c.RenderTraversal(e.Traversal)
-		ref := c.resolve(path)
-		if ref != nil {
-			return ref
-		} else {
-			// Is this useful?  This should just map to variables?
-			return strings.Join(path, ".")
-		}
+		return c.resolve(path)
 	case *hclsyntax.TemplateExpr:
 		if len(e.Parts) == 1 {
 			return c.RenderExpr(e.Parts[0])

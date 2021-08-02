@@ -242,20 +242,24 @@ func (o RegulaOutput) FailuresByRule() ResultsByRule {
 }
 
 type RuleResult struct {
-	Controls        []string         `json:"controls"`
-	Filepath        string           `json:"filepath"`
-	InputType       string           `json:"input_type"`
-	Provider        string           `json:"provider"`
-	ResourceID      string           `json:"resource_id"`
-	ResourceType    string           `json:"resource_type"`
-	RuleDescription string           `json:"rule_description"`
-	RuleID          string           `json:"rule_id"`
-	RuleMessage     string           `json:"rule_message"`
-	RuleName        string           `json:"rule_name"`
-	RuleResult      string           `json:"rule_result"`
-	RuleSeverity    string           `json:"rule_severity"`
-	RuleSummary     string           `json:"rule_summary"`
-	SourceLocation  *loader.Location `json:"source_location,omitempty"`
+	Controls        []string `json:"controls"`
+	Filepath        string   `json:"filepath"`
+	InputType       string   `json:"input_type"`
+	Provider        string   `json:"provider"`
+	ResourceID      string   `json:"resource_id"`
+	ResourceType    string   `json:"resource_type"`
+	RuleDescription string   `json:"rule_description"`
+	RuleID          string   `json:"rule_id"`
+	RuleMessage     string   `json:"rule_message"`
+	RuleName        string   `json:"rule_name"`
+	RuleResult      string   `json:"rule_result"`
+	RuleSeverity    string   `json:"rule_severity"`
+	RuleSummary     string   `json:"rule_summary"`
+	// List of source code locations this rule result pertains to.  The first
+	// element of the list always refers to the most specific source code site,
+	// and further elements indicate modules in which this was included, like
+	// a call stack.
+	SourceLocation loader.LocationStack `json:"source_location,omitempty"`
 }
 
 func (r RuleResult) IsWaived() bool {

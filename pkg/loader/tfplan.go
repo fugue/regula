@@ -66,6 +66,6 @@ func (l *tfPlanLoader) LoadedFiles() []string {
 	return []string{l.path}
 }
 
-func (l *tfPlanLoader) Location(attributePath []string) (*Location, error) {
+func (l *tfPlanLoader) Location(attributePath []string) (LocationStack, error) {
 	return nil, nil
 }

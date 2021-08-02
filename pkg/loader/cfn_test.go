@@ -124,23 +124,23 @@ func TestCfnYAMLLocation(t *testing.T) {
 	}
 	testInputs := []struct {
 		path     []string
-		expected *loader.Location
+		expected loader.LocationStack
 	}{
 		{
 			path: []string{"Bucket1"},
-			expected: &loader.Location{
+			expected: loader.LocationStack{loader.Location{
 				Path: "cfn.yaml",
 				Line: 17,
 				Col:  3,
-			},
+			}},
 		},
 		{
 			path: []string{"Bucket2"},
-			expected: &loader.Location{
+			expected: loader.LocationStack{loader.Location{
 				Path: "cfn.yaml",
 				Line: 21,
 				Col:  3,
-			},
+			}},
 		},
 	}
 	for _, i := range testInputs {
@@ -162,23 +162,23 @@ func TestCfnJSONLocation(t *testing.T) {
 	}
 	testInputs := []struct {
 		path     []string
-		expected *loader.Location
+		expected loader.LocationStack
 	}{
 		{
 			path: []string{"Bucket1"},
-			expected: &loader.Location{
+			expected: loader.LocationStack{loader.Location{
 				Path: "cfn.json",
 				Line: 5,
 				Col:  9,
-			},
+			}},
 		},
 		{
 			path: []string{"Bucket2"},
-			expected: &loader.Location{
+			expected: loader.LocationStack{loader.Location{
 				Path: "cfn.json",
 				Line: 11,
 				Col:  9,
-			},
+			}},
 		},
 	}
 	for _, i := range testInputs {

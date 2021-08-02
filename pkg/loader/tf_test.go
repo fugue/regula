@@ -68,62 +68,111 @@ func TestTfResourceLocation(t *testing.T) {
 	}
 	testInputs := []struct {
 		path     []string
-		expected *loader.Location
+		expected loader.LocationStack
 	}{
 		{
 			path: []string{"aws_security_group.parent"},
-			expected: &loader.Location{
-				Path: filepath.Join(dir, "main.tf"),
-				Line: 22,
-				Col:  1,
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 22,
+					Col:  1,
+				},
 			},
 		},
 		{
 			path: []string{"aws_vpc.parent"},
-			expected: &loader.Location{
-				Path: filepath.Join(dir, "main.tf"),
-				Line: 18,
-				Col:  1,
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 18,
+					Col:  1,
+				},
 			},
 		},
 		{
 			path: []string{"module.child1.aws_vpc.child"},
-			expected: &loader.Location{
-				Path: filepath.Join(dir, "child1", "main.tf"),
-				Line: 9,
-				Col:  1,
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "child1", "main.tf"),
+					Line: 9,
+					Col:  1,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 10,
+					Col:  12,
+				},
 			},
 		},
 		{
 			path: []string{"module.child1.module.grandchild1.aws_security_group.grandchild"},
-			expected: &loader.Location{
-				Path: filepath.Join(dir, "child1", "grandchild1", "main.tf"),
-				Line: 9,
-				Col:  1,
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "child1", "grandchild1", "main.tf"),
+					Line: 9,
+					Col:  1,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "child1", "main.tf"),
+					Line: 6,
+					Col:  12,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 10,
+					Col:  12,
+				},
 			},
 		},
 		{
 			path: []string{"module.child1.module.grandchild1.aws_vpc.grandchild"},
-			expected: &loader.Location{
-				Path: filepath.Join(dir, "child1", "grandchild1", "main.tf"),
-				Line: 5,
-				Col:  1,
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "child1", "grandchild1", "main.tf"),
+					Line: 5,
+					Col:  1,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "child1", "main.tf"),
+					Line: 6,
+					Col:  12,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 10,
+					Col:  12,
+				},
 			},
 		},
 		{
 			path: []string{"module.child2.aws_security_group.child"},
-			expected: &loader.Location{
-				Path: filepath.Join(dir, "child2", "main.tf"),
-				Line: 9,
-				Col:  1,
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "child2", "main.tf"),
+					Line: 9,
+					Col:  1,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 14,
+					Col:  12,
+				},
 			},
 		},
 		{
 			path: []string{"module.child2.aws_vpc.child"},
-			expected: &loader.Location{
-				Path: filepath.Join(dir, "child2", "main.tf"),
-				Line: 5,
-				Col:  1,
+			expected: []loader.Location{
+				loader.Location{
+					Path: filepath.Join(dir, "child2", "main.tf"),
+					Line: 5,
+					Col:  1,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 14,
+					Col:  12,
+				},
 			},
 		},
 	}

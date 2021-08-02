@@ -35,8 +35,8 @@ func TableReporter(o *RegulaOutput) (string, error) {
 			message = r.RuleSummary
 		}
 		filepath := r.Filepath
-		if r.SourceLocation != nil {
-			filepath = r.SourceLocation.String()
+		if r.SourceLocation != nil && len(r.SourceLocation) > 0 {
+			filepath = r.SourceLocation[0].String()
 
 		}
 		tableRow := TableRow{

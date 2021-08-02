@@ -173,7 +173,7 @@ func (l *loadedConfigurations) RegulaInput() []RegulaInput {
 	return input
 }
 
-func (l *loadedConfigurations) Location(path string, attributePath []string) (*Location, error) {
+func (l *loadedConfigurations) Location(path string, attributePath []string) (LocationStack, error) {
 	canonical, ok := l.loadedPaths[path]
 	if !ok {
 		return nil, fmt.Errorf("Unable to determine location for given path %v and attribute path %v", path, attributePath)

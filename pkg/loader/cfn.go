@@ -79,11 +79,15 @@ func (l *cfnConfiguration) RegulaInput() RegulaInput {
 	}
 }
 
-func (l *cfnConfiguration) Location(attributePath []string) (*Location, error) {
+func (l *cfnConfiguration) Location(attributePath []string) (LocationStack, error) {
 	if l.source == nil {
 		return nil, nil
 	}
-	return l.source.Location(attributePath)
+	loc, err := l.source.Location(attributePath)
+	if loc == nil || err != nil {
+		return nil, err
+	}
+	return []Location{*loc}, nil
 }
 
 func (l *cfnConfiguration) LoadedFiles() []string {

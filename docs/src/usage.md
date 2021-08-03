@@ -629,16 +629,38 @@ Here's an example CloudFormation file and its generated test inputs file:
 
 Regula is available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
 
-To run Regula on a single CloudFormation template or Terraform plan file, you can use the following command, passing in the template through standard input:
+The default `--workdir` for the Regula container is `/workspace`. To run Regula on your
+current working directory, you can use the following command:
 
-    docker run --rm -it fugue/regula:{{ version }} run < [IAC_TEMPLATE]
+=== "macOS and Linux"
 
-To run Regula on IaC directories or individual CloudFormation templates, HCL files, or Terraform plan JSON files, you can use the following command:
+    ```shell
+    docker run --rm -t -v $(pwd):/workspace fugue/regula:{{ version }} run
+    ```
 
-    docker run --rm -t \
-        -v $(pwd):/workspace \
-        --workdir /workspace \
-        fugue/regula:{{ version }} run template2.yaml tfdirectory1
+=== "Windows (PowerShell)"
+
+    ```powershell
+    docker run --rm -t -v ${pwd}:/workspace fugue/regula:{{ version }} run
+    ```
+
+To run Regula on specific directories or files, you can use the following command:
+
+=== "macOS and Linux"
+
+    ```shell
+    docker run --rm -t -v $(pwd):/workspace \
+      fugue/regula:{{ version }} run src/template2.yaml infra/tfdirectory1
+    ```
+
+=== "Windows (PowerShell)"
+
+    ```powershell
+    # Note that we're using Unix-style paths in the arguments because
+    # fugue/regula is a Linux container.
+    docker run --rm -t -v ${pwd}:/workspace `
+      fugue/regula:{{ version }} run src/template2.yaml infra/tfdirectory1
+    ```
 
 When integrating this in a CI pipeline, we recommend pinning the regula version, e.g. `docker run fugue/regula:{{ version }}`.
 

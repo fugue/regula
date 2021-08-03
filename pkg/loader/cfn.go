@@ -49,9 +49,16 @@ func (c *CfnDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurat
 		return nil, fmt.Errorf("Input file is not a CloudFormation template: %v", i.Path())
 	}
 
+	path := i.Path()
+	source, err := LoadCfnSourceInfo(path, contents)
+	if err != nil {
+		source = nil // Don't consider source code locations essential.
+	}
+
 	return &cfnConfiguration{
-		path:     i.Path(),
+		path:     path,
 		template: *template,
+		source:   source,
 	}, nil
 }
 
@@ -62,6 +69,7 @@ func (c *CfnDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IAC
 type cfnConfiguration struct {
 	path     string
 	template cfnTemplate
+	source   *CfnSourceInfo
 }
 
 func (l *cfnConfiguration) RegulaInput() RegulaInput {
@@ -71,12 +79,15 @@ func (l *cfnConfiguration) RegulaInput() RegulaInput {
 	}
 }
 
-func (l *cfnConfiguration) Location(attributePath []string) (*Location, error) {
-	return &Location{
-		Path: l.path,
-		Line: 0,
-		Col:  0,
-	}, nil
+func (l *cfnConfiguration) Location(attributePath []string) (LocationStack, error) {
+	if l.source == nil {
+		return nil, nil
+	}
+	loc, err := l.source.Location(attributePath)
+	if loc == nil || err != nil {
+		return nil, err
+	}
+	return []Location{*loc}, nil
 }
 
 func (l *cfnConfiguration) LoadedFiles() []string {

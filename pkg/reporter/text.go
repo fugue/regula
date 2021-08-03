@@ -87,6 +87,18 @@ func init() {
 				}
 				return strings.Repeat(" ", 5)
 			},
+			"LocationStack": func(rr *RuleResult) []string {
+				loc := rr.SourceLocation
+				if loc == nil || len(loc) == 0 {
+					return []string{"in " + rr.Filepath}
+				}
+				lines := []string{}
+				lines = append(lines, "in "+loc[0].String())
+				for i := 1; i < len(loc); i++ {
+					lines = append(lines, "included at "+loc[i].String())
+				}
+				return lines
+			},
 			"RedInt": func(num int) string {
 				if num == 0 {
 					return fmt.Sprintf("%d", num)

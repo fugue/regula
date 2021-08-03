@@ -75,7 +75,7 @@ type LoadedConfigurations interface {
 	AddConfiguration(path string, config IACConfiguration)
 	// Location resolves a file path and attribute path from the regula output to a
 	// location within a file.
-	Location(path string, attributePath []string) (*Location, error)
+	Location(path string, attributePath []string) (LocationStack, error)
 	// AlreadyLoaded indicates whether the given path has already been loaded as part
 	// of another IACConfiguration.
 	AlreadyLoaded(path string) bool
@@ -96,14 +96,28 @@ type IACConfiguration interface {
 	LoadedFiles() []string
 	// Location resolves an attribute path to to a file, line and column.
 	// The first element of the attributePath is usually the resource ID.
-	Location(attributePath []string) (*Location, error)
+	Location(attributePath []string) (LocationStack, error)
 }
 
 // Location is a filepath, line and column.
 type Location struct {
-	Path string
-	Line int
-	Col  int
+	Path string `json:"path"`
+	Line int    `json:"line"`
+	Col  int    `json:"column"`
+}
+
+// In some cases, we have more than one location, for example:
+//
+//     attribute "foo" at line 4...
+//     included in "rds" module at line 8...
+//     included in "main" module at line 3...
+//
+// These are stored as a call stack, with the most specific location in the
+// first position, and the "root of the call stack" at the last position.
+type LocationStack = []Location;
+
+func (l Location) String() string {
+	return fmt.Sprintf("%s:%d:%d", l.Path, l.Line, l.Col)
 }
 
 // DetectOptions are options passed to the configuration detectors.

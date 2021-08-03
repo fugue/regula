@@ -25,13 +25,13 @@ brew upgrade regula
 
     === "macOS"
 
-        ```
+        ```shell
         mv regula /usr/local/bin
         ```
 
     === "Linux"
 
-        ```
+        ```shell
         sudo mv regula /usr/local/bin
         ```
 
@@ -41,6 +41,16 @@ brew upgrade regula
         md C:\regula\bin
         move regula.exe C:\regula\bin
         setx PATH "%PATH%;C:\regula\bin"
+        ```
+    
+    === "Windows (PowerShell)"
+
+        ```powershell
+        md C:\regula\bin
+        move regula.exe C:\regula\bin
+        $env:Path += ";C:\regula\bin"
+        # You can add '$env:Path += ";C:\regula\bin"' to your profile.ps1 file to
+        # persist that change across shell sessions.
         ```
 
 4. _Windows users only:_ Close cmd and re-open it so the changes take effect.

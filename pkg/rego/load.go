@@ -127,7 +127,7 @@ func LoadRegula(userOnly bool, cb func(r RegoFile) error) error {
 	return nil
 }
 
-func LoadTestInputs(paths []string, inputType loader.InputType, cb func(r RegoFile) error) error {
+func LoadTestInputs(paths []string, inputTypes []loader.InputType, cb func(r RegoFile) error) error {
 	filteredPaths := []string{}
 	for _, p := range paths {
 		if !opaExts[filepath.Ext(p)] {
@@ -140,7 +140,7 @@ func LoadTestInputs(paths []string, inputType loader.InputType, cb func(r RegoFi
 	configs, err := loader.LoadPaths(loader.LoadPathsOptions{
 		Paths:      filteredPaths,
 		IgnoreDirs: true,
-		InputType:  inputType,
+		InputTypes: inputTypes,
 	})
 	if err != nil {
 		// Ignore if we can't load any configs

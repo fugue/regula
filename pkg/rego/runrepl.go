@@ -64,7 +64,7 @@ func initStore(ctx context.Context, userOnly bool, includes []string, noTestInpu
 		return nil, err
 	}
 	if !noTestInputs {
-		if err := LoadTestInputs(includes, loader.Auto, cb); err != nil {
+		if err := LoadTestInputs(includes, []loader.InputType{loader.Auto}, cb); err != nil {
 			return nil, err
 		}
 	}

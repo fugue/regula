@@ -25,30 +25,33 @@ import (
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/thediveo/enumflag"
 )
 
 //go:embed run.txt
-var longDescription string
+var runDescription string
 
 func NewRunCommand() *cobra.Command {
-	var inputType loader.InputType
+	inputTypes := []loader.InputType{loader.Auto}
 	format := reporter.Text
 	severity := reporter.Unknown
 	cmd := &cobra.Command{
 		Use:   "run [input...]",
 		Short: "Evaluate rules against infrastructure as code with Regula.",
-		Long:  longDescription,
+		Long: joinDescriptions(
+			runDescription,
+			inputTypeDescriptions,
+			formatDescriptions,
+			severityDescriptions),
 		Run: func(cmd *cobra.Command, paths []string) {
-			includes, err := cmd.Flags().GetStringSlice("include")
+			includes, err := cmd.Flags().GetStringSlice(includeFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			userOnly, err := cmd.Flags().GetBool("user-only")
+			userOnly, err := cmd.Flags().GetBool(userOnlyFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			noIgnore, err := cmd.Flags().GetBool("no-ignore")
+			noIgnore, err := cmd.Flags().GetBool(noIgnoreFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
@@ -69,7 +72,7 @@ func NewRunCommand() *cobra.Command {
 
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
 				Paths:       paths,
-				InputType:   inputType,
+				InputTypes:  inputTypes,
 				NoGitIgnore: noIgnore,
 			})
 			if err != nil {
@@ -105,21 +108,12 @@ func NewRunCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringSliceP("include", "i", nil, "Specify additional rego files or directories to include")
-	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
-	cmd.Flags().BoolP("no-ignore", "n", false, "Disable use of .gitignore")
-	cmd.Flags().VarP(
-		enumflag.New(&inputType, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
-		"input-type", "t",
-		"Set the input type for the given paths")
-	cmd.Flags().VarP(
-		enumflag.New(&severity, "string", reporter.SeverityIds, enumflag.EnumCaseInsensitive),
-		"severity", "s",
-		"Set the minimum severity that will result in a non-zero exit code.")
-	cmd.Flags().VarP(
-		enumflag.New(&format, "string", reporter.FormatIds, enumflag.EnumCaseInsensitive),
-		"format", "f",
-		"Set the output format")
+	addIncludeFlag(cmd)
+	addUserOnlyFlag(cmd)
+	addNoIgnoreFlag(cmd)
+	addInputTypeFlag(cmd, &inputTypes)
+	addSeverityFlag(cmd, &severity)
+	addFormatFlag(cmd, &format)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

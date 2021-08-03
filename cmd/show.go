@@ -21,17 +21,16 @@ import (
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/thediveo/enumflag"
 )
 
 func NewShowCommand() *cobra.Command {
-	var inputType loader.InputType
-
+	inputTypes := []loader.InputType{loader.Auto}
+	longDescription := `Show debug information.  Currently the available items are:
+	input [file..]   Show the JSON input being passed to regula`
 	cmd := &cobra.Command{
 		Use:   "show [item]",
 		Short: "Show debug information.",
-		Long: `Show debug information.  Currently the available items are:
-  input [file..]   Show the JSON input being passed to regula`,
+		Long:  joinDescriptions(longDescription, inputTypeDescriptions),
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				logrus.Fatal("Expected an item to show")
@@ -41,8 +40,8 @@ func NewShowCommand() *cobra.Command {
 			case "input":
 				paths := args[1:]
 				loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
-					Paths:     paths,
-					InputType: inputType,
+					Paths:      paths,
+					InputTypes: inputTypes,
 				})
 				if err != nil {
 					logrus.Fatal(err)
@@ -60,10 +59,7 @@ func NewShowCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().VarP(
-		enumflag.New(&inputType, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
-		"input-type", "t",
-		"Set the input type for the given paths")
+	addInputTypeFlag(cmd, &inputTypes)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

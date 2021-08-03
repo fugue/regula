@@ -8,26 +8,3 @@ specified files are of that input type.
 
 By default, Regula will exclude paths based on the patterns in the .gitignore file for
 a specified directory. This behavior can be disabled with the --no-ignore option.
-
-Input types:
-    auto        Automatically determine input types (default)
-    tf-plan     Terraform plan JSON
-    cfn         CloudFormation template in YAML or JSON format
-    tf          Terraform directory or file
-
-Output formats:
-    text    A human friendly format (default)
-    json    A JSON report containing rule results and a summary
-    table   An ASCII table of rule results
-    junit   The JUnit XML format
-    tap     The Test Anything Protocol format
-    none    Do not print any output on stdout
-
-Severities:
-    unknown         Lowest setting. Used for rules without a severity specified (default)
-    informational
-    low
-    medium
-    high
-    critical
-    off             Never exit with a non-zero exit code.

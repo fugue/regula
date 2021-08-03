@@ -37,7 +37,7 @@ func runRegoTest(t *testing.T, userOnly bool, includes []string) {
 	if err := rego.LoadOSFiles(includes, cb); err != nil {
 		assert.Fail(t, "Failed to load regula tests", err)
 	}
-	if err := rego.LoadTestInputs(includes, loader.Auto, cb); err != nil {
+	if err := rego.LoadTestInputs(includes, []loader.InputType{loader.Auto}, cb); err != nil {
 		assert.Fail(t, "Failed to load test inputs", err)
 	}
 	ctx := context.Background()

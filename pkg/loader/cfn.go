@@ -66,6 +66,10 @@ func (c *CfnDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IAC
 	return nil, nil
 }
 
+func (c *CfnDetector) InputType() InputType {
+	return Cfn
+}
+
 type cfnConfiguration struct {
 	path     string
 	template cfnTemplate

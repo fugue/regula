@@ -74,6 +74,10 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 	return ParseDirectory([]string{}, i.Path(), nil)
 }
 
+func (t *TfDetector) InputType() InputType {
+	return Tf
+}
+
 type HclConfiguration struct {
 	// Path of the module.  This indicates its position in the module tree.
 	// Example: `[]` for the root module, `["child1"]` for children.
@@ -1080,7 +1084,7 @@ func TfFilePathJoin(leading, trailing string) string {
 	} else {
 		trailing = filepath.FromSlash(trailing)
 		sep := string(filepath.Separator)
-		trailing = strings.TrimPrefix(trailing, "." + sep)
+		trailing = strings.TrimPrefix(trailing, "."+sep)
 		return strings.TrimRight(leading, sep) + sep +
 			strings.TrimLeft(trailing, sep)
 	}

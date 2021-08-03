@@ -25,7 +25,7 @@ import (
 )
 
 func NewShowCommand() *cobra.Command {
-	var inputType loader.InputType
+	var inputTypes []loader.InputType
 
 	cmd := &cobra.Command{
 		Use:   "show [item]",
@@ -41,8 +41,8 @@ func NewShowCommand() *cobra.Command {
 			case "input":
 				paths := args[1:]
 				loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
-					Paths:     paths,
-					InputType: inputType,
+					Paths:      paths,
+					InputTypes: inputTypes,
 				})
 				if err != nil {
 					logrus.Fatal(err)
@@ -61,9 +61,9 @@ func NewShowCommand() *cobra.Command {
 	}
 
 	cmd.Flags().VarP(
-		enumflag.New(&inputType, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
+		enumflag.NewSlice(&inputTypes, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
 		"input-type", "t",
-		"Set the input type for the given paths")
+		"Set the input type for the given paths. Can be specified multiple times to account for multiple types.")
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

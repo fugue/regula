@@ -32,7 +32,7 @@ import (
 var longDescription string
 
 func NewRunCommand() *cobra.Command {
-	var inputType loader.InputType
+	var inputTypes []loader.InputType
 	format := reporter.Text
 	severity := reporter.Unknown
 	cmd := &cobra.Command{
@@ -69,7 +69,7 @@ func NewRunCommand() *cobra.Command {
 
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
 				Paths:       paths,
-				InputType:   inputType,
+				InputTypes:  inputTypes,
 				NoGitIgnore: noIgnore,
 			})
 			if err != nil {
@@ -109,9 +109,9 @@ func NewRunCommand() *cobra.Command {
 	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
 	cmd.Flags().BoolP("no-ignore", "n", false, "Disable use of .gitignore")
 	cmd.Flags().VarP(
-		enumflag.New(&inputType, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
+		enumflag.NewSlice(&inputTypes, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
 		"input-type", "t",
-		"Set the input type for the given paths")
+		"Set the input type for the given paths. Can be specified multiple times to account for multiple types.")
 	cmd.Flags().VarP(
 		enumflag.New(&severity, "string", reporter.SeverityIds, enumflag.EnumCaseInsensitive),
 		"severity", "s",

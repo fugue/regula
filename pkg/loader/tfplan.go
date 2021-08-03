@@ -46,8 +46,12 @@ func (t *TfPlanDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigu
 	}, nil
 }
 
-func (c *TfPlanDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
+func (t *TfPlanDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
 	return nil, nil
+}
+
+func (t *TfPlanDetector) InputType() InputType {
+	return TfPlan
 }
 
 type tfPlanLoader struct {

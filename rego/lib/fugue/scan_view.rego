@@ -135,7 +135,8 @@ rule_resource_result(rule, judgement) = ret {
     "rule_valid": judgement.valid,
     # gets patched to true when waivers are applied
     "rule_waived": false,
-    "platform": input_type_internal.input_type,
+    "filepath": judgement.filepath,
+    "input_type": input_type_internal.input_type,
     "rule_id": rule.metadata.id,
     "rule_summary": rule.metadata.summary,
     "rule_description": rule.metadata.description,
@@ -337,12 +338,19 @@ report_summary(rule_results) = ret {
 # Add filepaths to a report.
 report_add_filepath(report_0, filepath) = report_1 {
   report_1 := {
-    "rule_results": [rule_result_1 |
-      rule_result_0 := report_0.rule_results[_]
-      rule_result_1 := json.patch(rule_result_0, [
-        {"op": "add", "path": ["filepath"], "value": filepath}
-      ])
-    ],
+    "rule_results": array.concat(
+      [rule_result_1 |
+        rule_result_0 := report_0.rule_results[_]
+        rule_result_0.filepath == ""
+        rule_result_1 := json.patch(rule_result_0, [
+          {"op": "add", "path": ["filepath"], "value": filepath}
+        ])
+      ],
+      [rule_result_1 |
+        rule_result_0 := report_0.rule_results[_]
+        rule_result_0.filepath != ""
+        rule_result_1 := rule_result_0
+      ]),
     "summary": report_0.summary
   }
 }

@@ -1078,6 +1078,7 @@ func TfFilePathJoin(leading, trailing string) string {
 	} else if leading == "." {
 		return trailing
 	} else {
+		trailing = filepath.FromSlash(trailing)
 		sep := string(filepath.Separator)
 		trailing = strings.TrimPrefix(trailing, "." + sep)
 		return strings.TrimRight(leading, sep) + sep +

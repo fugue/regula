@@ -22,14 +22,15 @@ import (
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/thediveo/enumflag"
 )
 
 func NewWriteTestInputsCommand() *cobra.Command {
-	var inputTypes []loader.InputType
+	description := "Persist dynamically-generated test inputs for use with other Rego interpreters"
+	inputTypes := []loader.InputType{loader.Auto}
 	cmd := &cobra.Command{
 		Use:   "write-test-inputs [input...]",
-		Short: "Persist dynamically-generated test inputs for use with other Rego interpreters",
+		Short: description,
+		Long:  joinDescriptions(description, inputTypeDescriptions),
 		Run: func(cmd *cobra.Command, paths []string) {
 			cb := func(r rego.RegoFile) error {
 				return os.WriteFile(r.Path(), r.Raw(), 0644)
@@ -40,10 +41,7 @@ func NewWriteTestInputsCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().VarP(
-		enumflag.NewSlice(&inputTypes, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
-		"input-type", "t",
-		"Set the input type for the given paths. Can be specified multiple times to account for multiple types.")
+	addInputTypeFlag(cmd, &inputTypes)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

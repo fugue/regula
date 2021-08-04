@@ -29,11 +29,11 @@ func NewTestCommand() *cobra.Command {
 		Use:   "test [paths containing rego or test inputs]",
 		Short: "Run OPA test with Regula.",
 		Run: func(cmd *cobra.Command, includes []string) {
-			trace, err := cmd.Flags().GetBool("trace")
+			trace, err := cmd.Flags().GetBool(traceFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			noTestInputs, err := cmd.Flags().GetBool("no-test-inputs")
+			noTestInputs, err := cmd.Flags().GetBool(noTestInputsFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
@@ -49,8 +49,8 @@ func NewTestCommand() *cobra.Command {
 			}
 		},
 	}
-	cmd.Flags().BoolP("trace", "t", false, "Enable trace output")
-	cmd.Flags().Bool("no-test-inputs", false, "Disable loading test inputs")
+	addTraceFlag(cmd)
+	addNoTestInputsFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

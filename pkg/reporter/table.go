@@ -34,10 +34,15 @@ func TableReporter(o *RegulaOutput) (string, error) {
 		if message == "" {
 			message = r.RuleSummary
 		}
+		filepath := r.Filepath
+		if r.SourceLocation != nil && len(r.SourceLocation) > 0 {
+			filepath = r.SourceLocation[0].String()
+
+		}
 		tableRow := TableRow{
 			Resource: r.ResourceID,
 			Type:     r.ResourceType,
-			Filepath: r.Filepath,
+			Filepath: filepath,
 			Severity: colorizeSeverity(r),
 			RuleID:   r.RuleID,
 			RuleName: r.RuleName,

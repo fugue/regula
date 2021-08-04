@@ -88,6 +88,8 @@ missing(params) = ret {
     "type": params.resource_type,
     "message": object.get(params, "message", "invalid"),
     "provider": object.get(params, "provider", ""),
+    "attribute": null,
+    "filepath": "",
   }
 }
 

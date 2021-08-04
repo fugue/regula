@@ -255,6 +255,11 @@ type RuleResult struct {
 	RuleResult      string   `json:"rule_result"`
 	RuleSeverity    string   `json:"rule_severity"`
 	RuleSummary     string   `json:"rule_summary"`
+	// List of source code locations this rule result pertains to.  The first
+	// element of the list always refers to the most specific source code site,
+	// and further elements indicate modules in which this was included, like
+	// a call stack.
+	SourceLocation loader.LocationStack `json:"source_location,omitempty"`
 }
 
 func (r RuleResult) IsWaived() bool {
@@ -285,7 +290,7 @@ type Summary struct {
 	Severities  map[string]int `json:"severities"`
 }
 
-func ParseRegulaOutput(_ loader.LoadedConfigurations, r rego.Result) (*RegulaOutput, error) {
+func ParseRegulaOutput(conf loader.LoadedConfigurations, r rego.Result) (*RegulaOutput, error) {
 	j, err := json.Marshal(r.Expressions[0].Value)
 	if err != nil {
 		return nil, err
@@ -294,6 +299,15 @@ func ParseRegulaOutput(_ loader.LoadedConfigurations, r rego.Result) (*RegulaOut
 	if err = json.Unmarshal(j, output); err != nil {
 		return nil, err
 	}
+
+	for i, result := range output.RuleResults {
+		filepath := result.Filepath
+		location, err := conf.Location(filepath, []string{result.ResourceID})
+		if err == nil {
+			output.RuleResults[i].SourceLocation = location
+		}
+	}
+
 	return output, nil
 }
 

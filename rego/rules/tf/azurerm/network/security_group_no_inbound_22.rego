@@ -23,7 +23,10 @@ __rego__metadoc__ := {
   "custom": {
     "controls": {
       "CIS-Azure_v1.1.0": [
-        "CIS-Azure_v1.1.0_6.1"
+        "CIS-Azure_v1.1.0_6.2"
+      ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_6.2"
       ],
       "NIST-800-53_vRev4": [
         "NIST-800-53_vRev4_AC-4",

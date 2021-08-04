@@ -1,0 +1,18 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_s3_bucket.main": {
+        "_filepath": "tf_test/vars/main.tf",
+        "_provider": "aws",
+        "_type": "aws_s3_bucket",
+        "id": "aws_s3_bucket.main",
+        "tags": {
+          "department": "engineering",
+          "environment": null
+        }
+      }
+    }
+  },
+  "filepath": "tf_test/vars"
+}

@@ -110,6 +110,10 @@ type HclConfiguration struct {
 
 	// Locations of terraform modules.
 	moduleRegister *terraformModuleRegister
+
+	// Location at which this module was included (i.e. the caller of this
+	// module.
+	location *Location
 }
 
 func ParseDirectory(
@@ -125,7 +129,14 @@ func ParseDirectory(
 		return nil, diags
 	}
 
-	return parseFiles(path, dir, moduleRegister, true, primary, nil)
+	// ConfigDirFiles will return `main.tf` rather than `foo/bar/../../main.tf`.
+	// Rejoin the files using `TfFilePathJoin` to fix this.
+	filepaths := make([]string, len(primary))
+	for i, file := range primary {
+		filepaths[i] = TfFilePathJoin(dir, filepath.Base(file))
+	}
+
+	return parseFiles(path, dir, moduleRegister, true, filepaths, nil)
 }
 
 func parseFiles(
@@ -190,9 +201,9 @@ func parseFiles(
 				properties := ctx.RenderBody(body)
 				if source, ok := properties["source"]; ok {
 					if str, ok := source.(string); ok {
-						childDir := filepath.Join(dir, str)
+						childDir := TfFilePathJoin(dir, str)
 						if register := configuration.moduleRegister.getDir(str); register != nil {
-							childDir = filepath.Join(dir, *register)
+							childDir = TfFilePathJoin(dir, *register)
 						}
 						logrus.Debugf("Loading source from %s", childDir)
 
@@ -203,7 +214,9 @@ func parseFiles(
 						childPath = append(childPath, key)
 
 						child, err := ParseDirectory(childPath, childDir, configuration.moduleRegister)
+
 						if err == nil {
+							child = child.withLocation(rangeToLocation(moduleCall.SourceAddrRange))
 							configuration.children[key] = child
 						} else {
 							logrus.Warnf("Error loading submodule %s: %s", key, err)
@@ -244,6 +257,13 @@ func (c0 *HclConfiguration) withVars(vars map[string]interface{}) *HclConfigurat
 	return &c1
 }
 
+// Set the source code location at which a module was included.
+func (c0 *HclConfiguration) withLocation(location Location) *HclConfiguration {
+	c1 := *c0
+	c1.location = &location
+	return &c1
+}
+
 func (c *HclConfiguration) LoadedFiles() []string {
 	filepaths := []string{}
 	if c.recurse {
@@ -260,7 +280,42 @@ func (c *HclConfiguration) LoadedFiles() []string {
 	return filepaths
 }
 
-func (c *HclConfiguration) Location(attributePath []string) (*Location, error) {
+func (c *HclConfiguration) Location(path []string) (LocationStack, error) {
+	if len(path) < 1 {
+		return nil, nil
+	}
+	resourceId := path[0]
+	attributePath := path[1:]
+
+	// Find location recursively
+	if strings.HasPrefix(resourceId, "module.") {
+		resourcePath := strings.SplitN(resourceId, ".", 3)
+		if len(resourcePath) < 3 {
+			return nil, nil
+		}
+		child := c.children[resourcePath[1]]
+		childPath := make([]string, len(path))
+		copy(childPath, path)
+		childPath[0] = resourcePath[2]
+		loc, err := child.Location(childPath)
+		if err != nil || loc == nil {
+			return loc, err
+		}
+		if child.location != nil {
+			loc = append(loc, *child.location)
+		}
+
+		return loc, nil
+	}
+
+	// Find location in this module
+	if resource, ok := c.getResource(resourceId); ok {
+		resourceNode := TfNode{Object: resource.Config, Range: resource.DeclRange}
+		if node, err := resourceNode.GetDescendant(attributePath); err == nil {
+			return []Location{rangeToLocation(node.Range)}, nil
+		}
+	}
+
 	return nil, nil
 }
 
@@ -612,13 +667,7 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 		return c.RenderExpr(e.Wrapped)
 	case *hclsyntax.ScopeTraversalExpr:
 		path := c.RenderTraversal(e.Traversal)
-		ref := c.resolve(path)
-		if ref != nil {
-			return ref
-		} else {
-			// Is this useful?  This should just map to variables?
-			return strings.Join(path, ".")
-		}
+		return c.resolve(path)
 	case *hclsyntax.TemplateExpr:
 		if len(e.Parts) == 1 {
 			return c.RenderExpr(e.Parts[0])
@@ -911,15 +960,6 @@ func (node *TfNode) GetDescendant(path []string) (*TfNode, error) {
 	return child.GetDescendant(path[1:])
 }
 
-func (node *TfNode) Location() string {
-	return fmt.Sprintf(
-		"%s:%d:%d",
-		node.Range.Filename,
-		node.Range.Start.Line,
-		node.Range.Start.Column,
-	)
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // utilities for traversing to a path in a HCL tree somewhat generically
 // `terraform init` downloads modules and writes a helpful file
@@ -1015,4 +1055,33 @@ func makeStdInFs(i InputFile) (afero.Fs, error) {
 	inputFs := afero.NewMemMapFs()
 	afero.WriteFile(inputFs, i.Path(), contents, 0644)
 	return inputFs, nil
+}
+
+func rangeToLocation(r hcl.Range) Location {
+	return Location{
+		Path: r.Filename,
+		Line: r.Start.Line,
+		Col:  r.Start.Column,
+	}
+}
+
+// TfFilePathJoin is like `filepath.Join` but avoids cleaning the path.  This
+// allows to get unique paths for submodules including a parent module, e.g.:
+//
+//     .
+//     examples/mssql/../../
+//     examples/complete/../../
+//
+func TfFilePathJoin(leading, trailing string) string {
+	if filepath.IsAbs(trailing) {
+		return trailing
+	} else if leading == "." {
+		return trailing
+	} else {
+		trailing = filepath.FromSlash(trailing)
+		sep := string(filepath.Separator)
+		trailing = strings.TrimPrefix(trailing, "." + sep)
+		return strings.TrimRight(leading, sep) + sep +
+			strings.TrimLeft(trailing, sep)
+	}
 }

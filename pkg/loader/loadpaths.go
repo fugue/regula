@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/fugue/regula/pkg/git"
 )
 
@@ -157,6 +159,7 @@ func (l *loadedConfigurations) AddConfiguration(path string, config IACConfigura
 	l.loadedPaths[path] = path
 	for _, f := range config.LoadedFiles() {
 		l.loadedPaths[f] = path
+		logrus.Debugf("loadedPaths[%s] -> %s", f, path)
 	}
 }
 

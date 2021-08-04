@@ -129,7 +129,14 @@ func ParseDirectory(
 		return nil, diags
 	}
 
-	return parseFiles(path, dir, moduleRegister, true, primary, nil)
+	// ConfigDirFiles will return `main.tf` rather than `foo/bar/../../main.tf`.
+	// Rejoin the files using `TfFilePathJoin` to fix this.
+	filepaths := make([]string, len(primary))
+	for i, file := range primary {
+		filepaths[i] = TfFilePathJoin(dir, filepath.Base(file))
+	}
+
+	return parseFiles(path, dir, moduleRegister, true, filepaths, nil)
 }
 
 func parseFiles(
@@ -194,9 +201,9 @@ func parseFiles(
 				properties := ctx.RenderBody(body)
 				if source, ok := properties["source"]; ok {
 					if str, ok := source.(string); ok {
-						childDir := filepath.Join(dir, str)
+						childDir := TfFilePathJoin(dir, str)
 						if register := configuration.moduleRegister.getDir(str); register != nil {
-							childDir = filepath.Join(dir, *register)
+							childDir = TfFilePathJoin(dir, *register)
 						}
 						logrus.Debugf("Loading source from %s", childDir)
 
@@ -1055,5 +1062,25 @@ func rangeToLocation(r hcl.Range) Location {
 		Path: r.Filename,
 		Line: r.Start.Line,
 		Col:  r.Start.Column,
+	}
+}
+
+// TfFilePathJoin is like `filepath.Join` but avoids cleaning the path.  This
+// allows to get unique paths for submodules including a parent module, e.g.:
+//
+//     .
+//     examples/mssql/../../
+//     examples/complete/../../
+//
+func TfFilePathJoin(leading, trailing string) string {
+	if filepath.IsAbs(trailing) {
+		return trailing
+	} else if leading == "." {
+		return trailing
+	} else {
+		sep := string(filepath.Separator)
+		trailing = strings.TrimPrefix(trailing, "." + sep)
+		return strings.TrimRight(leading, sep) + sep +
+			strings.TrimLeft(trailing, sep)
 	}
 }

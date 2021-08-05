@@ -28,9 +28,9 @@ __rego__metadoc__ := {
 
 resource_type = "aws_db_instance"
 
-default allow = false
+default deny = false
 
-allow {
-  input.publicly_accessible == false
+deny {
+  input.publicly_accessible == true
 }
 

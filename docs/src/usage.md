@@ -199,7 +199,7 @@ Use the `--f | --format FORMAT` flag to specify the output format:
     CUSTOM_0001: IAM policies must have a description of at least 25 characters [Low]
 
       [1]: InvalidManagedPolicy01
-           in infra_cfn/invalid_long_description.yaml:18:3
+           in infra_cfn/invalid_long_description.yaml:14:3
 
     Found one problem.
 

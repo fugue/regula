@@ -18,7 +18,10 @@ import data.fugue.regula.aws.security_group as sglib
 __rego__metadoc__ := {
   "id": "FG_R00377",
   "title": "VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443",
-  "description": "VPC firewall rules should not permit unrestricted access from the internet, with the exception of port 80 (HTTP) and port 443 (HTTPS). Web applications or APIs generally need to be publicly accessible."
+  "description": "VPC firewall rules should not permit unrestricted access from the internet, with the exception of port 80 (HTTP) and port 443 (HTTPS). Web applications or APIs generally need to be publicly accessible.",
+  "custom": {
+    "severity": "Medium"
+  }
 }
 
 resource_type = "aws_security_group"

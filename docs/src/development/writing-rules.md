@@ -196,7 +196,14 @@ Here's an example rule result to show how this metadata looks in the report:
       "rule_name": "long_description",
       "rule_result": "FAIL",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "../regula-ci-example/infra_tf/",
+          "line": 6,
+          "column": 1
+        }
+      ]
     }
 ```
 

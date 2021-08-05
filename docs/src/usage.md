@@ -198,8 +198,8 @@ Use the `--f | --format FORMAT` flag to specify the output format:
 
     CUSTOM_0001: IAM policies must have a description of at least 25 characters [Low]
 
-        [1]: InvalidManagedPolicy01
-             in infra_cfn/invalid_long_description.yaml
+      [1]: InvalidManagedPolicy01
+           in infra_cfn/invalid_long_description.yaml:14:3
 
     Found one problem.
 
@@ -225,7 +225,14 @@ Use the `--f | --format FORMAT` flag to specify the output format:
           "rule_name": "long_description_cfn",
           "rule_result": "FAIL",
           "rule_severity": "Low",
-          "rule_summary": "IAM policies must have a description of at least 25 characters"
+          "rule_summary": "IAM policies must have a description of at least 25 characters",
+          "source_location": [
+            {
+              "path": "infra_cfn/invalid_long_description.yaml",
+              "line": 14,
+              "column": 3
+            }
+          ]
         },
         {
           "controls": [
@@ -242,7 +249,14 @@ Use the `--f | --format FORMAT` flag to specify the output format:
           "rule_name": "long_description_cfn",
           "rule_result": "PASS",
           "rule_severity": "Low",
-          "rule_summary": "IAM policies must have a description of at least 25 characters"
+          "rule_summary": "IAM policies must have a description of at least 25 characters",
+          "source_location": [
+            {
+              "path": "infra_cfn/invalid_long_description.yaml",
+              "line": 3,
+              "column": 3
+            }
+          ]
         }
       ],
       "summary": {
@@ -269,14 +283,14 @@ Use the `--f | --format FORMAT` flag to specify the output format:
 === "table"
 
     ```
-    +------------------------+-------------------------+-----------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
-    |        Resource        |          Type           |                Filepath                 | Severity |   Rule ID   |      Rule Name       |                            Message                             | Result |
-    +------------------------+-------------------------+-----------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
-    | InvalidManagedPolicy01 | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml | Low      | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters | FAIL   |
-    | ValidManagedPolicy01   | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml | Low      | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters | PASS   |
-    +------------------------+-------------------------+-----------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
-    |                        |                         |                                         |          |             |                      |                                                        Overall |   FAIL |
-    +------------------------+-------------------------+-----------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
+    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
+    |        Resource        |          Type           |                   Filepath                   | Severity |   Rule ID   |      Rule Name       |                            Message                             | Result |
+    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
+    | InvalidManagedPolicy01 | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml:14:3 | Low      | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters | FAIL   |
+    | ValidManagedPolicy01   | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml:3:3  | Low      | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters | PASS   |
+    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
+    |                        |                         |                                              |          |             |                      |                                                        Overall | FAIL   |
+    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
     ```
 
 === "junit"
@@ -284,10 +298,10 @@ Use the `--f | --format FORMAT` flag to specify the output format:
     ```xml
     <testsuites name="Regula">
       <testsuite name="infra_cfn/invalid_long_description.yaml" tests="2">
-        <testcase name="InvalidManagedPolicy01" classname="AWS::IAM::ManagedPolicy" assertions="1">
+        <testcase name="infra_cfn/invalid_long_description.yaml#InvalidManagedPolicy01" classname="AWS::IAM::ManagedPolicy" assertions="1">
           <failure message="IAM policies must have a description of at least 25 characters" type="long_description_cfn">Rule ID: CUSTOM_0001&#xA;Rule Name: long_description_cfn&#xA;Severity: Low&#xA;Message: IAM policies must have a description of at least 25 characters</failure>
         </testcase>
-        <testcase name="ValidManagedPolicy01" classname="AWS::IAM::ManagedPolicy" assertions="1"></testcase>
+        <testcase name="infra_cfn/invalid_long_description.yaml#ValidManagedPolicy01" classname="AWS::IAM::ManagedPolicy" assertions="1"></testcase>
       </testsuite>
     </testsuites>
     ```

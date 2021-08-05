@@ -69,6 +69,16 @@ brew upgrade regula
     setx PATH "%PATH%;C:\regula\bin"
     ```
 
+    Windows (PowerShell):
+
+    ```
+    md C:\regula\bin
+    move regula.exe C:\regula\bin
+    $env:Path += ";C:\regula\bin"
+    # You can add '$env:Path += ";C:\regula\bin"' to your profile.ps1 file to
+    # persist that change across shell sessions.
+    ```
+
 4. _Windows users only:_ Close cmd and re-open it so the changes take effect.
 5. You can now run `regula`.
 

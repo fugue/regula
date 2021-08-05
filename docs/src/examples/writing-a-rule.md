@@ -243,7 +243,14 @@ You'll see this output:
       "rule_name": "long_description",
       "rule_result": "FAIL",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 6,
+          "column": 1
+        }
+      ]
     },
     {
       "controls": [
@@ -260,7 +267,14 @@ You'll see this output:
       "rule_name": "long_description",
       "rule_result": "PASS",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
     }
   ],
   "summary": {

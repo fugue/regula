@@ -203,7 +203,7 @@ func parseFiles(
 					if str, ok := source.(string); ok {
 						childDir := TfFilePathJoin(dir, str)
 						if register := configuration.moduleRegister.getDir(str); register != nil {
-							childDir = TfFilePathJoin(dir, *register)
+							childDir = *register
 						}
 						logrus.Debugf("Loading source from %s", childDir)
 
@@ -1080,7 +1080,7 @@ func TfFilePathJoin(leading, trailing string) string {
 	} else {
 		trailing = filepath.FromSlash(trailing)
 		sep := string(filepath.Separator)
-		trailing = strings.TrimPrefix(trailing, "." + sep)
+		trailing = strings.TrimPrefix(trailing, "."+sep)
 		return strings.TrimRight(leading, sep) + sep +
 			strings.TrimLeft(trailing, sep)
 	}

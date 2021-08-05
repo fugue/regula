@@ -966,7 +966,13 @@ func (node *TfNode) GetDescendant(path []string) (*TfNode, error) {
 // `.terraform/modules/modules.json` that tells us where to find modules
 
 //{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"acm","Source":"terraform-aws-modules/acm/aws","Version":"3.0.0","Dir":".terraform/modules/acm"}]}
+
 type terraformModuleRegister struct {
+	data terraformModuleRegisterFile
+	dir  string
+}
+
+type terraformModuleRegisterFile struct {
 	Modules []terraformModuleRegisterEntry `json:"Modules"`
 }
 
@@ -977,25 +983,29 @@ type terraformModuleRegisterEntry struct {
 
 func newTerraformRegister(dir string) *terraformModuleRegister {
 	registry := terraformModuleRegister{
-		Modules: []terraformModuleRegisterEntry{},
+		data: terraformModuleRegisterFile{
+			[]terraformModuleRegisterEntry{},
+		},
+		dir: dir,
 	}
 	path := filepath.Join(dir, ".terraform/modules/modules.json")
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return &registry
 	}
-	json.Unmarshal(bytes, &registry)
+	json.Unmarshal(bytes, &registry.data)
 	logrus.Debugf("Loaded module register at %s", path)
-	for _, entry := range registry.Modules {
+	for _, entry := range registry.data.Modules {
 		logrus.Debugf("Module register entry: %s -> %s", entry.Source, entry.Dir)
 	}
 	return &registry
 }
 
 func (r *terraformModuleRegister) getDir(source string) *string {
-	for _, entry := range r.Modules {
+	for _, entry := range r.data.Modules {
 		if entry.Source == source {
-			return &entry.Dir
+			joined := TfFilePathJoin(r.dir, entry.Dir)
+			return &joined
 		}
 	}
 	return nil

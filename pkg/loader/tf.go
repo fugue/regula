@@ -78,15 +78,33 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 	}
 
 	if configuration != nil && len(configuration.missingRemoteModules) > 0 {
-		logrus.Warnf(
-			"Could not load some remote submodules that are used by '%s'. "+
-				"Run 'terraform init' if you would like to include them in the evaluation: %s",
-			i.Path(),
-			strings.Join(configuration.missingRemoteModules, ", "),
+		logrus.Warn(
+			missingRemoteModulesMessage(
+				i.Path(),
+				configuration.missingRemoteModules,
+			),
 		)
 	}
 
 	return configuration, nil
+}
+
+func missingRemoteModulesMessage(inputPath string, missingModules []string) string {
+	missingModulesList := strings.Join(missingModules, ", ")
+	if inputPath == "." {
+		return fmt.Sprintf(
+			"Could not load some remote submodules. "+
+				"Run 'terraform init' if you would like to include them in the evaluation: %s",
+			missingModulesList,
+		)
+	}
+
+	return fmt.Sprintf(
+		"Could not load some remote submodules that are used by '%s'. "+
+			"Run 'terraform init' if you would like to include them in the evaluation: %s",
+		inputPath,
+		missingModulesList,
+	)
 }
 
 type HclConfiguration struct {

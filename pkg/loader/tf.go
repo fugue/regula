@@ -71,7 +71,22 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 		return nil, nil
 	}
 
-	return ParseDirectory([]string{}, i.Path(), nil)
+	configuration, err := ParseDirectory([]string{}, i.Path(), nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if configuration != nil && len(configuration.missingRemoteModules) > 0 {
+		logrus.Warnf(
+			"Could not load some remote submodules that are used by '%s'. "+
+				"Run 'terraform init' if you would like to include them in the evaluation: %s",
+			i.Path(),
+			strings.Join(configuration.missingRemoteModules, ", "),
+		)
+	}
+
+	return configuration, nil
 }
 
 type HclConfiguration struct {
@@ -114,6 +129,9 @@ type HclConfiguration struct {
 	// Location at which this module was included (i.e. the caller of this
 	// module.
 	location *Location
+
+	// Remote modules that were missing from the moduleRegister
+	missingRemoteModules []string
 }
 
 func ParseDirectory(
@@ -204,6 +222,13 @@ func parseFiles(
 						childDir := TfFilePathJoin(dir, str)
 						if register := configuration.moduleRegister.getDir(str); register != nil {
 							childDir = *register
+						} else if !moduleIsLocal(str) {
+							logrus.Debugf("Remote submodule missing from registry '%s'", str)
+							configuration.missingRemoteModules = append(
+								configuration.missingRemoteModules,
+								str,
+							)
+							continue
 						}
 						logrus.Debugf("Loading source from %s", childDir)
 
@@ -218,8 +243,12 @@ func parseFiles(
 						if err == nil {
 							child = child.withLocation(rangeToLocation(moduleCall.SourceAddrRange))
 							configuration.children[key] = child
+							configuration.missingRemoteModules = append(
+								configuration.missingRemoteModules,
+								child.missingRemoteModules...,
+							)
 						} else {
-							logrus.Warnf("Error loading submodule %s: %s", key, err)
+							logrus.Warnf("Error loading submodule '%s': %s", key, err)
 						}
 					}
 				}
@@ -241,6 +270,14 @@ func parseFiles(
 	configuration.locals = nil
 
 	return configuration, nil
+}
+
+// Takes a module source and returns true if the module is local.
+func moduleIsLocal(source string) bool {
+	// Relevant bit from terraform docs:
+	//    A local path must begin with either ./ or ../ to indicate that a local path
+	//    is intended, to distinguish from a module registry address.
+	return strings.HasPrefix(source, "./") || strings.HasPrefix(source, "../")
 }
 
 // Return a copy of a HclConfiguration with updated variables.

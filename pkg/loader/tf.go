@@ -91,18 +91,16 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 
 func missingRemoteModulesMessage(inputPath string, missingModules []string) string {
 	missingModulesList := strings.Join(missingModules, ", ")
-	if inputPath == "." {
-		return fmt.Sprintf(
-			"Could not load some remote submodules. "+
-				"Run 'terraform init' if you would like to include them in the evaluation: %s",
-			missingModulesList,
+	firstSentence := "Could not load some remote submodules"
+	if inputPath != "." {
+		firstSentence += fmt.Sprintf(
+			" that are used by '%s'",
+			inputPath,
 		)
 	}
-
 	return fmt.Sprintf(
-		"Could not load some remote submodules that are used by '%s'. "+
-			"Run 'terraform init' if you would like to include them in the evaluation: %s",
-		inputPath,
+		"%s. Run 'terraform init' if you would like to include them in the evaluation: %s",
+		firstSentence,
 		missingModulesList,
 	)
 }

@@ -766,7 +766,9 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 				if kty := reflect.TypeOf(key); kty != nil {
 					logrus.Warnf("Skipping non-string object key: %s", kty.String())
 				} else {
-					logrus.Warnf("Skipping object key of unknown type")
+					// This can happen in the initial load before the variable defaults
+					// have been populated.
+					logrus.Debug("Skipping object key of unknown type")
 				}
 			}
 		}
@@ -778,11 +780,13 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 		} else {
 			return c.RenderExpr(e.Wrapped)
 		}
+	case *hclsyntax.ParenthesesExpr:
+		return c.RenderExpr(e.Expression)
 	case *hclsyntax.FunctionCallExpr:
 		// This is handled using evaluation.
 	default:
 		if ty := reflect.TypeOf(expr); ty != nil {
-			logrus.Debugf("Unhandled expression type %s, falling back to evaluation", ty.String())
+			logrus.Debugf("Unhandled expression type %s at %s, falling back to evaluation", ty.String(), e.Range())
 		} else {
 			logrus.Debug("Unknown expression type, falling back to evaluation")
 		}

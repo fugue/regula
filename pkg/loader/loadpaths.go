@@ -64,6 +64,8 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 	for _, path := range options.Paths {
 		if path == "-" {
 			path = stdIn
+		} else {
+			path = filepath.Clean(path)
 		}
 		if configurations.AlreadyLoaded(path) {
 			continue

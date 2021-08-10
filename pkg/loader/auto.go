@@ -29,10 +29,6 @@ func (a *AutoDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigura
 	return nil, nil
 }
 
-func (a *AutoDetector) InputType() InputType {
-	return Auto
-}
-
 func NewAutoDetector(detectors ...ConfigurationDetector) *AutoDetector {
 	return &AutoDetector{
 		detectors: detectors,

@@ -19,12 +19,14 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 //go:embed run.txt
@@ -42,36 +44,59 @@ func NewRunCommand() *cobra.Command {
 			inputTypeDescriptions,
 			formatDescriptions,
 			severityDescriptions),
-		Run: func(cmd *cobra.Command, paths []string) {
-			includes, err := cmd.Flags().GetStringSlice(includeFlag)
+		Run: func(cmd *cobra.Command, args []string) {
+			noConfig, err := cmd.Flags().GetBool(noConfigFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			userOnly, err := cmd.Flags().GetBool(userOnlyFlag)
+
+			var configDir string
+			if !noConfig {
+				configPath, err := cmd.Flags().GetString(configFlag)
+				if err != nil {
+					logrus.Fatal(err)
+				}
+				if err := loadConfigFile(configPath); err != nil {
+					logrus.Fatal(err)
+				}
+				if err := setEnumFromConfig(cmd, inputTypeFlag); err != nil {
+					logrus.Fatal(err)
+				}
+				if err := setEnumFromConfig(cmd, severityFlag); err != nil {
+					logrus.Fatal(err)
+				}
+				if c := viper.ConfigFileUsed(); c != "" {
+					configDir = filepath.Dir(c)
+				}
+			}
+
+			includes, err := translateIncludes(cmd, configDir)
 			if err != nil {
 				logrus.Fatal(err)
 			}
+			inputs, err := translateInputs(args, configDir)
+			if err != nil {
+				logrus.Fatal(err)
+			}
+			userOnly := viper.GetBool(userOnlyFlag)
 			noIgnore, err := cmd.Flags().GetBool(noIgnoreFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
 			ctx := context.TODO()
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			if len(paths) < 1 {
-				stat, _ := os.Stdin.Stat()
-				if (stat.Mode() & os.ModeCharDevice) == 0 {
-					paths = []string{"-"}
-				} else {
-					// Not using os.Getwd here so that we get relative paths.
-					// A single dot should mean the same on windows.
-					paths = []string{"."}
+
+			if configDir != "" {
+				// Changing directories is the easiest and most robust way to
+				// get all paths relative to the config file.
+				if err := os.Chdir(configDir); err != nil {
+					// Not sure whether this error is possible here since we were
+					// able to load the file. But, just in case.
+					logrus.Fatal(fmt.Errorf("Unable to change to config file directory: %s", err))
 				}
 			}
 
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
-				Paths:       paths,
+				Paths:       inputs,
 				InputTypes:  inputTypes,
 				NoGitIgnore: noIgnore,
 			})
@@ -108,6 +133,8 @@ func NewRunCommand() *cobra.Command {
 		},
 	}
 
+	addConfigFlag(cmd)
+	addNoConfigFlag(cmd)
 	addIncludeFlag(cmd)
 	addUserOnlyFlag(cmd)
 	addNoIgnoreFlag(cmd)
@@ -116,6 +143,61 @@ func NewRunCommand() *cobra.Command {
 	addFormatFlag(cmd, &format)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
+}
+
+func translateInputs(inputs []string, configDir string) (newInputs []string, err error) {
+	if len(inputs) < 1 {
+		stat, _ := os.Stdin.Stat()
+		if (stat.Mode() & os.ModeCharDevice) == 0 {
+			// Input is stdin
+			newInputs = []string{"-"}
+		} else {
+			if p := viper.GetStringSlice(inputsFlag); p != nil {
+				// Inputs are set in config file
+				newInputs = p
+			} else {
+				// Use CWD which is made relative to configDir if set
+				newInputs, err = translatePaths([]string{"."}, configDir)
+			}
+		}
+	} else {
+		// Use paths specified in CLI args, made relative to configDir if set
+		newInputs, err = translatePaths(inputs, configDir)
+	}
+
+	return
+}
+
+func translateIncludes(cmd *cobra.Command, configDir string) ([]string, error) {
+	if cmd.Flags().Lookup(includeFlag).Changed {
+		includes, err := cmd.Flags().GetStringSlice(includeFlag)
+		if err != nil {
+			return nil, err
+		}
+		return translatePaths(includes, configDir)
+	}
+	return viper.GetStringSlice(includeFlag), nil
+}
+
+func translatePaths(paths []string, configDir string) (newPaths []string, err error) {
+	if configDir == "" {
+		newPaths = paths
+		return
+	}
+
+	newPaths = make([]string, len(paths))
+	for i, p := range paths {
+		absP, err := filepath.Abs(p)
+		if err != nil {
+			return nil, err
+		}
+		newPaths[i], err = filepath.Rel(configDir, absP)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return
 }
 
 func init() {

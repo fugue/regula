@@ -15,11 +15,16 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/reporter"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/thediveo/enumflag"
 )
 
@@ -31,6 +36,9 @@ const inputTypeFlag = "input-type"
 const severityFlag = "severity"
 const formatFlag = "format"
 const traceFlag = "trace"
+const configFlag = "config"
+const noConfigFlag = "no-config"
+const inputsFlag = "inputs"
 
 const inputTypeDescriptions = `
 Input types:
@@ -61,6 +69,7 @@ Severities:
 
 func addUserOnlyFlag(cmd *cobra.Command) {
 	cmd.Flags().BoolP(userOnlyFlag, "u", false, "Disable built-in rules")
+	viper.BindPFlag(userOnlyFlag, cmd.Flags().Lookup(userOnlyFlag))
 }
 
 func addNoTestInputsFlag(cmd *cobra.Command) {
@@ -69,6 +78,7 @@ func addNoTestInputsFlag(cmd *cobra.Command) {
 
 func addIncludeFlag(cmd *cobra.Command) {
 	cmd.Flags().StringSliceP(includeFlag, "i", nil, "Specify additional rego files or directories to include")
+	viper.BindPFlag(includeFlag, cmd.Flags().Lookup(includeFlag))
 }
 
 func addNoIgnoreFlag(cmd *cobra.Command) {
@@ -80,6 +90,7 @@ func addInputTypeFlag(cmd *cobra.Command, inputTypes *[]loader.InputType) {
 		enumflag.NewSlice(inputTypes, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
 		inputTypeFlag, "t",
 		"Search for or assume the input type for the given paths. Can be specified multiple times.")
+	viper.BindPFlag(inputTypeFlag, cmd.Flags().Lookup(inputTypeFlag))
 }
 
 func addSeverityFlag(cmd *cobra.Command, severity *reporter.Severity) {
@@ -87,6 +98,7 @@ func addSeverityFlag(cmd *cobra.Command, severity *reporter.Severity) {
 		enumflag.New(severity, "string", reporter.SeverityIds, enumflag.EnumCaseInsensitive),
 		severityFlag, "s",
 		"Set the minimum severity that will result in a non-zero exit code.")
+	viper.BindPFlag(severityFlag, cmd.Flags().Lookup(severityFlag))
 }
 
 func addFormatFlag(cmd *cobra.Command, format *reporter.Format) {
@@ -100,10 +112,79 @@ func addTraceFlag(cmd *cobra.Command) {
 	cmd.Flags().BoolP(traceFlag, "t", false, "Enable trace output")
 }
 
+func addConfigFlag(cmd *cobra.Command) {
+	cmd.Flags().StringP(configFlag, "c", "", "Path to .regula.yaml file. By default regula will look in the current working directory and its parents.")
+}
+
+func addNoConfigFlag(cmd *cobra.Command) {
+	cmd.Flags().Bool(noConfigFlag, false, "Do not look for or load a regula config file.")
+}
+
 func joinDescriptions(descriptions ...string) string {
 	normalizedDescriptions := make([]string, len(descriptions))
 	for i, d := range descriptions {
 		normalizedDescriptions[i] = strings.TrimSpace(d)
 	}
 	return strings.Join(normalizedDescriptions, "\n\n")
+}
+
+func loadConfigFile(configPath string) error {
+	viper.SetConfigType("yaml")
+
+	if configPath != "" {
+		viper.SetConfigFile(configPath)
+	} else {
+		viper.SetConfigName(".regula.yaml")
+		currDir, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+
+		prevDir := ""
+		for currDir != prevDir {
+			// This is to avoid errors from viper if the user doesn't have permission
+			// to some parent directories.
+			if _, err := os.Stat(currDir); err != nil {
+				break
+			}
+			viper.AddConfigPath(currDir)
+			prevDir = currDir
+			currDir = filepath.Dir(currDir)
+		}
+	}
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			logrus.Debugf("Could not find configuration file: %s", err)
+			// This is only considered an error if the user specified a config file
+			if configPath != "" {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	if p := viper.ConfigFileUsed(); p != "" {
+		logrus.Infof("Using config file '%s'", p)
+	}
+
+	return nil
+}
+
+func setEnumFromConfig(cmd *cobra.Command, flagName string) error {
+	flag := cmd.Flags().Lookup(flagName)
+
+	if flag.Changed {
+		return nil
+	}
+
+	if viper.IsSet(flagName) {
+		value := strings.Join(viper.GetStringSlice(flagName), ",")
+		if err := flag.Value.Set(value); err != nil {
+			return fmt.Errorf("Invalid value for '%s' in config file: %s", flagName, err)
+		}
+	}
+
+	return nil
 }

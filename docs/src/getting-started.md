@@ -96,7 +96,7 @@ For this example, we'll be running Regula on some example Terraform infrastructu
 
 3. Run Regula against the [example Terraform](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf):
 
-        regula run infra_tf -f json
+        regula run infra_tf
 
 You'll see output like this:
 

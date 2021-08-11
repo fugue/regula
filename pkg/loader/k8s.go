@@ -106,12 +106,8 @@ func (l *k8sConfiguration) RegulaInput() RegulaInput {
 	}
 }
 
-func (l *k8sConfiguration) Location(attributePath []string) (*Location, error) {
-	return &Location{
-		Path: l.path,
-		Line: 0,
-		Col:  0,
-	}, nil
+func (l *k8sConfiguration) Location(attributePath []string) (LocationStack, error) {
+	return []Location{}, nil
 }
 
 func (l *k8sConfiguration) LoadedFiles() []string {

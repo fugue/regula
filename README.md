@@ -69,6 +69,16 @@ brew upgrade regula
     setx PATH "%PATH%;C:\regula\bin"
     ```
 
+    Windows (PowerShell):
+
+    ```
+    md C:\regula\bin
+    move regula.exe C:\regula\bin
+    $env:Path += ";C:\regula\bin"
+    # You can add '$env:Path += ";C:\regula\bin"' to your profile.ps1 file to
+    # persist that change across shell sessions.
+    ```
+
 4. _Windows users only:_ Close cmd and re-open it so the changes take effect.
 5. You can now run `regula`.
 
@@ -89,15 +99,17 @@ Usage:
   regula [command]
 
 Available Commands:
-  help        Help about any command
-  repl        Start an interactive session for testing rules with Regula
-  run         Evaluate rules against infrastructure-as-code with Regula.
-  show        Show debug information.
-  test        Run OPA test with Regula.
+  help              Help about any command
+  repl              Start an interactive session for testing rules with Regula
+  run               Evaluate rules against infrastructure as code with Regula.
+  show              Show debug information.
+  test              Run OPA test with Regula.
+  version           Print version information.
+  write-test-inputs Persist dynamically-generated test inputs for use with other Rego interpreters
 
 Flags:
   -h, --help      help for regula
-  -v, --version   version for regula
+  -v, --verbose   verbose output
 
 Use "regula [command] --help" for more information about a command.
 ```
@@ -110,7 +122,7 @@ Visit [regula.dev](https://regula.dev) for more information about Regula, includ
 
 - [Regula's report output](https://regula.dev/report.html)
 - [Integrations](https://regula.dev/integrations/conftest.html)
-- [Writing](https://regula.dev/development/writing-rules.html) and [testing](https://regula.dev/development/rule-development.html) custom rules
+- [Writing](https://regula.dev/development/writing-rules.html) and [testing](https://regula.dev/development/testing-rules.html) custom rules
 - [Configuring waivers and disabling rules](https://regula.dev/configuration.html)
 - and more!
 

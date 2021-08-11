@@ -59,3 +59,135 @@ func TestTf(t *testing.T) {
 		}
 	}
 }
+
+func TestTfResourceLocation(t *testing.T) {
+	dir := filepath.Join("tf_test", "example-terraform-modules")
+	hcl, err := loader.ParseDirectory([]string{}, dir, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	testInputs := []struct {
+		path     []string
+		expected loader.LocationStack
+	}{
+		{
+			path: []string{"aws_security_group.parent"},
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 22,
+					Col:  1,
+				},
+			},
+		},
+		{
+			path: []string{"aws_vpc.parent"},
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 18,
+					Col:  1,
+				},
+			},
+		},
+		{
+			path: []string{"module.child1.aws_vpc.child"},
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "child1", "main.tf"),
+					Line: 9,
+					Col:  1,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 10,
+					Col:  12,
+				},
+			},
+		},
+		{
+			path: []string{"module.child1.module.grandchild1.aws_security_group.grandchild"},
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "child1", "grandchild1", "main.tf"),
+					Line: 9,
+					Col:  1,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "child1", "main.tf"),
+					Line: 6,
+					Col:  12,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 10,
+					Col:  12,
+				},
+			},
+		},
+		{
+			path: []string{"module.child1.module.grandchild1.aws_vpc.grandchild"},
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "child1", "grandchild1", "main.tf"),
+					Line: 5,
+					Col:  1,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "child1", "main.tf"),
+					Line: 6,
+					Col:  12,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 10,
+					Col:  12,
+				},
+			},
+		},
+		{
+			path: []string{"module.child2.aws_security_group.child"},
+			expected: loader.LocationStack{
+				loader.Location{
+					Path: filepath.Join(dir, "child2", "main.tf"),
+					Line: 9,
+					Col:  1,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 14,
+					Col:  12,
+				},
+			},
+		},
+		{
+			path: []string{"module.child2.aws_vpc.child"},
+			expected: []loader.Location{
+				loader.Location{
+					Path: filepath.Join(dir, "child2", "main.tf"),
+					Line: 5,
+					Col:  1,
+				},
+				loader.Location{
+					Path: filepath.Join(dir, "main.tf"),
+					Line: 14,
+					Col:  12,
+				},
+			},
+		},
+	}
+	for _, i := range testInputs {
+		loc, err := hcl.Location(i.path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, i.expected, loc)
+	}
+}
+
+func TestTfFilePathJoin(t *testing.T) {
+	assert.Equal(t, loader.TfFilePathJoin(".", "examples/mssql/"), "examples/mssql/")
+	assert.Equal(t, loader.TfFilePathJoin("modules", "./examples/mssql/"), "modules/examples/mssql/")
+	assert.Equal(t, loader.TfFilePathJoin("examples/mssql/", "../../"), "examples/mssql/../../")
+	assert.Equal(t, loader.TfFilePathJoin("examples/mssql/", "./../../"), "examples/mssql/../../")
+}

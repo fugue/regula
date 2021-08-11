@@ -13,15 +13,17 @@ Usage:
   regula [command]
 
 Available Commands:
-  help        Help about any command
-  repl        Start an interactive session for testing rules with Regula
-  run         Evaluate rules against infrastructure-as-code with Regula.
-  show        Show debug information.
-  test        Run OPA test with Regula.
+  help              Help about any command
+  repl              Start an interactive session for testing rules with Regula
+  run               Evaluate rules against infrastructure as code with Regula.
+  show              Show debug information.
+  test              Run OPA test with Regula.
+  version           Print version information.
+  write-test-inputs Persist dynamically-generated test inputs for use with other Rego interpreters
 
 Flags:
   -h, --help      help for regula
-  -v, --version   version for regula
+  -v, --verbose   verbose output
 
 Use "regula [command] --help" for more information about a command.
 ```
@@ -68,6 +70,9 @@ If an [input type](#input-types) is set with `-t | --input-type`, Regula will on
 
 !!! note
     By default, Regula will exclude paths based on the patterns in the `.gitignore` file for a specified directory. This behavior can be disabled with the `--no-ignore` option.
+
+!!! note
+    See our note about how [Regula handles globbing](#globbing) in commands.
 
 #### Terraform input
 
@@ -193,8 +198,8 @@ Use the `--f | --format FORMAT` flag to specify the output format:
 
     CUSTOM_0001: IAM policies must have a description of at least 25 characters [Low]
 
-        [1]: AWS::IAM::ManagedPolicy.InvalidManagedPolicy01
-             in infra_cfn/invalid_long_description.yaml
+      [1]: InvalidManagedPolicy01
+           in infra_cfn/invalid_long_description.yaml:14:3
 
     Found one problem.
 
@@ -202,7 +207,7 @@ Use the `--f | --format FORMAT` flag to specify the output format:
 
 === "json"
     
-    ```
+    ```json
     {
       "rule_results": [
         {
@@ -210,7 +215,7 @@ Use the `--f | --format FORMAT` flag to specify the output format:
             "CORPORATE-POLICY_1.1"
           ],
           "filepath": "infra_cfn/invalid_long_description.yaml",
-          "platform": "cloudformation",
+          "input_type": "cfn",
           "provider": "aws",
           "resource_id": "InvalidManagedPolicy01",
           "resource_type": "AWS::IAM::ManagedPolicy",
@@ -220,14 +225,21 @@ Use the `--f | --format FORMAT` flag to specify the output format:
           "rule_name": "long_description_cfn",
           "rule_result": "FAIL",
           "rule_severity": "Low",
-          "rule_summary": "IAM policies must have a description of at least 25 characters"
+          "rule_summary": "IAM policies must have a description of at least 25 characters",
+          "source_location": [
+            {
+              "path": "infra_cfn/invalid_long_description.yaml",
+              "line": 14,
+              "column": 3
+            }
+          ]
         },
         {
           "controls": [
             "CORPORATE-POLICY_1.1"
           ],
           "filepath": "infra_cfn/invalid_long_description.yaml",
-          "platform": "cloudformation",
+          "input_type": "cfn",
           "provider": "aws",
           "resource_id": "ValidManagedPolicy01",
           "resource_type": "AWS::IAM::ManagedPolicy",
@@ -237,7 +249,14 @@ Use the `--f | --format FORMAT` flag to specify the output format:
           "rule_name": "long_description_cfn",
           "rule_result": "PASS",
           "rule_severity": "Low",
-          "rule_summary": "IAM policies must have a description of at least 25 characters"
+          "rule_summary": "IAM policies must have a description of at least 25 characters",
+          "source_location": [
+            {
+              "path": "infra_cfn/invalid_long_description.yaml",
+              "line": 3,
+              "column": 3
+            }
+          ]
         }
       ],
       "summary": {
@@ -264,32 +283,32 @@ Use the `--f | --format FORMAT` flag to specify the output format:
 === "table"
 
     ```
-    +------------------------+-------------------------+-----------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
-    |        Resource        |          Type           |                Filepath                 | Severity |   Rule ID   |      Rule Name       |                            Message                             | Result |
-    +------------------------+-------------------------+-----------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
-    | InvalidManagedPolicy01 | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml | Low      | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters | FAIL   |
-    | ValidManagedPolicy01   | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml | Low      | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters | PASS   |
-    +------------------------+-------------------------+-----------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
-    |                        |                         |                                         |          |             |                      |                                                        Overall |   FAIL |
-    +------------------------+-------------------------+-----------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
+    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
+    |        Resource        |          Type           |                   Filepath                   | Severity |   Rule ID   |      Rule Name       |                            Message                             | Result |
+    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
+    | InvalidManagedPolicy01 | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml:14:3 | Low      | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters | FAIL   |
+    | ValidManagedPolicy01   | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml:3:3  | Low      | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters | PASS   |
+    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
+    |                        |                         |                                              |          |             |                      |                                                        Overall | FAIL   |
+    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
     ```
 
 === "junit"
 
-    ```
+    ```xml
     <testsuites name="Regula">
       <testsuite name="infra_cfn/invalid_long_description.yaml" tests="2">
-        <testcase name="InvalidManagedPolicy01" classname="AWS::IAM::ManagedPolicy" assertions="1">
+        <testcase name="infra_cfn/invalid_long_description.yaml#InvalidManagedPolicy01" classname="AWS::IAM::ManagedPolicy" assertions="1">
           <failure message="IAM policies must have a description of at least 25 characters" type="long_description_cfn">Rule ID: CUSTOM_0001&#xA;Rule Name: long_description_cfn&#xA;Severity: Low&#xA;Message: IAM policies must have a description of at least 25 characters</failure>
         </testcase>
-        <testcase name="ValidManagedPolicy01" classname="AWS::IAM::ManagedPolicy" assertions="1"></testcase>
+        <testcase name="infra_cfn/invalid_long_description.yaml#ValidManagedPolicy01" classname="AWS::IAM::ManagedPolicy" assertions="1"></testcase>
       </testsuite>
     </testsuites>
     ```
 
 === "tap"
 
-    ```
+    ```tap
     not ok 0 InvalidManagedPolicy01: IAM policies must have a description of at least 25 characters
     ok 1 ValidManagedPolicy01: IAM policies must have a description of at least 25 characters
     ```
@@ -309,9 +328,12 @@ Flags:
   -u, --user-only   Disable built-in rules
 ```
 
-`regula repl` is the same as OPA's REPL ([`opa run`](https://www.openpolicyagent.org/docs/latest/#3-try-opa-run-interactive)), but with the Regula library and ruleset built in (unless you disable it with `--user-only`). Additionally, Regula's REPL allows you to generate [`mock_input`, `mock_resources`, and `mock_config`](development/rule-development.md#test-inputs) at runtime.
+`regula repl` is the same as OPA's REPL ([`opa run`](https://www.openpolicyagent.org/docs/latest/#3-try-opa-run-interactive)), but with the Regula library and ruleset built in (unless you disable it with `--user-only`). Additionally, Regula's REPL allows you to generate [`mock_input`, `mock_resources`, and `mock_config`](development/test-inputs.md) at runtime.
 
 To view this dynamically generated data, start by loading one or more IaC files or a directory containing IaC files. Note that `regula repl` will only operate on individual files rather than interpreting the entire directory as a single configuration.
+
+!!! note
+    See our note about how [Regula handles globbing](#globbing) in commands.
 
 ### Examples
 This command loads the `infra` directory into the REPL:
@@ -329,7 +351,7 @@ Run 'help' to see a list of commands.
 >
 ```
 
-Then you can [view the input](development/rule-development.md#viewing-test-inputs) using the format shown below:
+Then you can [view the input](development/test-inputs.md#viewing-test-inputs) using the format shown below:
 
 ```
 data.<path.to.file>.<iac filename without extension>_<extension>.<input type>
@@ -368,16 +390,16 @@ You'll see output like this:
 >
 ```
 
-This feature makes it simpler to [write rules](development/writing-rules.md) and [test/debug rules](development/rule-development.md), because you can easily see Regula's resource view for an input file without having to run a separate script.
+This feature makes it simpler to [write rules](development/writing-rules.md) and [test/debug rules](development/writing-tests.md), because you can easily see Regula's resource view for an input file without having to run a separate script.
 
-You can [evaluate test input](development/rule-development.md#test-a-rule-via-regula-repl) if you switch to a rule package and import the dynamically generated data like so:
+You can [evaluate test input](development/testing-rules.md#test-a-rule-via-regula-repl) if you switch to a rule package and import the dynamically generated data like so:
 
 ```
 > package rules.private_bucket_acl
 > import data.infra.cfn_resources_yaml
 ```
 
-Once you've done that, you can evaluate rules using the `mock_input` (advanced rules), `mock_resources` (simple rules), or `mock_config` (for use cases where you want to check configuration outside of resources, such as provider config).
+Once you've done that, you can evaluate rules using the `mock_input` (advanced rules), `mock_resources` (simple rules), or `mock_config` (for use cases where you want to check configuration outside of resources, such as provider config). See [Test Inputs](development/test-inputs.md) for more information about the types of input.
 
 In the example below, we check the resource named `Bucket1` in the IaC file `infra/cfn_resources.yaml` against the rule `allow` in the package `rules.private_bucket_acl`:
 
@@ -391,7 +413,7 @@ Regula returns the result of the evaluation:
 true
 ```
 
-For more information about testing and debugging rules with `regula repl`, see [Rule Development](development/rule-development.md).
+For more information about testing and debugging rules with `regula repl`, see [Writing Tests](development/writing-tests.md), [Testing Rules](development/testing-rules.md), and [Test Inputs](development/test-inputs.md).
 
 ## show
 
@@ -411,7 +433,10 @@ Flags:
 
 `regula show input [file...]` accepts Terraform HCL files or directories, Terraform plan JSON, and CloudFormation templates in YAML or JSON. In all cases, Regula transforms the input file and displays the resulting JSON.
 
-This command is used to facilitate development of Regula itself. If you'd like to see the mock input, mock resources, or mock config for an IaC file so you can develop rules, see [`regula repl`](#repl) and [Rule Development](development/rule-development.md).
+This command is used to facilitate development of Regula itself. If you'd like to see the mock input, mock resources, or mock config for an IaC file so you can develop rules, see [`regula repl`](#repl) and [Test Inputs](development/test-inputs.md#viewing-test-inputs).
+
+!!! note
+    See our note about how [Regula handles globbing](#globbing) in commands.
 
 ### Flag values
 
@@ -435,7 +460,7 @@ Flags:
   -t, --trace   Enable trace output
 ```
 
-`regula test` is the same as [`opa test`](https://www.openpolicyagent.org/docs/latest/policy-testing/), but with the Regula library built in. Additionally, Regula allows you to generate [`mock_input`, `mock_resources`, and `mock_config`](development/rule-development.md#test-inputs) at runtime. That means you can simply pass in an IaC file containing test infrastructure without having to run a script generating the inputs.
+`regula test` is the same as [`opa test`](https://www.openpolicyagent.org/docs/latest/policy-testing/), but with the Regula library built in. Additionally, Regula allows you to generate [`mock_input`, `mock_resources`, and `mock_config`](development/test-inputs.md) at runtime. That means you can simply pass in an IaC file containing test infrastructure without having to run a script generating the inputs.
 
 Files or directories passed in to `regula test` must include the following for each rule tested:
 
@@ -445,7 +470,10 @@ Files or directories passed in to `regula test` must include the following for e
 
 If passed one or more directories, `regula test` recurses through them and runs all `test_` rules it finds. Note that `regula test` will only operate on individual files rather than interpreting the entire directory as a single configuration.
 
-For more information about using `regula test`, see [Rule Development](development/rule-development.md).
+For more information about using `regula test`, see [Testing Rules](development/testing-rules.md).
+
+!!! note
+    See our note about how [Regula handles globbing](#globbing) in commands.
 
 ### Examples
 
@@ -474,6 +502,140 @@ PASS: 141/142
 FAIL: 1/142
 ```
 
+## write-test-inputs
+
+```
+Persist dynamically-generated test inputs for use with other Rego interpreters
+
+Usage:
+  regula write-test-inputs [input...] [flags]
+
+Flags:
+  -h, --help                    help for write-test-inputs
+  -t, --input-type input-type   Set the input type for the given paths (default auto)
+
+Global Flags:
+  -v, --verbose   verbose output
+```
+
+`regula write-test-inputs` allows you to generate test input ([`mock_input`, `mock_resources`, `mock_config`](development/test-inputs.md)) for an IaC file and save the input as a `.rego` file for use with another Rego interpreter, such as [OPA](https://www.openpolicyagent.org/).
+
+The input is saved as `<iac filename without extension>_<extension>.rego` in the same directory as the IaC file. Dashes in the filename are replaced with `_`
+
+!!! note
+    See our note about how [Regula handles globbing](#globbing) in commands.
+
+### Flag values
+
+`-t, --input type INPUT-TYPE` values:
+
+- `auto` -- Automatically determine input types (default)
+- `tf-plan` -- Terraform plan JSON
+- `cfn` -- CloudFormation template in YAML or JSON format
+- `tf` -- Terraform directory or file
+
+### Examples
+
+* Generate test inputs for `infra/cfn_resources.yaml`:
+
+    ```
+    regula write-test-inputs infra/cfn_resources_yaml.rego
+    ```
+
+* Recurse through the current working directory and generate test inputs for all IaC files:
+
+    ```
+    regula write-test-inputs .
+    ```
+
+You'll see output like this:
+
+```
+INFO Loaded 3 IaC configurations as test inputs
+```
+
+#### Example generated file
+
+Here's an example CloudFormation file and its generated test inputs file:
+
+=== "cfn_resources.yaml"
+
+    ```yaml
+    AWSTemplateFormatVersion: '2010-09-09'
+    Resources:
+      ValidManagedPolicy01:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+          Description: 'This is a super long description hooray'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Deny
+              Action: '*'
+              Resource: '*'
+
+      InvalidManagedPolicy01:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+          Description: 'too short'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Deny
+              Action: '*'
+              Resource: '*'
+    ```
+
+=== "cfn_resources_yaml.rego"
+
+    ```ruby
+    package infra.cfn_resources_yaml
+
+    import data.fugue.resource_view.resource_view_input
+
+    mock_input := ret {
+      ret = resource_view_input with input as mock_config
+    }
+    mock_resources := mock_input.resources
+    mock_config := {
+      "AWSTemplateFormatVersion": "2010-09-09",
+      "Resources": {
+        "InvalidManagedPolicy01": {
+          "Properties": {
+            "Description": "too short",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Effect": "Deny",
+                  "Resource": "*"
+                }
+              ],
+              "Version": "2012-10-17"
+            }
+          },
+          "Type": "AWS::IAM::ManagedPolicy"
+        },
+        "ValidManagedPolicy01": {
+          "Properties": {
+            "Description": "This is a super long description hooray",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": "*",
+                  "Effect": "Deny",
+                  "Resource": "*"
+                }
+              ],
+              "Version": "2012-10-17"
+            }
+          },
+          "Type": "AWS::IAM::ManagedPolicy"
+        }
+      }
+    }
+    ```
+
 ## Running Regula with Docker
 
 !!! note
@@ -481,16 +643,45 @@ FAIL: 1/142
 
 Regula is available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
 
-To run Regula on a single CloudFormation template or Terraform plan file, you can use the following command, passing in the template through standard input:
+The default `--workdir` for the Regula container is `/workspace`. To run Regula on your
+current working directory, you can use the following command:
 
-    docker run --rm -it fugue/regula:{{ version }} run < [IAC_TEMPLATE]
+=== "macOS and Linux"
 
-To run Regula on IaC directories or individual CloudFormation templates, HCL files, or Terraform plan JSON files, you can use the following command:
+    ```shell
+    docker run --rm -t -v $(pwd):/workspace fugue/regula:{{ version }} run
+    ```
 
-    docker run --rm -t \
-        -v $(pwd):/workspace \
-        --workdir /workspace \
-        fugue/regula:{{ version }} run template2.yaml tfdirectory1
+=== "Windows (PowerShell)"
+
+    ```powershell
+    docker run --rm -t -v ${pwd}:/workspace fugue/regula:{{ version }} run
+    ```
+
+To run Regula on specific directories or files, you can use the following command:
+
+=== "macOS and Linux"
+
+    ```shell
+    docker run --rm -t -v $(pwd):/workspace \
+      fugue/regula:{{ version }} run src/template2.yaml infra/tfdirectory1
+    ```
+
+=== "Windows (PowerShell)"
+
+    ```powershell
+    # Note that we're using Unix-style paths in the arguments because
+    # fugue/regula is a Linux container.
+    docker run --rm -t -v ${pwd}:/workspace `
+      fugue/regula:{{ version }} run src/template2.yaml infra/tfdirectory1
+    ```
 
 When integrating this in a CI pipeline, we recommend pinning the regula version, e.g. `docker run fugue/regula:{{ version }}`.
 
+## Globbing
+
+To pass an entire directory of files into Regula for any command, such as `regula run`, use the syntax `regula run .` rather than a glob such as `regula run ./*`.
+
+When your shell expands the glob to a list of individual filenames, it may pass in files that Regula doesn't recognize. Regula reports errors when individual files are passed in, but ignores unrecognized files when it recurses a directory.
+
+If you see a `FATAL Unable to detect input type of file` error, check whether you're using globbing.

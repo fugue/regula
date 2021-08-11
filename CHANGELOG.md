@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v1.1.0 (2021-08-05)
+
+### Added
+* Default WORKDIR to `/workspace` in Docker image (#158)
+* Resource line and column numbers in rule results :sunglasses:
+
+### Changed
+* Rule metadata updates (#148) (#153) (#166)
+
+### Fixed
+* Issue with `missing_resource()` rule results excluded from report output (#157)
+* Values for undefined Terraform variables without defaults (#156)
+
+## v1.0.0 (2021-06-29)
+
+### Added
+* Support for _ in flag names, e.g. --input_type=tf_plan
+* A new text format as the default output format
+* Many new Terraform rules! [See the full list on our docs site](https://regula.dev/rules.html).
+
+### Changed
+* Unified input_type values in rules with --input-type flag
+
+### Fixed
+* Bug when reading .tf files from stdin
+* Use specific filepath in report output for tf inputs (#128)
+* Include `data.` prefix in data source type names (e.g. `data.aws_iam_policy_document`) for tf inputs
+
 ## v0.9.1 (2021-06-10)
 
 ### Fixed

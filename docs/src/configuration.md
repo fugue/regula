@@ -31,7 +31,7 @@ If an attribute is not specified for a waiver, Regula assumes a `*` value. Note 
 
 To add a waiver, add a waiver object to the `waivers` set in `fugue.regula.config`:
 
-```rego
+```ruby
 package fugue.regula.config
 
 waivers[waiver] {
@@ -46,7 +46,7 @@ The above example waives a single resource for a single rule.
 
 It is also possible to waive this rule for all resources:
 
-```rego
+```ruby
 package fugue.regula.config
 
 waivers[waiver] {
@@ -60,7 +60,7 @@ In this example, because `resource_id` is omitted, its default value `*` is assu
 
 You can configure multiple waivers by adding to the `waivers` set in `fugue.regula.config`:
 
-```rego
+```ruby
 package fugue.regula.config
 
 waivers[waiver] {
@@ -85,7 +85,7 @@ You can disable rules by `rule_name` (rule package name, omitting the `rules.` s
 
 Here's an example using `rule_id`:
 
-```rego
+```ruby
 package fugue.regula.config
 
 rules[rule] {
@@ -101,7 +101,7 @@ Below is an example using `rule_name`. Note that the `rules.` segment of the pac
 !!! tip
     You can find the `rule_name` by running Regula first and looking for `rule_name` in the report.
 
-```rego
+```ruby
 package fugue.regula.config
 
 rules[rule] {
@@ -114,7 +114,7 @@ rules[rule] {
 
 You can disable multiple rules by adding to the `rules` set in `fugue.regula.config`:
 
-```rego
+```ruby
 package fugue.regula.config
 
 rules[rule] {

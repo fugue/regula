@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/fugue/regula/pkg/git"
 )
 
@@ -62,6 +64,8 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 	for _, path := range options.Paths {
 		if path == "-" {
 			path = stdIn
+		} else {
+			path = filepath.Clean(path)
 		}
 		if configurations.AlreadyLoaded(path) {
 			continue
@@ -141,20 +145,23 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 
 type loadedConfigurations struct {
 	configurations map[string]IACConfiguration
-	loadedPaths    map[string]bool
+	// The corresponding key in configurations for every loaded path
+	loadedPaths map[string]string
 }
 
 func newLoadedConfigurations() *loadedConfigurations {
 	return &loadedConfigurations{
 		configurations: map[string]IACConfiguration{},
-		loadedPaths:    map[string]bool{},
+		loadedPaths:    map[string]string{},
 	}
 }
 
 func (l *loadedConfigurations) AddConfiguration(path string, config IACConfiguration) {
 	l.configurations[path] = config
+	l.loadedPaths[path] = path
 	for _, f := range config.LoadedFiles() {
-		l.loadedPaths[f] = true
+		l.loadedPaths[f] = path
+		logrus.Debugf("loadedPaths[%s] -> %s", f, path)
 	}
 }
 
@@ -171,16 +178,18 @@ func (l *loadedConfigurations) RegulaInput() []RegulaInput {
 	return input
 }
 
-func (l *loadedConfigurations) Location(path string, attributePath []string) (*Location, error) {
-	loader, ok := l.configurations[path]
+func (l *loadedConfigurations) Location(path string, attributePath []string) (LocationStack, error) {
+	canonical, ok := l.loadedPaths[path]
 	if !ok {
 		return nil, fmt.Errorf("Unable to determine location for given path %v and attribute path %v", path, attributePath)
 	}
+	loader, _ := l.configurations[canonical]
 	return loader.Location(attributePath)
 }
 
 func (l *loadedConfigurations) AlreadyLoaded(path string) bool {
-	return l.loadedPaths[path]
+	_, ok := l.loadedPaths[path]
+	return ok
 }
 
 func (l *loadedConfigurations) Count() int {

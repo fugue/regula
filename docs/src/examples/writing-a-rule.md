@@ -18,7 +18,7 @@ We can rephrase this rule as "**Allow** a resource if its description is 25 or m
 
 First, we declare the package name. It should be unique, and it **must** start with `rules.` as we've done here:
 
-```
+```ruby
 package rules.long_description
 ```
 
@@ -26,7 +26,7 @@ package rules.long_description
 
 Adding metadata is optional but strongly encouraged, as it will make Regula's report much more useful:
 
-```
+```ruby
 __rego__metadoc__ := {
   "id": "CUSTOM_0001",
   "title": "IAM policies must have a description of at least 25 characters",
@@ -48,7 +48,7 @@ For details on each of these attributes, see [Adding rule metadata](../developme
 
 Next, specify the Terraform resource type. For simple rules, there must be exactly one `resource_type` declared, and in this case, that's [`aws_iam_policy`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy):
 
-```
+```ruby
 resource_type = "aws_iam_policy"
 ```
 
@@ -58,7 +58,7 @@ When evaluating a rule with [OPA](https://www.openpolicyagent.org/docs/latest/),
 
 However, Regula expects a `false` rather than `undefined` value. We can provide an explicit `false` by setting a default value:
 
-```
+```ruby
 default allow = false
 ```
 
@@ -68,7 +68,7 @@ This way, if the input doesn't contain any resources that meet the `allow` condi
 
 If you're not very familiar with Rego, here's a tip. You can restate a Rego rule like so:
 
-```
+```ruby
 this variable = this value {
   if this condition is met
 }
@@ -76,7 +76,7 @@ this variable = this value {
 
 That means we can start with a skeleton of the `allow` rule (using some pseudocode):
 
-```
+```ruby
 allow = true {
   if this condition is met
 }
@@ -84,7 +84,7 @@ allow = true {
 
 In Rego, the default value given to a variable in the head of a rule is `true`, so you can omit the `= true` in this case:
 
-```
+```ruby
 allow {
   if this condition is met
 }
@@ -94,7 +94,7 @@ Now we just need the condition. In this case, we want to allow a resource **if**
 
 ### Specify the attribute(s) to check
 
-First, we check how to specify the "description" attribute. The best way to do this is to check the [`mock_resources`](../development/rule-development.md#test-inputs) dynamically generated from the test IaC file. In this case, we'll use [infra_tf/main.tf](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) as our test file.
+First, we check how to specify the "description" attribute. The best way to do this is to check the [`mock_resources`](../development/test-inputs.md) dynamically generated from the test IaC file. In this case, we'll use [infra_tf/main.tf](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) as our test file.
 
 To view the `mock_resources`, let's fire up the [REPL](../usage.md#repl):
 
@@ -108,11 +108,11 @@ Now, we enter the package name of the input file, specifying `mock_resources` as
 data.infra_tf.main_tf.mock_resources
 ```
 
-For more details on the package name format, see [our note about test inputs](../development/rule-development.md#a-note-about-test-input).
+For more details on the package name format, see [our note about test inputs](../development/test-inputs.md#a-note-about-test-input-package-names).
 
 You'll see this output:
 
-```
+```json
 {
   "aws_iam_policy.basically_allow_all": {
     "_provider": "aws",
@@ -137,25 +137,25 @@ You'll see this output:
 
 Here you can see that there are two resources defined, both of the type `aws_iam_policy`. The attribute `description` is what we're looking for, and it's located at the level directly beneath the resource ID. That means it's a top-level attribute -- it's not nested under any other attribute.
 
-If you'd like to learn more about using the REPL for developing rules, take a detour to [Rule Development](../development/rule-development.md).
+If you'd like to learn more about using the REPL for developing rules, take a detour to [Test Inputs](../development/test-inputs.md).
 
 ### Specify the condition
 
 With simple rules, we always preface the attribute with `input.` because it represents the resource currently being examined by Regula. So now we have this:
 
-```
+```ruby
 input.description
 ```
 
 We can use the Rego built-in function [`count(collection_or_string)`](https://www.openpolicyagent.org/docs/latest/policy-reference/#aggregates) to check how many characters are in a string. Because we only want to allow strings that are 25 characters or more, our rule logic looks like this:
 
-```
+```ruby
   count(input.description) >= 25
 ```
 
 And when we put the condition inside the `allow` rule, we get this:
 
-```
+```ruby
 allow {
   count(input.description) >= 25
 }
@@ -165,7 +165,7 @@ allow {
 
 Now, here's the complete rule:
 
-```
+```ruby
 package rules.long_description
 
 __rego__metadoc__ := {
@@ -232,8 +232,8 @@ You'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -243,14 +243,21 @@ You'll see this output:
       "rule_name": "long_description",
       "rule_result": "FAIL",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 6,
+          "column": 1
+        }
+      ]
     },
     {
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -260,12 +267,19 @@ You'll see this output:
       "rule_name": "long_description",
       "rule_result": "PASS",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
     }
   ],
   "summary": {
     "filepaths": [
-      "infra_tf"
+      "infra_tf/main.tf"
     ],
     "rule_results": {
       "FAIL": 1,
@@ -288,11 +302,11 @@ As you can see, the IAM policy `aws_iam_policy.basically_deny_all` passed the cu
 
 ## CloudFormation example rule
 
-The process for writing custom rules to check CloudFormation is mostly the same as for Terraform -- the main difference is how you specify the resource type and attribute to check. Additionally, you need to specify `input_type := "cloudformation"` somewhere in the rule.
+The process for writing custom rules to check CloudFormation is mostly the same as for Terraform -- the main difference is how you specify the resource type and attribute to check. Additionally, you need to specify `input_type := "cfn"` somewhere in the rule.
 
 For instance, this is how you'd write `long_description` as a CloudFormation rule. Note that `resource_type` and `Description` are different from the Terraform rule, and `input_type` is present:
 
-```
+```ruby
 package rules.long_description_cfn
 
 __rego__metadoc__ := {
@@ -309,7 +323,7 @@ __rego__metadoc__ := {
   }
 }
 
-input_type := "cloudformation"
+input_type := "cfn"
 
 resource_type = "AWS::IAM::ManagedPolicy"
 

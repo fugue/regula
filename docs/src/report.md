@@ -10,7 +10,7 @@ Here's a snippet of test results from a Regula JSON report:
         "CIS-AWS_v1.3.0_1.20"
       ],
       "filepath": "../test_infra/cfn/cfntest2.yaml",
-      "platform": "cloudformation",
+      "input_type": "cfn",
       "provider": "aws",
       "resource_id": "S3Bucket1",
       "resource_type": "AWS::S3::Bucket",
@@ -20,14 +20,21 @@ Here's a snippet of test results from a Regula JSON report:
       "rule_name": "cfn_s3_block_public_access",
       "rule_result": "PASS",
       "rule_severity": "High",
-      "rule_summary": "S3 buckets should have all `block public access` options enabled"
+      "rule_summary": "S3 buckets should have all `block public access` options enabled",
+      "source_location": [
+        {
+          "path": "../test_infra/cfn/cfntest2.yaml",
+          "line": 3,
+          "column": 3
+        }
+      ]
     },
     {
       "controls": [
         "CIS-AWS_v1.3.0_2.1.1"
       ],
       "filepath": "../test_infra/cfn/cfntest2.yaml",
-      "platform": "cloudformation",
+      "input_type": "cfn",
       "provider": "aws",
       "resource_id": "S3BucketLogs",
       "resource_type": "AWS::S3::Bucket",
@@ -37,14 +44,21 @@ Here's a snippet of test results from a Regula JSON report:
       "rule_name": "cfn_s3_encryption",
       "rule_result": "WAIVED",
       "rule_severity": "High",
-      "rule_summary": "S3 bucket server side encryption should be enabled"
+      "rule_summary": "S3 bucket server side encryption should be enabled",
+      "source_location": [
+        {
+          "path": "../test_infra/cfn/cfntest2.yaml",
+          "line": 12,
+          "column": 3
+        }
+      ]
     },
     {
       "controls": [
         "CIS-Google_v1.0.0_3.6"
       ],
       "filepath": "../test_infra/tf/",
-      "platform": "terraform",
+      "input_type": "tf",
       "provider": "google",
       "resource_id": "google_compute_firewall.rule-2",
       "resource_type": "google_compute_firewall",
@@ -54,7 +68,14 @@ Here's a snippet of test results from a Regula JSON report:
       "rule_name": "tf_google_compute_firewall_no_ingress_22",
       "rule_result": "FAIL",
       "rule_severity": "High",
-      "rule_summary": "VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)"
+      "rule_summary": "VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)",
+      "source_location": [
+        {
+          "path": "../test_infra/tf/",
+          "line": 6,
+          "column": 1
+        }
+      ]
     }
   ],
   "summary": {
@@ -88,9 +109,9 @@ Here's a snippet of test results from a Regula JSON report:
 
 Each entry in the `rule_results` block is the result of a Rego rule evaluation on a resource. All `rule_results` across multiple CloudFormation and Terraform files and directories are aggregated into this block. In the example above:
 
-- The resource `S3Bucket1` configured in the `../test_infra/cfn/cfntest2.yaml` CloudFormation template passed the rule `cfn_s3_block_public_access`
-- The rule `cfn_s3_encryption` was [waived](configuration.md#waiving-rule-results) for the resource `S3BucketLogs` in the `../test_infra/cfn/cfntest2.yaml` template
-- The resource `google_compute_firewall.rule-2` configured in the `../test_infra/tf/` Terraform directory failed the rule `tf_google_compute_firewall_no_ingress_22`
+- The resource `S3Bucket1` configured in the `../test_infra/cfn/cfntest2.yaml` CloudFormation template (line 3, column 3) passed the rule `cfn_s3_block_public_access`
+- The rule `cfn_s3_encryption` was [waived](configuration.md#waiving-rule-results) for the resource `S3BucketLogs` in the `../test_infra/cfn/cfntest2.yaml` template (line 12, column 3)
+- The resource `google_compute_firewall.rule-2` configured in the `../test_infra/tf/` Terraform directory (line 6, column 1) failed the rule `tf_google_compute_firewall_no_ingress_22`
 
 ## Summary
 

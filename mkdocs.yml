@@ -4,18 +4,22 @@ nav:
   - Home: "index.md"
   - "getting-started.md"
   - "usage.md"
+  - "rules.md"
   - "report.md"
   - "configuration.md"
   - Integrations:
-    - "integrations/conftest.md"
-    - "integrations/gh-actions.md"
-    - "integrations/travis.md"
+      - "integrations/conftest.md"
+      - "integrations/gh-actions.md"
+      - "integrations/travis.md"
+      - "integrations/pre-commit.md"
   - Custom Rule Development:
-    - "development/rule-development.md"
-    - "development/writing-rules.md"
+      - "development/writing-rules.md"
+      - "development/writing-tests.md"
+      - "development/testing-rules.md"
+      - "development/test-inputs.md"
   - Examples:
-    - "examples/waive-and-disable.md"
-    - "examples/writing-a-rule.md"
+      - "examples/waive-and-disable.md"
+      - "examples/writing-a-rule.md"
   - "contributing.md"
   - CHANGELOG: "docs-changelog.md"
   - "about.md"
@@ -52,7 +56,7 @@ markdown_extensions:
 site_url: https://regula.dev
 edit_uri: blob/master/docs/
 extra:
-  version: v0.9.1
+  version: v1.1.0
   social:
     - icon: fontawesome/solid/globe
       link: https://www.fugue.co
@@ -77,3 +81,4 @@ plugins:
         "integrations/regula-conftest.md": "integrations/conftest.md"
         "integrations/regula-gh-actions.md": "integrations/gh-actions.md"
         "integrations/regula-travis.md": "integrations/travis.md"
+        "development/rule-development.md": "development/writing-rules.md"

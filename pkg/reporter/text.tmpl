@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {{range $ruleResults := .FailuresByRule}}{{if $ruleResults.Results}}
 {{if $ruleResults.RuleID}}{{Cyan $ruleResults.RuleID}}{{else}}{{Cyan $ruleResults.RuleName}}{{end}}: {{Bold $ruleResults.RuleSummary}} {{Severity $ruleResults.RuleSeverity}}
 {{range $index, $rr := $ruleResults.Results}}
@@ -6,3 +7,37 @@
          {{if $rr.RuleMessage}}{{Italic $rr.RuleMessage}}
 {{end}}{{end}}{{end}}{{end}}
 {{if eq .Summary.RuleResults.FAIL 0}}{{Green "No problems found."}} {{if gt .Summary.RuleResults.PASS 0}}{{Praise | Green | Italic}}{{end}}{{else if eq .Summary.RuleResults.FAIL 1}}{{Red "Found one problem."}}{{else}}{{Red "Found " .Summary.RuleResults.FAIL " problems."}}{{end}}
+=======
+{{/* RANGE OVER ALL RULES */}}
+{{ range $ruleResults := .FailuresByRule -}}
+{{- /* RULE HEADER */ -}}
+{{- if $ruleResults.Results }}
+{{- if $ruleResults.RuleID }}
+{{- Cyan $ruleResults.RuleID }}
+{{- else -}}
+{{- Cyan $ruleResults.RuleName }}
+{{- end -}}: {{- Bold " " $ruleResults.RuleSummary }} {{ Severity $ruleResults.RuleSeverity }}
+{{/* RULE RESULTS FOR A SINGLE RULE */}}
+{{- range $index, $rr := $ruleResults.Results }}
+  {{ ResultIndex $rr $index }} {{ $rr.ResourceID }}
+  {{- range $_, $locationLine := LocationStack $rr }}
+  {{ PadIndex $rr $index }} {{ $locationLine }}
+  {{- end }}
+  {{- if $rr.RuleMessage }}
+  {{ PadIndex $rr $index }} {{ Italic $rr.RuleMessage }}
+  {{- end }}
+{{ end }}
+{{ end }}
+{{- end -}}
+
+{{- /* SUMMARY */ -}}
+{{- if eq .Summary.RuleResults.FAIL 0 }}
+    {{- Green "No problems found." }}
+    {{- if gt .Summary.RuleResults.PASS 0 }} {{ Praise | Green | Italic }}
+    {{- end }}
+{{- else if eq .Summary.RuleResults.FAIL 1 }}
+    {{- Red "Found one problem." }}
+{{- else }}
+    {{- Red "Found " .Summary.RuleResults.FAIL " problems." }}
+{{- end }}
+>>>>>>> master

@@ -40,6 +40,8 @@ input_type = "tf" {
   _ = input.AWSTemplateFormatVersion
 } else = "k8s" {
   _ = input.k8s_resource_view_version
+} else = "unknown" {
+  true
 }
 
 terraform_input_type {

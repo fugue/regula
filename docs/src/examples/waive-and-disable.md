@@ -43,8 +43,8 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -54,14 +54,21 @@ We see this output:
       "rule_name": "long_description",
       "rule_result": "FAIL",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 6,
+          "column": 1
+        }
+      ]
     },
     {
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -71,14 +78,22 @@ We see this output:
       "rule_name": "long_description",
       "rule_result": "PASS",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
     },
     {
       "controls": [
-        "CIS-AWS_v1.2.0_1.22"
+        "CIS-AWS_v1.2.0_1.22",
+        "CIS-AWS_v1.3.0_1.16"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -88,14 +103,22 @@ We see this output:
       "rule_name": "tf_aws_iam_admin_policy",
       "rule_result": "FAIL",
       "rule_severity": "High",
-      "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges"
+      "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 6,
+          "column": 1
+        }
+      ]
     },
     {
       "controls": [
-        "CIS-AWS_v1.2.0_1.22"
+        "CIS-AWS_v1.2.0_1.22",
+        "CIS-AWS_v1.3.0_1.16"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -105,16 +128,24 @@ We see this output:
       "rule_name": "tf_aws_iam_admin_policy",
       "rule_result": "PASS",
       "rule_severity": "High",
-      "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges"
-    }
+      "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
+    },
+    <cut for length>
   ],
   "summary": {
     "filepaths": [
-      "infra_tf"
+      "infra_tf/main.tf"
     ],
     "rule_results": {
       "FAIL": 2,
-      "PASS": 2,
+      "PASS": 4,
       "WAIVED": 0
     },
     "severities": {
@@ -137,7 +168,7 @@ Let's say we want to make an exception for this resource. We're going to waive t
 
 Copy the configuration below into a file named `config.rego` in the root of the `regula-ci-example` directory:
 
-```
+```ruby
 package fugue.regula.config
 
 waivers[waiver] {
@@ -175,8 +206,8 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -186,14 +217,21 @@ We see this output:
       "rule_name": "long_description",
       "rule_result": "WAIVED",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 6,
+          "column": 1
+        }
+      ]
     },
     {
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -203,14 +241,22 @@ We see this output:
       "rule_name": "long_description",
       "rule_result": "PASS",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
     },
     {
       "controls": [
-        "CIS-AWS_v1.2.0_1.22"
+        "CIS-AWS_v1.2.0_1.22",
+        "CIS-AWS_v1.3.0_1.16"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -220,14 +266,22 @@ We see this output:
       "rule_name": "tf_aws_iam_admin_policy",
       "rule_result": "FAIL",
       "rule_severity": "High",
-      "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges"
+      "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 6,
+          "column": 1
+        }
+      ]
     },
     {
       "controls": [
-        "CIS-AWS_v1.2.0_1.22"
+        "CIS-AWS_v1.2.0_1.22",
+        "CIS-AWS_v1.3.0_1.16"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -237,16 +291,24 @@ We see this output:
       "rule_name": "tf_aws_iam_admin_policy",
       "rule_result": "PASS",
       "rule_severity": "High",
-      "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges"
+      "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
     }
+    <cut for length>
   ],
   "summary": {
     "filepaths": [
-      "infra_tf"
+      "infra_tf/main.tf"
     ],
     "rule_results": {
       "FAIL": 1,
-      "PASS": 2,
+      "PASS": 4,
       "WAIVED": 1
     },
     "severities": {
@@ -261,7 +323,7 @@ We see this output:
 }
 ```
 
-This time, there are 1 FAIL, 2 PASS, and 1 WAIVED rule results! You can see in the output that the `rule_result` value is `WAIVED` for the rule `long_description` and resource `aws_iam_policy.basically_allow_all`.
+This time, there are 1 FAIL, 4 PASS, and 1 WAIVED rule results! You can see in the output that the `rule_result` value is `WAIVED` for the rule `long_description` and resource `aws_iam_policy.basically_allow_all`.
 
 Hooray! You've just configured Regula to waive a rule result for a resource. Your next mission: disabling a rule!
 
@@ -271,7 +333,7 @@ For demonstrative purposes, let's [disable](../configuration.md#disabling-rules)
 
 Add the following chunk to the end of `config.rego`:
 
-```
+```ruby
 rules[rule] {
   rule := {
     "rule_name": "tf_aws_iam_admin_policy",
@@ -295,8 +357,8 @@ We'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
@@ -306,14 +368,21 @@ We'll see this output:
       "rule_name": "long_description",
       "rule_result": "WAIVED",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 6,
+          "column": 1
+        }
+      ]
     },
     {
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "infra_tf",
-      "platform": "terraform",
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
@@ -323,16 +392,24 @@ We'll see this output:
       "rule_name": "long_description",
       "rule_result": "PASS",
       "rule_severity": "Low",
-      "rule_summary": "IAM policies must have a description of at least 25 characters"
+      "rule_summary": "IAM policies must have a description of at least 25 characters",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
     }
+    <cut for length>
   ],
   "summary": {
     "filepaths": [
-      "infra_tf"
+      "infra_tf/main.tf"
     ],
     "rule_results": {
       "FAIL": 0,
-      "PASS": 1,
+      "PASS": 3,
       "WAIVED": 1
     },
     "severities": {
@@ -347,7 +424,7 @@ We'll see this output:
 }
 ```
 
-Now there are just two rule results: 1 PASS and 1 WAIVED. As you can see, the rule `tf_aws_iam_admin_policy` was totally ignored.
+Now there are just 4 rule results: 3 PASS and 1 WAIVED. As you can see, the rule `tf_aws_iam_admin_policy` was totally ignored.
 
 Nice job! You just configured Regula to disable a rule. 
 

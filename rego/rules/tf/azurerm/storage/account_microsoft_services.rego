@@ -16,11 +16,14 @@ package rules.tf_azurerm_storage_account_microsoft_services
 __rego__metadoc__ := {
   "id": "FG_R00208",
   "title": "Storage accounts 'Trusted Microsoft Services' access should be enabled",
-  "description": " Enabling \"Trusted Microsoft Services\" allows Azure services (Azure Backup, Azure Site Recovery, Azure DevTest Labs, Azure Event Grid, Azure Event Hubs, Azure Networking, Azure Monitor and Azure SQL Data Warehouse) to access your storage account and bypass any firewall rules.",
+  "description": "Some Microsoft services that interact with storage accounts operate from networks that can't be granted access through network rules. Enabling \"Trusted Microsoft Services\" allows Azure Backup, Azure Site Recovery, Azure Networking, Azure Monitor, and other Azure services to access your storage account and bypass any firewall rules.",
   "custom": {
     "controls": {
       "CIS-Azure_v1.1.0": [
         "CIS-Azure_v1.1.0_3.8"
+      ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_3.7"
       ]
     },
     "severity": "Medium"

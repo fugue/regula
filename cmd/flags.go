@@ -92,6 +92,7 @@ func addInputTypeFlag(cmd *cobra.Command, inputTypes *[]loader.InputType) {
 		inputTypeFlag, "t",
 		"Search for or assume the input type for the given paths. Can be specified multiple times.")
 	viper.BindPFlag(inputTypeFlag, cmd.Flags().Lookup(inputTypeFlag))
+	cmd.Long = joinDescriptions(cmd.Long, inputTypeDescriptions)
 }
 
 func addSeverityFlag(cmd *cobra.Command, severity *reporter.Severity) {
@@ -100,6 +101,7 @@ func addSeverityFlag(cmd *cobra.Command, severity *reporter.Severity) {
 		severityFlag, "s",
 		"Set the minimum severity that will result in a non-zero exit code.")
 	viper.BindPFlag(severityFlag, cmd.Flags().Lookup(severityFlag))
+	cmd.Long = joinDescriptions(cmd.Long, severityDescriptions)
 }
 
 func addFormatFlag(cmd *cobra.Command, format *reporter.Format) {
@@ -107,6 +109,7 @@ func addFormatFlag(cmd *cobra.Command, format *reporter.Format) {
 		enumflag.New(format, "string", reporter.FormatIds, enumflag.EnumCaseInsensitive),
 		formatFlag, "f",
 		"Set the output format")
+	cmd.Long = joinDescriptions(cmd.Long, formatDescriptions)
 }
 
 func addTraceFlag(cmd *cobra.Command) {

@@ -30,7 +30,7 @@ func NewWriteTestInputsCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "write-test-inputs [input...]",
 		Short: description,
-		Long:  joinDescriptions(description, inputTypeDescriptions),
+		Long:  description,
 		Run: func(cmd *cobra.Command, paths []string) {
 			cb := func(r rego.RegoFile) error {
 				return os.WriteFile(r.Path(), r.Raw(), 0644)

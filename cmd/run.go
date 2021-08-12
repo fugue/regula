@@ -39,11 +39,7 @@ func NewRunCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "run [input...]",
 		Short: "Evaluate rules against infrastructure as code with Regula.",
-		Long: joinDescriptions(
-			runDescription,
-			inputTypeDescriptions,
-			formatDescriptions,
-			severityDescriptions),
+		Long:  runDescription,
 		Run: func(cmd *cobra.Command, args []string) {
 			noConfig, err := cmd.Flags().GetBool(noConfigFlag)
 			if err != nil {
@@ -139,8 +135,8 @@ func NewRunCommand() *cobra.Command {
 	addUserOnlyFlag(cmd)
 	addNoIgnoreFlag(cmd)
 	addInputTypeFlag(cmd, &inputTypes)
-	addSeverityFlag(cmd, &severity)
 	addFormatFlag(cmd, &format)
+	addSeverityFlag(cmd, &severity)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

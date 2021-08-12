@@ -30,7 +30,7 @@ func NewShowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "show [item]",
 		Short: "Show debug information.",
-		Long:  joinDescriptions(longDescription, inputTypeDescriptions),
+		Long:  longDescription,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				logrus.Fatal("Expected an item to show")

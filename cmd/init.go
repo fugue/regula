@@ -37,9 +37,8 @@ func NewInitCommand() *cobra.Command {
 		Short: description,
 		Long: joinDescriptions(
 			description,
-			inputTypeDescriptions,
-			formatDescriptions,
-			severityDescriptions),
+			"Pass one or more inputs (like you would with the 'regula run' command) in order to change the default inputs for 'regula run'.",
+		),
 		Run: func(cmd *cobra.Command, paths []string) {
 			configPath := filepath.Join(".", ".regula.yaml")
 			v := viper.New()

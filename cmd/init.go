@@ -29,7 +29,7 @@ import (
 )
 
 func NewInitCommand() *cobra.Command {
-	inputTypes := []loader.InputType{}
+	inputTypes := []loader.InputType{loader.Auto}
 	severity := reporter.Unknown
 	description := "Create a new Regula configuration file in the current working directory."
 	cmd := &cobra.Command{

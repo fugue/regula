@@ -39,6 +39,7 @@ const traceFlag = "trace"
 const configFlag = "config"
 const noConfigFlag = "no-config"
 const inputsFlag = "inputs"
+const forceFlag = "force"
 
 const inputTypeDescriptions = `
 Input types:
@@ -118,6 +119,10 @@ func addConfigFlag(cmd *cobra.Command) {
 
 func addNoConfigFlag(cmd *cobra.Command) {
 	cmd.Flags().Bool(noConfigFlag, false, "Do not look for or load a regula config file.")
+}
+
+func addForceFlag(cmd *cobra.Command) {
+	cmd.Flags().BoolP(forceFlag, "f", false, "Overwrite configuration file without prompting for confirmation.")
 }
 
 func joinDescriptions(descriptions ...string) string {

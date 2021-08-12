@@ -16,10 +16,13 @@ package cmd
 
 import (
 	_ "embed"
+	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/reporter"
+	"github.com/manifoldco/promptui"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -38,9 +41,10 @@ func NewInitCommand() *cobra.Command {
 			formatDescriptions,
 			severityDescriptions),
 		Run: func(cmd *cobra.Command, paths []string) {
+			configPath := filepath.Join(".", ".regula.yaml")
 			v := viper.New()
 			v.SetConfigType("yaml")
-			v.SetConfigFile(filepath.Join(".", ".regula.yaml"))
+			v.SetConfigFile(configPath)
 
 			if cmd.Flags().Lookup(inputTypeFlag).Changed {
 				configuredInputTypes := []string{}
@@ -78,9 +82,27 @@ func NewInitCommand() *cobra.Command {
 				v.Set(inputsFlag, paths)
 			}
 
-			v.WriteConfig()
+			force, err := cmd.Flags().GetBool(forceFlag)
+			if err != nil {
+				logrus.Fatal(err)
+			}
+
+			if _, err := os.Stat(configPath); err == nil {
+				if force || overwritePrompt(configPath) {
+					v.WriteConfig()
+				} else {
+					logrus.Infof("Not overwriting %s", configPath)
+					return
+				}
+			} else {
+				v.WriteConfig()
+			}
+
+			logrus.Infof("Wrote configuration file to %s", configPath)
 		},
 	}
+
+	addForceFlag(cmd)
 	addIncludeFlag(cmd)
 	addUserOnlyFlag(cmd)
 	addInputTypeFlag(cmd, &inputTypes)
@@ -88,6 +110,18 @@ func NewInitCommand() *cobra.Command {
 
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
+}
+
+func overwritePrompt(configPath string) bool {
+	prompt := promptui.Select{
+		Label: fmt.Sprintf("Overwrite existing %s? [Yes/No]", configPath),
+		Items: []string{"Yes", "No"},
+	}
+	_, result, err := prompt.Run()
+	if err != nil {
+		logrus.Fatalf(".regula.yaml exists and unable to prompt to overwrite. Use --force to disable the prompt.")
+	}
+	return result == "Yes"
 }
 
 func init() {

@@ -343,7 +343,6 @@ Global Flags:
   -v, --verbose   verbose output
 ```
 
-
 `regula init` creates a configuration file in your current working directory that you can use to set defaults for `regula run`.
 
 Similar to `git`, `regula run` will look for this configuration file in your current working directory and its parent directories.
@@ -364,11 +363,11 @@ waivers[waiver] {
 }
 ```
 
-In order for regula to match the filepath in the waiver to the your cloudformation template, you would always need
+In order for regula to match the filepath in the waiver to your cloudformation template, you would always need
 to run regula in the parent directory of `infra`. Unless, of course, you're using a regula configuration file:
 
 ```shell
-# Here I'm showing the layout of my project
+# Here I'm showing the layout of the project
 $ tree
 .
 ├── README.md
@@ -379,12 +378,12 @@ $ tree
 └── src
     └── some_files
 
-# Now I'll create a configuration file in my project's root directory and indicate that
+# Now I'll create a configuration file in the project's root directory and indicate that
 # by default, I'd like to run regula against my 'infra' directory.
 $ regula init --include config/waivers.rego infra
 
-# And now I can run regula from anywhere within my project and it will apply the
-# defaults from my configuration file and correctly apply the waiver.
+# And now I can run regula from anywhere within the project and it will apply the
+# defaults from the configuration file and correctly apply the waiver.
 $ cd src
 $ regula run
 INFO Using config file '/Users/jason/workspace/my-project/.regula.yaml' 

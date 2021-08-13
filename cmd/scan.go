@@ -18,9 +18,11 @@ import (
 	"bytes"
 	"context"
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
@@ -30,8 +32,12 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	opa "github.com/open-policy-agent/opa/rego"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"github.com/thediveo/enumflag"
 )
 
 const (
@@ -77,48 +83,66 @@ func getFugueClient() (*client.Fugue, runtime.ClientAuthInfoWriter) {
 func NewScanCommand() *cobra.Command {
 	inputTypes := []loader.InputType{loader.Auto}
 	cmd := &cobra.Command{
-		Use:   "scan [input...]",
+		Use:   "scan [directory with regula config]",
 		Short: "Run regula and upload results to Fugue SaaS",
 		Run: func(cmd *cobra.Command, paths []string) {
-			includes, err := cmd.Flags().GetStringSlice("include")
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			userOnly, err := cmd.Flags().GetBool("user-only")
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			noIgnore, err := cmd.Flags().GetBool("no-ignore")
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			environmentId, err := cmd.Flags().GetString("environment-id")
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			ctx := context.Background()
-			if err != nil {
-				logrus.Fatal(err.Error())
-			}
-			if len(paths) < 1 {
-				stat, _ := os.Stdin.Stat()
-				if (stat.Mode() & os.ModeCharDevice) == 0 {
-					paths = []string{"-"}
-				} else {
-					// Not using os.Getwd here so that we get relative paths.
-					// A single dot should mean the same on windows.
-					paths = []string{"."}
+			if len(paths) > 1 {
+				logrus.Fatal("regula scan only takes one directory that contains a regula configuration file.")
+			} else if len(paths) == 1 {
+				if err := os.Chdir(paths[0]); err != nil {
+					logrus.Fatal(err)
 				}
 			}
+
+			viper.BindEnv(environmentIdFlag)
+
+			if err := loadConfigFile(""); err != nil {
+				logrus.Fatal(err)
+			}
+			if c := viper.ConfigFileUsed(); c == "" {
+				logrus.Fatal("A configuration file is required for regula scan.")
+			}
+
+			// Need to find a better long-term solution for enums with viper. These
+			// libraries do not play nicely with eachother.
+			flagSet := pflag.NewFlagSet("", pflag.ExitOnError)
+			pf := flagSet.VarPF(
+				enumflag.NewSlice(&inputTypes, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
+				inputTypeFlag,
+				"",
+				"",
+			)
+			if viper.IsSet(inputTypeFlag) {
+				value := strings.Join(viper.GetStringSlice(inputTypeFlag), ",")
+				if err := pf.Value.Set(value); err != nil {
+					logrus.Fatal(fmt.Errorf("Invalid value for '%s' in config file: %s", inputTypeFlag, err))
+				}
+			}
+
+			userOnly := viper.GetBool(userOnlyFlag)
+			environmentId := viper.GetString(environmentIdFlag)
+			if environmentId == "" {
+				logrus.Fatal("An environment ID is required for regula scan. It can be set either in the regula configuration file or via the ENVIRONMENT_ID environment variable.")
+			}
+			var inputs []string
+			if p := viper.GetStringSlice(inputsFlag); p != nil {
+				// Inputs are set in config file
+				inputs = p
+			} else {
+				// Otherwise use CWD
+				inputs = []string{"."}
+			}
+
+			includes := viper.GetStringSlice(includeFlag)
+			ctx := context.Background()
 
 			// Check that we can construct a client.
 			client, auth := getFugueClient()
 
 			// Load files first.
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
-				Paths:       paths,
-				InputTypes:  inputTypes,
-				NoGitIgnore: noIgnore,
+				Paths:      inputs,
+				InputTypes: inputTypes,
 			})
 			if err != nil {
 				logrus.Fatal(err)
@@ -186,13 +210,18 @@ func NewScanCommand() *cobra.Command {
 		},
 	}
 
-	addIncludeFlag(cmd)
-	addUserOnlyFlag(cmd)
-	addNoIgnoreFlag(cmd)
-	addInputTypeFlag(cmd, &inputTypes)
-	addEnvironmentIdFlag(cmd)
-	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
+}
+
+func jsonMarshal(r *opa.Result) (string, error) {
+	buf := &bytes.Buffer{}
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(r.Expressions[0].Value); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
 
 func init() {

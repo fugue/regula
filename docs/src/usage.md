@@ -391,6 +391,26 @@ INFO Using config file '/Users/jason/workspace/my-project/.regula.yaml'
 No problems found. Keep up the good work.
 ```
 
+### Examples
+
+Disable all built-in rules and add custom rules from a `rules` directory:
+
+```
+regula init --user-only --include rules
+```
+
+Configure some specific inputs and the severity flag:
+
+```
+regula init --severity high src/*/cloudformation.yaml
+```
+
+Configure which input types Regula should search for:
+
+```
+regula init --input-type tf --input-type cfn
+```
+
 ## repl
 
 ```

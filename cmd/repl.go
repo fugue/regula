@@ -37,7 +37,7 @@ func NewREPLCommand() *cobra.Command {
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			ctx := context.TODO()
+			ctx := context.Background()
 			err = rego.RunREPL(&rego.RunREPLOptions{
 				Ctx:          ctx,
 				UserOnly:     userOnly,

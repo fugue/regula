@@ -79,7 +79,7 @@ func NewRunCommand() *cobra.Command {
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			ctx := context.TODO()
+			ctx := context.Background()
 
 			if configDir != "" {
 				// Changing directories is the easiest and most robust way to

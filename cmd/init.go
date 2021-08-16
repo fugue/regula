@@ -57,6 +57,13 @@ func NewInitCommand() *cobra.Command {
 			}
 
 			if cmd.Flags().Lookup(severityFlag).Changed {
+				// These conditions hopefully aren't possible
+				if _, ok := reporter.SeverityIds[severity]; !ok {
+					logrus.Fatalf("Invalid severity %s", severity)
+				}
+				if len(reporter.SeverityIds[severity]) < 1 {
+					logrus.Fatalf("Could not map string value for severity %s", severity)
+				}
 				configuredSeverity := reporter.SeverityIds[severity][0]
 				v.Set(severityFlag, configuredSeverity)
 			}

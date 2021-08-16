@@ -167,3 +167,25 @@ regula init --include config/waivers.rego --include our_custom_rules infra/*.yam
 ```
 
 Afterwards, you'll be able to invoke `regula run` without any options and it will use the defaults you set with `regula init`.
+
+### Search path for configuration files
+
+By default, `regula run` will look for a `.regula.yaml` configuration file in your current working directory. If it doesn't find one, it will search upwards through each parent directory until it either finds a configuration file or it reaches the volume root. For example, in the working directory `/Users/jason/workspace/project`, `regula run` would look for a configuration file in the following locations in order:
+
+* `/Users/jason/workspace/project`
+* `/Users/jason/workspace`
+* `/Users/jason`
+* `/Users`
+* `/`
+
+Alternatively, you can use the `--config` option in `regula run` to point to a specific file. This is helpful if you're in a directory outside of your project, e.g.:
+
+```
+regula run --config project/.regula.yaml
+```
+
+You can also disable the configuration file feature with the `--no-config` option:
+
+```
+regula run --no-config
+```

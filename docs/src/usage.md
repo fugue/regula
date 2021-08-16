@@ -345,7 +345,7 @@ Global Flags:
 
 `regula init` creates a configuration file in your current working directory that you can use to set defaults for `regula run`.
 
-Similar to `git`, `regula run` will look for this configuration file in your current working directory and its parent directories.
+Similar to `git`, `regula run` will look for this configuration file in your current working directory, followed by its parent directories.
 
 Besides setting defaults for `regula run`, the configuration file also helps regula calculate relative paths for your inputs. As an
 example of why this is useful, say you've got this `waivers.rego` file that waives the "S3 buckets should have all `block public access` options enabled"

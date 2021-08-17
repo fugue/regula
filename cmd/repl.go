@@ -29,15 +29,15 @@ func NewREPLCommand() *cobra.Command {
 		Use:   "repl [paths containing rego or test inputs]",
 		Short: "Start an interactive session for testing rules with Regula",
 		Run: func(cmd *cobra.Command, includes []string) {
-			userOnly, err := cmd.Flags().GetBool("user-only")
+			userOnly, err := cmd.Flags().GetBool(userOnlyFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			noTestInputs, err := cmd.Flags().GetBool("no-test-inputs")
+			noTestInputs, err := cmd.Flags().GetBool(noTestInputsFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			ctx := context.TODO()
+			ctx := context.Background()
 			err = rego.RunREPL(&rego.RunREPLOptions{
 				Ctx:          ctx,
 				UserOnly:     userOnly,
@@ -51,8 +51,8 @@ func NewREPLCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
-	cmd.Flags().Bool("no-test-inputs", false, "Disable loading test inputs")
+	addUserOnlyFlag(cmd)
+	addNoTestInputsFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

@@ -9,8 +9,8 @@ import (
 
 func TestLoadPathsDirAuto(t *testing.T) {
 	loadedConfigs, err := loader.LoadPaths(loader.LoadPathsOptions{
-		Paths:     []string{"test_inputs/data"},
-		InputType: loader.Auto,
+		Paths:      []string{"test_inputs/data"},
+		InputTypes: []loader.InputType{loader.Auto},
 	})
 	assert.Nil(t, err)
 	assert.NotNil(t, loadedConfigs)
@@ -25,7 +25,7 @@ func TestLoadPathsFiles(t *testing.T) {
 			"test_inputs/data/cfn.yaml",
 			"test_inputs/data/tfplan.0.15.json",
 		},
-		InputType: loader.Auto,
+		InputTypes: []loader.InputType{loader.Auto},
 	})
 	assert.Nil(t, err)
 	assert.NotNil(t, loadedConfigs)
@@ -36,8 +36,8 @@ func TestLoadPathsFiles(t *testing.T) {
 
 func TestLoadPathsDirWithType(t *testing.T) {
 	loadedConfigs, err := loader.LoadPaths(loader.LoadPathsOptions{
-		Paths:     []string{"test_inputs/data"},
-		InputType: loader.TfPlan,
+		Paths:      []string{"test_inputs/data"},
+		InputTypes: []loader.InputType{loader.TfPlan},
 	})
 	assert.Nil(t, err)
 	assert.NotNil(t, loadedConfigs)

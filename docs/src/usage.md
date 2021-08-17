@@ -14,6 +14,7 @@ Usage:
 
 Available Commands:
   help              Help about any command
+  init              Create a new Regula configuration file in the current working directory.
   repl              Start an interactive session for testing rules with Regula
   run               Evaluate rules against infrastructure as code with Regula.
   show              Show debug information.
@@ -37,13 +38,18 @@ Usage:
   regula run [input...] [flags]
 
 Flags:
-  -f, --format format           Set the output format (default text)
-  -h, --help                    help for run
-  -i, --include strings         Specify additional rego files or directories to include
-  -t, --input-type input-type   Set the input type for the given paths (default auto)
-  -n, --no-ignore               Disable use of .gitignore
-  -s, --severity severity       Set the minimum severity that will result in a non-zero exit code. (default unknown)
-  -u, --user-only               Disable built-in rules
+  -c, --config string       Path to .regula.yaml file. By default regula will look in the current working directory and its parents.
+  -f, --format string       Set the output format (default "text")
+  -h, --help                help for run
+  -i, --include strings     Specify additional rego files or directories to include
+  -t, --input-type string   Search for or assume the input type for the given paths. Can be specified multiple times. (default "[auto]")
+      --no-config           Do not look for or load a regula config file.
+  -n, --no-ignore           Disable use of .gitignore
+  -s, --severity string     Set the minimum severity that will result in a non-zero exit code. (default "unknown")
+  -u, --user-only           Disable built-in rules
+
+Global Flags:
+  -v, --verbose   verbose output
 ```
 
 ### Input
@@ -314,6 +320,96 @@ Use the `--f | --format FORMAT` flag to specify the output format:
     ```
 
 For more about Regula's output, see [Report Output](report.md).
+
+## init
+
+```
+Create a new Regula configuration file in the current working directory.
+
+Pass one or more inputs (like you would with the 'regula run' command) in order to change the default inputs for 'regula run'.
+
+Usage:
+  regula init [input...] [flags]
+
+Flags:
+  -f, --force               Overwrite configuration file without prompting for confirmation.
+  -h, --help                help for init
+  -i, --include strings     Specify additional rego files or directories to include
+  -t, --input-type string   Search for or assume the input type for the given paths. Can be specified multiple times. (default "[auto]")
+  -s, --severity string     Set the minimum severity that will result in a non-zero exit code. (default "unknown")
+  -u, --user-only           Disable built-in rules
+
+Global Flags:
+  -v, --verbose   verbose output
+```
+
+`regula init` creates a configuration file in your current working directory that you can use to set defaults for `regula run`.
+
+Similar to `git`, `regula run` will look for this configuration file in your current working directory, followed by its parent directories.
+
+Besides setting defaults for `regula run`, the configuration file also helps regula calculate relative paths for your inputs. As an
+example of why this is useful, say you've got this `waivers.rego` file that waives the "S3 buckets should have all `block public access` options enabled"
+rule on a bucket hosts your company's website:
+
+```ruby
+package fugue.regula.config
+
+waivers[waiver] {
+  waiver := {
+    "filepath": "infra/cloudformation.yaml",
+    "resource_id": "WebsiteBucket",
+    "rule_id": "FG_R00031",
+  }
+}
+```
+
+In order for regula to match the filepath in the waiver to your cloudformation template, you would always need
+to run regula in the parent directory of `infra`. Unless, of course, you're using a regula configuration file:
+
+```shell
+# Here I'm showing the layout of the project
+$ tree
+.
+├── README.md
+├── config
+│   └── waivers.rego
+├── infra
+│   └── cloudformation.yaml
+└── src
+    └── some_files
+
+# Now I'll create a configuration file in the project's root directory and indicate that
+# by default, I'd like to run regula against my 'infra' directory.
+$ regula init --include config/waivers.rego infra
+
+# And now I can run regula from anywhere within the project and it will apply the
+# defaults from the configuration file and correctly apply the waiver.
+$ cd src
+$ regula run
+INFO Using config file '/Users/jason/workspace/my-project/.regula.yaml' 
+
+No problems found. Keep up the good work.
+```
+
+### Examples
+
+Disable all built-in rules and add custom rules from a `rules` directory:
+
+```
+regula init --user-only --include rules
+```
+
+Configure some specific inputs and the severity flag:
+
+```
+regula init --severity high src/*/cloudformation.yaml
+```
+
+Configure which input types Regula should search for:
+
+```
+regula init --input-type tf --input-type cfn
+```
 
 ## repl
 

@@ -142,3 +142,50 @@ For instance, if you have an S3 bucket that hosts a static website, you can waiv
 In contrast, if you don't want the "block public access" rule applied to *any* S3 bucket, you can disable it and Regula will ignore the rule. No rule results will be calculated, and therefore the rule won't be included in Regula's report.
 
 (You could alternatively waive the rule for all resources, in which case you'd still see a WAIVE value for each rule result in Regula's report.)
+
+## Setting defaults for regula run
+
+Regula can use an optional `.regula.yaml` configuration file to set some default options and inputs for `regula run`. The following options can be set in the configuration file:
+
+```
+  -i, --include strings     Specify additional rego files or directories to include
+  -t, --input-type string   Search for or assume the input type for the given paths. Can be specified multiple times. (default "[auto]")
+  -s, --severity string     Set the minimum severity that will result in a non-zero exit code. (default "unknown")
+  -u, --user-only           Disable built-in rules
+```
+
+To create the configuration file, run `regula init [input...] [flags]`. An easy way to setup the configuration file is to use `regula run` to figure out which options you want to set:
+
+```
+regula run --include config/waivers.rego --include our_custom_rules infra/*.yaml
+```
+
+and then replace `run` with `init`:
+
+```
+regula init --include config/waivers.rego --include our_custom_rules infra/*.yaml
+```
+
+Afterwards, you'll be able to invoke `regula run` without any options and it will use the defaults you set with `regula init`.
+
+### Search path for configuration files
+
+By default, `regula run` will look for a `.regula.yaml` configuration file in your current working directory. If it doesn't find one, it will search upwards through each parent directory until it either finds a configuration file or it reaches the volume root. For example, in the working directory `/Users/jason/workspace/project`, `regula run` would look for a configuration file in the following locations in order:
+
+* `/Users/jason/workspace/project`
+* `/Users/jason/workspace`
+* `/Users/jason`
+* `/Users`
+* `/`
+
+Alternatively, you can use the `--config` option in `regula run` to point to a specific file. This is helpful if you're in a directory outside of your project, e.g.:
+
+```
+regula run --config project/.regula.yaml
+```
+
+You can also disable the configuration file feature with the `--no-config` option:
+
+```
+regula run --no-config
+```

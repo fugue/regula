@@ -27,7 +27,7 @@ import (
 
 type LoadPathsOptions struct {
 	Paths       []string
-	InputType   InputType
+	InputTypes  []InputType
 	NoGitIgnore bool
 	IgnoreDirs  bool
 }
@@ -42,7 +42,17 @@ func (e *NoLoadableConfigsError) Error() string {
 
 func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 	configurations := newLoadedConfigurations()
-	detector, err := DetectorByInputType(options.InputType)
+	detector, err := DetectorByInputTypes(options.InputTypes)
+	// We want to ignore file extension mismatches when 'auto' is not present in
+	// the selected input types and there is only one input type selected.
+	autoInputTypeSelected := false
+	for _, t := range options.InputTypes {
+		if t == Auto {
+			autoInputTypeSelected = true
+			break
+		}
+	}
+	ignoreFileExtension := !autoInputTypeSelected && len(options.InputTypes) < 2
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +119,7 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 				return nil, err
 			}
 			loader, err := i.DetectType(detector, DetectOptions{
-				IgnoreExt:  options.InputType != Auto,
+				IgnoreExt:  ignoreFileExtension,
 				IgnoreDirs: options.IgnoreDirs,
 			})
 			if err != nil {
@@ -124,7 +134,7 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 		} else {
 			i := newFile(path, name)
 			loader, err := i.DetectType(detector, DetectOptions{
-				IgnoreExt: options.InputType != Auto,
+				IgnoreExt: ignoreFileExtension,
 			})
 			if err != nil {
 				return nil, err
@@ -196,7 +206,7 @@ func (l *loadedConfigurations) Count() int {
 	return len(l.configurations)
 }
 
-func DetectorByInputType(inputType InputType) (ConfigurationDetector, error) {
+func detectorByInputType(inputType InputType) (ConfigurationDetector, error) {
 	switch inputType {
 	case Auto:
 		return NewAutoDetector(
@@ -213,4 +223,28 @@ func DetectorByInputType(inputType InputType) (ConfigurationDetector, error) {
 	default:
 		return nil, fmt.Errorf("Unsupported input type: %v", inputType)
 	}
+}
+
+func DetectorByInputTypes(inputTypes []InputType) (ConfigurationDetector, error) {
+	if len(inputTypes) == 0 {
+		return detectorByInputType(Auto)
+	} else if len(inputTypes) == 1 {
+		return detectorByInputType(inputTypes[0])
+	}
+
+	detectors := []ConfigurationDetector{}
+	for _, inputType := range inputTypes {
+		if inputType == Auto {
+			// Auto includes all other detector types
+			return detectorByInputType(inputType)
+		}
+
+		detector, err := detectorByInputType(inputType)
+		if err != nil {
+			return nil, err
+		}
+		detectors = append(detectors, detector)
+	}
+
+	return NewAutoDetector(detectors...), nil
 }

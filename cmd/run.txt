@@ -1,33 +1,8 @@
-Evaluate rules against infrastructure-as-code contained in one or more paths. When run
-without any paths, Regula will recursively search for IaC configurations within the
-working directory. When a directory is given Regula will recursively search for IaC
-configurations within that directory. When a file is given, Regula will assume that the
-file contains an IaC configuration. If an input type is set, Regula will only search
-for configurations of that type in the specified directories and it will assume that
-specified files are of that input type.
+Evaluate rules against infrastructure-as-code contained in one or more paths.
+
+When run without any paths, Regula will recursively search for IaC configurations within
+the working directory or use the input paths specified in your .regula.yaml file if
+it exists.
 
 By default, Regula will exclude paths based on the patterns in the .gitignore file for
 a specified directory. This behavior can be disabled with the --no-ignore option.
-
-Input types:
-    auto        Automatically determine input types (default)
-    tf-plan     Terraform plan JSON
-    cfn         CloudFormation template in YAML or JSON format
-    tf          Terraform directory or file
-
-Output formats:
-    text    A human friendly format (default)
-    json    A JSON report containing rule results and a summary
-    table   An ASCII table of rule results
-    junit   The JUnit XML format
-    tap     The Test Anything Protocol format
-    none    Do not print any output on stdout
-
-Severities:
-    unknown         Lowest setting. Used for rules without a severity specified (default)
-    informational
-    low
-    medium
-    high
-    critical
-    off             Never exit with a non-zero exit code.

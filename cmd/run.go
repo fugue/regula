@@ -19,57 +19,81 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/thediveo/enumflag"
+	"github.com/spf13/viper"
 )
 
 //go:embed run.txt
-var longDescription string
+var runDescription string
 
 func NewRunCommand() *cobra.Command {
-	var inputType loader.InputType
+	inputTypes := []loader.InputType{loader.Auto}
 	format := reporter.Text
 	severity := reporter.Unknown
 	cmd := &cobra.Command{
 		Use:   "run [input...]",
 		Short: "Evaluate rules against infrastructure as code with Regula.",
-		Long:  longDescription,
-		Run: func(cmd *cobra.Command, paths []string) {
-			includes, err := cmd.Flags().GetStringSlice("include")
+		Long:  runDescription,
+		Run: func(cmd *cobra.Command, args []string) {
+			noConfig, err := cmd.Flags().GetBool(noConfigFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			userOnly, err := cmd.Flags().GetBool("user-only")
+
+			var configDir string
+			if !noConfig {
+				configPath, err := cmd.Flags().GetString(configFlag)
+				if err != nil {
+					logrus.Fatal(err)
+				}
+				if err := loadConfigFile(configPath); err != nil {
+					logrus.Fatal(err)
+				}
+				if err := setEnumFromConfig(cmd, inputTypeFlag); err != nil {
+					logrus.Fatal(err)
+				}
+				if err := setEnumFromConfig(cmd, severityFlag); err != nil {
+					logrus.Fatal(err)
+				}
+				if c := viper.ConfigFileUsed(); c != "" {
+					configDir = filepath.Dir(c)
+				}
+			}
+
+			includes, err := translateIncludes(cmd, configDir)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			noIgnore, err := cmd.Flags().GetBool("no-ignore")
+			inputs, err := translateInputs(args, configDir)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			ctx := context.TODO()
+			userOnly := viper.GetBool(userOnlyFlag)
+			noIgnore, err := cmd.Flags().GetBool(noIgnoreFlag)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			if len(paths) < 1 {
-				stat, _ := os.Stdin.Stat()
-				if (stat.Mode() & os.ModeCharDevice) == 0 {
-					paths = []string{"-"}
-				} else {
-					// Not using os.Getwd here so that we get relative paths.
-					// A single dot should mean the same on windows.
-					paths = []string{"."}
+			ctx := context.Background()
+
+			if configDir != "" {
+				// Changing directories is the easiest and most robust way to
+				// get all paths relative to the config file.
+				if err := os.Chdir(configDir); err != nil {
+					// Not sure whether this error is possible here since we were
+					// able to load the file. But, just in case.
+					logrus.Fatal(fmt.Errorf("Unable to change to config file directory: %s", err))
 				}
 			}
 
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
-				Paths:       paths,
-				InputType:   inputType,
+				Paths:       inputs,
+				InputTypes:  inputTypes,
 				NoGitIgnore: noIgnore,
 			})
 			if err != nil {
@@ -105,23 +129,71 @@ func NewRunCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringSliceP("include", "i", nil, "Specify additional rego files or directories to include")
-	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
-	cmd.Flags().BoolP("no-ignore", "n", false, "Disable use of .gitignore")
-	cmd.Flags().VarP(
-		enumflag.New(&inputType, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
-		"input-type", "t",
-		"Set the input type for the given paths")
-	cmd.Flags().VarP(
-		enumflag.New(&severity, "string", reporter.SeverityIds, enumflag.EnumCaseInsensitive),
-		"severity", "s",
-		"Set the minimum severity that will result in a non-zero exit code.")
-	cmd.Flags().VarP(
-		enumflag.New(&format, "string", reporter.FormatIds, enumflag.EnumCaseInsensitive),
-		"format", "f",
-		"Set the output format")
+	addConfigFlag(cmd)
+	addNoConfigFlag(cmd)
+	addIncludeFlag(cmd)
+	addUserOnlyFlag(cmd)
+	addNoIgnoreFlag(cmd)
+	addInputTypeFlag(cmd, &inputTypes)
+	addFormatFlag(cmd, &format)
+	addSeverityFlag(cmd, &severity)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
+}
+
+func translateInputs(inputs []string, configDir string) (newInputs []string, err error) {
+	if len(inputs) < 1 {
+		stat, _ := os.Stdin.Stat()
+		if (stat.Mode() & os.ModeCharDevice) == 0 {
+			// Input is stdin
+			newInputs = []string{"-"}
+		} else {
+			if p := viper.GetStringSlice(inputsFlag); p != nil {
+				// Inputs are set in config file
+				newInputs = p
+			} else {
+				// Use CWD which is made relative to configDir if set
+				newInputs, err = translatePaths([]string{"."}, configDir)
+			}
+		}
+	} else {
+		// Use paths specified in CLI args, made relative to configDir if set
+		newInputs, err = translatePaths(inputs, configDir)
+	}
+
+	return
+}
+
+func translateIncludes(cmd *cobra.Command, configDir string) ([]string, error) {
+	if cmd.Flags().Lookup(includeFlag).Changed {
+		includes, err := cmd.Flags().GetStringSlice(includeFlag)
+		if err != nil {
+			return nil, err
+		}
+		return translatePaths(includes, configDir)
+	}
+	return viper.GetStringSlice(includeFlag), nil
+}
+
+func translatePaths(paths []string, configDir string) (newPaths []string, err error) {
+	if configDir == "" {
+		newPaths = paths
+		return
+	}
+
+	newPaths = make([]string, len(paths))
+	for i, p := range paths {
+		absP, err := filepath.Abs(p)
+		if err != nil {
+			return nil, err
+		}
+		newPaths[i], err = filepath.Rel(configDir, absP)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return
 }
 
 func init() {

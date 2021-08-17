@@ -174,7 +174,7 @@ func loadConfigFile(configPath string) error {
 	}
 
 	if p := viper.ConfigFileUsed(); p != "" {
-		logrus.Infof("Using config file '%s'", p)
+		fmt.Fprintf(os.Stderr, "Using config file '%s'\n", p)
 	}
 
 	return nil

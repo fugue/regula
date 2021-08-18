@@ -10,8 +10,9 @@ MOCKS = $(wildcard pkg/mocks/*.go)
 REGO_LIB_SOURCE = $(shell find rego/lib -type f -name '*.rego')
 REGO_RULES_SOURCE = $(shell find rego/rules -type f -name '*.rego')
 GITCOMMIT = $(shell git rev-parse --short HEAD 2> /dev/null || true)
+BUILD_TYPE ?= dev
 define LDFLAGS
-    -X \"github.com/fugue/regula/pkg/version.Version=$(VERSION)-dev\" \
+    -X \"github.com/fugue/regula/pkg/version.Version=$(VERSION)-$(BUILD_TYPE)\" \
     -X \"github.com/fugue/regula/pkg/version.GitCommit=$(GITCOMMIT)\"
 endef
 CLI_BUILD = go build -ldflags="$(LDFLAGS) -s -w"

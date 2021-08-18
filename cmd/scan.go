@@ -32,7 +32,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/thediveo/enumflag"
 )
 
 const (
@@ -76,11 +75,10 @@ func getFugueClient() (*client.Fugue, runtime.ClientAuthInfoWriter) {
 }
 
 func NewScanCommand() *cobra.Command {
-	var inputType loader.InputType
+	inputTypes := []loader.InputType{loader.Auto}
 	cmd := &cobra.Command{
 		Use:   "scan [input...]",
 		Short: "Run regula and upload results to Fugue SaaS",
-		Long:  longDescription,
 		Run: func(cmd *cobra.Command, paths []string) {
 			includes, err := cmd.Flags().GetStringSlice("include")
 			if err != nil {
@@ -119,7 +117,7 @@ func NewScanCommand() *cobra.Command {
 			// Load files first.
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
 				Paths:       paths,
-				InputType:   inputType,
+				InputTypes:  inputTypes,
 				NoGitIgnore: noIgnore,
 			})
 			if err != nil {
@@ -188,14 +186,11 @@ func NewScanCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringSliceP("include", "i", nil, "Specify additional rego files or directories to include")
-	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
-	cmd.Flags().BoolP("no-ignore", "n", false, "Disable use of .gitignore")
-	cmd.Flags().VarP(
-		enumflag.New(&inputType, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
-		"input-type", "t",
-		"Set the input type for the given paths")
-	cmd.Flags().StringP("environment-id", "e", "", "Environment ID in Fugue SaaS")
+	addIncludeFlag(cmd)
+	addUserOnlyFlag(cmd)
+	addNoIgnoreFlag(cmd)
+	addInputTypeFlag(cmd, &inputTypes)
+	addEnvironmentIdFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

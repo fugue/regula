@@ -27,15 +27,13 @@ import (
 	opa "github.com/open-policy-agent/opa/rego"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/thediveo/enumflag"
 )
 
 func NewScanViewCommand() *cobra.Command {
-	var inputType loader.InputType
+	inputTypes := []loader.InputType{loader.Auto}
 	cmd := &cobra.Command{
 		Use:   "scan-view [input...]",
 		Short: "Produce a Regula scan view for Fugue SaaS",
-		Long:  longDescription,
 		Run: func(cmd *cobra.Command, paths []string) {
 			includes, err := cmd.Flags().GetStringSlice("include")
 			if err != nil {
@@ -66,7 +64,7 @@ func NewScanViewCommand() *cobra.Command {
 
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
 				Paths:       paths,
-				InputType:   inputType,
+				InputTypes:  inputTypes,
 				NoGitIgnore: noIgnore,
 			})
 			if err != nil {
@@ -88,13 +86,10 @@ func NewScanViewCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringSliceP("include", "i", nil, "Specify additional rego files or directories to include")
-	cmd.Flags().BoolP("user-only", "u", false, "Disable built-in rules")
-	cmd.Flags().BoolP("no-ignore", "n", false, "Disable use of .gitignore")
-	cmd.Flags().VarP(
-		enumflag.New(&inputType, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
-		"input-type", "t",
-		"Set the input type for the given paths")
+	addIncludeFlag(cmd)
+	addUserOnlyFlag(cmd)
+	addNoIgnoreFlag(cmd)
+	addInputTypeFlag(cmd, &inputTypes)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

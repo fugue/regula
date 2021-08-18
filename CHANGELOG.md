@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v1.1.0 (2021-08-05)
+
+### Added
+* Default WORKDIR to `/workspace` in Docker image (#158)
+* Resource line and column numbers in rule results :sunglasses:
+
+### Changed
+* Rule metadata updates (#148) (#153) (#166)
+
+### Fixed
+* Issue with `missing_resource()` rule results excluded from report output (#157)
+* Values for undefined Terraform variables without defaults (#156)
+
 ## v1.0.0 (2021-06-29)
 
 ### Added

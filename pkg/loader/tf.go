@@ -71,7 +71,38 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 		return nil, nil
 	}
 
-	return ParseDirectory([]string{}, i.Path(), nil)
+	configuration, err := ParseDirectory([]string{}, i.Path(), nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if configuration != nil && len(configuration.missingRemoteModules) > 0 {
+		logrus.Warn(
+			missingRemoteModulesMessage(
+				i.Path(),
+				configuration.missingRemoteModules,
+			),
+		)
+	}
+
+	return configuration, nil
+}
+
+func missingRemoteModulesMessage(inputPath string, missingModules []string) string {
+	missingModulesList := strings.Join(missingModules, ", ")
+	firstSentence := "Could not load some remote submodules"
+	if inputPath != "." {
+		firstSentence += fmt.Sprintf(
+			" that are used by '%s'",
+			inputPath,
+		)
+	}
+	return fmt.Sprintf(
+		"%s. Run 'terraform init' if you would like to include them in the evaluation: %s",
+		firstSentence,
+		missingModulesList,
+	)
 }
 
 type HclConfiguration struct {
@@ -114,6 +145,9 @@ type HclConfiguration struct {
 	// Location at which this module was included (i.e. the caller of this
 	// module.
 	location *Location
+
+	// Remote modules that were missing from the moduleRegister
+	missingRemoteModules []string
 }
 
 func ParseDirectory(
@@ -203,7 +237,14 @@ func parseFiles(
 					if str, ok := source.(string); ok {
 						childDir := TfFilePathJoin(dir, str)
 						if register := configuration.moduleRegister.getDir(str); register != nil {
-							childDir = TfFilePathJoin(dir, *register)
+							childDir = *register
+						} else if !moduleIsLocal(str) {
+							logrus.Debugf("Remote submodule missing from registry '%s'", str)
+							configuration.missingRemoteModules = append(
+								configuration.missingRemoteModules,
+								str,
+							)
+							continue
 						}
 						logrus.Debugf("Loading source from %s", childDir)
 
@@ -218,8 +259,12 @@ func parseFiles(
 						if err == nil {
 							child = child.withLocation(rangeToLocation(moduleCall.SourceAddrRange))
 							configuration.children[key] = child
+							configuration.missingRemoteModules = append(
+								configuration.missingRemoteModules,
+								child.missingRemoteModules...,
+							)
 						} else {
-							logrus.Warnf("Error loading submodule %s: %s", key, err)
+							logrus.Warnf("Error loading submodule '%s': %s", key, err)
 						}
 					}
 				}
@@ -241,6 +286,14 @@ func parseFiles(
 	configuration.locals = nil
 
 	return configuration, nil
+}
+
+// Takes a module source and returns true if the module is local.
+func moduleIsLocal(source string) bool {
+	// Relevant bit from terraform docs:
+	//    A local path must begin with either ./ or ../ to indicate that a local path
+	//    is intended, to distinguish from a module registry address.
+	return strings.HasPrefix(source, "./") || strings.HasPrefix(source, "../")
 }
 
 // Return a copy of a HclConfiguration with updated variables.
@@ -711,7 +764,9 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 				if kty := reflect.TypeOf(key); kty != nil {
 					logrus.Warnf("Skipping non-string object key: %s", kty.String())
 				} else {
-					logrus.Warnf("Skipping object key of unknown type")
+					// This can happen in the initial load before the variable defaults
+					// have been populated.
+					logrus.Debug("Skipping object key of unknown type")
 				}
 			}
 		}
@@ -723,11 +778,13 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 		} else {
 			return c.RenderExpr(e.Wrapped)
 		}
+	case *hclsyntax.ParenthesesExpr:
+		return c.RenderExpr(e.Expression)
 	case *hclsyntax.FunctionCallExpr:
 		// This is handled using evaluation.
 	default:
 		if ty := reflect.TypeOf(expr); ty != nil {
-			logrus.Debugf("Unhandled expression type %s, falling back to evaluation", ty.String())
+			logrus.Debugf("Unhandled expression type %s at %s, falling back to evaluation", ty.String(), e.Range())
 		} else {
 			logrus.Debug("Unknown expression type, falling back to evaluation")
 		}
@@ -966,7 +1023,13 @@ func (node *TfNode) GetDescendant(path []string) (*TfNode, error) {
 // `.terraform/modules/modules.json` that tells us where to find modules
 
 //{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"acm","Source":"terraform-aws-modules/acm/aws","Version":"3.0.0","Dir":".terraform/modules/acm"}]}
+
 type terraformModuleRegister struct {
+	data terraformModuleRegisterFile
+	dir  string
+}
+
+type terraformModuleRegisterFile struct {
 	Modules []terraformModuleRegisterEntry `json:"Modules"`
 }
 
@@ -977,25 +1040,29 @@ type terraformModuleRegisterEntry struct {
 
 func newTerraformRegister(dir string) *terraformModuleRegister {
 	registry := terraformModuleRegister{
-		Modules: []terraformModuleRegisterEntry{},
+		data: terraformModuleRegisterFile{
+			[]terraformModuleRegisterEntry{},
+		},
+		dir: dir,
 	}
 	path := filepath.Join(dir, ".terraform/modules/modules.json")
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return &registry
 	}
-	json.Unmarshal(bytes, &registry)
+	json.Unmarshal(bytes, &registry.data)
 	logrus.Debugf("Loaded module register at %s", path)
-	for _, entry := range registry.Modules {
+	for _, entry := range registry.data.Modules {
 		logrus.Debugf("Module register entry: %s -> %s", entry.Source, entry.Dir)
 	}
 	return &registry
 }
 
 func (r *terraformModuleRegister) getDir(source string) *string {
-	for _, entry := range r.Modules {
+	for _, entry := range r.data.Modules {
 		if entry.Source == source {
-			return &entry.Dir
+			joined := TfFilePathJoin(r.dir, entry.Dir)
+			return &joined
 		}
 	}
 	return nil
@@ -1080,7 +1147,7 @@ func TfFilePathJoin(leading, trailing string) string {
 	} else {
 		trailing = filepath.FromSlash(trailing)
 		sep := string(filepath.Separator)
-		trailing = strings.TrimPrefix(trailing, "." + sep)
+		trailing = strings.TrimPrefix(trailing, "."+sep)
 		return strings.TrimRight(leading, sep) + sep +
 			strings.TrimLeft(trailing, sep)
 	}

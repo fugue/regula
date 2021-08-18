@@ -35,7 +35,7 @@ func RunTest(options *RunTestOptions) error {
 		return err
 	}
 	if !options.NoTestInputs {
-		if err := LoadTestInputs(options.Includes, loader.Auto, cb); err != nil {
+		if err := LoadTestInputs(options.Includes, []loader.InputType{loader.Auto}, cb); err != nil {
 			return err
 		}
 	}

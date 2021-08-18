@@ -114,7 +114,7 @@ type Location struct {
 //
 // These are stored as a call stack, with the most specific location in the
 // first position, and the "root of the call stack" at the last position.
-type LocationStack = []Location;
+type LocationStack = []Location
 
 func (l Location) String() string {
 	return fmt.Sprintf("%s:%d:%d", l.Path, l.Line, l.Col)

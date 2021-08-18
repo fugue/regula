@@ -80,6 +80,37 @@ func getFugueClient() (*client.Fugue, runtime.ClientAuthInfoWriter) {
 	return client, auth
 }
 
+func scanInputTypes() []loader.InputType {
+	scanInputTypes := make([]loader.InputType, len(loader.InputTypeIDs)-2)
+	for i := range loader.InputTypeIDs {
+		if i == loader.Auto || i == loader.TfPlan {
+			continue
+		}
+		scanInputTypes = append(scanInputTypes, i)
+	}
+	return scanInputTypes
+}
+
+func filterInputTypes(inputTypes []loader.InputType) []loader.InputType {
+	autoTypes := scanInputTypes()
+	filtered := []loader.InputType{}
+	for _, i := range inputTypes {
+		switch i {
+		case loader.Auto:
+			filtered = append(filtered, autoTypes...)
+		case loader.TfPlan:
+			logrus.Warn("Ignoring tf-plan in input types. Terraform plan files are not supported by regula scan at this time.")
+		default:
+			filtered = append(filtered, i)
+		}
+	}
+	if len(filtered) < 1 {
+		logrus.Warn("No supported input types configured. Defaulting to 'auto'.")
+		return autoTypes
+	}
+	return filtered
+}
+
 func NewScanCommand() *cobra.Command {
 	inputTypes := []loader.InputType{loader.Auto}
 	cmd := &cobra.Command{
@@ -107,6 +138,8 @@ func NewScanCommand() *cobra.Command {
 			// libraries do not play nicely with eachother.
 			flagSet := pflag.NewFlagSet("", pflag.ExitOnError)
 			pf := flagSet.VarPF(
+				// Still using full InputTypeIDs map here because this config file also
+				// needs to work with regula run. So, we need to support all input types.
 				enumflag.NewSlice(&inputTypes, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
 				inputTypeFlag,
 				"",
@@ -142,7 +175,7 @@ func NewScanCommand() *cobra.Command {
 			// Load files first.
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
 				Paths:      inputs,
-				InputTypes: inputTypes,
+				InputTypes: filterInputTypes(inputTypes),
 			})
 			if err != nil {
 				logrus.Fatal(err)

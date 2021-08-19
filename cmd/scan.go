@@ -125,7 +125,7 @@ func NewScanCommand() *cobra.Command {
 				}
 			}
 
-			viper.BindEnv(environmentIdFlag)
+			viper.BindEnv(environmentIdFlag, "ENVIRONMENT_ID")
 
 			if err := loadConfigFile(""); err != nil {
 				logrus.Fatal(err)

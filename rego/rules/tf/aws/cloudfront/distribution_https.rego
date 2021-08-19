@@ -19,12 +19,6 @@ __rego__metadoc__ := {
   "title": "CloudFront viewer protocol policy should be set to https-only or redirect-to-https",
   "description": "CloudFront viewer protocol policy should be set to https-only or redirect-to-https. CloudFront connections should be encrypted during transmission over networks that can be accessed by malicious individuals. A CloudFront distribution should only use HTTPS or Redirect HTTP to HTTPS for communication between viewers and CloudFront.",
   "custom": {
-    "controls": {
-      "NIST-800-53_vRev4": [
-        "NIST-800-53_vRev4_AC-17(2)",
-        "NIST-800-53_vRev4_SC-8"
-      ]
-    },
     "severity": "Medium"
   }
 }

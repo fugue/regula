@@ -1091,15 +1091,11 @@ func makeValue(val interface{}) cty.Value {
 	case int64:
 		return cty.NumberIntVal(v)
 	case []interface{}:
-		if len(v) == 0 {
-			return cty.ListValEmpty(cty.DynamicPseudoType)
-		} else {
-			arr := make([]cty.Value, len(v))
-			for i, x := range v {
-				arr[i] = makeValue(x)
-			}
-			return cty.ListVal(arr)
+		arr := make([]cty.Value, len(v))
+		for i, x := range v {
+			arr[i] = makeValue(x)
 		}
+		return cty.TupleVal(arr)
 	case map[string]interface{}:
 		if len(v) == 0 {
 			return cty.EmptyObjectVal

@@ -1,0 +1,40 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_network_acl.main": {
+        "_filepath": "tf_test/nested-vars-rm5823/main.tf",
+        "_provider": "aws",
+        "_type": "aws_network_acl",
+        "egress": [
+          {
+            "action": "allow",
+            "from_port": "0",
+            "ipv6_cidr_block": "::/0",
+            "protocol": "-1",
+            "rule_no": "101",
+            "to_port": "0"
+          },
+          {
+            "action": "allow",
+            "cidr_block": "0.0.0.0/0",
+            "from_port": "0",
+            "protocol": "-1",
+            "rule_no": "100",
+            "to_port": "0"
+          }
+        ],
+        "id": "aws_network_acl.main",
+        "vpc_id": "aws_vpc.main"
+      },
+      "aws_vpc.main": {
+        "_filepath": "tf_test/nested-vars-rm5823/main.tf",
+        "_provider": "aws",
+        "_type": "aws_vpc",
+        "cidr_block": "10.0.0.0/24",
+        "id": "aws_vpc.main"
+      }
+    }
+  },
+  "filepath": "tf_test/nested-vars-rm5823"
+}

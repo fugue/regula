@@ -84,6 +84,14 @@ func NewInitCommand() *cobra.Command {
 				v.Set(userOnlyFlag, configuredUserOnly)
 			}
 
+			if cmd.Flags().Lookup(environmentIdFlag).Changed {
+				configuredEnvironmentId, err := cmd.Flags().GetString(environmentIdFlag)
+				if err != nil {
+					logrus.Fatal(err)
+				}
+				v.Set(environmentIdFlag, configuredEnvironmentId)
+			}
+
 			if len(paths) > 0 {
 				v.Set(inputsFlag, paths)
 			}
@@ -108,6 +116,7 @@ func NewInitCommand() *cobra.Command {
 		},
 	}
 
+	addEnvironmentIdFlag(cmd)
 	addForceFlag(cmd)
 	addIncludeFlag(cmd)
 	addUserOnlyFlag(cmd)

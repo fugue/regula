@@ -377,8 +377,10 @@ scan_view = ret {
     "inputs": [input_resources |
       item := input[_]
       r := resource_view.resource_view_input.resources with input as item.content
+      t := input_type_internal.input_type with input as item.content
       input_resources = {
         "filepath": item.filepath,
+        "input_type": t,
         "resources": r,
       }
     ]

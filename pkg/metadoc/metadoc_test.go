@@ -1,4 +1,4 @@
-ackage metadoc
+package metadoc
 
 import (
 	"testing"
@@ -33,14 +33,13 @@ default allow = false
 		},
 		{
 			// Insert missing package name
-			input: `
-default allow = false
+			input: `default allow = false
 `,
 			run: func(rego *RegoMeta) {
 				assert.Equal(t, "", rego.PackageName)
-				rego.PackageName = "bar.qux"
+				rego.PackageName = "bar.dux"
 			},
-			expected: `package bar.qux
+			expected: `package bar.dux
 
 default allow = false
 `,
@@ -111,7 +110,7 @@ __rego__metadoc__ := {
   "title": "EBS volume encryption should be enabled"
 }
 
-resource_type = "aws_ebs_volume"
+resource_type := "aws_ebs_volume"
 
 default allow = false
 
@@ -154,7 +153,7 @@ __rego__metadoc__ := {
   "description": "Updated description"
 }
 
-resource_type = "aws_ebs_volume"
+resource_type := "aws_ebs_volume"
 default allow = false
 allow {
   input.encrypted == true
@@ -186,7 +185,7 @@ __rego__metadoc__ := {
 
 allow { input.encrypted == true }`,
 		},
-        {
+		{
 			// Preserve unknown attributes
 			input: `
 __rego__metadoc__ := {
@@ -212,6 +211,26 @@ __rego__metadoc__ := {
 }
 
 deny { true }`,
+		},
+		{
+			// Read resource type, modify it and set input type
+			input: `package foo.bar
+
+deny { input.age <= 21 }
+
+resource_type = "MULTIPLE"`,
+			run: func(rego *RegoMeta) {
+				assert.Equal(t, "MULTIPLE", rego.ResourceType)
+				rego.ResourceType = "aws_s3_bucket"
+				rego.InputType = "tf"
+			},
+			expected: `package foo.bar
+
+input_type := "tf"
+
+deny { input.age <= 21 }
+
+resource_type := "aws_s3_bucket"`,
 		},
 	}
 

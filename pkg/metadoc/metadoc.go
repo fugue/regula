@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -29,6 +30,12 @@ type RegoMeta struct {
 	Description string
 	Severity    string
 	Controls    map[string][]string
+
+	ResourceType     string // Resource type
+	resourceTypeLine int
+
+	InputType     string // Input type
+	inputTypeLine int
 }
 
 func RegoMetaFromPath(path string) (*RegoMeta, error) {
@@ -52,6 +59,10 @@ type metadoc struct {
 	Custom      *metadocCustom `json:"custom,omitempty"`
 }
 
+func assignment(str string) bool {
+	return str == "=" || str == ":="
+}
+
 func RegoMetaFromString(str string) (*RegoMeta, error) {
 	// Split on lines.
 	rego := RegoMeta{}
@@ -61,22 +72,42 @@ func RegoMetaFromString(str string) (*RegoMeta, error) {
 	rego.packageNameLine = -1
 	rego.metadocStartLine = -1
 	rego.metadocEndLine = -1
+	rego.resourceTypeLine = -1
+	rego.inputTypeLine = -1
 	for i := 0; i < len(rego.lines); i++ {
 		line := rego.lines[i]
-		words := strings.Fields(line)
-		if len(words) == 2 && words[0] == "package" {
-			rego.PackageName = words[1]
-			rego.packageNameLine = i
-		}
+		// Skip non-toplevel lines
+		if len(line) > 0 && line[0] != ' ' && line[0] != '\t' {
+			words := strings.Fields(line)
+			if len(words) == 2 && words[0] == "package" {
+				rego.PackageName = words[1]
+				rego.packageNameLine = i
+			}
 
-		if len(words) == 3 && words[0] == "__rego__metadoc__" &&
-			(words[1] == ":=" || words[1] == "=") &&
-			words[2] == "{" {
-			rego.metadocStartLine = i
-			for i+1 < len(rego.lines) && rego.metadocEndLine < 0 {
-				i += 1
-				if rego.lines[i] == "}" {
-					rego.metadocEndLine = i
+			if len(words) == 3 && words[0] == "resource_type" &&
+				assignment(words[1]) {
+				if val, err := strconv.Unquote(words[2]); err == nil {
+					rego.ResourceType = val
+					rego.resourceTypeLine = i
+				}
+			}
+
+			if len(words) == 3 && words[0] == "input_type" &&
+				assignment(words[1]) {
+				if val, err := strconv.Unquote(words[2]); err == nil {
+					rego.InputType = val
+					rego.inputTypeLine = i
+				}
+			}
+
+			if len(words) == 3 && words[0] == "__rego__metadoc__" &&
+				assignment(words[1]) && words[2] == "{" {
+				rego.metadocStartLine = i
+				for i+1 < len(rego.lines) && rego.metadocEndLine < 0 {
+					i += 1
+					if rego.lines[i] == "}" {
+						rego.metadocEndLine = i
+					}
 				}
 			}
 		}
@@ -156,12 +187,29 @@ func (rego *RegoMeta) String() string {
 		metadocString = "__rego__metadoc__ := " + string(metadocBytes)
 	}
 
+	// Render a list of lines that will be placed below the package name.
+	// This includes all the things that weren't in the original file.
+	belowPackage := []string{}
+	if rego.metadocStartLine < 0 && haveMetadoc {
+		belowPackage = append(belowPackage, metadocString)
+	}
+	resourceTypeString := "resource_type := " + strconv.Quote(rego.ResourceType)
+	if rego.resourceTypeLine < 0 && rego.ResourceType != "" {
+		belowPackage = append(belowPackage, resourceTypeString)
+	}
+	inputTypeString := "input_type := " + strconv.Quote(rego.InputType)
+	if rego.inputTypeLine < 0 && rego.InputType != "" {
+		belowPackage = append(belowPackage, inputTypeString)
+	}
+
+	// Now construct all the lines.
 	lines := []string{}
 	if rego.packageNameLine < 0 && rego.PackageName != "" {
 		lines = append(lines, "package "+rego.PackageName)
-		if rego.metadocStartLine < 0 && haveMetadoc {
-			lines = append(lines, "", metadocString, "")
+		for _, l := range belowPackage {
+			lines = append(lines, "", l)
 		}
+		lines = append(lines, "")
 	}
 
 	for i := 0; i < len(rego.lines); i++ {
@@ -169,12 +217,16 @@ func (rego *RegoMeta) String() string {
 			if rego.PackageName != "" {
 				lines = append(lines, "package "+rego.PackageName)
 			}
-			if rego.metadocStartLine < 0 && haveMetadoc {
-				lines = append(lines, "", metadocString)
+			for _, l := range belowPackage {
+				lines = append(lines, "", l)
 			}
 		} else if i == rego.metadocStartLine {
 			lines = append(lines, metadocString)
 			i = rego.metadocEndLine
+		} else if i == rego.resourceTypeLine {
+			lines = append(lines, resourceTypeString)
+		} else if i == rego.inputTypeLine {
+			lines = append(lines, inputTypeString)
 		} else {
 			lines = append(lines, rego.lines[i])
 		}

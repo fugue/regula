@@ -33,7 +33,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/zclconf/go-cty/cty"
 
-	"tf_resource_schemas"
+	"github.com/fugue/regula/pkg/tf_resource_schemas"
 )
 
 type TfDetector struct{}

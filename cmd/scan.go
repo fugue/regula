@@ -85,20 +85,25 @@ func getFugueClient() (*client.Fugue, runtime.ClientAuthInfoWriter) {
 	return client, auth
 }
 
-func processCustomRule(number int, rule *models.CustomRule) (string, error) {
+func processCustomRule(rule *models.CustomRule) (string, error) {
 	regometa, err := metadoc.RegoMetaFromString(rule.RuleText)
 	if err != nil {
 		return "", err
 	}
 
 	// Construct package name
-	regometa.PackageName = fmt.Sprintf("rules.fugue_custom_rule_%d", number)
+	regometa.PackageName = "rules.rule_" + strings.ReplaceAll(rule.ID, "-", "_")
 
 	// Copy info from SaaS into metadoc
 	regometa.Id = rule.ID
 	regometa.Title = rule.Name
 	regometa.Description = rule.Description
 	regometa.Severity = rule.Severity
+
+	// Follow custom rule control scheme used in SaaS.
+	regometa.Controls = map[string][]string{
+		"Custom": {"custom/" + rule.Name},
+	}
 
 	// Only set resource_type if not set explicitly.
 	if regometa.ResourceType == "" {
@@ -123,21 +128,31 @@ func temporaryCustomRulesDir(ctx context.Context, client *client.Fugue, auth run
 		return "", err
 	}
 
-	listCustomRulesParams := &custom_rules.ListCustomRulesParams{
-		Context: ctx,
-	}
-	result, err := client.CustomRules.ListCustomRules(listCustomRulesParams, auth)
-	if err != nil {
-		return "", err
-	}
-	for i, item := range result.Payload.Items {
-		rule, err := processCustomRule(i, item)
-		if err != nil {
-			logrus.Warningf("Could not load rule %s: %d", item.ID, err)
-		} else {
-			path := filepath.Join(tmp, fmt.Sprintf("rule_%d.rego", i))
-			os.WriteFile(path, []byte(rule), 0644)
+	ruleNumber := 1
+	isTruncated := true
+	offset := int64(0)
+	for isTruncated {
+		listCustomRulesParams := &custom_rules.ListCustomRulesParams{
+			Offset:  &offset,
+			Context: ctx,
 		}
+		result, err := client.CustomRules.ListCustomRules(listCustomRulesParams, auth)
+		if err != nil {
+			return "", err
+		}
+		logrus.Infof("Retrieved %d custom rules...", len(result.Payload.Items))
+		for _, item := range result.Payload.Items {
+			rule, err := processCustomRule(item)
+			if err != nil {
+				logrus.Warningf("Could not load rule %s: %d", item.ID, err)
+			} else {
+				path := filepath.Join(tmp, fmt.Sprintf("rule_%d.rego", ruleNumber))
+				os.WriteFile(path, []byte(rule), 0644)
+				ruleNumber += 1
+			}
+		}
+		isTruncated = result.Payload.IsTruncated
+		offset = result.Payload.NextOffset
 	}
 
 	return tmp, nil

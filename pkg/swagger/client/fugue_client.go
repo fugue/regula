@@ -14,6 +14,7 @@ import (
 	"github.com/fugue/regula/pkg/swagger/client/custom_rules"
 	"github.com/fugue/regula/pkg/swagger/client/environments"
 	"github.com/fugue/regula/pkg/swagger/client/events"
+	"github.com/fugue/regula/pkg/swagger/client/families"
 	"github.com/fugue/regula/pkg/swagger/client/groups"
 	"github.com/fugue/regula/pkg/swagger/client/invites"
 	"github.com/fugue/regula/pkg/swagger/client/metadata"
@@ -69,6 +70,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Fugue {
 	cli.CustomRules = custom_rules.New(transport, formats)
 	cli.Environments = environments.New(transport, formats)
 	cli.Events = events.New(transport, formats)
+	cli.Families = families.New(transport, formats)
 	cli.Groups = groups.New(transport, formats)
 	cli.Invites = invites.New(transport, formats)
 	cli.Metadata = metadata.New(transport, formats)
@@ -128,6 +130,8 @@ type Fugue struct {
 
 	Events events.ClientService
 
+	Families families.ClientService
+
 	Groups groups.ClientService
 
 	Invites invites.ClientService
@@ -152,6 +156,7 @@ func (c *Fugue) SetTransport(transport runtime.ClientTransport) {
 	c.CustomRules.SetTransport(transport)
 	c.Environments.SetTransport(transport)
 	c.Events.SetTransport(transport)
+	c.Families.SetTransport(transport)
 	c.Groups.SetTransport(transport)
 	c.Invites.SetTransport(transport)
 	c.Metadata.SetTransport(transport)

@@ -25,10 +25,13 @@ import (
 	"strings"
 
 	"github.com/fugue/regula/pkg/loader"
+	"github.com/fugue/regula/pkg/metadoc"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/swagger/client"
 	apiclient "github.com/fugue/regula/pkg/swagger/client"
+	"github.com/fugue/regula/pkg/swagger/client/custom_rules"
 	"github.com/fugue/regula/pkg/swagger/client/scans"
+	"github.com/fugue/regula/pkg/swagger/models"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
@@ -78,6 +81,26 @@ func getFugueClient() (*client.Fugue, runtime.ClientAuthInfoWriter) {
 	auth := httptransport.BasicAuth(clientID, clientSecret)
 
 	return client, auth
+}
+
+func processCustomRule(rule *models.CustomRule) (string, error) {
+    return rule.RuleText, nil
+}
+
+func getCustomRules(ctx context.Context, client *client.Fugue, auth runtime.ClientAuthInfoWriter) ([]string, error) {
+	rules := []string{}
+	listCustomRulesParams := &custom_rules.ListCustomRulesParams{
+		Context: ctx,
+	}
+	result, err := client.CustomRules.ListCustomRules(listCustomRulesParams, auth)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range result.Payload.Items {
+		rules = append(rules, item.RuleText)
+	}
+
+	return rules, nil
 }
 
 func scanInputTypes() []loader.InputType {
@@ -171,6 +194,15 @@ func NewScanCommand() *cobra.Command {
 
 			// Check that we can construct a client.
 			client, auth := getFugueClient()
+
+			// Request custom rules from SaaS.
+			customRules, err := getCustomRules(ctx, client, auth)
+			if err != nil {
+				logrus.Fatal(err)
+			}
+			for _, rule := range customRules {
+				logrus.Info(rule)
+			}
 
 			// Load files first.
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{

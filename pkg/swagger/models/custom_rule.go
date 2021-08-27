@@ -34,6 +34,9 @@ type CustomRule struct {
 	// Description of the custom rule.
 	Description string `json:"description,omitempty"`
 
+	// Families to which the custom rule belongs.
+	Families []string `json:"families"`
+
 	// ID of the custom rule.
 	ID string `json:"id,omitempty"`
 
@@ -61,6 +64,9 @@ type CustomRule struct {
 	// The current status of the rule.
 	// Enum: [ENABLED DISABLED INVALID]
 	Status string `json:"status,omitempty"`
+
+	// Terraform resource type corresponding to resource_type.
+	TfResourceType string `json:"tf_resource_type,omitempty"`
 
 	// The date and time the rule was last updated.
 	UpdatedAt int64 `json:"updated_at,omitempty"`

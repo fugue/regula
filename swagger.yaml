@@ -1808,6 +1808,339 @@ paths:
         passthroughBehavior: when_no_match
         httpMethod: GET
         type: http_proxy
+  /families:
+    post:
+      operationId: createFamily
+      summary: Create a new custom compliance family.
+      description: |
+        Create a new custom compliance family.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - in: body
+        name: family
+        required: true
+        description: Configuration options for the new custom compliance family.
+        schema:
+          $ref: '#/definitions/CreateFamilyInput'
+      tags:
+      - families
+      responses:
+        "201":
+          description: The newly-created custom compliance family.
+          schema:
+            $ref: '#/definitions/FamilyWithRules'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Email: context.authorizer.email
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/families
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+    get:
+      operationId: listFamilies
+      summary: List compliance families.
+      description: |
+        Return a list of compliance families.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+      - name: order_by
+        in: query
+        required: false
+        description: Attribute to order families by
+        type: string
+        enum:
+        - name
+        - policy
+        default: name
+      - name: order_direction
+        in: query
+        required: false
+        description: Order families in an ascending or descending fashion
+        type: string
+        enum:
+        - asc
+        - desc
+        default: asc
+      - name: query
+        in: query
+        required: false
+        description: A stringified JSON array of search parameters.
+        type: string
+        minLength: 2
+        maxLength: 1800
+      tags:
+      - families
+      responses:
+        "200":
+          description: List of compliance families.
+          schema:
+            $ref: '#/definitions/Families'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Email: context.authorizer.email
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/families_no_plan_filter
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /families/{family_id}:
+    get:
+      operationId: getFamily
+      summary: Look up Family.
+      description: Return a specific Family.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: family_id
+        in: path
+        required: true
+        description: The id of the Family to look up.
+        type: string
+      tags:
+      - families
+      responses:
+        "200":
+          description: The desired Family.
+          schema:
+            $ref: '#/definitions/FamilyWithRules'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Email: context.authorizer.email
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.family_id: method.request.path.family_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/families/{family_id}
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    delete:
+      operationId: deleteFamily
+      summary: Delete a Family.
+      description: |
+        Delete a Family.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: family_id
+        in: path
+        required: true
+        description: The id of the Family to delete.
+        type: string
+      tags:
+      - families
+      responses:
+        "204":
+          description: Family deleted.
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Email: context.authorizer.email
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.family_id: method.request.path.family_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/families/{family_id}
+        passthroughBehavior: when_no_match
+        httpMethod: DELETE
+        type: http_proxy
+    patch:
+      operationId: updateFamily
+      summary: Edit an existing user Family.
+      description: |
+        Edit an existing user Family.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: family_id
+        in: path
+        required: true
+        description: The id of the Family to update.
+        type: string
+      - in: body
+        name: family
+        required: true
+        description: New configuration options for the Family.
+        schema:
+          $ref: '#/definitions/UpdateFamilyInput'
+      tags:
+      - families
+      responses:
+        "200":
+          description: The updated Family.
+          schema:
+            $ref: '#/definitions/FamilyWithRules'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Email: context.authorizer.email
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.family_id: method.request.path.family_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/families/{family_id}
+        passthroughBehavior: when_no_match
+        httpMethod: PATCH
+        type: http_proxy
   /invites:
     get:
       summary: List details for all invites.
@@ -3840,6 +4173,11 @@ definitions:
         - Medium
         - High
         - Critical
+      families:
+        description: Families to which the custom rule belongs
+        type: array
+        items:
+          type: string
   CustomRule:
     description: A custom rule
     type: object
@@ -3869,6 +4207,9 @@ definitions:
       resource_type:
         description: Resource type to which the custom rule applies.
         type: string
+      tf_resource_type:
+        description: Terraform resource type corresponding to resource_type.
+        type: string
       severity:
         description: Severity level of the custom rule.
         type: string
@@ -3880,6 +4221,11 @@ definitions:
         - Critical
       compliance_controls:
         description: Compliance controls to which the custom rule belongs.
+        type: array
+        items:
+          type: string
+      families:
+        description: Families to which the custom rule belongs.
         type: array
         items:
           type: string
@@ -4383,6 +4729,172 @@ definitions:
       url:
         description: Presigned S3 URL to upload a scan view
         type: string
+  FamilyWithRules:
+    description: A family with rule IDs
+    type: object
+    properties:
+      id:
+        description: ID of the family
+        type: string
+      tenant_id:
+        description: ID of the tenant
+        type: string
+      name:
+        description: Human readable name of the family
+        type: string
+      source:
+        description: The origin of this family
+        type: string
+        enum:
+        - FUGUE
+        - CUSTOM
+      description:
+        description: Description of the family
+        type: string
+      providers:
+        description: Provider the families applies to
+        type: array
+        items:
+          type: string
+      recommended:
+        description: If the family is recommended for all new environments
+        type: boolean
+      always_enabled:
+        description: If the family will automatically be enabled on all environments
+          within the tenant
+        type: boolean
+      rule_ids:
+        type: array
+        description: List of rule ids associated with family
+        items:
+          type: string
+      created_by:
+        description: Principal that created the rule.
+        type: string
+      created_by_display_name:
+        description: Display name of the user that created the rule
+        type: string
+      created_at:
+        description: The date and time the rule was created.
+        type: integer
+      updated_by:
+        description: Principal that last updated the rule.
+        type: string
+      updated_by_display_name:
+        description: Display name of the user that last updated the rule
+        type: string
+      updated_at:
+        description: The date and time the rule was last updated.
+        type: integer
+  Family:
+    description: A family
+    type: object
+    properties:
+      id:
+        description: ID of the family
+        type: string
+      tenant_id:
+        description: ID of the tenant
+        type: string
+      name:
+        description: Human readable name of the family
+        type: string
+      source:
+        description: The origin of this family
+        type: string
+        enum:
+        - FUGUE
+        - CUSTOM
+      description:
+        description: Description of the family
+        type: string
+      providers:
+        description: Provider the families applies to
+        type: array
+        items:
+          type: string
+      recommended:
+        description: If the family is recommended for all new environments
+        type: boolean
+      always_enabled:
+        description: If the family will automatically be enabled on all environments
+          within the tenant
+        type: boolean
+      created_by:
+        description: Principal that created the rule.
+        type: string
+      created_by_display_name:
+        description: Display name of the user that created the rule
+        type: string
+      created_at:
+        description: The date and time the rule was created.
+        type: integer
+      updated_by:
+        description: Principal that last updated the rule.
+        type: string
+      updated_by_display_name:
+        description: Display name of the user that last updated the rule
+        type: string
+      updated_at:
+        description: The date and time the rule was last updated.
+        type: integer
+  Families:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Family'
+      count:
+        type: integer
+      is_truncated:
+        type: boolean
+      next_offset:
+        type: integer
+  CreateFamilyInput:
+    description: Input request for creating a family.
+    type: object
+    properties:
+      name:
+        description: Human readable name of the family
+        type: string
+      description:
+        description: Description of the family
+        type: string
+      recommended:
+        description: If the family is recommended for all new environments
+        type: boolean
+      always_enabled:
+        description: If the family will automatically be enabled on all environments
+          within the tenant
+        type: boolean
+      rule_ids:
+        type: array
+        description: List of rule ids to associate with family
+        items:
+          type: string
+  UpdateFamilyInput:
+    description: Input request for updating a family
+    type: object
+    properties:
+      name:
+        description: Human readable name of the family
+        type: string
+      description:
+        description: Description of the family
+        type: string
+      recommended:
+        description: If the family is recommended for all new environments
+        type: boolean
+      always_enabled:
+        description: If the family will automatically be enabled on all environments
+          within the tenant
+        type: boolean
+      rule_ids:
+        type: array
+        description: List of rule ids to associate with family
+        items:
+          type: string
 externalDocs:
   description: Additional Fugue API Documentation
   url: https://docs.fugue.co/api.html

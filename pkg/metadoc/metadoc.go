@@ -21,6 +21,9 @@ type RegoMeta struct {
 	PackageName     string // Optional package name
 	packageNameLine int    // Original package name line, -1 if not present.
 
+	Imports         map[Import]struct{} // Imports (without aliases)
+	originalImports map[Import]struct{} // Helper to determine new imports
+
 	metadocStartLine int                    // Start of metadoc, -1 if not present
 	metadocEndLine   int                    // End of metadoc, -1 if not present
 	metadoc          map[string]interface{} // Dynamic metadoc
@@ -36,6 +39,11 @@ type RegoMeta struct {
 
 	InputType     string // Input type
 	inputTypeLine int
+}
+
+type Import struct {
+	Path string
+	As   string
 }
 
 func RegoMetaFromPath(path string) (*RegoMeta, error) {
@@ -63,17 +71,40 @@ func assignment(str string) bool {
 	return str == "=" || str == ":="
 }
 
+func importFromLine(line string) *Import {
+	words := strings.Fields(line)
+	if len(words) == 2 && words[0] == "import" {
+		return &Import{Path: words[1]}
+	} else if len(words) == 4 && words[0] == "import" && words[2] == "as" {
+		return &Import{Path: words[1], As: words[3]}
+	} else {
+		return nil
+	}
+}
+
+func (imp Import) String() string {
+	if imp.As == "" {
+		return "import " + imp.Path
+	} else {
+		return "import " + imp.Path + " as " + imp.As
+	}
+}
+
 func RegoMetaFromString(str string) (*RegoMeta, error) {
 	// Split on lines.
 	rego := RegoMeta{}
 	rego.lines = regexp.MustCompile(`(\r\n)|\n`).Split(str, -1)
 
-	// Run through lines to parse some bits.
+	// Initialize
+	rego.Imports = map[Import]struct{}{}
+	rego.originalImports = map[Import]struct{}{}
 	rego.packageNameLine = -1
 	rego.metadocStartLine = -1
 	rego.metadocEndLine = -1
 	rego.resourceTypeLine = -1
 	rego.inputTypeLine = -1
+
+	// Run through lines to parse some bits.
 	for i := 0; i < len(rego.lines); i++ {
 		line := rego.lines[i]
 		// Skip non-toplevel lines
@@ -109,6 +140,11 @@ func RegoMetaFromString(str string) (*RegoMeta, error) {
 						rego.metadocEndLine = i
 					}
 				}
+			}
+
+			if imp := importFromLine(line); imp != nil {
+				rego.Imports[*imp] = struct{}{}
+				rego.originalImports[*imp] = struct{}{}
 			}
 		}
 	}
@@ -187,9 +223,20 @@ func (rego *RegoMeta) String() string {
 		metadocString = "__rego__metadoc__ := " + string(metadocBytes)
 	}
 
+	// Find new imports
+	newImports := []string{}
+	for imp := range rego.Imports {
+    	if _, ok := rego.originalImports[imp]; !ok {
+        	newImports = append(newImports, imp.String())
+    	}
+	}
+
 	// Render a list of lines that will be placed below the package name.
 	// This includes all the things that weren't in the original file.
 	belowPackage := []string{}
+	if len(newImports) > 0 {
+    	belowPackage = append(belowPackage, strings.Join(newImports, "\n"))
+	}
 	if rego.metadocStartLine < 0 && haveMetadoc {
 		belowPackage = append(belowPackage, metadocString)
 	}
@@ -204,12 +251,18 @@ func (rego *RegoMeta) String() string {
 
 	// Now construct all the lines.
 	lines := []string{}
-	if rego.packageNameLine < 0 && rego.PackageName != "" {
-		lines = append(lines, "package "+rego.PackageName)
+	if rego.packageNameLine < 0 {
+		if rego.PackageName != "" {
+			lines = append(lines, "package "+rego.PackageName)
+		}
+
 		for _, l := range belowPackage {
 			lines = append(lines, "", l)
 		}
-		lines = append(lines, "")
+
+		if rego.PackageName != "" {
+			lines = append(lines, "")
+		}
 	}
 
 	for i := 0; i < len(rego.lines); i++ {
@@ -227,6 +280,11 @@ func (rego *RegoMeta) String() string {
 			lines = append(lines, resourceTypeString)
 		} else if i == rego.inputTypeLine {
 			lines = append(lines, inputTypeString)
+		} else if imp := importFromLine(rego.lines[i]); imp != nil {
+			// Skip if deleted
+			if _, ok := rego.Imports[*imp]; ok {
+				lines = append(lines, rego.lines[i])
+			}
 		} else {
 			lines = append(lines, rego.lines[i])
 		}

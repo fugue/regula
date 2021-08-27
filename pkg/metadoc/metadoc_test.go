@@ -232,6 +232,32 @@ deny { input.age <= 21 }
 
 resource_type := "aws_s3_bucket"`,
 		},
+		{
+			// Import removal
+			input: `import data.foo
+import data.foo as bar
+deny { input.age <= 21 }`,
+			run: func(rego *RegoMeta) {
+				assert.Contains(t, rego.Imports, Import{Path: "data.foo"})
+				delete(rego.Imports, Import{Path: "data.foo"})
+			},
+			expected: `import data.foo as bar
+deny { input.age <= 21 }`,
+		},
+		{
+			// Import addition
+			input: `import data.foo
+import data.foo as bar
+deny { input.age <= 21 }`,
+			run: func(rego *RegoMeta) {
+				rego.Imports[Import{Path: "data.fugue"}] = struct{}{}
+			},
+			expected: `
+import data.fugue
+import data.foo
+import data.foo as bar
+deny { input.age <= 21 }`,
+		},
 	}
 
 	for _, test := range tests {

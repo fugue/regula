@@ -20,8 +20,10 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/fugue/regula/pkg/loader"
@@ -83,24 +85,62 @@ func getFugueClient() (*client.Fugue, runtime.ClientAuthInfoWriter) {
 	return client, auth
 }
 
-func processCustomRule(rule *models.CustomRule) (string, error) {
-    return rule.RuleText, nil
+func processCustomRule(number int, rule *models.CustomRule) (string, error) {
+	regometa, err := metadoc.RegoMetaFromString(rule.RuleText)
+	if err != nil {
+		return "", err
+	}
+
+	// Construct package name
+	regometa.PackageName = fmt.Sprintf("rules.fugue_custom_rule_%d", number)
+
+	// Copy info from SaaS into metadoc
+	regometa.Id = rule.ID
+	regometa.Title = rule.Name
+	regometa.Description = rule.Description
+	regometa.Severity = rule.Severity
+
+	// Only set resource_type if not set explicitly.
+	if regometa.ResourceType == "" {
+		if rule.ResourceType == "MULTIPLE" {
+			regometa.ResourceType = "MULTIPLE"
+		} else if rule.TfResourceType != "" {
+			regometa.ResourceType = rule.TfResourceType
+		} else {
+			return "", fmt.Errorf("Unknown resource type: %s", rule.ResourceType)
+		}
+	}
+
+	// Ensure data.fugue import is there.
+	regometa.Imports[metadoc.Import{Path: "data.fugue"}] = struct{}{}
+
+	return regometa.String(), nil
 }
 
-func getCustomRules(ctx context.Context, client *client.Fugue, auth runtime.ClientAuthInfoWriter) ([]string, error) {
-	rules := []string{}
+func temporaryCustomRulesDir(ctx context.Context, client *client.Fugue, auth runtime.ClientAuthInfoWriter) (string, error) {
+	tmp, err := ioutil.TempDir("", "fugue_custom_rules_")
+	if err != nil {
+		return "", err
+	}
+
 	listCustomRulesParams := &custom_rules.ListCustomRulesParams{
 		Context: ctx,
 	}
 	result, err := client.CustomRules.ListCustomRules(listCustomRulesParams, auth)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	for _, item := range result.Payload.Items {
-		rules = append(rules, item.RuleText)
+	for i, item := range result.Payload.Items {
+		rule, err := processCustomRule(i, item)
+		if err != nil {
+			logrus.Warningf("Could not load rule %s: %d", item.ID, err)
+		} else {
+			path := filepath.Join(tmp, fmt.Sprintf("rule_%d.rego", i))
+			os.WriteFile(path, []byte(rule), 0644)
+		}
 	}
 
-	return rules, nil
+	return tmp, nil
 }
 
 func scanInputTypes() []loader.InputType {
@@ -196,13 +236,12 @@ func NewScanCommand() *cobra.Command {
 			client, auth := getFugueClient()
 
 			// Request custom rules from SaaS.
-			customRules, err := getCustomRules(ctx, client, auth)
+			customRulesDir, err := temporaryCustomRulesDir(ctx, client, auth)
+			defer os.RemoveAll(customRulesDir)
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			for _, rule := range customRules {
-				logrus.Info(rule)
-			}
+			includes = append(includes, customRulesDir)
 
 			// Load files first.
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{

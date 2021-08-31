@@ -91,6 +91,11 @@ type ListCustomRulesParams struct {
 
 	*/
 	Offset *int64
+	/*Status
+	  Filter on rule status.
+
+	*/
+	Status *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -152,6 +157,17 @@ func (o *ListCustomRulesParams) SetOffset(offset *int64) {
 	o.Offset = offset
 }
 
+// WithStatus adds the status to the list custom rules params
+func (o *ListCustomRulesParams) WithStatus(status *string) *ListCustomRulesParams {
+	o.SetStatus(status)
+	return o
+}
+
+// SetStatus adds the status to the list custom rules params
+func (o *ListCustomRulesParams) SetStatus(status *string) {
+	o.Status = status
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *ListCustomRulesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -186,6 +202,22 @@ func (o *ListCustomRulesParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		qOffset := swag.FormatInt64(qrOffset)
 		if qOffset != "" {
 			if err := r.SetQueryParam("offset", qOffset); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.Status != nil {
+
+		// query param status
+		var qrStatus string
+		if o.Status != nil {
+			qrStatus = *o.Status
+		}
+		qStatus := qrStatus
+		if qStatus != "" {
+			if err := r.SetQueryParam("status", qStatus); err != nil {
 				return err
 			}
 		}

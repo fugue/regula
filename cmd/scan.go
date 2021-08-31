@@ -128,12 +128,14 @@ func temporaryCustomRulesDir(ctx context.Context, client *client.Fugue, auth run
 		return "", err
 	}
 
+	ruleStatus := "ENABLED"
 	ruleNumber := 1
 	isTruncated := true
 	offset := int64(0)
 	for isTruncated {
 		listCustomRulesParams := &custom_rules.ListCustomRulesParams{
 			Offset:  &offset,
+			Status:  &ruleStatus,
 			Context: ctx,
 		}
 		result, err := client.CustomRules.ListCustomRules(listCustomRulesParams, auth)

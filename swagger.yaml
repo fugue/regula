@@ -1464,6 +1464,15 @@ paths:
         default: 100
         minimum: 1
         maximum: 100
+      - name: status
+        in: query
+        required: false
+        description: Filter on rule status.
+        type: string
+        enum:
+        - ENABLED
+        - DISABLED
+        - INVALID
       tags:
       - customRules
       responses:

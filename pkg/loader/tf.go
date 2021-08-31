@@ -318,7 +318,7 @@ func (c0 *HclConfiguration) withLocation(location Location) *HclConfiguration {
 }
 
 func (c *HclConfiguration) LoadedFiles() []string {
-	filepaths := []string{}
+	filepaths := []string{filepath.Join(c.dir, ".terraform")}
 	if c.recurse {
 		filepaths = append(filepaths, c.dir)
 	}

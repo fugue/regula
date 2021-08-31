@@ -56,9 +56,10 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 	if err != nil {
 		return nil, err
 	}
-	walkFunc := func(i InputPath) error {
+	walkFunc := func(i InputPath) (skip bool, err error) {
 		if configurations.AlreadyLoaded(i.Path()) {
-			return nil
+			skip = true
+			return
 		}
 		// Ignore errors when we're recursing
 		loader, _ := i.DetectType(detector, DetectOptions{
@@ -68,7 +69,7 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 		if loader != nil {
 			configurations.AddConfiguration(i.Path(), loader)
 		}
-		return nil
+		return
 	}
 	gitRepoFinder := git.NewRepoFinder(options.Paths)
 	for _, path := range options.Paths {

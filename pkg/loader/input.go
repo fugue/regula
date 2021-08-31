@@ -30,12 +30,15 @@ func (d *directory) Name() string {
 	return d.name
 }
 
-func (d *directory) Walk(w func(i InputPath) error) error {
+func (d *directory) Walk(w WalkFunc) error {
 	for _, c := range d.children {
-		if err := w(c); err != nil {
+		skip, err := w(c)
+		if err != nil {
 			return err
 		}
-
+		if skip {
+			continue
+		}
 		if dir, ok := c.(InputDirectory); ok {
 			if err := dir.Walk(w); err != nil {
 				return err

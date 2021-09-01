@@ -166,9 +166,6 @@ func NewScanCommand() *cobra.Command {
 				inputs = []string{"."}
 			}
 
-			includes := viper.GetStringSlice(includeFlag)
-			ctx := context.Background()
-
 			// Check that we can construct a client.
 			client, auth := getFugueClient()
 
@@ -182,10 +179,10 @@ func NewScanCommand() *cobra.Command {
 			}
 
 			// Produce scan view.
+			ctx := context.Background()
 			result, err := rego.ScanView(&rego.ScanViewOptions{
 				Ctx:      ctx,
 				UserOnly: userOnly,
-				Includes: includes,
 				Input:    loadedFiles.RegulaInput(),
 			})
 			if err != nil {

@@ -33,7 +33,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/zclconf/go-cty/cty"
 
-	"tf_resource_schemas"
+	"github.com/fugue/regula/pkg/tf_resource_schemas"
 )
 
 type TfDetector struct{}
@@ -318,7 +318,7 @@ func (c0 *HclConfiguration) withLocation(location Location) *HclConfiguration {
 }
 
 func (c *HclConfiguration) LoadedFiles() []string {
-	filepaths := []string{}
+	filepaths := []string{filepath.Join(c.dir, ".terraform")}
 	if c.recurse {
 		filepaths = append(filepaths, c.dir)
 	}

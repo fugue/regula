@@ -144,9 +144,13 @@ type InputPath interface {
 	Name() string
 }
 
+// WalkFunc is a callback that's invoked on each descendent of an InputDirectory. It
+// returns a boolean that, when true, indicates that i.Walk() should not be called.
+type WalkFunc func(i InputPath) (skip bool, err error)
+
 type InputDirectory interface {
 	InputPath
-	Walk(w func(i InputPath) error) error
+	Walk(w WalkFunc) error
 	Children() []InputPath
 }
 

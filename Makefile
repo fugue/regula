@@ -10,8 +10,9 @@ MOCKS = $(wildcard pkg/mocks/*.go)
 REGO_LIB_SOURCE = $(shell find rego/lib -type f -name '*.rego')
 REGO_RULES_SOURCE = $(shell find rego/rules -type f -name '*.rego')
 GITCOMMIT = $(shell git rev-parse --short HEAD 2> /dev/null || true)
+BUILD_TYPE ?= dev
 define LDFLAGS
-    -X \"github.com/fugue/regula/pkg/version.Version=$(VERSION)-dev\" \
+    -X \"github.com/fugue/regula/pkg/version.Version=$(VERSION)-$(BUILD_TYPE)\" \
     -X \"github.com/fugue/regula/pkg/version.GitCommit=$(GITCOMMIT)\"
 endef
 CLI_BUILD = go build -ldflags="$(LDFLAGS) -s -w"
@@ -20,6 +21,26 @@ NEXT_MAJOR = $(shell $(CHANGIE) next major)
 NEXT_MINOR = $(shell $(CHANGIE) next minor)
 NEXT_PATCH = $(shell $(CHANGIE) next patch)
 VERSION = $(shell $(CHANGIE) latest)
+
+##############
+#   Swagger  #
+##############
+
+SWAGGER_URL=https://api.riskmanager.fugue.co/v0/swagger
+SWAGGER=swagger.yaml
+
+$(SWAGGER):
+	wget -q -O $@ $(SWAGGER_URL)
+
+.PHONY: swagger_gen
+swagger_gen: $(SWAGGER)
+	mkdir -p pkg/swagger
+	docker run --rm -it \
+    	--volume $(shell pwd):/regula \
+    	--user $(shell id -u):$(shell id -g) \
+    	--workdir /regula \
+    	quay.io/goswagger/swagger:v0.23.0 \
+    	generate client -t pkg/swagger -f "$(SWAGGER)"
 
 #############
 #   Tools   #

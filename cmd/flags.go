@@ -40,6 +40,7 @@ const configFlag = "config"
 const noConfigFlag = "no-config"
 const inputsFlag = "inputs"
 const forceFlag = "force"
+const environmentIdFlag = "environment-id"
 
 const inputTypeDescriptions = `
 Input types:
@@ -126,6 +127,10 @@ func addNoConfigFlag(cmd *cobra.Command) {
 
 func addForceFlag(cmd *cobra.Command) {
 	cmd.Flags().BoolP(forceFlag, "f", false, "Overwrite configuration file without prompting for confirmation.")
+}
+
+func addEnvironmentIdFlag(cmd *cobra.Command) {
+	cmd.Flags().StringP(environmentIdFlag, "e", "", "Environment ID in Fugue SaaS")
 }
 
 func joinDescriptions(descriptions ...string) string {

@@ -34,6 +34,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/fugue/regula/pkg/tf_resource_schemas"
+	"github.com/fugue/regula/pkg/topsort"
 )
 
 type TfDetector struct{}
@@ -612,9 +613,33 @@ func (c *HclConfiguration) renderContext(self string) renderContext {
 	}
 
 	if ctx.locals == nil {
-		ctx.locals = make(map[string]interface{})
-		for k, local := range c.module.Locals {
-			ctx.locals[k] = ctx.EvaluateExpr(local.Expr)
+		// Build dependency graph, perform topological sort.
+		deps := map[string][]string{}
+		for _, local := range c.module.Locals {
+			k := "local." + local.Name
+			deps[k] = []string{}
+			for _, traversal := range local.Expr.Variables() {
+				parts := ctx.RenderTraversal(traversal)
+				deps[k] = append(deps[k], strings.Join(parts, "."))
+			}
+		}
+		sorted, err := topsort.Topsort(deps)
+		if err != nil {
+			logrus.Warnf("While analyzing locals: %s", err)
+			sorted = []string{}
+		} else {
+			for i, k := range sorted {
+				sorted[i] = strings.TrimPrefix(k, "local.")
+			}
+		}
+
+		// Now actually compute locals.
+		ctx.locals = map[string]interface{}{}
+		for _, k := range sorted {
+			local := c.module.Locals[k]
+			val := ctx.EvaluateExpr(local.Expr)
+			ctx.locals[k] = val
+			logrus.Debugf("Set local %s to %v", k, val)
 		}
 		c.locals = ctx.locals
 	}

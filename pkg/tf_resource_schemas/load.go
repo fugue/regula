@@ -11,14 +11,14 @@ var resourceSchemasJson []byte
 var resourceSchemas ResourceSchemas
 
 func LoadResourceSchemas() ResourceSchemas {
-    if resourceSchemas != nil {
-        return resourceSchemas
-    }
+	if resourceSchemas != nil {
+		return resourceSchemas
+	}
 
-    resourceSchemas := make(ResourceSchemas)
-    err := json.Unmarshal(resourceSchemasJson, &resourceSchemas)
-    if err != nil {
-        panic(err)
-    }
+	resourceSchemas := make(ResourceSchemas)
+	err := json.Unmarshal(resourceSchemasJson, &resourceSchemas)
+	if err != nil {
+		panic(err)
+	}
 	return resourceSchemas
 }

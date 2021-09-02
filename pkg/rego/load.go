@@ -58,7 +58,7 @@ func newRegoFile(fsys fs.FS, path string) (RegoFile, error) {
 	}, nil
 }
 
-func loadDirectory(fsys fs.FS, path string, cb func(r RegoFile) error) error {
+func LoadDirectory(fsys fs.FS, path string, cb func(r RegoFile) error) error {
 	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -94,7 +94,7 @@ func LoadOSFiles(paths []string, cb func(r RegoFile) error) error {
 			return err
 		}
 		if info.IsDir() {
-			err := loadDirectory(fsys, path, cb)
+			err := LoadDirectory(fsys, path, cb)
 			if err != nil {
 				return err
 			}
@@ -115,11 +115,11 @@ func LoadOSFiles(paths []string, cb func(r RegoFile) error) error {
 }
 
 func LoadRegula(userOnly bool, cb func(r RegoFile) error) error {
-	if err := loadDirectory(embedded.RegulaLib, "lib", cb); err != nil {
+	if err := LoadDirectory(embedded.RegulaLib, "lib", cb); err != nil {
 		return err
 	}
 	if !userOnly {
-		if err := loadDirectory(embedded.RegulaRules, "rules", cb); err != nil {
+		if err := LoadDirectory(embedded.RegulaRules, "rules", cb); err != nil {
 			return err
 		}
 	}

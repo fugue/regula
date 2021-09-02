@@ -8,10 +8,10 @@ import (
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	provider_google "github.com/hashicorp/terraform-provider-google/google"
 	provider_aws "github.com/terraform-providers/terraform-provider-aws/aws"
-	provider_google "github.com/terraform-providers/terraform-provider-google/google"
 
-	"tf_resource_schemas"
+	"github.com/fugue/regula/pkg/tf_resource_schemas"
 )
 
 func check(e error) {

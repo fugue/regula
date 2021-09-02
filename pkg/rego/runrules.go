@@ -17,23 +17,31 @@ package rego
 import (
 	"context"
 	"fmt"
+	"io/fs"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/open-policy-agent/opa/rego"
 )
 
+// EmbeddedInclude can be used to load embedded rego code when regula
+// is used as a library.
+type EmbeddedInclude struct {
+	FS        fs.FS
+	Directory string
+}
+
 // RunRulesOptions is the set of options for RunRules
 type RunRulesOptions struct {
-	Ctx      context.Context
-	UserOnly bool
-	Includes []string
-	Input    []loader.RegulaInput
+	Ctx              context.Context
+	UserOnly         bool
+	Includes         []string
+	EmbeddedIncludes []EmbeddedInclude
+	Input            []loader.RegulaInput
 }
 
 // RunRules runs regula and user-specified rules on loaded inputs
 func RunRules(options *RunRulesOptions) (*rego.Result, error) {
-	RegisterBuiltins()
-	query, err := prepare(options.Ctx, options.UserOnly, options.Includes)
+	query, err := prepare(options)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +52,7 @@ func RunRules(options *RunRulesOptions) (*rego.Result, error) {
 	return &results[0], nil
 }
 
-func prepare(ctx context.Context, userOnly bool, includes []string) (*rego.PreparedEvalQuery, error) {
+func prepare(options *RunRulesOptions) (*rego.PreparedEvalQuery, error) {
 	regoFuncs := []func(r *rego.Rego){
 		rego.Query("data.fugue.regula.report"),
 	}
@@ -52,13 +60,18 @@ func prepare(ctx context.Context, userOnly bool, includes []string) (*rego.Prepa
 		regoFuncs = append(regoFuncs, rego.Module(r.Path(), r.String()))
 		return nil
 	}
-	if err := LoadRegula(userOnly, cb); err != nil {
+	if err := LoadRegula(options.UserOnly, cb); err != nil {
 		return nil, err
 	}
-	if err := LoadOSFiles(includes, cb); err != nil {
+	for _, e := range options.EmbeddedIncludes {
+		if err := LoadDirectory(e.FS, e.Directory, cb); err != nil {
+			return nil, err
+		}
+	}
+	if err := LoadOSFiles(options.Includes, cb); err != nil {
 		return nil, err
 	}
-	query, err := rego.New(regoFuncs...).PrepareForEval(ctx)
+	query, err := rego.New(regoFuncs...).PrepareForEval(options.Ctx)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to initialize OPA: %v", err)
 	}

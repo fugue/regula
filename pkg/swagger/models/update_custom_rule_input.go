@@ -22,6 +22,9 @@ type UpdateCustomRuleInput struct {
 	// Description of the custom rule
 	Description string `json:"description,omitempty"`
 
+	// Families to which the custom rule belongs
+	Families []string `json:"families"`
+
 	// Human readable name of the custom rule
 	Name string `json:"name,omitempty"`
 

@@ -27,11 +27,6 @@ __rego__metadoc__ := {
       ],
       "CIS-Azure_v1.3.0": [
         "CIS-Azure_v1.3.0_6.2"
-      ],
-      "NIST-800-53_vRev4": [
-        "NIST-800-53_vRev4_AC-4",
-        "NIST-800-53_vRev4_SC-7a.",
-        "NIST-800-53_vRev4_SI-4a.2."
       ]
     },
     "severity": "High"

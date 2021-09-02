@@ -34,6 +34,7 @@ import (
 	"github.com/fugue/regula/pkg/swagger/client/custom_rules"
 	"github.com/fugue/regula/pkg/swagger/client/scans"
 	"github.com/fugue/regula/pkg/swagger/models"
+
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
@@ -246,10 +247,8 @@ func NewScanCommand() *cobra.Command {
 				inputs = []string{"."}
 			}
 
-			includes := viper.GetStringSlice(includeFlag)
-			ctx := context.Background()
-
 			// Check that we can construct a client.
+			ctx := context.Background()
 			client, auth := getFugueClient()
 
 			// Request custom rules from SaaS.
@@ -258,7 +257,7 @@ func NewScanCommand() *cobra.Command {
 			if err != nil {
 				logrus.Fatal(err)
 			}
-			includes = append(includes, customRulesDir)
+			includes := []string{customRulesDir}
 
 			// Load files first.
 			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{

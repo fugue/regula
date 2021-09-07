@@ -47,6 +47,8 @@ const (
 	Tf
 	// Kubernetes manifests will be loaded
 	K8s
+	// Azure Resource Manager JSON
+	Arm
 )
 
 // InputTypeIDs maps the InputType enums to string values that can be specified in
@@ -57,6 +59,7 @@ var InputTypeIDs = map[InputType][]string{
 	Cfn:    {"cfn"},
 	Tf:     {"tf"},
 	K8s:    {"k8s", "kubernetes"},
+	Arm:    {"arm"},
 }
 
 var DefaultInputTypes = InputTypeIDs[Auto]

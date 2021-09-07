@@ -36,7 +36,7 @@ __rego__metadoc__ := {
 
 resource_type = "MULTIPLE"
 
-buckets = lib.buckets_with_valid_policies
+buckets = fugue.resources("aws_s3_bucket")
 
 invalid_buckets[bucket_id] = bucket {
   bucket = buckets[bucket_id]

@@ -47,6 +47,7 @@ statement_has_condition(statement) {
 }
 
 allow_all(pol) {
+  json.is_valid(pol)
   doc = json.unmarshal(pol)
   statements = as_array(doc.Statement)
   statement = statements[_]

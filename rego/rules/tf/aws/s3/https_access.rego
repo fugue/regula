@@ -48,7 +48,7 @@ specifies_secure_transport(statement) {
   related_actions[actions[_]]
 }
 
-buckets = lib.buckets_with_valid_policies
+buckets = fugue.resources("aws_s3_bucket")
 
 # A valid policy specifies a `specifies_secure_transport` statement for the
 # "s3:GetObject" method.  See also:

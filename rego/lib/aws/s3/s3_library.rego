@@ -14,7 +14,6 @@
 package aws.s3.s3_library
 
 import data.fugue
-import data.aws.iam.policy_document_library as doclib
 
 # Retrieves all bucket policies for a bucket, returned as a list.
 # Bucket policies can be defined as part of the bucket or as
@@ -37,11 +36,5 @@ bucket_name_or_id(bucket) = ret {
   ret = bucket.name
 } {
   ret = bucket.id
-}
-
-buckets_with_valid_policies[id] = bucket {
-  bucket = fugue.resources("aws_s3_bucket")[id]
-  policies = bucket_policies_for_bucket(bucket)
-  all([doclib.policy_document_ref_or_json_string(p) | p = policies[_]])
 }
 

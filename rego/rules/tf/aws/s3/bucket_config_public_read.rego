@@ -38,7 +38,7 @@ resource_type = "MULTIPLE"
 
 base_message = "S3 buckets should not be configured for public access:"
 
-buckets = lib.buckets_with_valid_policies
+buckets = fugue.resources("aws_s3_bucket")
 
 # https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
 # Invalid canned ACL is "public-read", "public-read-write",

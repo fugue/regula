@@ -27,8 +27,9 @@ import (
 	"strings"
 
 	"github.com/fugue/regula/pkg/loader"
-	"github.com/fugue/regula/pkg/metadoc"
 	"github.com/fugue/regula/pkg/rego"
+	"github.com/fugue/regula/pkg/regotools/doublequote"
+	"github.com/fugue/regula/pkg/regotools/metadoc"
 	"github.com/fugue/regula/pkg/swagger/client"
 	apiclient "github.com/fugue/regula/pkg/swagger/client"
 	"github.com/fugue/regula/pkg/swagger/client/custom_rules"
@@ -120,7 +121,9 @@ func processCustomRule(rule *models.CustomRule) (string, error) {
 	// Ensure data.fugue import is there.
 	regometa.Imports[metadoc.Import{Path: "data.fugue"}] = struct{}{}
 
-	return regometa.String(), nil
+	// Turn single quotes into double quotes.
+	text := doublequote.Doublequote(regometa.String())
+	return text, nil
 }
 
 func temporaryCustomRulesDir(ctx context.Context, client *client.Fugue, auth runtime.ClientAuthInfoWriter) (string, error) {

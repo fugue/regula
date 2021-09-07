@@ -41,6 +41,8 @@ const (
 	// Tf means that regula will load the HCL in the directory in a similar
 	// way to terraform plan, or it can also load individual files.
 	Tf
+	// Azure Resource Manager JSON
+	Arm
 )
 
 // InputTypeIDs maps the InputType enums to string values that can be specified in
@@ -50,6 +52,7 @@ var InputTypeIDs = map[InputType][]string{
 	TfPlan: {"tf-plan", "tf_plan"},
 	Cfn:    {"cfn"},
 	Tf:     {"tf"},
+	Arm:    {"arm"},
 }
 
 // InputTypeForString is a utility function to translate the string name of an input
@@ -64,6 +67,8 @@ func InputTypeForString(typeStr string) (InputType, error) {
 		return TfPlan, nil
 	case "tf":
 		return Tf, nil
+	case "arm":
+		return Arm, nil
 	default:
 		return -1, fmt.Errorf("Unrecognized input type %v", typeStr)
 	}
@@ -114,7 +119,7 @@ type Location struct {
 //
 // These are stored as a call stack, with the most specific location in the
 // first position, and the "root of the call stack" at the last position.
-type LocationStack = []Location;
+type LocationStack = []Location
 
 func (l Location) String() string {
 	return fmt.Sprintf("%s:%d:%d", l.Path, l.Line, l.Col)

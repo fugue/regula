@@ -203,6 +203,7 @@ func DetectorByInputType(inputType InputType) (ConfigurationDetector, error) {
 			&CfnDetector{},
 			&TfPlanDetector{},
 			&TfDetector{},
+			&ArmDetector{},
 		), nil
 	case Cfn:
 		return &CfnDetector{}, nil
@@ -210,6 +211,8 @@ func DetectorByInputType(inputType InputType) (ConfigurationDetector, error) {
 		return &TfPlanDetector{}, nil
 	case Tf:
 		return &TfDetector{}, nil
+	case Arm:
+		return &ArmDetector{}, nil
 	default:
 		return nil, fmt.Errorf("Unsupported input type: %v", inputType)
 	}

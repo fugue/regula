@@ -20,6 +20,7 @@ package fugue.resource_view
 import data.fugue.input_type_internal
 import data.fugue.resource_view.cloudformation
 import data.fugue.resource_view.terraform
+import data.fugue.resource_view.arm
 
 resource_view = ret {
   # If we are already given a resource view, just pass it through.
@@ -31,6 +32,9 @@ resource_view = ret {
 } else = ret {
   input_type_internal.cloudformation_input_type
   ret = cloudformation.resource_view
+} else = ret {
+  input_type_internal.arm_input_type
+  ret = arm.resource_view
 }
 
 resource_view_input = ret {
@@ -41,5 +45,8 @@ resource_view_input = ret {
   ret = {"resources": resource_view, "_plan": input}
 } else = ret {
   input_type_internal.cloudformation_input_type
+  ret = {"resources": resource_view, "_template": input}
+} else = ret {
+  input_type_internal.arm_input_type
   ret = {"resources": resource_view, "_template": input}
 }

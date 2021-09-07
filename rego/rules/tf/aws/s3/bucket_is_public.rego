@@ -40,7 +40,7 @@ resource_type = "MULTIPLE"
 
 base_message = "S3 buckets should not be publicly readable:"
 
-buckets = lib.buckets_with_valid_policies
+buckets = fugue.resources("aws_s3_bucket")
 bucket_access_blocks = fugue.resources("aws_s3_bucket_public_access_block")
 account_access_blocks = fugue.resources("aws_s3_account_public_access_block")
 

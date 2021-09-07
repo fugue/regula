@@ -68,24 +68,13 @@ policy_documents := {global_id: ret |
   ret := make_document(doc)
 }
 
-policy_document_ref_or_json_string(p) = true {
-  _ = policy_documents[_]
-} else = true {
-  startswith(trim_space(p), "{")
-  endswith(trim_space(p), "}")
-} else = false {
-  true
-}
-
 to_policy_document(pol) = ret {
   ret := policy_documents[pol]
 } else = ret {
   is_array(pol)
   ret := policy_documents[pol[0]]
 } else = ret {
-  is_string(pol)
-  startswith(trim_space(pol), "{")
-  endswith(trim_space(pol), "}")
+  json.is_valid(pol)
   ret := json.unmarshal(pol)
 }
 

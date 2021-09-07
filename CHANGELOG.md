@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.3.1 (2021-09-07)
+
+### Fixed
+* Bug that caused S3 buckets to be ignored by some rules if they had a bucket policy we could not parse (#186)
+* Compatibility issue with `regula scan` and some custom Fugue SaaS rules (#185)
+
 ## v1.3.0 (2021-09-02)
 
 ### Added

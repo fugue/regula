@@ -19,6 +19,7 @@ import (
 	"sort"
 
 	"github.com/fugue/regula/pkg/loader"
+	embedded "github.com/fugue/regula/rego"
 	"github.com/open-policy-agent/opa/rego"
 )
 
@@ -177,6 +178,16 @@ func (o RegulaOutput) AggregateByFilepath() ResultsByFilepath {
 	return byFilepath
 }
 
+// Get the URL of the remediation documenation, or "" if no such documentation
+// exists (to our knowledge).
+func getRemediationDoc(RuleID string) string {
+	if val, ok := embedded.RegulaRemediations[RuleID]; ok {
+		return val.URL
+	}
+
+	return ""
+}
+
 // AggregateByRule returns all rule results grouped by rule
 func (o RegulaOutput) AggregateByRule() ResultsByRule {
 
@@ -202,11 +213,12 @@ func (o RegulaOutput) AggregateByRule() ResultsByRule {
 			return resultA.ResourceID < resultB.ResourceID
 		})
 		output = append(output, RuleResults{
-			RuleID:       results[0].RuleID,
-			RuleName:     results[0].RuleName,
-			RuleSummary:  results[0].RuleSummary,
-			RuleSeverity: results[0].RuleSeverity,
-			Results:      results,
+			RuleID:             results[0].RuleID,
+			RuleName:           results[0].RuleName,
+			RuleSummary:        results[0].RuleSummary,
+			RuleSeverity:       results[0].RuleSeverity,
+			RuleRemediationDoc: getRemediationDoc(results[0].RuleID),
+			Results:            results,
 		})
 	}
 
@@ -316,11 +328,12 @@ type Reporter func(r *RegulaOutput) (string, error)
 // RuleResults carries a slice of RuleResults associated with a specific rule.
 // A minimal amount of rule metadata is duplicated here for convenience.
 type RuleResults struct {
-	RuleID       string
-	RuleName     string
-	RuleSummary  string
-	RuleSeverity string
-	Results      []*RuleResult
+	RuleID             string
+	RuleName           string
+	RuleSummary        string
+	RuleSeverity       string
+	RuleRemediationDoc string
+	Results            []*RuleResult
 }
 
 // ResultsByRule is used to carry all rule results grouped by rule

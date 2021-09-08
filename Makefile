@@ -22,6 +22,8 @@ NEXT_MINOR = $(shell $(CHANGIE) next minor)
 NEXT_PATCH = $(shell $(CHANGIE) next patch)
 VERSION = $(shell $(CHANGIE) latest)
 
+REMEDIATION_LINKS = rego/rules/remediation.yaml
+
 ##############
 #   Swagger  #
 ##############
@@ -71,7 +73,7 @@ install_tools: $(GOLINT) $(MOCKGEN) $(CHANGIE) $(GORELEASER)
 # Dev builds #
 ##############
 
-$(BINARY): $(CLI_SOURCE) $(REGO_LIB_SOURCE) $(REGO_RULES_SOURCE)
+$(BINARY): $(CLI_SOURCE) $(REGO_LIB_SOURCE) $(REGO_RULES_SOURCE) $(REMEDIATION_LINKS)
 	$(CLI_BUILD) -v -o $@
 
 $(INSTALLED_BINARY): $(BINARY)
@@ -106,6 +108,13 @@ docker: $(CLI_SOURCE) $(REGO_LIB_SOURCE) $(REGO_RULES_SOURCE)
 	GOOS=linux GOARCH=amd64 $(CLI_BUILD) -v -o dist/regula
 	cp Dockerfile dist
 	cd dist && docker build --tag fugue/regula:dev .
+
+################################
+#   Remediation documentation  #
+################################
+
+$(REMEDIATION_LINKS):
+	curl -s "https://docs.fugue.co/remediation.html" | grep -Eo 'FG_R[0-9]+' | sort -u | awk '{ print $$1 ":\n  url: https://docs.fugue.co/" $$1 ".html" }' > "$@"
 
 #####################
 # Release processes #

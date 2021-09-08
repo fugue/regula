@@ -1,0 +1,23 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_s3_bucket.test1": {
+        "_filepath": "tf_test/template-in-function/main.tf",
+        "_provider": "aws",
+        "_type": "aws_s3_bucket",
+        "bucket": "test1",
+        "id": "aws_s3_bucket.test1"
+      },
+      "aws_s3_bucket_policy.test1": {
+        "_filepath": "tf_test/template-in-function/main.tf",
+        "_provider": "aws",
+        "_type": "aws_s3_bucket_policy",
+        "bucket": "aws_s3_bucket.test1",
+        "id": "aws_s3_bucket_policy.test1",
+        "policy": "{\"Id\":\"MYBUCKETPOLICY\",\"Statement\":[{\"Action\":\"s3:List*\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"aws_s3_bucket.test1\",\"Sid\":\"IPAllow\"}],\"Version\":\"2012-10-17\"}"
+      }
+    }
+  },
+  "filepath": "tf_test/template-in-function"
+}

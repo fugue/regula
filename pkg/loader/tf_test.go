@@ -163,12 +163,12 @@ func TestTfResourceLocation(t *testing.T) {
 		{
 			path: []string{"module.child2.aws_vpc.child"},
 			expected: []loader.Location{
-				loader.Location{
+				{
 					Path: filepath.Join(dir, "child2", "main.tf"),
 					Line: 5,
 					Col:  1,
 				},
-				loader.Location{
+				{
 					Path: filepath.Join(dir, "main.tf"),
 					Line: 14,
 					Col:  12,

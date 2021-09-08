@@ -807,6 +807,21 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 		return c.RenderExpr(e.Expression)
 	case *hclsyntax.FunctionCallExpr:
 		// This is handled using evaluation.
+		args := make([]hclsyntax.Expression, len(e.Args))
+		for i, a := range e.Args {
+			args[i] = &hclsyntax.LiteralValueExpr{
+				Val:      makeValue(c.RenderExpr(a)),
+				SrcRange: a.Range(),
+			}
+		}
+		expr = &hclsyntax.FunctionCallExpr{
+			Name:            e.Name,
+			Args:            args,
+			ExpandFinal:     e.ExpandFinal,
+			NameRange:       e.NameRange,
+			OpenParenRange:  e.OpenParenRange,
+			CloseParenRange: e.CloseParenRange,
+		}
 	default:
 		if ty := reflect.TypeOf(expr); ty != nil {
 			logrus.Debugf("Unhandled expression type %s at %s, falling back to evaluation", ty.String(), e.Range())

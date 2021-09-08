@@ -73,6 +73,9 @@ extra:
     - icon: fontawesome/solid/envelope
       link: mailto:regula@fugue.co
       name: Email the Regula team
+  analytics:
+    provider: google
+    property: G-83QYJE6Q8C
 plugins:
   - macros
   - search

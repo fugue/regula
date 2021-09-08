@@ -45,16 +45,10 @@ func (c *ArmDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurat
 		return nil, fmt.Errorf("Input file is not an ARM template: %v", i.Path())
 	}
 	path := i.Path()
-	source := &CfnSourceInfo{}
-	// source, err := LoadCfnSourceInfo(path, contents)
-	// if err != nil {
-	// 	source = nil // Don't consider source code locations essential.
-	// }
 
 	return &armConfiguration{
 		path:     path,
 		template: *template,
-		source:   source,
 	}, nil
 }
 

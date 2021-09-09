@@ -47,6 +47,7 @@ type RegoMeta struct {
 	Description string
 	Severity    string
 	Controls    map[string][]string
+	Families    []string
 
 	ResourceType     string // Resource type
 	resourceTypeLine int
@@ -72,6 +73,7 @@ func RegoMetaFromPath(path string) (*RegoMeta, error) {
 type metadocCustom struct {
 	Severity string              `json:"severity"`
 	Controls map[string][]string `json:"controls"`
+	Families []string            `json:"families"`
 }
 
 type metadoc struct {
@@ -184,6 +186,7 @@ func RegoMetaFromString(str string) (*RegoMeta, error) {
 		if metadoc.Custom != nil {
 			rego.Controls = metadoc.Custom.Controls
 			rego.Severity = metadoc.Custom.Severity
+			rego.Families = metadoc.Custom.Families
 		}
 	}
 
@@ -223,6 +226,11 @@ func (rego *RegoMeta) String() string {
 		delete(custom, "controls")
 	} else {
 		custom["controls"] = rego.Controls
+	}
+	if len(rego.Families) == 0 {
+		delete(custom, "families")
+	} else {
+		custom["families"] = rego.Families
 	}
 	if len(custom) == 0 {
 		delete(custom, "custom")

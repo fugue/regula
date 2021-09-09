@@ -74,7 +74,11 @@ __rego__metadoc__ := {
         "NIST-800-53_vRev4_SC-13"
       ]
     },
-    "severity": "High"
+    "severity": "High",
+    "families": [
+      "MyCustomFamily",
+      "1172ca4f-6d31-4c46-a085-54ff73c6ed27"
+    ]
   },
   "description": "EBS volume encryption should be enabled. Enabling encryption on EBS volumes protects data at rest inside the volume, data in transit between the volume and the instance, snapshots created from the volume, and volumes created from those snapshots. EBS volumes are encrypted using KMS keys.",
   "id": "FG_R00016",
@@ -95,6 +99,10 @@ allow {
 				assert.Equal(t, "EBS volume encryption should be enabled", rego.Title)
 				assert.Equal(t, "EBS volume encryption should be enabled. Enabling encryption on EBS volumes protects data at rest inside the volume, data in transit between the volume and the instance, snapshots created from the volume, and volumes created from those snapshots. EBS volumes are encrypted using KMS keys.", rego.Description)
 				assert.Equal(t, "High", rego.Severity)
+				assert.Equal(t, []string{
+					"MyCustomFamily",
+					"1172ca4f-6d31-4c46-a085-54ff73c6ed27",
+				}, rego.Families)
 				assert.Equal(t,
 					map[string][]string{
 						"CIS-AWS_v1.3.0":    {"CIS-AWS_v1.3.0_2.2.1"},
@@ -104,6 +112,7 @@ allow {
 
 				rego.Description = "Updated description"
 				rego.Severity = "Low"
+				rego.Families[1] = "ee1dfd49-a46f-433d-99b9-25805d7e8766"
 				delete(rego.Controls, "CIS-AWS_v1.3.0")
 			},
 			expected: `
@@ -117,6 +126,10 @@ __rego__metadoc__ := {
         "NIST-800-53_vRev4_SC-13"
       ]
     },
+    "families": [
+      "MyCustomFamily",
+      "ee1dfd49-a46f-433d-99b9-25805d7e8766"
+    ],
     "severity": "Low"
   },
   "description": "Updated description",

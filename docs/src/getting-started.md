@@ -102,6 +102,7 @@ You'll see output like this:
 
 ```
 FG_R00092: IAM policies should not have full "*:*" administrative privileges [High]
+           https://docs.fugue.co/FG_R00092.html
 
   [1]: aws_iam_policy.basically_allow_all
        in infra_tf/main.tf:6:1

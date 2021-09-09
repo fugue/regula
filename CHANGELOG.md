@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.3.2 (2021-09-09)
+
+### Added
+* Rule documentation links in the text output format
+
+### Fixed
+* Bug with template strings in arguments to `jsonencode` in Terraform
+
 ## v1.3.1 (2021-09-07)
 
 ### Fixed

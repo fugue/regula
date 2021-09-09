@@ -8,10 +8,10 @@
 {{- Cyan $ruleResults.RuleName }}
 {{- end -}}: {{- Bold " " $ruleResults.RuleSummary }} {{ Severity $ruleResults.RuleSeverity }}
 {{- if not (eq $ruleResults.RuleRemediationDoc "") }}
-     {{ PadIndex nil (len $ruleResults.RuleID) }} {{ $ruleResults.RuleRemediationDoc }}
-{{- end }}
+     {{ PadIndex nil (len $ruleResults.RuleID) }} {{ Link $ruleResults.RuleRemediationDoc }}
+{{- end -}}
 {{/* RULE RESULTS FOR A SINGLE RULE */}}
-{{- range $index, $rr := $ruleResults.Results }}
+{{ range $index, $rr := $ruleResults.Results }}
   {{ ResultIndex $rr $index }} {{ $rr.ResourceID }}
   {{- range $_, $locationLine := LocationStack $rr }}
   {{ PadIndex $rr $index }} {{ $locationLine }}

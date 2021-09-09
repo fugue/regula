@@ -240,16 +240,16 @@ func (rego *RegoMeta) String() string {
 	// Find new imports
 	newImports := []string{}
 	for imp := range rego.Imports {
-    	if _, ok := rego.originalImports[imp]; !ok {
-        	newImports = append(newImports, imp.String())
-    	}
+		if _, ok := rego.originalImports[imp]; !ok {
+			newImports = append(newImports, imp.String())
+		}
 	}
 
 	// Render a list of lines that will be placed below the package name.
 	// This includes all the things that weren't in the original file.
 	belowPackage := []string{}
 	if len(newImports) > 0 {
-    	belowPackage = append(belowPackage, strings.Join(newImports, "\n"))
+		belowPackage = append(belowPackage, strings.Join(newImports, "\n"))
 	}
 	if rego.metadocStartLine < 0 && haveMetadoc {
 		belowPackage = append(belowPackage, metadocString)

@@ -70,7 +70,7 @@ func init() {
 				return color.New(color.FgRed).Sprint(items...)
 			},
 			"Link": func(items ...interface{}) string {
-				return color.New(color.FgHiBlue, color.Underline).Sprint(items...)
+				return color.New(color.FgHiBlue).Sprint(items...)
 			},
 			"Praise": func() string {
 				return randomPraise()

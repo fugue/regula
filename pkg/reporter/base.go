@@ -54,15 +54,17 @@ const (
 	Tap
 	None
 	Text
+	Compact
 )
 
 var FormatIds = map[Format][]string{
-	JSON:  {"json"},
-	Table: {"table"},
-	Junit: {"junit"},
-	Tap:   {"tap"},
-	None:  {"none"},
-	Text:  {"text"},
+	JSON:    {"json"},
+	Table:   {"table"},
+	Junit:   {"junit"},
+	Tap:     {"tap"},
+	None:    {"none"},
+	Text:    {"text"},
+	Compact: {"compact"},
 }
 
 type Result int

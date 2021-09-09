@@ -14,29 +14,21 @@
 
 package reporter
 
-import "fmt"
+import (
+	_ "embed"
+	"text/template"
+)
 
-func GetReporter(format Format) (Reporter, error) {
-	switch format {
-	case JSON:
-		return JSONReporter, nil
-	case Table:
-		return TableReporter, nil
-	case Junit:
-		return JUnitReporter, nil
-	case Tap:
-		return TapReporter, nil
-	case None:
-		return noneReporter, nil
-	case Text:
-		return TextReporter, nil
-	case Compact:
-		return CompactReporter, nil
-	default:
-		return nil, fmt.Errorf("Unsupported or unrecognized reporter: %v", FormatIds[format])
-	}
+var compactTemplate *template.Template
+
+//go:embed compact.tmpl
+var compactTemplateDefinition string
+
+func init() {
+	compactTemplate = createTextReporterTemplate(compactTemplateDefinition)
 }
 
-func noneReporter(o *RegulaOutput) (string, error) {
-	return "", nil
+// TextReporter returns the Regula report in a human-friendly format
+func CompactReporter(o *RegulaOutput) (string, error) {
+	return textReporterWithTemplate(o, compactTemplate)
 }

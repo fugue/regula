@@ -33,26 +33,27 @@ var textTemplateDefinition string
 //go:embed praise.txt
 var praiseText string
 
-func init() {
-
-	getSeverityColor := func(severity string) *color.Color {
-		switch severity {
-		case "Low":
-			return color.New(color.FgBlue)
-		case "Medium":
-			return color.New(color.FgYellow)
-		case "High":
-			return color.New(color.FgRed)
-		case "Critical":
-			return color.New(color.BgRed)
-		default:
-			return color.New()
-		}
+func getSeverityColor(severity string) *color.Color {
+	switch severity {
+	case "Low":
+		return color.New(color.FgBlue)
+	case "Medium":
+		return color.New(color.FgYellow)
+	case "High":
+		return color.New(color.FgRed)
+	case "Critical":
+		return color.New(color.BgRed)
+	default:
+		return color.New()
 	}
+}
 
+func createTextReporterTemplate(tmpl string) *template.Template {
 	// We'll use a Go template to describe and create the friendly output
 	var err error
-	textTemplate, err = template.New("friendly").Funcs(
+	var compiledTemplate *template.Template
+
+	compiledTemplate, err = template.New("friendly").Funcs(
 		template.FuncMap{
 			"Bold": func(items ...interface{}) string {
 				return color.New(color.Bold).Sprint(items...)
@@ -71,6 +72,9 @@ func init() {
 			},
 			"Link": func(items ...interface{}) string {
 				return color.New(color.FgHiBlue).Sprint(items...)
+			},
+			"LinkedText": func(url string, text string) string {
+				return fmt.Sprintf("\x1b]8;;%s\x1b\\%s\x1b]8;;\x1b\\", url, text)
 			},
 			"Praise": func() string {
 				return randomPraise()
@@ -125,21 +129,31 @@ func init() {
 				return c.Sprintf("[%s]", severity)
 			},
 		},
-	).Parse(textTemplateDefinition)
+	).Parse(tmpl)
 
 	if err != nil {
 		// This will only happen during development, if the template is invalid
 		panic(fmt.Errorf("unable to parse friendly format template: %w", err))
 	}
+
+	return compiledTemplate
+}
+
+func init() {
+	textTemplate = createTextReporterTemplate(textTemplateDefinition)
+}
+
+func textReporterWithTemplate(o *RegulaOutput, tmpl *template.Template) (string, error) {
+	buf := &bytes.Buffer{}
+	if err := tmpl.Execute(buf, o); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
 
 // TextReporter returns the Regula report in a human-friendly format
 func TextReporter(o *RegulaOutput) (string, error) {
-	buf := &bytes.Buffer{}
-	if err := textTemplate.Execute(buf, o); err != nil {
-		return "", err
-	}
-	return buf.String(), nil
+	return textReporterWithTemplate(o, textTemplate)
 }
 
 func randomPraise() string {

@@ -664,6 +664,30 @@ func (c *renderContext) WithSchema(schema *tf_resource_schemas.Schema) *renderCo
 	return c1
 }
 
+// These are the functions we have overridden in the renderContext, they're
+// currently global but could be moved into that type if we need the
+// flexibility.
+type functionOverride = func(*hclsyntax.FunctionCallExpr) interface{}
+
+func (c *renderContext) functionOverride(name string) *functionOverride {
+	jsonencode := func(expr *hclsyntax.FunctionCallExpr) interface{} {
+		if len(expr.Args) > 0 {
+			obj := c.RenderExpr(expr.Args[0])
+			if bytes, err := json.Marshal(obj); err == nil {
+				return string(bytes)
+			}
+		}
+		return nil
+	}
+
+	switch name {
+	case "jsonencode":
+		return &jsonencode
+	default:
+		return nil
+	}
+}
+
 func (c *renderContext) RenderBody(body *hclsyntax.Body) map[string]interface{} {
 	properties := make(map[string]interface{})
 
@@ -806,7 +830,11 @@ func (c *renderContext) RenderExpr(expr hclsyntax.Expression) interface{} {
 	case *hclsyntax.ParenthesesExpr:
 		return c.RenderExpr(e.Expression)
 	case *hclsyntax.FunctionCallExpr:
-		// This is handled using evaluation.
+		// This is usually handled using evaluation but there are a few
+		// functions we override.
+		if override := c.functionOverride(e.Name); override != nil {
+			return (*override)(e)
+		}
 	default:
 		if ty := reflect.TypeOf(expr); ty != nil {
 			logrus.Debugf("Unhandled expression type %s at %s, falling back to evaluation", ty.String(), e.Range())

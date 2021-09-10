@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2021 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,13 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package fugue.resource_view.kubernetes
 
-resource_view[id] = ret {
-  resource := input.resources[id]
-  ret := json.patch(resource, [
-    {"op": "add", "path": ["id"], "value": id},
-    {"op": "add", "path": ["_type"], "value": resource.kind},
-    {"op": "add", "path": ["_provider"], "value": "kubernetes"},
-  ])
+package rules.k8s_added_capabilities
+
+import data.k8s
+import data.tests.rules.k8s.added_capabilities.inputs
+
+test_valid_pod {
+	pol := policy with input as inputs.valid_added_capabilities_yaml.mock_input
+	resources := {p.id: p.valid | p := pol[_]}
+	resources["Pod.security-context-demo-4"] == true
+}
+
+test_invalid_pod {
+	pol = policy with input as inputs.invalid_added_capabilities_yaml.mock_input
+	resources := {p.id: p.valid | p := pol[_]}
+	resources["Pod.security-context-demo-4"] == false
 }

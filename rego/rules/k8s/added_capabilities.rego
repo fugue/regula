@@ -33,19 +33,19 @@ resource_type = "MULTIPLE"
 
 resources = k8s.resources_with_containers
 
-is_valid(resource) {
-    containers = k8s.containers(resource)
-    count(containers) > 1
+is_invalid(resource) {
+	containers = k8s.containers(resource)
+	count(k8s.added_capabilities(containers[_])) > 0
 }
 
 policy[j] {
 	resource := resources[_]
-	is_valid(resource)
+	not is_invalid(resource)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	not is_valid(resource)
+	is_invalid(resource)
 	j = fugue.deny_resource(resource)
 }

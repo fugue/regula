@@ -17,37 +17,55 @@ package k8s
 import data.fugue
 
 resources_with_containers[id] = ret {
-	clusters = fugue.resources("ReplicaSet")
-	ret = clusters[id]
+	resources = fugue.resources("ReplicaSet")
+	some id
+	count(containers(resources[id])) > 0
+	ret = resources[id]
 }
 
 resources_with_containers[id] = ret {
-	clusters = fugue.resources("Job")
-	ret = clusters[id]
+	resources = fugue.resources("Job")
+	some id
+	count(containers(resources[id])) > 0
+	ret = resources[id]
 }
 
 resources_with_containers[id] = ret {
-	clusters = fugue.resources("Pod")
-	ret = clusters[id]
+	resources = fugue.resources("Pod")
+	some id
+	count(containers(resources[id])) > 0
+	ret = resources[id]
 }
 
 resources_with_containers[id] = ret {
-	instances = fugue.resources("DaemonSet")
-	ret = instances[id]
+	resources = fugue.resources("DaemonSet")
+	some id
+	count(containers(resources[id])) > 0
+	ret = resources[id]
 }
 
 resources_with_containers[id] = ret {
-	clusters = fugue.resources("StatefulSet")
-	ret = clusters[id]
+	resources = fugue.resources("StatefulSet")
+	some id
+	count(containers(resources[id])) > 0
+	ret = resources[id]
 }
 
 resources_with_containers[id] = ret {
-	clusters = fugue.resources("Deployment")
-	ret = clusters[id]
+	resources = fugue.resources("Deployment")
+	some id
+	count(containers(resources[id])) > 0
+	ret = resources[id]
 }
 
 containers(resource) = ret {
-    ret = resource.spec.containers
+	ret = resource.spec.containers
 } else = ret {
-    ret = resource.spec.template.spec.containers
+	ret = resource.spec.template.spec.containers
+}
+
+added_capabilities(container) = ret {
+	ret = container.securityContext.capabilities.add
+} else = ret {
+	ret = {}
 }

@@ -92,7 +92,7 @@ $(BINARY): $(CLI_SOURCE) $(REGO_LIB_SOURCE) $(REGO_RULES_SOURCE) $(REMEDIATION_L
 	$(CLI_BUILD) -v -o $@
 
 $(INSTALLED_BINARY): $(BINARY)
-	install -m 0655 $(BINARY) $(INSTALLED_BINARY)
+	install -m 0755 $(BINARY) $(INSTALLED_BINARY)
 
 .PHONY: install
 install: ## Install regula

@@ -15,6 +15,7 @@
 package rules.k8s_added_capabilities
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
@@ -30,10 +31,11 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+resources = k8s.resources_with_containers
 
 is_valid(resource) {
-    true
+    containers = k8s.containers(resource)
+    count(containers) > 1
 }
 
 policy[j] {

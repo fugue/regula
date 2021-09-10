@@ -16,6 +16,15 @@ package k8s
 
 import data.fugue
 
+# Incremental definition of resources_with_containers is found below.
+# Resource types that may include container definitions include:
+#  * ReplicaSet
+#  * Job
+#  * Pod
+#  * DaemonSet
+#  * StatefulSet
+#  * Deployment
+
 resources_with_containers[id] = ret {
 	resources = fugue.resources("ReplicaSet")
 	some id
@@ -58,12 +67,17 @@ resources_with_containers[id] = ret {
 	ret = resources[id]
 }
 
+# Lists of container definitions can be found in 4 different locations. This
+# function returns one set of all containers defined for the given resource.
 containers(resource) = ret {
-	ret = resource.spec.containers
-} else = ret {
-	ret = resource.spec.template.spec.containers
+	c1 := {c | c = resource.spec.containers[_]}
+	c2 := {c | c = resource.spec.template.spec.containers[_]}
+	c3 := {c | c = resource.spec.initContainers[_]}
+	c4 := {c | c = resource.spec.template.spec.initContainers[_]}
+	ret = ((c1 | c2) | c3) | c4
 }
 
+# Returns a list of capabilities added to the given container definition
 added_capabilities(container) = ret {
 	ret = container.securityContext.capabilities.add
 } else = ret {

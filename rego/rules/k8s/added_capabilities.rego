@@ -22,7 +22,7 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.8"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Minimize the admission of containers with added capabilities. Adding capabilities beyond the default set increases the risk of container breakout attacks.",
 	"id": "FG_R00514",
 	"title": "Minimize the admission of containers with added capabilities",
 }

@@ -41,6 +41,8 @@ const (
 	// Tf means that regula will load the HCL in the directory in a similar
 	// way to terraform plan, or it can also load individual files.
 	Tf
+	// Kubernetes manifests will be loaded
+	K8s
 )
 
 // InputTypeIDs maps the InputType enums to string values that can be specified in
@@ -50,6 +52,7 @@ var InputTypeIDs = map[InputType][]string{
 	TfPlan: {"tf-plan", "tf_plan"},
 	Cfn:    {"cfn"},
 	Tf:     {"tf"},
+	K8s:    {"k8s", "kubernetes"},
 }
 
 // InputTypeForString is a utility function to translate the string name of an input
@@ -64,6 +67,8 @@ func InputTypeForString(typeStr string) (InputType, error) {
 		return TfPlan, nil
 	case "tf":
 		return Tf, nil
+	case "k8s":
+		return K8s, nil
 	default:
 		return -1, fmt.Errorf("Unrecognized input type %v", typeStr)
 	}

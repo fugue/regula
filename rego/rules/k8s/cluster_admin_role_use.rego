@@ -19,7 +19,7 @@ import data.fugue
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.1"]},
-		"severity": "Medium",
+		"severity": "Critical",
 	},
 	"description": "",
 	"id": "FG_R00501",
@@ -30,20 +30,26 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+resources[id] = ret {
+    ret = fugue.resources("RoleBinding")[id]
+}
 
-is_valid(resource) {
-    true
+resources[id] = ret {
+    ret = fugue.resources("ClusterRoleBinding")[id]
+}
+
+is_invalid(resource) {
+    resource.roleRef.name == "cluster-admin"
 }
 
 policy[j] {
 	resource := resources[_]
-	is_valid(resource)
+	not is_invalid(resource)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	not is_valid(resource)
+	is_invalid(resource)
 	j = fugue.deny_resource(resource)
 }

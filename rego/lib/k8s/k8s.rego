@@ -67,14 +67,15 @@ resources_with_containers[id] = ret {
 	ret = resources[id]
 }
 
-# Lists of container definitions can be found in 4 different locations. This
+# Lists of container definitions can be found in different locations. This
 # function returns one set of all containers defined for the given resource.
 containers(resource) = ret {
 	c1 := {c | c = resource.spec.containers[_]}
 	c2 := {c | c = resource.spec.template.spec.containers[_]}
 	c3 := {c | c = resource.spec.initContainers[_]}
 	c4 := {c | c = resource.spec.template.spec.initContainers[_]}
-	ret = ((c1 | c2) | c3) | c4
+	c5 := {c | c = resource.spec.jobTemplate.spec.template.spec.containers[_]}
+	ret = (((c1 | c2) | c3) | c4) | c5
 }
 
 # Returns a list of capabilities added to the given container definition
@@ -105,7 +106,61 @@ roles[id] = ret {
 
 # Easy access to any default service accounts
 default_service_accounts[id] = ret {
-    account := fugue.resources("ServiceAccount")[id]
-    account.metadata.name == "default"
-    ret = account
+	account := fugue.resources("ServiceAccount")[id]
+	account.metadata.name == "default"
+	ret = account
+}
+
+# Access the pod template in different locations depending on the resource type
+pod_template(resource) = ret {
+	resource.kind == "Pod"
+	ret = resource.spec
+} else = ret {
+	resource.kind == "CronJob"
+	ret = resource.spec.jobTemplate.spec.template.spec
+} else = ret {
+	others := {
+		"Deployment",
+		"DaemonSet",
+		"StatefulSet",
+		"ReplicaSet",
+		"ReplicationController",
+		"Job",
+	}
+
+	others[resource.kind]
+	ret = resource.spec.template.spec
+}
+
+# Incremental definition of a set of all resources that may contain pod templates
+resources_with_pod_templates[resource] {
+	resource := fugue.resources("Deployment")[_]
+}
+
+resources_with_pod_templates[resource] {
+	resource := fugue.resources("DaemonSet")[_]
+}
+
+resources_with_pod_templates[resource] {
+	resource := fugue.resources("StatefulSet")[_]
+}
+
+resources_with_pod_templates[resource] {
+	resource := fugue.resources("ReplicaSet")[_]
+}
+
+resources_with_pod_templates[resource] {
+	resource := fugue.resources("ReplicationController")[_]
+}
+
+resources_with_pod_templates[resource] {
+	resource := fugue.resources("Job")[_]
+}
+
+resources_with_pod_templates[resource] {
+	resource := fugue.resources("CronJob")[_]
+}
+
+resources_with_pod_templates[resource] {
+	resource := fugue.resources("Pod")[_]
 }

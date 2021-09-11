@@ -15,6 +15,7 @@
 package rules.k8s_service_account_tokens
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
@@ -30,20 +31,36 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+resources = k8s.resources_with_pod_templates
 
-is_valid(resource) {
-    true
+is_valid(template) {
+	template.automountServiceAccountToken == false
 }
 
 policy[j] {
 	resource := resources[_]
-	is_valid(resource)
+	template := k8s.pod_template(resource)
+	count(template.containers) > 0
+	is_valid(template)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
+	template := k8s.pod_template(resource)
+	count(template.containers) > 0
+	not is_valid(template)
+	j = fugue.deny_resource(resource)
+}
+
+policy[j] {
+	resource := fugue.resources("ServiceAccount")
+	is_valid(resource)
+	j = fugue.allow_resource(resource)
+}
+
+policy[j] {
+	resource := fugue.resources("ServiceAccount")
 	not is_valid(resource)
 	j = fugue.deny_resource(resource)
 }

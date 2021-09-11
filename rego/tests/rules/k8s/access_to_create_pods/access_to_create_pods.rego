@@ -14,40 +14,17 @@
 
 package rules.k8s_access_to_create_pods
 
-import data.fugue
 import data.k8s
+import data.tests.rules.k8s.access_to_create_pods.inputs
 
-__rego__metadoc__ := {
-	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.4"]},
-		"severity": "Medium",
-	},
-	"description": "",
-	"id": "FG_R00504",
-	"title": "Minimize access to create pods",
+test_valid {
+	pol := policy with input as inputs.valid_example_yaml.mock_input
+	resources := {p.id: p.valid | p := pol[_]}
+	resources["Role.get-pods"] == true
 }
 
-input_type = "k8s"
-
-resource_type = "MULTIPLE"
-
-is_invalid_rule(rule) {
-    rule.resources[_] == "pods"
-    rule.verbs[_] == "create"
-}
-
-is_invalid(role) {
-    is_invalid_rule(role.rules[_])
-}
-
-policy[j] {
-	role := k8s.roles[_]
-	not is_invalid(role)
-	j = fugue.allow_resource(role)
-}
-
-policy[j] {
-	role := k8s.roles[_]
-	is_invalid(role)
-	j = fugue.deny_resource(role)
+test_invalid {
+	pol = policy with input as inputs.invalid_example_yaml.mock_input
+	resources := {p.id: p.valid | p := pol[_]}
+	resources["Role.get-pods"] == false
 }

@@ -83,3 +83,23 @@ added_capabilities(container) = ret {
 } else = ret {
 	ret = {}
 }
+
+# Incremental definition of role_bindings to include both RoleBinding and
+# ClusterRoleBinding resources
+
+role_bindings[id] = ret {
+	ret = fugue.resources("RoleBinding")[id]
+}
+
+role_bindings[id] = ret {
+	ret = fugue.resources("ClusterRoleBinding")[id]
+}
+
+# Incremental definition of roles to include both Role and ClusterRole
+roles[id] = ret {
+	ret = fugue.resources("Role")[id]
+}
+
+roles[id] = ret {
+	ret = fugue.resources("ClusterRole")[id]
+}

@@ -17,13 +17,13 @@ package rules.k8s_cluster_admin_role_use
 import data.k8s
 import data.tests.rules.k8s.cluster_admin_role_use.inputs
 
-test_valid_pod {
+test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["ClusterRoleBinding.test-rolebinding"] == true
 }
 
-test_invalid_pod {
+test_invalid {
 	pol = policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["ClusterRoleBinding.test-rolebinding"] == false

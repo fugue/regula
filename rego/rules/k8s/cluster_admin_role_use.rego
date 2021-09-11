@@ -15,6 +15,7 @@
 package rules.k8s_cluster_admin_role_use
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
@@ -30,26 +31,18 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources[id] = ret {
-    ret = fugue.resources("RoleBinding")[id]
-}
-
-resources[id] = ret {
-    ret = fugue.resources("ClusterRoleBinding")[id]
-}
-
 is_invalid(resource) {
     resource.roleRef.name == "cluster-admin"
 }
 
 policy[j] {
-	resource := resources[_]
+	resource := k8s.role_bindings[_]
 	not is_invalid(resource)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
-	resource := resources[_]
+	resource := k8s.role_bindings[_]
 	is_invalid(resource)
 	j = fugue.deny_resource(resource)
 }

@@ -15,6 +15,7 @@
 package rules.k8s_role_wildcards
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
@@ -30,20 +31,26 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+is_wildcard_rule(rule) {
+    rule.apiGroups[_] == "*"
+} {
+    rule.resources[_] == "*"
+} {
+    rule.verbs[_] == "*"
+}
 
-is_valid(resource) {
-    true
+is_invalid(role) {
+    is_wildcard_rule(role.rules[_])
 }
 
 policy[j] {
-	resource := resources[_]
-	is_valid(resource)
-	j = fugue.allow_resource(resource)
+	role := k8s.roles[_]
+	not is_invalid(role)
+	j = fugue.allow_resource(role)
 }
 
 policy[j] {
-	resource := resources[_]
-	not is_valid(resource)
-	j = fugue.deny_resource(resource)
+	role := k8s.roles[_]
+	is_invalid(role)
+	j = fugue.deny_resource(role)
 }

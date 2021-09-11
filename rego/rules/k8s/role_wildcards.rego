@@ -20,7 +20,7 @@ import data.k8s
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.3"]},
-		"severity": "Medium",
+		"severity": "High",
 	},
 	"description": "",
 	"id": "FG_R00503",

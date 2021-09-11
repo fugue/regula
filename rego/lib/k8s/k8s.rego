@@ -86,7 +86,6 @@ added_capabilities(container) = ret {
 
 # Incremental definition of role_bindings to include both RoleBinding and
 # ClusterRoleBinding resources
-
 role_bindings[id] = ret {
 	ret = fugue.resources("RoleBinding")[id]
 }
@@ -102,4 +101,11 @@ roles[id] = ret {
 
 roles[id] = ret {
 	ret = fugue.resources("ClusterRole")[id]
+}
+
+# Easy access to any default service accounts
+default_service_accounts[id] = ret {
+    account := fugue.resources("ServiceAccount")[id]
+    account.metadata.name == "default"
+    ret = account
 }

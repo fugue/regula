@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package rules.k8s_default_service_accounts
+package rules.k8s_default_service_account_tokens
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
@@ -23,27 +24,32 @@ __rego__metadoc__ := {
 	},
 	"description": "",
 	"id": "FG_R00505",
-	"title": "Ensure that default service accounts are not actively used",
+	"title": "Opt out of automounting API credentials for the default service account",
 }
 
 input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+# This rule specifically checks for the following portion of 5.1.5. This may be
+# applicable primarily at runtime. "Additionally ensure that the
+# automountServiceAccountToken: false setting is in place for each default
+# service account."
+# https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account
 
 is_valid(resource) {
-    true
+    # Require this to be explicitly set to false, since it defaults to true
+    resource.automountServiceAccountToken == false
 }
 
 policy[j] {
-	resource := resources[_]
+	resource := k8s.default_service_accounts[_]
 	is_valid(resource)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
-	resource := resources[_]
+	resource := k8s.default_service_accounts[_]
 	not is_valid(resource)
 	j = fugue.deny_resource(resource)
 }

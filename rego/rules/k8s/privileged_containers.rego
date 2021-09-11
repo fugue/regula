@@ -15,6 +15,7 @@
 package rules.k8s_privileged_containers
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
@@ -30,20 +31,24 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+resources = k8s.resources_with_pod_templates
 
-is_valid(resource) {
-    true
+any_invalid_containers(spec) {
+    spec.containers[_].securityContext.privileged == true
 }
 
 policy[j] {
 	resource := resources[_]
-	is_valid(resource)
+	spec := k8s.pod_template(resource)
+	count(spec.containers) > 0
+    not any_invalid_containers(spec)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	not is_valid(resource)
+	spec := k8s.pod_template(resource)
+	count(spec.containers) > 0
+    any_invalid_containers(spec)
 	j = fugue.deny_resource(resource)
 }

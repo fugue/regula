@@ -12,25 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package rules.k8s_service_account_tokens
+package rules.k8s_host_process_id_namespace
 
 import data.k8s
-import data.tests.rules.k8s.service_account_tokens.inputs
+import data.tests.rules.k8s.host_process_id_namespace.inputs
 
 test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["CronJob.hello"] == true
-    resources["Deployment.nginx-deployment"] == true
-    resources["Job.pi"] == true
-    resources["Pod.myapp-pod"] == true
+	resources["DaemonSet.kill-httpd"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["CronJob.hello"] == false
-    resources["Deployment.nginx-deployment"] == false
-    resources["Job.pi"] == false
-    resources["Pod.myapp-pod"] == false
+	resources["DaemonSet.kill-httpd"] == false
 }

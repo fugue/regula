@@ -24,7 +24,7 @@ test_valid {
 }
 
 test_invalid {
-	pol = policy with input as inputs.invalid_example_yaml.mock_input
+	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["Role.RELEASE-NAME-promtail"] == false
 }

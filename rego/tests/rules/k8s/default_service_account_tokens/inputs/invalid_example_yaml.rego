@@ -22,7 +22,7 @@ mock_resources := mock_input.resources
 mock_config := {
   "k8s_resource_view_version": "0.0.1",
   "resources": {
-    "ServiceAccount.default": {
+    "ServiceAccount.default.default": {
       "apiVersion": "v1",
       "automountServiceAccountToken": true,
       "kind": "ServiceAccount",

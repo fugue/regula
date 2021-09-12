@@ -22,7 +22,7 @@ mock_resources := mock_input.resources
 mock_config := {
   "k8s_resource_view_version": "0.0.1",
   "resources": {
-    "CronJob.hello": {
+    "CronJob.default.hello": {
       "apiVersion": "batch/v1",
       "kind": "CronJob",
       "metadata": {
@@ -54,7 +54,7 @@ mock_config := {
         "schedule": "*/1 * * * *"
       }
     },
-    "Deployment.nginx-deployment": {
+    "Deployment.default.nginx-deployment": {
       "apiVersion": "apps/v1",
       "kind": "Deployment",
       "metadata": {
@@ -93,7 +93,7 @@ mock_config := {
         }
       }
     },
-    "Job.pi": {
+    "Job.default.pi": {
       "apiVersion": "batch/v1",
       "kind": "Job",
       "metadata": {
@@ -121,7 +121,7 @@ mock_config := {
         }
       }
     },
-    "Pod.myapp-pod": {
+    "Pod.default.myapp-pod": {
       "apiVersion": "v1",
       "kind": "Pod",
       "metadata": {

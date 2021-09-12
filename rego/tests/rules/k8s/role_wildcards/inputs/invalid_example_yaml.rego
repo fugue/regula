@@ -22,7 +22,7 @@ mock_resources := mock_input.resources
 mock_config := {
   "k8s_resource_view_version": "0.0.1",
   "resources": {
-    "Role.RELEASE-NAME-promtail": {
+    "Role.default.RELEASE-NAME-promtail": {
       "apiVersion": "rbac.authorization.k8s.io/v1",
       "kind": "Role",
       "metadata": {

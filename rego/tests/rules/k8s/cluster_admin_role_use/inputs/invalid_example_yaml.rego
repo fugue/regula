@@ -22,7 +22,7 @@ mock_resources := mock_input.resources
 mock_config := {
   "k8s_resource_view_version": "0.0.1",
   "resources": {
-    "ClusterRoleBinding.test-rolebinding": {
+    "ClusterRoleBinding.default.test-rolebinding": {
       "apiVersion": "rbac.authorization.k8s.io/v1",
       "kind": "ClusterRoleBinding",
       "metadata": {

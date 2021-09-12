@@ -22,7 +22,7 @@ mock_resources := mock_input.resources
 mock_config := {
   "k8s_resource_view_version": "0.0.1",
   "resources": {
-    "RoleBinding.role-grantor-binding": {
+    "RoleBinding.user-1-namespace.role-grantor-binding": {
       "apiVersion": "rbac.authorization.k8s.io/v1beta1",
       "kind": "RoleBinding",
       "metadata": {

@@ -15,35 +15,40 @@
 package rules.k8s_allow_privilege_escalation
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.5"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Minimize the admission of containers with allowPrivilegeEscalation. This setting controls whether a process can gain more privileges than its parent process. Set allowPrivilegeEscalation to false unless it is absolutely required.",
 	"id": "FG_R00511",
-	"title": "Minimize the admission of containers with allowPrivilegeEscalation",
+	"title": "Minimize the admission of containers with allowPrivilegeEscalation.",
 }
 
 input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+resources = k8s.resources_with_pod_templates
 
-is_valid(resource) {
-    true
+any_invalid_containers(template) {
+	template.spec.containers[_].securityContext.allowPrivilegeEscalation == true
 }
 
 policy[j] {
 	resource := resources[_]
-	is_valid(resource)
+	template := k8s.pod_template(resource)
+	count(template.spec.containers) > 0
+	not any_invalid_containers(template)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	not is_valid(resource)
+	template := k8s.pod_template(resource)
+	count(template.spec.containers) > 0
+	any_invalid_containers(template)
 	j = fugue.deny_resource(resource)
 }

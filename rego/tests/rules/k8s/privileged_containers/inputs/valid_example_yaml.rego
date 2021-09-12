@@ -22,7 +22,7 @@ mock_resources := mock_input.resources
 mock_config := {
   "k8s_resource_view_version": "0.0.1",
   "resources": {
-    "Pod.privileged": {
+    "Pod.default.privileged": {
       "apiVersion": "v1",
       "kind": "Pod",
       "metadata": {

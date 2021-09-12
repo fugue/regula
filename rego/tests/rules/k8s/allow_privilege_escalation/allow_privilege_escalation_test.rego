@@ -11,25 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package tests.rules.k8s.default_service_account_tokens.inputs.valid_example_yaml
 
-import data.fugue.resource_view.resource_view_input
+package rules.k8s_allow_privilege_escalation
 
-mock_input := ret {
-  ret = resource_view_input with input as mock_config
-}
-mock_resources := mock_input.resources
-mock_config := {
-  "k8s_resource_view_version": "0.0.1",
-  "resources": {
-    "ServiceAccount.default.default": {
-      "apiVersion": "v1",
-      "automountServiceAccountToken": false,
-      "kind": "ServiceAccount",
-      "metadata": {
-        "name": "default"
-      }
-    }
-  }
+import data.k8s
+import data.tests.rules.k8s.allow_privilege_escalation.inputs
+
+test_valid {
+	pol := policy with input as inputs.valid_example_yaml.mock_input
+	resources := {p.id: p.valid | p := pol[_]}
+	resources["Pod.default.sec-demo"] == true
 }
 
+test_invalid {
+	pol := policy with input as inputs.invalid_example_yaml.mock_input
+	resources := {p.id: p.valid | p := pol[_]}
+	resources["Pod.default.sec-demo"] == false
+}

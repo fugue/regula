@@ -34,14 +34,14 @@ resource_type = "MULTIPLE"
 resources = k8s.resources_with_pod_templates
 
 any_invalid_containers(spec) {
-    spec.containers[_].securityContext.privileged == true
+	spec.containers[_].securityContext.privileged == true
 }
 
 policy[j] {
 	resource := resources[_]
 	spec := k8s.pod_template(resource)
 	count(spec.containers) > 0
-    not any_invalid_containers(spec)
+	not any_invalid_containers(spec)
 	j = fugue.allow_resource(resource)
 }
 
@@ -49,6 +49,6 @@ policy[j] {
 	resource := resources[_]
 	spec := k8s.pod_template(resource)
 	count(spec.containers) > 0
-    any_invalid_containers(spec)
+	any_invalid_containers(spec)
 	j = fugue.deny_resource(resource)
 }

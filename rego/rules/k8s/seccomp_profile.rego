@@ -34,7 +34,13 @@ resource_type = "MULTIPLE"
 resources = k8s.resources_with_pod_templates
 
 seccomp_set(template) {
-	template.spec.hostIPC == true
+    annotations := template.metadata.annotations
+	annotations["seccomp.security.alpha.kubernetes.io/pod"] == "docker/default"
+}
+
+seccomp_set(template) {
+	annotations := template.metadata.annotations
+	annotations["seccomp.security.alpha.kubernetes.io/pod"] == "runtime/default"
 }
 
 policy[j] {

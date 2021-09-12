@@ -15,6 +15,7 @@
 package rules.k8s_seccomp_profile
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {

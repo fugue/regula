@@ -20,11 +20,11 @@ import data.tests.rules.k8s.privileged_containers.inputs
 test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["Pod.privileged"] == true
+	resources["Pod.default.privileged"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["Pod.privileged"] == false
+	resources["Pod.default.privileged"] == false
 }

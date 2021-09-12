@@ -20,11 +20,11 @@ import data.tests.rules.k8s.default_service_account_tokens.inputs
 test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["ServiceAccount.default"] == true
+	resources["ServiceAccount.default.default"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["ServiceAccount.default"] == false
+	resources["ServiceAccount.default.default"] == false
 }

@@ -20,11 +20,11 @@ import data.tests.rules.k8s.host_process_id_namespace.inputs
 test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["DaemonSet.kill-httpd"] == true
+	resources["DaemonSet.default.kill-httpd"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["DaemonSet.kill-httpd"] == false
+	resources["DaemonSet.default.kill-httpd"] == false
 }

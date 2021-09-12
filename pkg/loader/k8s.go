@@ -70,18 +70,22 @@ func (c *KubernetesDetector) DetectFile(i InputFile, opts DetectOptions) (IACCon
 	}
 
 	for _, document := range documents {
-		var name string
+		var name, namespace string
 		kind, ok := document["kind"]
 		if !ok {
 			return nil, fmt.Errorf("input file does not define a kind: %v", i.Path())
 		}
 		if metadata, ok := document["metadata"].(map[string]interface{}); ok {
 			name, _ = metadata["name"].(string)
+			namespace, _ = metadata["namespace"].(string)
 		}
 		if name == "" {
 			return nil, fmt.Errorf("input file does not define a name: %v", i.Path())
 		}
-		resources[fmt.Sprintf("%s.%s", kind, name)] = document
+		if namespace == "" {
+			namespace = "default"
+		}
+		resources[fmt.Sprintf("%s.%s.%s", kind, namespace, name)] = document
 	}
 
 	return &k8sConfiguration{

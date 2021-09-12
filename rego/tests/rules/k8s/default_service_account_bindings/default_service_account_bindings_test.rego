@@ -20,11 +20,11 @@ import data.tests.rules.k8s.default_service_account_bindings.inputs
 test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["RoleBinding.role-grantor-binding"] == true
+	resources["RoleBinding.user-1-namespace.role-grantor-binding"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["RoleBinding.role-grantor-binding"] == false
+	resources["RoleBinding.user-1-namespace.role-grantor-binding"] == false
 }

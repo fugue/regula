@@ -20,11 +20,11 @@ import data.tests.rules.k8s.added_capabilities.inputs
 test_valid {
 	pol := policy with input as inputs.valid_added_capabilities_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["Pod.security-context-demo-4"] == true
+	resources["Pod.default.security-context-demo-4"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_added_capabilities_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["Pod.security-context-demo-4"] == false
+	resources["Pod.default.security-context-demo-4"] == false
 }

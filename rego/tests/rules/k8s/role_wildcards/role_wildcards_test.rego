@@ -20,11 +20,11 @@ import data.tests.rules.k8s.role_wildcards.inputs
 test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["Role.RELEASE-NAME-promtail"] == true
+	resources["Role.default.RELEASE-NAME-promtail"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["Role.RELEASE-NAME-promtail"] == false
+	resources["Role.default.RELEASE-NAME-promtail"] == false
 }

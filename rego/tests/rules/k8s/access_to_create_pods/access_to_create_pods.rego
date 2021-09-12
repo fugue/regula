@@ -20,11 +20,11 @@ import data.tests.rules.k8s.access_to_create_pods.inputs
 test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["Role.get-pods"] == true
+	resources["Role.default.get-pods"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
-	resources["Role.get-pods"] == false
+	resources["Role.default.get-pods"] == false
 }

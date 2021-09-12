@@ -20,9 +20,9 @@ import data.k8s
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.1"]},
-		"severity": "Medium",
+		"severity": "High",
 	},
-	"description": "",
+	"description": "Minimize the admission of privileged containers. Running containers with full privileges should only be done in exceptional situations in which accessing resources and kernel capabilities of the host system is required. An attacker may be able to use a vulnerability in a privileged pod to directly attack the host.",
 	"id": "FG_R00507",
 	"title": "Minimize the admission of privileged containers",
 }

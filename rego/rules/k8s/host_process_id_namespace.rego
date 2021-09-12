@@ -22,7 +22,7 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.2"]},
 		"severity": "Medium",
 	},
-	"description": "Minimize the admission of containers wishing to share the host process ID namespace. A container that runs with hostPID has visbility into processes running on the host, which could expose information including environment variables to an attacker.",
+	"description": "Minimize the admission of containers wishing to share the host process ID namespace. A container that runs with hostPID set has visbility into processes running on the host, which could expose information including environment variables to an attacker.",
 	"id": "FG_R00508",
 	"title": "Minimize the admission of containers wishing to share the host process ID namespace",
 }

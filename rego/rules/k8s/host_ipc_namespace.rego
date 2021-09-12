@@ -22,7 +22,7 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.3"]},
 		"severity": "Medium",
 	},
-	"description": "Minimize the admission of containers wishing to share the host IPC namespace. A container that runs with hostIPC has the ability to interact with processes running on the host via shared memory and other interprocess communication (IPC) mechanisms.",
+	"description": "Minimize the admission of containers wishing to share the host IPC namespace. A container that runs with hostIPC set has the ability to interact with processes running on the host via shared memory and other interprocess communication (IPC) mechanisms.",
 	"id": "FG_R00509",
 	"title": "Minimize the admission of containers wishing to share the host IPC namespace",
 }

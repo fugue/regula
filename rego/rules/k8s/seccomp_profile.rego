@@ -30,20 +30,22 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+resources = k8s.resources_with_pod_templates
 
-is_valid(resource) {
-    true
+seccomp_set(template) {
+	template.spec.hostIPC == true
 }
 
 policy[j] {
 	resource := resources[_]
-	is_valid(resource)
+	template := k8s.pod_template(resource)
+	seccomp_set(template)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	not is_valid(resource)
+	template := k8s.pod_template(resource)
+	not seccomp_set(template)
 	j = fugue.deny_resource(resource)
 }

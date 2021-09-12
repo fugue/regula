@@ -33,20 +33,20 @@ resource_type = "MULTIPLE"
 
 resources = k8s.resources_with_pod_templates
 
-host_network_set(spec) {
-	spec.hostNetwork == true
+host_network_set(template) {
+	template.spec.hostNetwork == true
 }
 
 policy[j] {
 	resource := resources[_]
-	spec := k8s.pod_template(resource)
-	not host_network_set(spec)
+	template := k8s.pod_template(resource)
+	not host_network_set(template)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	spec := k8s.pod_template(resource)
-	host_network_set(spec)
+	template := k8s.pod_template(resource)
+	host_network_set(template)
 	j = fugue.deny_resource(resource)
 }

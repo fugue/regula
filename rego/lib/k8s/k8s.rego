@@ -114,10 +114,10 @@ default_service_accounts[id] = ret {
 # Access the pod template in different locations depending on the resource type
 pod_template(resource) = ret {
 	resource.kind == "Pod"
-	ret = resource.spec
+	ret = resource
 } else = ret {
 	resource.kind == "CronJob"
-	ret = resource.spec.jobTemplate.spec.template.spec
+	ret = resource.spec.jobTemplate.spec.template
 } else = ret {
 	others := {
 		"Deployment",
@@ -129,7 +129,7 @@ pod_template(resource) = ret {
 	}
 
 	others[resource.kind]
-	ret = resource.spec.template.spec
+	ret = resource.spec.template
 }
 
 # Incremental definition of a set of all resources that may contain pod templates

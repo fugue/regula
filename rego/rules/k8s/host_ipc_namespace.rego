@@ -33,20 +33,20 @@ resource_type = "MULTIPLE"
 
 resources = k8s.resources_with_pod_templates
 
-host_ipc_set(spec) {
-	spec.hostIPC == true
+host_ipc_set(template) {
+	template.spec.hostIPC == true
 }
 
 policy[j] {
 	resource := resources[_]
-	spec := k8s.pod_template(resource)
-	not host_ipc_set(spec)
+	template := k8s.pod_template(resource)
+	not host_ipc_set(template)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	spec := k8s.pod_template(resource)
-	host_ipc_set(spec)
+	template := k8s.pod_template(resource)
+	host_ipc_set(template)
 	j = fugue.deny_resource(resource)
 }

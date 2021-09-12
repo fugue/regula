@@ -15,13 +15,14 @@
 package rules.k8s_host_ipc_namespace
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.3"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Minimize the admission of containers wishing to share the host IPC namespace. A container that runs with hostIPC has the ability to interact with processes running on the host via shared memory and other interprocess communication (IPC) mechanisms.",
 	"id": "FG_R00509",
 	"title": "Minimize the admission of containers wishing to share the host IPC namespace",
 }
@@ -30,20 +31,22 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+resources = k8s.resources_with_pod_templates
 
-is_valid(resource) {
-    true
+host_ipc_set(spec) {
+	spec.hostIPC == true
 }
 
 policy[j] {
 	resource := resources[_]
-	is_valid(resource)
+	spec := k8s.pod_template(resource)
+	not host_ipc_set(spec)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	not is_valid(resource)
+	spec := k8s.pod_template(resource)
+	host_ipc_set(spec)
 	j = fugue.deny_resource(resource)
 }

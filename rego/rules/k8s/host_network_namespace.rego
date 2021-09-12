@@ -15,13 +15,14 @@
 package rules.k8s_host_network_namespace
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.4"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Minimize the admission of containers wishing to share the host network namespace. A container that runs with hostNetwork has the ability to interact with host services listening on localhost and potentially monitor traffic belonging to other pods. This opts-out of the network isolation provided by Linux network namespace mechanism.",
 	"id": "FG_R00510",
 	"title": "Minimize the admission of containers wishing to share the host network namespace",
 }
@@ -30,20 +31,22 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+resources = k8s.resources_with_pod_templates
 
-is_valid(resource) {
-    true
+host_network_set(spec) {
+	spec.hostNetwork == true
 }
 
 policy[j] {
 	resource := resources[_]
-	is_valid(resource)
+	spec := k8s.pod_template(resource)
+	not host_network_set(spec)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	not is_valid(resource)
+	spec := k8s.pod_template(resource)
+	host_network_set(spec)
 	j = fugue.deny_resource(resource)
 }

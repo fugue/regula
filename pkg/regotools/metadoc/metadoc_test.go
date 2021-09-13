@@ -78,7 +78,8 @@ __rego__metadoc__ := {
     "families": [
       "MyCustomFamily",
       "1172ca4f-6d31-4c46-a085-54ff73c6ed27"
-    ]
+    ],
+    "provider": "AWS"
   },
   "description": "EBS volume encryption should be enabled. Enabling encryption on EBS volumes protects data at rest inside the volume, data in transit between the volume and the instance, snapshots created from the volume, and volumes created from those snapshots. EBS volumes are encrypted using KMS keys.",
   "id": "FG_R00016",
@@ -109,11 +110,13 @@ allow {
 						"NIST-800-53_vRev4": {"NIST-800-53_vRev4_SC-13"},
 					},
 					rego.Controls)
+				assert.Equal(t, "AWS", rego.Provider)
 
 				rego.Description = "Updated description"
 				rego.Severity = "Low"
 				rego.Families[1] = "ee1dfd49-a46f-433d-99b9-25805d7e8766"
 				delete(rego.Controls, "CIS-AWS_v1.3.0")
+				rego.Provider = "Azure"
 			},
 			expected: `
 # Copyright 2020 Fugue, Inc.
@@ -130,6 +133,7 @@ __rego__metadoc__ := {
       "MyCustomFamily",
       "ee1dfd49-a46f-433d-99b9-25805d7e8766"
     ],
+    "provider": "Azure",
     "severity": "Low"
   },
   "description": "Updated description",

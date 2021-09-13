@@ -15,35 +15,40 @@
 package rules.k8s_root_containers
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.6"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Do not run containers as the root user. Running as a non-root user helps ensure that an attacker cannot gain root access to the host system in the event of a container breakout.",
 	"id": "FG_R00512",
-	"title": "Minimize the admission of root containers",
+	"title": "Do not run containers as the root user",
 }
 
 input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+resources = k8s.resources_with_pod_templates
 
-is_valid(resource) {
-    true
+any_invalid_containers(template) {
+	template.spec.containers[_].securityContext.runAsUser == 0
 }
 
 policy[j] {
 	resource := resources[_]
-	is_valid(resource)
+	template := k8s.pod_template(resource)
+	count(template.spec.containers) > 0
+	not any_invalid_containers(template)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	not is_valid(resource)
+	template := k8s.pod_template(resource)
+	count(template.spec.containers) > 0
+	any_invalid_containers(template)
 	j = fugue.deny_resource(resource)
 }

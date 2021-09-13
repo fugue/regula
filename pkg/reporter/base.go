@@ -219,7 +219,7 @@ func (o RegulaOutput) AggregateByRule() ResultsByRule {
 			RuleName:           results[0].RuleName,
 			RuleSummary:        results[0].RuleSummary,
 			RuleSeverity:       results[0].RuleSeverity,
-			RuleRemediationDoc: getRemediationDoc(results[0].RuleID),
+			RuleRemediationDoc: results[0].RuleRemediationDoc,
 			Results:            results,
 		})
 	}
@@ -256,19 +256,20 @@ func (o RegulaOutput) FailuresByRule() ResultsByRule {
 }
 
 type RuleResult struct {
-	Controls        []string `json:"controls"`
-	Filepath        string   `json:"filepath"`
-	InputType       string   `json:"input_type"`
-	Provider        string   `json:"provider"`
-	ResourceID      string   `json:"resource_id"`
-	ResourceType    string   `json:"resource_type"`
-	RuleDescription string   `json:"rule_description"`
-	RuleID          string   `json:"rule_id"`
-	RuleMessage     string   `json:"rule_message"`
-	RuleName        string   `json:"rule_name"`
-	RuleResult      string   `json:"rule_result"`
-	RuleSeverity    string   `json:"rule_severity"`
-	RuleSummary     string   `json:"rule_summary"`
+	Controls           []string `json:"controls"`
+	Filepath           string   `json:"filepath"`
+	InputType          string   `json:"input_type"`
+	Provider           string   `json:"provider"`
+	ResourceID         string   `json:"resource_id"`
+	ResourceType       string   `json:"resource_type"`
+	RuleDescription    string   `json:"rule_description"`
+	RuleID             string   `json:"rule_id"`
+	RuleMessage        string   `json:"rule_message"`
+	RuleName           string   `json:"rule_name"`
+	RuleResult         string   `json:"rule_result"`
+	RuleSeverity       string   `json:"rule_severity"`
+	RuleSummary        string   `json:"rule_summary"`
+	RuleRemediationDoc string   `json:"rule_remediaion_doc",omitempty`
 	// List of source code locations this rule result pertains to.  The first
 	// element of the list always refers to the most specific source code site,
 	// and further elements indicate modules in which this was included, like
@@ -320,6 +321,7 @@ func ParseRegulaOutput(conf loader.LoadedConfigurations, r rego.Result) (*Regula
 		if err == nil {
 			output.RuleResults[i].SourceLocation = location
 		}
+		output.RuleResults[i].RuleRemediationDoc = getRemediationDoc(result.RuleID)
 	}
 
 	return output, nil

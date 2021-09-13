@@ -1,10 +1,73 @@
+---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: privileged
+  name: valid1
 spec:
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsUser: 1001
+    - name: pause2
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsUser: 1001
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: valid2
+spec:
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsUser: 1001
+    - name: pause2
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsNonRoot: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: valid3
+spec:
+  securityContext:
+    runAsUser: 1001
   containers:
     - name: pause1
       image: k8s.gcr.io/pause
     - name: pause2
       image: k8s.gcr.io/pause
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: valid4
+spec:
+  securityContext:
+    runAsNonRoot: true
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+    - name: pause2
+      image: k8s.gcr.io/pause
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: valid5
+spec:
+  securityContext:
+    runAsNonRoot: true
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsUser: 1001
+    - name: pause2
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsUser: 0 # runAsNonRoot takes precedence

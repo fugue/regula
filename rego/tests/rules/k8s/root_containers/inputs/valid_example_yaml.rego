@@ -22,11 +22,61 @@ mock_resources := mock_input.resources
 mock_config := {
   "k8s_resource_view_version": "0.0.1",
   "resources": {
-    "Pod.default.privileged": {
+    "Pod.default.valid1": {
       "apiVersion": "v1",
       "kind": "Pod",
       "metadata": {
-        "name": "privileged"
+        "name": "valid1"
+      },
+      "spec": {
+        "containers": [
+          {
+            "image": "k8s.gcr.io/pause",
+            "name": "pause1",
+            "securityContext": {
+              "runAsUser": 1001
+            }
+          },
+          {
+            "image": "k8s.gcr.io/pause",
+            "name": "pause2",
+            "securityContext": {
+              "runAsUser": 1001
+            }
+          }
+        ]
+      }
+    },
+    "Pod.default.valid2": {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "valid2"
+      },
+      "spec": {
+        "containers": [
+          {
+            "image": "k8s.gcr.io/pause",
+            "name": "pause1",
+            "securityContext": {
+              "runAsUser": 1001
+            }
+          },
+          {
+            "image": "k8s.gcr.io/pause",
+            "name": "pause2",
+            "securityContext": {
+              "runAsNonRoot": true
+            }
+          }
+        ]
+      }
+    },
+    "Pod.default.valid3": {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "valid3"
       },
       "spec": {
         "containers": [
@@ -38,7 +88,60 @@ mock_config := {
             "image": "k8s.gcr.io/pause",
             "name": "pause2"
           }
-        ]
+        ],
+        "securityContext": {
+          "runAsUser": 1001
+        }
+      }
+    },
+    "Pod.default.valid4": {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "valid4"
+      },
+      "spec": {
+        "containers": [
+          {
+            "image": "k8s.gcr.io/pause",
+            "name": "pause1"
+          },
+          {
+            "image": "k8s.gcr.io/pause",
+            "name": "pause2"
+          }
+        ],
+        "securityContext": {
+          "runAsNonRoot": true
+        }
+      }
+    },
+    "Pod.default.valid5": {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "valid5"
+      },
+      "spec": {
+        "containers": [
+          {
+            "image": "k8s.gcr.io/pause",
+            "name": "pause1",
+            "securityContext": {
+              "runAsUser": 1001
+            }
+          },
+          {
+            "image": "k8s.gcr.io/pause",
+            "name": "pause2",
+            "securityContext": {
+              "runAsUser": 0
+            }
+          }
+        ],
+        "securityContext": {
+          "runAsNonRoot": true
+        }
       }
     }
   }

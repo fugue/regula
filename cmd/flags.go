@@ -56,7 +56,7 @@ Output formats:
     table   An ASCII table of rule results
     junit   The JUnit XML format
     tap     The Test Anything Protocol format
-    compact An alternative, more compact human friendly format
+    compact An alternate, more compact human friendly format
     none    Do not print any output on stdout
 `
 const severityDescriptions = `
@@ -107,6 +107,18 @@ func addSeverityFlag(cmd *cobra.Command, severity *reporter.Severity) {
 }
 
 func addFormatFlag(cmd *cobra.Command, format *reporter.Format) {
+	// Set the default to $REGULA_FORMAT (if set).
+	envName := os.Getenv("REGULA_FORMAT")
+	if envName != "" {
+		for curFormat, names := range reporter.FormatIds {
+			for _, name := range names {
+				if name == envName {
+					*format = curFormat
+				}
+			}
+		}
+	}
+
 	cmd.Flags().VarP(
 		enumflag.New(format, "string", reporter.FormatIds, enumflag.EnumCaseInsensitive),
 		formatFlag, "f",

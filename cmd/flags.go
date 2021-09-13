@@ -56,6 +56,7 @@ Output formats:
     table   An ASCII table of rule results
     junit   The JUnit XML format
     tap     The Test Anything Protocol format
+    compact An alternative, more compact human friendly format
     none    Do not print any output on stdout
 `
 const severityDescriptions = `

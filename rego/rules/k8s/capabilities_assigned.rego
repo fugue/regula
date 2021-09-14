@@ -21,7 +21,7 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.9"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Minimize the admission of containers with capabilities assigned. A default set of Linux capabilities are granted when a container runs and many services do not need these capabilities to function. The recommended strategy is to drop all capabilities and then add back only the required ones, according to the principal of least privilege.",
 	"id": "FG_R00515",
 	"title": "Minimize the admission of containers with capabilities assigned",
 }
@@ -30,20 +30,27 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+# At least one of these capabilities needs to be explicitly dropped to pass
+capabilities = {
+    "all",
+    "ALL",
+}
 
+# Confirm every container drops one of the above capabilities
 is_valid(resource) {
-    true
+	containers = k8s.containers(resource)
+	dropped := k8s.dropped_capabilities(containers[_]) & capabilities
+    count(dropped) > 0
 }
 
 policy[j] {
-	resource := resources[_]
+	resource := k8s.resources_with_containers[_]
 	is_valid(resource)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
-	resource := resources[_]
+	resource := k8s.resources_with_containers[_]
 	not is_valid(resource)
 	j = fugue.deny_resource(resource)
 }

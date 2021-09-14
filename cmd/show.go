@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -53,6 +54,29 @@ func NewShowCommand() *cobra.Command {
 				}
 				fmt.Println(string(bytes))
 
+			case "scan-view":
+				paths := args[1:]
+				// Initialize config
+				config := loadScanConfig(paths)
+
+				// Check that we can construct a client.
+				ctx := context.Background()
+				client, auth := getFugueClient()
+
+				// Generate scan view
+				scanViewString, err := runScan(
+					ctx,
+					client,
+					auth,
+					config,
+				)
+				if err != nil {
+					logrus.Fatal(err)
+				}
+				if scanViewString == "" {
+					logrus.Fatal("Could not create scan view")
+				}
+				fmt.Println(scanViewString)
 			default:
 				logrus.Fatalf("Unknown item: %s\n", args[0])
 			}

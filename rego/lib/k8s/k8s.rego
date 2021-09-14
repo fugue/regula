@@ -78,11 +78,18 @@ containers(resource) = ret {
 	ret = (((c1 | c2) | c3) | c4) | c5
 }
 
-# Returns a list of capabilities added to the given container definition
+# Returns a set of capabilities added in the given container definition
 added_capabilities(container) = ret {
-	ret = container.securityContext.capabilities.add
+	ret = { cap | cap := container.securityContext.capabilities.add[_] }
 } else = ret {
-	ret = {}
+	ret = set()
+}
+
+# Returns a set of capabilities dropped in the given container definition
+dropped_capabilities(container) = ret {
+    ret = { cap | cap := container.securityContext.capabilities.drop[_] }
+} else = ret {
+	ret = set()
 }
 
 # Incremental definition of role_bindings to include both RoleBinding and

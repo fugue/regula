@@ -22,9 +22,9 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.7.2"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "The seccomp profile should be set to runtime/default or docker/default in pod definitions. The Secure Computing Mode (seccomp) in Linux is used to restrict which syscalls are allowed, which generally increases workload security. The docker/default profile was deprecated in Kubernetes 1.11 and runtime/default should now be used.",
 	"id": "FG_R00522",
-	"title": "Ensure that the seccomp profile is set to docker/default in your pod definitions",
+	"title": "The seccomp profile should be set to runtime/default or docker/default in pod definitions",
 }
 
 input_type = "k8s"
@@ -33,14 +33,18 @@ resource_type = "MULTIPLE"
 
 resources = k8s.resources_with_pod_templates
 
-seccomp_set(template) {
-    annotations := template.metadata.annotations
-	annotations["seccomp.security.alpha.kubernetes.io/pod"] == "docker/default"
+# https://kubernetes.io/docs/concepts/policy/pod-security-policy/#seccomp
+# The Docker default seccomp profile is used. Deprecated as of Kubernetes 1.11.
+# Use runtime/default instead.
+approved_profiles = {
+    "docker/default",
+    "runtime/default",
 }
 
 seccomp_set(template) {
-	annotations := template.metadata.annotations
-	annotations["seccomp.security.alpha.kubernetes.io/pod"] == "runtime/default"
+    annotations := template.metadata.annotations
+	profile := annotations["seccomp.security.alpha.kubernetes.io/pod"]
+    approved_profiles[profile]
 }
 
 policy[j] {

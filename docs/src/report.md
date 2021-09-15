@@ -7,72 +7,78 @@ Here's a snippet of test results from a Regula JSON report:
   "rule_results": [
     {
       "controls": [
-        "CIS-AWS_v1.3.0_1.20"
+        "CIS-Azure_v1.1.0_6.4",
+        "CIS-Azure_v1.3.0_6.4"
       ],
-      "filepath": "../test_infra/cfn/cfntest2.yaml",
-      "input_type": "cfn",
-      "provider": "aws",
-      "resource_id": "S3Bucket1",
-      "resource_type": "AWS::S3::Bucket",
-      "rule_description": "S3 buckets should have all `block public access` options enabled. AWS's S3 Block Public Access feature has four settings: BlockPublicAcls, IgnorePublicAcls, BlockPublicPolicy, and RestrictPublicBuckets. All four settings should be enabled to help prevent the risk of a data breach.",
-      "rule_id": "FG_R00229",
-      "rule_message": "",
-      "rule_name": "cfn_s3_block_public_access",
-      "rule_result": "PASS",
-      "rule_severity": "High",
-      "rule_summary": "S3 buckets should have all `block public access` options enabled",
-      "source_location": [
-        {
-          "path": "../test_infra/cfn/cfntest2.yaml",
-          "line": 3,
-          "column": 3
-        }
-      ]
-    },
-    {
-      "controls": [
-        "CIS-AWS_v1.3.0_2.1.1"
-      ],
-      "filepath": "../test_infra/cfn/cfntest2.yaml",
-      "input_type": "cfn",
-      "provider": "aws",
-      "resource_id": "S3BucketLogs",
-      "resource_type": "AWS::S3::Bucket",
-      "rule_description": "S3 bucket server side encryption should be enabled. Enabling server-side encryption (SSE) on S3 buckets at the object level protects data at rest and helps prevent the breach of sensitive information assets. Objects can be encrypted with S3-Managed Keys (SSE-S3), KMS-Managed Keys (SSE-KMS), or Customer-Provided Keys (SSE-C).",
-      "rule_id": "FG_R00099",
-      "rule_message": "",
-      "rule_name": "cfn_s3_encryption",
-      "rule_result": "WAIVED",
-      "rule_severity": "High",
-      "rule_summary": "S3 bucket server side encryption should be enabled",
-      "source_location": [
-        {
-          "path": "../test_infra/cfn/cfntest2.yaml",
-          "line": 12,
-          "column": 3
-        }
-      ]
-    },
-    {
-      "controls": [
-        "CIS-Google_v1.0.0_3.6"
-      ],
-      "filepath": "../test_infra/tf/",
+      "filepath": "dev_network/main.tf",
       "input_type": "tf",
-      "provider": "google",
-      "resource_id": "google_compute_firewall.rule-2",
-      "resource_type": "google_compute_firewall",
-      "rule_description": "VPC firewall rules should not permit unrestricted access from the internet to port 22 (SSH). Removing unfettered connectivity to remote console services, such as SSH, reduces a server's exposure to risk.",
-      "rule_id": "FG_R00379",
+      "provider": "azurerm",
+      "resource_id": "azurerm_network_security_group.devnsg",
+      "resource_type": "azurerm_network_security_group",
+      "rule_description": "Virtual Network security group flow log retention period should be set to 90 days or greater. Flow logs enable capturing information about IP traffic flowing in and out of network security groups. Logs can be used to check for anomalies and give insight into suspected breaches.",
+      "rule_id": "FG_R00286",
       "rule_message": "",
-      "rule_name": "tf_google_compute_firewall_no_ingress_22",
+      "rule_name": "tf_azurerm_network_flow_log_90days",
+      "rule_result": "PASS",
+      "rule_severity": "Medium",
+      "rule_summary": "Virtual Network security group flow log retention period should be set to 90 days or greater",
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00286.html",
+      "source_location": [
+        {
+          "path": "dev_network/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "controls": [
+        "CIS-Azure_v1.1.0_6.2",
+        "CIS-Azure_v1.3.0_6.2"
+      ],
+      "filepath": "dev_network/main.tf",
+      "input_type": "tf",
+      "provider": "azurerm",
+      "resource_id": "azurerm_network_security_group.devnsg",
+      "resource_type": "azurerm_network_security_group",
+      "rule_description": "Virtual Network security groups should not permit ingress from '0.0.0.0/0' to TCP/UDP port 22 (SSH). The potential security problem with using SSH over the internet is that attackers can use various brute force techniques to gain access to Azure Virtual Machines. Once the attackers gain access, they can use a virtual machine as a launch point for compromising other machines on the Azure Virtual Network or even attack networked devices outside of Azure.",
+      "rule_id": "FG_R00191",
+      "rule_message": "",
+      "rule_name": "tf_azurerm_network_security_group_no_inbound_22",
       "rule_result": "FAIL",
       "rule_severity": "High",
-      "rule_summary": "VPC firewall rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)",
+      "rule_summary": "Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)",
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00191.html",
       "source_location": [
         {
-          "path": "../test_infra/tf/",
-          "line": 6,
+          "path": "dev_network/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "controls": [
+        "CIS-Azure_v1.1.0_3.1",
+        "CIS-Azure_v1.3.0_3.1"
+      ],
+      "filepath": "dev_network/main.tf",
+      "input_type": "tf",
+      "provider": "azurerm",
+      "resource_id": "azurerm_storage_account.main",
+      "resource_type": "azurerm_storage_account",
+      "rule_description": "Storage Accounts 'Secure transfer required' should be enabled. The secure transfer option enhances the security of a storage account by only allowing requests to the storage account by a secure connection. This control does not apply for custom domain names since Azure storage does not support HTTPS for custom domain names.",
+      "rule_id": "FG_R00152",
+      "rule_message": "",
+      "rule_name": "tf_azurerm_storage_account_secure_transfer",
+      "rule_result": "WAIVED",
+      "rule_severity": "Medium",
+      "rule_summary": "Storage Accounts 'Secure transfer required' should be enabled",
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00152.html",
+      "source_location": [
+        {
+          "path": "dev_network/main.tf",
+          "line": 118,
           "column": 1
         }
       ]
@@ -80,8 +86,7 @@ Here's a snippet of test results from a Regula JSON report:
   ],
   "summary": {
     "filepaths": [
-      "../test_infra/cfn/cfntest2.yaml",
-      "../test_infra/tf/"
+      "dev_network/main.tf"
     ],
     "rule_results": {
       "FAIL": 1,
@@ -109,13 +114,33 @@ Here's a snippet of test results from a Regula JSON report:
 
 Each entry in the `rule_results` block is the result of a Rego rule evaluation on a resource. All `rule_results` across multiple CloudFormation and Terraform files and directories are aggregated into this block. In the example above:
 
-- The resource `S3Bucket1` configured in the `../test_infra/cfn/cfntest2.yaml` CloudFormation template (line 3, column 3) passed the rule `cfn_s3_block_public_access`
-- The rule `cfn_s3_encryption` was [waived](configuration.md#waiving-rule-results) for the resource `S3BucketLogs` in the `../test_infra/cfn/cfntest2.yaml` template (line 12, column 3)
-- The resource `google_compute_firewall.rule-2` configured in the `../test_infra/tf/` Terraform directory (line 6, column 1) failed the rule `tf_google_compute_firewall_no_ingress_22`
+- The resource `azurerm_network_security_group.devnsg` configured in the `dev_network/main.tf` Terraform HCL file (line 25, column 1) **passed** the rule `tf_azurerm_network_flow_log_90days`
+- The same resource **failed** the rule `tf_azurerm_network_security_group_no_inbound_22`
+- The rule `tf_azurerm_storage_account_secure_transfer` was [**waived**](configuration.md#waiving-rule-results) for the resource `azurerm_storage_account.main` (line 118, column 1)
 
 ## Summary
 
 The `summary` block contains a breakdown of the `filepaths` (CloudFormation templates, Terraform plan files, Terraform HCL directories) that were evaluated, a count of `rule_results` (PASS, FAIL, [WAIVED](configuration.md#waiving-rule-results)), and a count of `severities` (Critical, High, Medium, Low, Informational, Unknown) for failed `rule_results`. In the example above, 3 rule results were evaluated, of which 1 had a `FAIL` result with a `High` severity.
+
+## Rule Result Attributes
+
+Each rule result in the JSON report lists the following attributes:
+
+- `controls`: Compliance controls mapped to the rule
+- `filepath`: Filepath of the evaluated Terraform HCL file, Terraform JSON plan, or CloudFormation template
+- `input_type`: `tf` (Terraform HCL), `tf_plan` (Terraform JSON plan), `cfn` (CloudFormation)
+- `provider`: `aws`, `azurerm`, or `google`
+- `resource_id`: ID of the evaluated resource
+- `resource_type`: Type of the evaluated resource
+- `rule_description`: A detailed description of the rule
+- `rule_id`: ID of the rule; built-in rules start with `FG_R`
+- `rule_message`: Optional error message associated with the rule; see how to create custom error messages in [simple](development/writing-rules.md#custom-error-messages-and-attributes-simple-rules) and [advanced](development/writing-rules.md#custom-error-messages-advanced-rules) custom rules
+- `rule_name`: Name of the rule (filepath minus extension)
+- `rule_result`: `PASS`, `FAIL`, or `WAIVED`
+- `rule_severity`: `Critical`, `High`, `Medium`, `Low`, `Informational`, or `Unknown`
+- `rule_summary`: A short summary of the rule
+- `rule_remediation_doc`: A URL with instructions for remediating the rule (built-in rules only)
+- `source_location`: The path, line, and column of the evaluated resource
 
 ## Compliance controls vs. rules
 

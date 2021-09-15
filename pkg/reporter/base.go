@@ -269,7 +269,7 @@ type RuleResult struct {
 	RuleResult         string   `json:"rule_result"`
 	RuleSeverity       string   `json:"rule_severity"`
 	RuleSummary        string   `json:"rule_summary"`
-	RuleRemediationDoc string   `json:"rule_remediaion_doc",omitempty`
+	RuleRemediationDoc string   `json:"rule_remediation_doc,omitempty"`
 	// List of source code locations this rule result pertains to.  The first
 	// element of the list always refers to the most specific source code site,
 	// and further elements indicate modules in which this was included, like

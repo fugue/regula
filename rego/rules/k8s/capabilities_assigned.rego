@@ -15,6 +15,7 @@
 package rules.k8s_capabilities_assigned
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {

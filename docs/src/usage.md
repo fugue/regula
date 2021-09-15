@@ -319,6 +319,14 @@ Use the `--f | --format FORMAT` flag to specify the output format:
     ok 1 ValidManagedPolicy01: IAM policies must have a description of at least 25 characters
     ```
 
+=== "compact"
+
+    ```
+    CUSTOM_0001: IAM policies must have a description of at least 25 characters [Low]
+      [1]: InvalidManagedPolicy01 in infra_cfn/invalid_long_description.yaml:14:3
+    Found one problem.
+    ```
+
 For more about Regula's output, see [Report Output](report.md).
 
 ## init

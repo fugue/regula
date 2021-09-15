@@ -140,6 +140,7 @@ You'll see output like this:
       "rule_result": "FAIL",
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "source_location": [
         {
           "path": "infra_tf/main.tf",
@@ -165,6 +166,30 @@ You'll see output like this:
       "rule_result": "PASS",
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "controls": [],
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
+      "provider": "aws",
+      "resource_id": "aws_iam_policy.basically_deny_all",
+      "resource_type": "aws_iam_policy",
+      "rule_description": "IAM policies should not allow broad list actions on S3 buckets. Should a malicious actor gain access to a role with a policy that includes broad list actions such as ListAllMyBuckets, the malicious actor would be able to enumerate all buckets and potentially extract sensitive data.",
+      "rule_id": "FG_R00218",
+      "rule_message": "",
+      "rule_name": "tf_aws_iam_s3_nolist",
+      "rule_result": "PASS",
+      "rule_severity": "Medium",
+      "rule_summary": "IAM policies should not allow broad list actions on S3 buckets",
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00218.html",
       "source_location": [
         {
           "path": "infra_tf/main.tf",
@@ -187,32 +212,11 @@ You'll see output like this:
       "rule_result": "PASS",
       "rule_severity": "Medium",
       "rule_summary": "IAM policies should not allow broad list actions on S3 buckets",
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00218.html",
       "source_location": [
         {
           "path": "infra_tf/main.tf",
           "line": 6,
-          "column": 1
-        }
-      ]
-    },
-    {
-      "controls": [],
-      "filepath": "infra_tf/main.tf",
-      "input_type": "tf",
-      "provider": "aws",
-      "resource_id": "aws_iam_policy.basically_deny_all",
-      "resource_type": "aws_iam_policy",
-      "rule_description": "IAM policies should not allow broad list actions on S3 buckets. Should a malicious actor gain access to a role with a policy that includes broad list actions such as ListAllMyBuckets, the malicious actor would be able to enumerate all buckets and potentially extract sensitive data.",
-      "rule_id": "FG_R00218",
-      "rule_message": "",
-      "rule_name": "tf_aws_iam_s3_nolist",
-      "rule_result": "PASS",
-      "rule_severity": "Medium",
-      "rule_summary": "IAM policies should not allow broad list actions on S3 buckets",
-      "source_location": [
-        {
-          "path": "infra_tf/main.tf",
-          "line": 25,
           "column": 1
         }
       ]
@@ -263,6 +267,7 @@ The AWS IAM policy resource `aws_iam_policy.basically_allow_all` failed the Regu
       "rule_result": "FAIL",
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "source_location": [
         {
           "path": "infra_tf/main.tf",
@@ -293,6 +298,7 @@ In contrast, the policy `aws_iam_policy.basically_deny_all` passed the rule:
       "rule_result": "PASS",
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "source_location": [
         {
           "path": "infra_tf/main.tf",

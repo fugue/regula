@@ -19,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -154,16 +155,23 @@ func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
 	return configurations, nil
 }
 
+type cachedLocation struct {
+	LocationStack LocationStack
+	Error         error
+}
+
 type loadedConfigurations struct {
 	configurations map[string]IACConfiguration
 	// The corresponding key in configurations for every loaded path
-	loadedPaths map[string]string
+	loadedPaths   map[string]string
+	locationCache map[string]map[string]cachedLocation
 }
 
 func newLoadedConfigurations() *loadedConfigurations {
 	return &loadedConfigurations{
 		configurations: map[string]IACConfiguration{},
 		loadedPaths:    map[string]string{},
+		locationCache:  map[string]map[string]cachedLocation{},
 	}
 }
 
@@ -189,13 +197,44 @@ func (l *loadedConfigurations) RegulaInput() []RegulaInput {
 	return input
 }
 
+func (l *loadedConfigurations) locationFromCache(path string, joinedAttributePath string) (LocationStack, error, bool) {
+	pathCache, ok := l.locationCache[path]
+	if !ok {
+		return nil, nil, false
+	}
+	loc, ok := pathCache[joinedAttributePath]
+	if !ok {
+		return nil, nil, false
+	}
+	return loc.LocationStack, loc.Error, true
+}
+
+func (l *loadedConfigurations) cacheLocation(path string, joinedAttributePath string, loc LocationStack, err error) {
+	pathCache, ok := l.locationCache[path]
+	if !ok {
+		pathCache = map[string]cachedLocation{}
+		l.locationCache[path] = pathCache
+	}
+	pathCache[joinedAttributePath] = cachedLocation{
+		LocationStack: loc,
+		Error:         err,
+	}
+}
+
 func (l *loadedConfigurations) Location(path string, attributePath []string) (LocationStack, error) {
+	joinedAttributePath := strings.Join(attributePath, ":")
+	if loc, err, ok := l.locationFromCache(path, joinedAttributePath); ok {
+		return loc, err
+	}
+
 	canonical, ok := l.loadedPaths[path]
 	if !ok {
 		return nil, fmt.Errorf("Unable to determine location for given path %v and attribute path %v", path, attributePath)
 	}
 	loader, _ := l.configurations[canonical]
-	return loader.Location(attributePath)
+	loc, err := loader.Location(attributePath)
+	l.cacheLocation(path, joinedAttributePath, loc, err)
+	return loc, err
 }
 
 func (l *loadedConfigurations) AlreadyLoaded(path string) bool {

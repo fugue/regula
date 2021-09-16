@@ -19,6 +19,9 @@ __rego__metadoc__ := {
     "controls": {
       "CIS-Google_v1.1.0": [
         "CIS-Google_v1.1.0_4.6"
+      ],
+      "CIS-Google_v1.2.0": [
+        "CIS-Google_v1.2.0_4.6"
       ]
     },
     "severity": "Low"

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v1.4.0 (2021-09-16)
+
+### Added
+* A new 'compact' output format. See [our updated usage documentation](https://regula.dev/usage.html#example-output) for example output.
+* Option to set the output format via the `REGULA_FORMAT` environment variable
+* Remediation docs URLs to JSON output format. See [our updated report output documentation](https://regula.dev/report.html#rule-result-attributes) for more info.
+
 ## v1.3.2 (2021-09-09)
 
 ### Added

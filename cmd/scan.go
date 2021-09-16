@@ -30,6 +30,7 @@ import (
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/regotools/doublequote"
 	"github.com/fugue/regula/pkg/regotools/metadoc"
+	"github.com/fugue/regula/pkg/reporter"
 	"github.com/fugue/regula/pkg/swagger/client"
 	apiclient "github.com/fugue/regula/pkg/swagger/client"
 	"github.com/fugue/regula/pkg/swagger/client/custom_rules"
@@ -39,7 +40,6 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	opa "github.com/open-policy-agent/opa/rego"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -296,7 +296,12 @@ func runScan(
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	return jsonMarshal(result)
+	scanView, err := reporter.ParseScanView(loadedFiles, *result)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	return jsonMarshal(scanView)
 }
 
 func uploadScanView(
@@ -388,12 +393,12 @@ func NewScanCommand() *cobra.Command {
 	return cmd
 }
 
-func jsonMarshal(r *opa.Result) (string, error) {
+func jsonMarshal(s *reporter.ScanView) (string, error) {
 	buf := &bytes.Buffer{}
 	enc := json.NewEncoder(buf)
 	enc.SetEscapeHTML(false)
 	enc.SetIndent("", "  ")
-	if err := enc.Encode(r.Expressions[0].Value); err != nil {
+	if err := enc.Encode(s); err != nil {
 		return "", err
 	}
 	return buf.String(), nil

@@ -18,6 +18,9 @@ __rego__metadoc__ := {
     "controls": {
       "CIS-AWS_v1.3.0": [
         "CIS-AWS_v1.3.0_1.20"
+      ],
+      "CIS-AWS_v1.4.0": [
+        "CIS-AWS_v1.4.0_2.1.5"
       ]
     },
     "severity": "High"

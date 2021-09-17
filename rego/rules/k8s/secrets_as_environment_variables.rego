@@ -15,13 +15,14 @@
 package rules.k8s_secrets_as_environment_variables
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.4.1"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Prefer using secrets as files over secrets as environment variables. Providing access to secrets via volume mounts is preferred. Any secrets stored in environment variables could be exposed if the environment is logged or otherwise exposed by an application.",
 	"id": "FG_R00518",
 	"title": "Prefer using secrets as files over secrets as environment variables",
 }
@@ -30,20 +31,26 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+resources = k8s.resources_with_pod_templates
 
-is_valid(resource) {
-    true
+has_secret_key_ref(template) {
+	ref := template.spec.containers[_].env[_].valueFrom.secretKeyRef
+    ref.name
+    ref.key
 }
 
 policy[j] {
 	resource := resources[_]
-	is_valid(resource)
+	template := k8s.pod_template(resource)
+	count(template.spec.containers) > 0
+	not has_secret_key_ref(template)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
 	resource := resources[_]
-	not is_valid(resource)
+	template := k8s.pod_template(resource)
+	count(template.spec.containers) > 0
+	has_secret_key_ref(template)
 	j = fugue.deny_resource(resource)
 }

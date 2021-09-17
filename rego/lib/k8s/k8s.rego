@@ -111,6 +111,14 @@ roles[id] = ret {
 	ret = fugue.resources("ClusterRole")[id]
 }
 
+# Finds the Role or ClusterRole for the given binding
+role_from_binding(binding) = ret {
+    role = fugue.resources(binding.roleRef.kind)[_]
+    role.metadata.name == binding.roleRef.name
+    ret = role
+    # May need to add a namespace match condition in the future
+}
+
 # Easy access to any default service accounts
 default_service_accounts[id] = ret {
 	account := fugue.resources("ServiceAccount")[id]

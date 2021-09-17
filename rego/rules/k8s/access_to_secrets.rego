@@ -15,13 +15,14 @@
 package rules.k8s_access_to_secrets
 
 import data.fugue
+import data.k8s
 
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.2"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Minimize access to secrets. RBAC resources in Kubernetes are used to grant access to get, list, and watch secrets on the Kubernetes API. Restrict use of these permissions to the smallest set of users and service accounts as possible.",
 	"id": "FG_R00502",
 	"title": "Minimize access to secrets",
 }
@@ -30,20 +31,30 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Pod")
+match_verbs = {"get", "list", "watch"}
 
-is_valid(resource) {
-    true
+is_invalid_rule(rule) {
+    rule.resources[_] == "secrets"
+    match_verbs[rule.verbs[_]]
+}
+
+is_invalid_role(role) {
+    is_invalid_rule(role.rules[_])
+}
+
+is_invalid_binding(binding) {
+    role := k8s.role_from_binding(binding)
+    is_invalid_role(role)
 }
 
 policy[j] {
-	resource := resources[_]
-	is_valid(resource)
+	resource := k8s.role_bindings[_]
+	not is_invalid_binding(resource)
 	j = fugue.allow_resource(resource)
 }
 
 policy[j] {
-	resource := resources[_]
-	not is_valid(resource)
+	resource := k8s.role_bindings[_]
+	is_invalid_binding(resource)
 	j = fugue.deny_resource(resource)
 }

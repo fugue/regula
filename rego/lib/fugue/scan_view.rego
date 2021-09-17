@@ -146,7 +146,7 @@ scan_report = ret {
 
 scan_view = ret {
   ret := {
-    "regula_version": "v1.0.0",
+    "scan_view_version": "v1",
     "report": scan_report,
     "inputs": [input_resources |
       item := input[_]

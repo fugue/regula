@@ -22,7 +22,7 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.3"]},
 		"severity": "High",
 	},
-	"description": "",
+	"description": "Minimize wildcard use in Roles and ClusterRoles. A wildcard resource entry matches all resources. A wildcard verb entry matches all actions. This violates the principle of least privilege, since roles should only grant access to those resources and actions which are necessary for the workload to function.",
 	"id": "FG_R00503",
 	"title": "Minimize wildcard use in Roles and ClusterRoles",
 }

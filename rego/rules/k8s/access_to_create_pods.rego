@@ -22,7 +22,7 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.4"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Minimize access to create pods. Privilege escalation is possible when these permissions are available, since the created pods could be assigned privileged service accounts or have access to sensitive data. Avoid granting pod creation privileges by default.",
 	"id": "FG_R00504",
 	"title": "Minimize access to create pods",
 }

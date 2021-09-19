@@ -22,7 +22,7 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.1"]},
 		"severity": "High",
 	},
-	"description": "",
+	"description": "Ensure that the cluster-admin role is only used where required. This role comes with super-user level access which can be used to manipulate all resources in the cluster. Avoid using this role unless it's absolutely necessary.",
 	"id": "FG_R00501",
 	"title": "Ensure that the cluster-admin role is only used where required",
 }

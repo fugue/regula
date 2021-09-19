@@ -22,7 +22,7 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.5"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Roles and cluster roles should not be bound to the default service account. Dedicated service accounts should be created for each workload with appropriate rights assigned.",
 	"id": "FG_R005XY",
 	"title": "Roles and cluster roles should not be bound to the default service account",
 }

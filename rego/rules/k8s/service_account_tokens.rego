@@ -22,9 +22,9 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.6"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Ensure that service account tokens are only mounted where necessary. Service account tokens are used to authenticate requests from in-cluster processes to the Kubernetes API server. Many workloads do not need to communicate with the API server and hence should have automountServiceAccountToken set to false.",
 	"id": "FG_R00506",
-	"title": "Ensure that Service Account Tokens are only mounted where necessary",
+	"title": "Ensure that service account tokens are only mounted where necessary",
 }
 
 input_type = "k8s"

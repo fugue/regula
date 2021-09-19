@@ -22,7 +22,7 @@ __rego__metadoc__ := {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.5"]},
 		"severity": "Medium",
 	},
-	"description": "",
+	"description": "Opt out of automounting API credentials for the default service account. The default service account should not be used and its ability to provide API credentials should be disabled.",
 	"id": "FG_R00505",
 	"title": "Opt out of automounting API credentials for the default service account",
 }

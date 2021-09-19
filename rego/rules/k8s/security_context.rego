@@ -20,11 +20,11 @@ import data.k8s
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.7.3"]},
-		"severity": "Low",
+		"severity": "Medium",
 	},
-	"description": "Apply a security context to Pods and Containers. A security context controls a variety of settings for access control, Linux capabilities, and privileges. The security context may be set at the Pod or the Container level. Reference the Kubernetes documentation for specific recommendations for each setting.",
+	"description": "Apply a security context to pods and containers. A security context controls a variety of settings for access control, Linux capabilities, and privileges. The security context may be set at the pod or the container level. Reference the Kubernetes documentation for specific recommendations for each setting.",
 	"id": "FG_R00523",
-	"title": "Apply a security context to Pods and Containers",
+	"title": "Apply a security context to pods and containers",
 }
 
 input_type = "k8s"

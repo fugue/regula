@@ -20,7 +20,7 @@ import data.k8s
 __rego__metadoc__ := {
 	"custom": {
 		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.4.1"]},
-		"severity": "Low",
+		"severity": "Medium",
 	},
 	"description": "Prefer using secrets as files over secrets as environment variables. Providing access to secrets via volume mounts is preferred. Any secrets stored in environment variables could be exposed if the environment is logged or otherwise exposed by an application.",
 	"id": "FG_R00518",

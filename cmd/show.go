@@ -27,7 +27,8 @@ import (
 func NewShowCommand() *cobra.Command {
 	inputTypes := []loader.InputType{loader.Auto}
 	longDescription := `Show debug information.  Currently the available items are:
-	input [file..]   Show the JSON input being passed to regula`
+	input [file..]         Show the JSON input being passed to regula
+	scan-view [directory]  Runs a regula scan and prints the result to stdout instead of submitting it to Fugue`
 	cmd := &cobra.Command{
 		Use:   "show [item]",
 		Short: "Show debug information.",

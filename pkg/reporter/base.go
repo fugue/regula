@@ -351,9 +351,10 @@ type ScanReport struct {
 }
 
 type ScanView struct {
-	Inputs        []ScanInput `json:"inputs"`
-	RegulaVersion string      `json:"regula_version"`
-	Report        ScanReport  `json:"report"`
+	Inputs          []ScanInput `json:"inputs"`
+	RegulaVersion   string      `json:"regula_version"`
+	ScanViewVersion string      `json:"scan_view_version"`
+	Report          ScanReport  `json:"report"`
 }
 
 func ParseRegulaOutput(conf loader.LoadedConfigurations, r rego.Result) (*RegulaOutput, error) {

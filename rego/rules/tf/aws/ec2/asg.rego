@@ -28,9 +28,29 @@ __rego__metadoc__ := {
 }
 
 autoscaling_groups = fugue.resources("aws_autoscaling_group")
+subnets = fugue.resources("aws_subnet")
+
+az_by_subnet_id := {id: az |
+  sub = subnets[_]
+  id = sub.id
+  az = sub.availability_zone
+}
+
+subnet_azs_by_asg_id := {id: azs |
+  asg = autoscaling_groups[id]
+  azs = {az |
+    sub_id = asg.vpc_zone_identifier[_]
+    az = az_by_subnet_id[sub_id]
+  }
+}
 
 valid_autoscaling_group(asg) {
-  count(asg.availability_zones) >= 2
+  azs = {az | az = asg.availability_zones[_]} 
+  count(azs) >= 2
+}
+
+valid_autoscaling_group(asg) {
+  count(subnet_azs_by_asg_id[asg.id]) >= 2
 }
 
 resource_type = "MULTIPLE"

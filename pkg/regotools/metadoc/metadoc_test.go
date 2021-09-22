@@ -72,7 +72,7 @@ __rego__metadoc__ := {
       ],
       "NIST-800-53_vRev4": [
         "NIST-800-53_vRev4_SC-13"
-      ]
+      ],
     },
     "severity": "High",
     "families": [

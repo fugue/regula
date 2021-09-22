@@ -24,6 +24,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
+	github.com/tailscale/hujson v0.0.0-20210818175511-7360507a6e88
 	github.com/terraform-providers/terraform-provider-aws v0.0.0-20210819222124-f20616dad806
 	github.com/thediveo/enumflag v0.10.1
 	github.com/zclconf/go-cty v1.8.4

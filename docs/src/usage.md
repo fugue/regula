@@ -54,7 +54,7 @@ Global Flags:
 
 ### Input
 
-`regula run [input...]` supports passing in CloudFormation YAML and JSON templates, Terraform HCL files, and Terraform plan JSON files.
+`regula run [input...]` supports passing in CloudFormation templates, Kubernetes manifests, Terraform HCL files, and Terraform plan JSON files.
 
 - **When run without any paths,** Regula will recursively search for IaC configurations within the working directory. Example:
 
@@ -137,6 +137,7 @@ Regula operates on CloudFormation templates formatted as JSON or YAML, including
 - `tf-plan` -- Terraform plan JSON
 - `cfn` -- CloudFormation template in YAML or JSON format
 - `tf` -- Terraform directory or file
+- `k8s` -- Kubernetes manifest YAML
 
 `-s, --severity SEVERITY` values:
 
@@ -535,7 +536,7 @@ Flags:
 
 ### Input
 
-`regula show input [file...]` accepts Terraform HCL files or directories, Terraform plan JSON, and CloudFormation templates in YAML or JSON. In all cases, Regula transforms the input file and displays the resulting JSON.
+`regula show input [file...]` accepts Terraform HCL files or directories, Terraform plan JSON, Kubernetes manifests, and CloudFormation templates in YAML or JSON. In all cases, Regula transforms the input file and displays the resulting JSON.
 
 This command is used to facilitate development of Regula itself. If you'd like to see the mock input, mock resources, or mock config for an IaC file so you can develop rules, see [`regula repl`](#repl) and [Test Inputs](development/test-inputs.md#viewing-test-inputs).
 
@@ -550,6 +551,7 @@ This command is used to facilitate development of Regula itself. If you'd like t
 - `tf-plan` -- Terraform plan JSON
 - `cfn` -- CloudFormation template in YAML or JSON format
 - `tf` -- Terraform directory or file
+- `k8s` -- Kubernetes manifest YAML
 
 ## test
 
@@ -637,6 +639,7 @@ The input is saved as `<iac filename without extension>_<extension>.rego` in the
 - `tf-plan` -- Terraform plan JSON
 - `cfn` -- CloudFormation template in YAML or JSON format
 - `tf` -- Terraform directory or file
+- `k8s` -- Kubernetes manifest YAML
 
 ### Examples
 

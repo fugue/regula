@@ -37,14 +37,14 @@ resources = k8s.resources_with_pod_templates
 # The Docker default seccomp profile is used. Deprecated as of Kubernetes 1.11.
 # Use runtime/default instead.
 approved_profiles = {
-    "docker/default",
-    "runtime/default",
+	"docker/default",
+	"runtime/default",
 }
 
 seccomp_set(template) {
-    annotations := template.metadata.annotations
+	annotations := template.metadata.annotations
 	profile := annotations["seccomp.security.alpha.kubernetes.io/pod"]
-    approved_profiles[profile]
+	approved_profiles[profile]
 }
 
 policy[j] {

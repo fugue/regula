@@ -32,7 +32,7 @@ input_type = "k8s"
 resource_type = "MULTIPLE"
 
 is_invalid(resource) {
-    resource.roleRef.name == "cluster-admin"
+	resource.roleRef.name == "cluster-admin"
 }
 
 policy[j] {

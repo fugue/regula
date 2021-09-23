@@ -33,15 +33,15 @@ resource_type = "MULTIPLE"
 
 # At least one of these capabilities needs to be explicitly dropped to pass
 capabilities = {
-    "all",
-    "ALL",
+	"all",
+	"ALL",
 }
 
 # Confirm every container drops one of the above capabilities
 is_valid(resource) {
 	containers = k8s.containers(resource)
 	dropped := k8s.dropped_capabilities(containers[_]) & capabilities
-    count(dropped) > 0
+	count(dropped) > 0
 }
 
 policy[j] {

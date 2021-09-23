@@ -38,8 +38,8 @@ resource_type = "MULTIPLE"
 # https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account
 
 is_valid(resource) {
-    # Require this to be explicitly set to false, since it defaults to true
-    resource.automountServiceAccountToken == false
+	# Require this to be explicitly set to false, since it defaults to true
+	resource.automountServiceAccountToken == false
 }
 
 policy[j] {

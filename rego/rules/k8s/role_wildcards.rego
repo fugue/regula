@@ -32,15 +32,19 @@ input_type = "k8s"
 resource_type = "MULTIPLE"
 
 is_wildcard_rule(rule) {
-    rule.apiGroups[_] == "*"
-} {
-    rule.resources[_] == "*"
-} {
-    rule.verbs[_] == "*"
+	rule.apiGroups[_] == "*"
+}
+
+is_wildcard_rule(rule) {
+	rule.resources[_] == "*"
+}
+
+is_wildcard_rule(rule) {
+	rule.verbs[_] == "*"
 }
 
 is_invalid(role) {
-    is_wildcard_rule(role.rules[_])
+	is_wildcard_rule(role.rules[_])
 }
 
 policy[j] {

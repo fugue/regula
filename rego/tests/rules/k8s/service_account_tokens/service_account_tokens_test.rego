@@ -21,16 +21,16 @@ test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["CronJob.default.hello"] == true
-    resources["Deployment.default.nginx-deployment"] == true
-    resources["Job.default.pi"] == true
-    resources["Pod.default.myapp-pod"] == true
+	resources["Deployment.default.nginx-deployment"] == true
+	resources["Job.default.pi"] == true
+	resources["Pod.default.myapp-pod"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["CronJob.default.hello"] == false
-    resources["Deployment.default.nginx-deployment"] == false
-    resources["Job.default.pi"] == false
-    resources["Pod.default.myapp-pod"] == false
+	resources["Deployment.default.nginx-deployment"] == false
+	resources["Job.default.pi"] == false
+	resources["Pod.default.myapp-pod"] == false
 }

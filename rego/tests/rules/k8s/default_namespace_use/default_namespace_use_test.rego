@@ -21,15 +21,15 @@ test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["Pod.foo.valid1"] == true
-    resources["Job.default.valid2"] == true
-    resources["ServiceAccount.default.default"] == true
-    resources["Service.default.kubernetes"] == true
+	resources["Job.default.valid2"] == true
+	resources["ServiceAccount.default.default"] == true
+	resources["Service.default.kubernetes"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["Pod.default.invalid1"] == false
-    resources["Job.default.invalid2"] == false
-    resources["ServiceAccount.default.invalid3"] == false
+	resources["Job.default.invalid2"] == false
+	resources["ServiceAccount.default.invalid3"] == false
 }

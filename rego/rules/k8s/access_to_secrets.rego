@@ -34,17 +34,17 @@ resource_type = "MULTIPLE"
 match_verbs = {"get", "list", "watch"}
 
 is_invalid_rule(rule) {
-    rule.resources[_] == "secrets"
-    match_verbs[rule.verbs[_]]
+	rule.resources[_] == "secrets"
+	match_verbs[rule.verbs[_]]
 }
 
 is_invalid_role(role) {
-    is_invalid_rule(role.rules[_])
+	is_invalid_rule(role.rules[_])
 }
 
 is_invalid_binding(binding) {
-    role := k8s.role_from_binding(binding)
-    is_invalid_role(role)
+	role := k8s.role_from_binding(binding)
+	is_invalid_role(role)
 }
 
 policy[j] {

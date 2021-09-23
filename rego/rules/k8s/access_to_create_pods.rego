@@ -32,12 +32,12 @@ input_type = "k8s"
 resource_type = "MULTIPLE"
 
 is_invalid_rule(rule) {
-    rule.resources[_] == "pods"
-    rule.verbs[_] == "create"
+	rule.resources[_] == "pods"
+	rule.verbs[_] == "create"
 }
 
 is_invalid(role) {
-    is_invalid_rule(role.rules[_])
+	is_invalid_rule(role.rules[_])
 }
 
 policy[j] {

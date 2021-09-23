@@ -21,14 +21,14 @@ test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["RoleBinding.default.valid1"] == true
-    resources["ClusterRoleBinding.default.valid2"] == true
-    resources["ClusterRoleBinding.default.missing_ref"] == true
+	resources["ClusterRoleBinding.default.valid2"] == true
+	resources["ClusterRoleBinding.default.missing_ref"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["RoleBinding.default.invalid1"] == false
-    resources["ClusterRoleBinding.default.invalid2"] == false
-    resources["ClusterRoleBinding.default.missing_ref"] == true
+	resources["ClusterRoleBinding.default.invalid2"] == false
+	resources["ClusterRoleBinding.default.missing_ref"] == true
 }

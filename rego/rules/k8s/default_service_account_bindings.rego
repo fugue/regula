@@ -37,13 +37,13 @@ resource_type = "MULTIPLE"
 # apart from the defaults."
 
 is_invalid(resource) {
-    # subjects:
-    # - kind: ServiceAccount
-    #   name: default
-    #   namespace: kube-system
-    some i
-    resource.subjects[i].name == "default"
-    resource.subjects[i].kind == "ServiceAccount"
+	# subjects:
+	# - kind: ServiceAccount
+	#   name: default
+	#   namespace: kube-system
+	some i
+	resource.subjects[i].name == "default"
+	resource.subjects[i].kind == "ServiceAccount"
 }
 
 policy[j] {

@@ -21,12 +21,12 @@ test_valid {
 	pol := policy with input as inputs.valid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["Pod.default.valid1"] == true
-    resources["DaemonSet.default.valid2"] == true
+	resources["DaemonSet.default.valid2"] == true
 }
 
 test_invalid {
 	pol := policy with input as inputs.invalid_example_yaml.mock_input
 	resources := {p.id: p.valid | p := pol[_]}
 	resources["Pod.default.invalid1"] == false
-    resources["DaemonSet.default.invalid2"] == false
+	resources["DaemonSet.default.invalid2"] == false
 }

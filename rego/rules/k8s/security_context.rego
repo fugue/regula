@@ -58,7 +58,7 @@ policy[j] {
 	resource := resources[_]
 	template := k8s.pod_template(resource)
 	count(template.spec.containers) > 0
-    not has_pod_security_context(template)
+	not has_pod_security_context(template)
 	has_container_security_contexts(template)
 	j = fugue.allow_resource(resource)
 }

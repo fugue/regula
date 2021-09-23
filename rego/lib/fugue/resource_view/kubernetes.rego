@@ -11,13 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 package fugue.resource_view.kubernetes
 
 resource_view[id] = ret {
-  resource := input.resources[id]
-  ret := json.patch(resource, [
-    {"op": "add", "path": ["id"], "value": id},
-    {"op": "add", "path": ["_type"], "value": resource.kind},
-    {"op": "add", "path": ["_provider"], "value": "kubernetes"},
-  ])
+	resource := input.resources[id]
+	ret := json.patch(resource, [
+		{"op": "add", "path": ["id"], "value": id},
+		{"op": "add", "path": ["_type"], "value": resource.kind},
+		{"op": "add", "path": ["_provider"], "value": "kubernetes"},
+	])
 }

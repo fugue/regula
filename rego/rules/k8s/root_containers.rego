@@ -41,39 +41,39 @@ resources = k8s.resources_with_pod_templates
 # Determines the value of "runAsNonRoot" that is in effect for a container.
 # Defaults to false if the value is not explicitly set.
 run_as_non_root(spec, container) = ret {
-    # The case where runAsNonRoot is set on the container securityContext
-    containerCtx := object.get(container, "securityContext", {})
-    containerVal := object.get(containerCtx, "runAsNonRoot", null)
-    containerVal != null
-    ret := containerVal
+	# The case where runAsNonRoot is set on the container securityContext
+	containerCtx := object.get(container, "securityContext", {})
+	containerVal := object.get(containerCtx, "runAsNonRoot", null)
+	containerVal != null
+	ret := containerVal
 } else = ret {
-    # The case where runAsNonRoot is set only on the pod securityContext
-    podCtx := object.get(spec, "securityContext", {})
-    podVal := object.get(podCtx, "runAsNonRoot", null)
-    podVal != null
-    ret := podVal
+	# The case where runAsNonRoot is set only on the pod securityContext
+	podCtx := object.get(spec, "securityContext", {})
+	podVal := object.get(podCtx, "runAsNonRoot", null)
+	podVal != null
+	ret := podVal
 } else = ret {
-    # runAsNonRoot is not specified, so it assumes a default value of false
-    ret := false
+	# runAsNonRoot is not specified, so it assumes a default value of false
+	ret := false
 }
 
 # Determines the value of "runAsUser" that is in effect for a container.
 # Defaults to "unknown" if the value is not explicitly set.
 run_as_user(spec, container) = ret {
-    # The case where runAsUser is set on the container securityContext
-    containerCtx := object.get(container, "securityContext", {})
-    containerVal := object.get(containerCtx, "runAsUser", null)
-    containerVal != null
-    ret := containerVal
+	# The case where runAsUser is set on the container securityContext
+	containerCtx := object.get(container, "securityContext", {})
+	containerVal := object.get(containerCtx, "runAsUser", null)
+	containerVal != null
+	ret := containerVal
 } else = ret {
-    # The case where runAsUser is set only on the pod securityContext
-    podCtx := object.get(spec, "securityContext", {})
-    podVal := object.get(podCtx, "runAsUser", null)
-    podVal != null
-    ret := podVal
+	# The case where runAsUser is set only on the pod securityContext
+	podCtx := object.get(spec, "securityContext", {})
+	podVal := object.get(podCtx, "runAsUser", null)
+	podVal != null
+	ret := podVal
 } else = ret {
-    # runAsUser is not specified, so it assumes a default value of "unknown"
-    ret := "unknown"
+	# runAsUser is not specified, so it assumes a default value of "unknown"
+	ret := "unknown"
 }
 
 # User ID 0 is root
@@ -81,10 +81,11 @@ dangerous_users = {0, "unknown"}
 
 # Whether a specific container can run as root
 can_run_as_root(template, container) {
-    # runAsNonRoot prevents running as root if it is set to true
-    run_as_non_root(template.spec, container) != true
-    # user ID 0 and an unknown user are both considered dangerous
-    dangerous_users[run_as_user(template.spec, container)]
+	# runAsNonRoot prevents running as root if it is set to true
+	run_as_non_root(template.spec, container) != true
+
+	# user ID 0 and an unknown user are both considered dangerous
+	dangerous_users[run_as_user(template.spec, container)]
 }
 
 # Whether ANY container can run as root

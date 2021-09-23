@@ -35,8 +35,8 @@ resources = k8s.resources_with_pod_templates
 
 has_secret_key_ref(template) {
 	ref := template.spec.containers[_].env[_].valueFrom.secretKeyRef
-    ref.name
-    ref.key
+	ref.name
+	ref.key
 }
 
 policy[j] {

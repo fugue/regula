@@ -67,6 +67,7 @@ test_scan_view {
   all([c | r = expected_scan_view.report.rule_results[_]; c = contains_result(output.report.rule_results, r)])
   expected_scan_view.report.summary == output.report.summary
   expected_scan_view.inputs == output.inputs
+  expected_scan_view.scan_view_version == output.scan_view_version
 }
 
 expected_scan_view = {
@@ -104,7 +105,7 @@ expected_scan_view = {
       }
     }
   ],
-  "regula_version": "v1.0.0",
+  "scan_view_version": "v1",
   "report": {
     "rule_results": [
       {

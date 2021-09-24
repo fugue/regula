@@ -21,6 +21,7 @@ package fugue.input_type_internal
 #  -  "tf_plan"
 #  -  "tf_runtime"
 #  -  "cfn"
+#  -  "arm"
 #
 # To check the current resource type, use `input_type`.
 # To check if a rule applies for this input type, use `compatibility`.
@@ -37,6 +38,8 @@ input_type = "tf" {
   _ = input.Resources
 } else = "cfn" {
   _ = input.AWSTemplateFormatVersion
+} else = "arm" {
+  _ = input.contentVersion
 } else = "unknown" {
   true
 }
@@ -49,6 +52,10 @@ terraform_input_type {
 
 cloudformation_input_type {
   input_type == "cfn"
+}
+
+arm_input_type {
+  input_type == "arm"
 }
 
 rule_input_type(pkg) = ret {
@@ -69,4 +76,5 @@ compatibility := {
   "tf_runtime":     {"tf_runtime"},
   "cfn":            {"cfn"},
   "cloudformation": {"cfn"},  # Backwards-compatibility
+  "arm":            {"arm"},
 }

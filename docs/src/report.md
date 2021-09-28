@@ -128,8 +128,8 @@ Each rule result in the JSON report lists the following attributes:
 
 - `controls`: Compliance controls mapped to the rule
 - `filepath`: Filepath of the evaluated Terraform HCL file, Terraform JSON plan, or CloudFormation template
-- `input_type`: `tf` (Terraform HCL), `tf_plan` (Terraform JSON plan), `cfn` (CloudFormation)
-- `provider`: `aws`, `azurerm`, or `google`
+- `input_type`: `tf` (Terraform HCL), `tf_plan` (Terraform JSON plan), `cfn` (CloudFormation), `k8s` (Kubernetes)
+- `provider`: `aws`, `azurerm`, `google`, `kubernetes`
 - `resource_id`: ID of the evaluated resource
 - `resource_type`: Type of the evaluated resource
 - `rule_description`: A detailed description of the rule

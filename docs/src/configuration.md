@@ -22,7 +22,7 @@ Regula enables you to waive a rule for resources or rules that match certain att
 The following rule result attributes, which are also in the [Regula report output](report.md), are supported for waiver objects:
 
  -  `resource_id`: The ID of the resource (defaults to `*`)
- -  `resource_type`: The resource type of the resource (e.g. `aws_s3_bucket` for Terraform, or `AWS::S3::Bucket` for CloudFormation)
+ -  `resource_type`: The resource type of the resource (such as `aws_s3_bucket` for Terraform, `AWS::S3::Bucket` for CloudFormation, `Job` for Kubernetes)
  -  `rule_id`: The metadata ID of the rule (defaults to `*`)
  -  `rule_name`: The package name of the rule (defaults to `*`). Omit the `rules.` segment of the package name (e.g., use `cfn_vpc_ingress_22` rather than `rules.cfn_vpc_ingress_22`)
  -  `filepath`: The filepath containing the resource, as passed to Regula (defaults to `*`)

@@ -120,6 +120,10 @@ terraform show -json plan.tfplan | regula run
 
 Regula operates on CloudFormation templates formatted as JSON or YAML, including templates generated from the AWS CDK.
 
+#### Kubernetes input
+
+Regula operates on YAML Kubernetes manifests containing single resource definitions or multiple definitions separated by the `---` operator.
+
 ### Flag values
 
 `-f, --format FORMAT` values:
@@ -572,7 +576,7 @@ Files or directories passed in to `regula test` must include the following for e
 
 - The Rego rule file
 - The Rego tests file, where each test is prepended with `test_`
-- The test Terraform or CloudFormation IaC file
+- The test Terraform, CloudFormation, or Kubernetes file
 
 If passed one or more directories, `regula test` recurses through them and runs all `test_` rules it finds. Note that `regula test` will only operate on individual files rather than interpreting the entire directory as a single configuration.
 

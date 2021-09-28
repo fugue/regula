@@ -36,8 +36,6 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = k8s.resources_with_pod_templates
-
 # Determines the value of "runAsNonRoot" that is in effect for a container.
 # Defaults to false if the value is not explicitly set.
 run_as_non_root(spec, container) = ret {
@@ -94,17 +92,15 @@ any_invalid_containers(template) {
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	count(template.spec.containers) > 0
-	not any_invalid_containers(template)
-	j = fugue.allow_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	count(obj.pod_template.spec.containers) > 0
+	not any_invalid_containers(obj.pod_template)
+	j := fugue.allow_resource(obj.resource)
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	count(template.spec.containers) > 0
-	any_invalid_containers(template)
-	j = fugue.deny_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	count(obj.pod_template.spec.containers) > 0
+	any_invalid_containers(obj.pod_template)
+	j := fugue.deny_resource(obj.resource)
 }

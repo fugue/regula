@@ -31,26 +31,22 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = k8s.resources_with_pod_templates
-
 is_valid(template) {
 	template.spec.automountServiceAccountToken == false
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	count(template.spec.containers) > 0
-	is_valid(template)
-	j = fugue.allow_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	count(obj.pod_template.spec.containers) > 0
+	is_valid(obj.pod_template)
+	j = fugue.allow_resource(obj.resource)
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	count(template.spec.containers) > 0
-	not is_valid(template)
-	j = fugue.deny_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	count(obj.pod_template.spec.containers) > 0
+	not is_valid(obj.pod_template)
+	j = fugue.deny_resource(obj.resource)
 }
 
 policy[j] {

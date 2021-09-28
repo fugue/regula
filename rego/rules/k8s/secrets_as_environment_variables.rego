@@ -31,8 +31,6 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = k8s.resources_with_pod_templates
-
 has_secret_key_ref(template) {
 	ref := template.spec.containers[_].env[_].valueFrom.secretKeyRef
 	ref.name
@@ -40,17 +38,15 @@ has_secret_key_ref(template) {
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	count(template.spec.containers) > 0
-	not has_secret_key_ref(template)
-	j = fugue.allow_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	count(obj.pod_template.spec.containers) > 0
+	not has_secret_key_ref(obj.pod_template)
+	j = fugue.allow_resource(obj.resource)
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	count(template.spec.containers) > 0
-	has_secret_key_ref(template)
-	j = fugue.deny_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	count(obj.pod_template.spec.containers) > 0
+	has_secret_key_ref(obj.pod_template)
+	j = fugue.deny_resource(obj.resource)
 }

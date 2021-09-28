@@ -16,7 +16,6 @@ package k8s
 
 import data.fugue
 
-# Incremental definition of resources_with_containers is found below.
 # Resource types that may include container definitions include:
 #  * ReplicaSet
 #  * Job
@@ -24,52 +23,32 @@ import data.fugue
 #  * DaemonSet
 #  * StatefulSet
 #  * Deployment
-
+#
+# This utility returns objects of the shape:
+#
+#     {
+#       "resource": <original resource>,
+#       "containers": [<non-empty list of containers>]
+#     }
 resources_with_containers[id] = ret {
-	resources = fugue.resources("ReplicaSet")
-	some id
-	count(containers(resources[id])) > 0
-	ret = resources[id]
-}
+	resource_types := {
+		"ReplicaSet",
+		"Job",
+		"Pod",
+		"DaemonSet",
+		"StatefulSet",
+		"Deployment",
+	}
 
-resources_with_containers[id] = ret {
-	resources = fugue.resources("Job")
-	some id
-	count(containers(resources[id])) > 0
-	ret = resources[id]
-}
-
-resources_with_containers[id] = ret {
-	resources = fugue.resources("Pod")
-	some id
-	count(containers(resources[id])) > 0
-	ret = resources[id]
-}
-
-resources_with_containers[id] = ret {
-	resources = fugue.resources("DaemonSet")
-	some id
-	count(containers(resources[id])) > 0
-	ret = resources[id]
-}
-
-resources_with_containers[id] = ret {
-	resources = fugue.resources("StatefulSet")
-	some id
-	count(containers(resources[id])) > 0
-	ret = resources[id]
-}
-
-resources_with_containers[id] = ret {
-	resources = fugue.resources("Deployment")
-	some id
-	count(containers(resources[id])) > 0
-	ret = resources[id]
+	resource := fugue.resources(resource_types[_])[id]
+	containers := resource_containers(resource)
+	_ = containers[_]
+	ret = {"resource": resource, "containers": containers}
 }
 
 # Lists of container definitions can be found in different locations. This
 # function returns one set of all containers defined for the given resource.
-containers(resource) = ret {
+resource_containers(resource) = ret {
 	c1 := {c | c = resource.spec.containers[_]}
 	c2 := {c | c = resource.spec.template.spec.containers[_]}
 	c3 := {c | c = resource.spec.initContainers[_]}
@@ -80,14 +59,14 @@ containers(resource) = ret {
 
 # Returns a set of capabilities added in the given container definition
 added_capabilities(container) = ret {
-	ret = { cap | cap := container.securityContext.capabilities.add[_] }
+	ret = {cap | cap := container.securityContext.capabilities.add[_]}
 } else = ret {
 	ret = set()
 }
 
 # Returns a set of capabilities dropped in the given container definition
 dropped_capabilities(container) = ret {
-    ret = { cap | cap := container.securityContext.capabilities.drop[_] }
+	ret = {cap | cap := container.securityContext.capabilities.drop[_]}
 } else = ret {
 	ret = set()
 }
@@ -113,10 +92,10 @@ roles[id] = ret {
 
 # Finds the Role or ClusterRole for the given binding
 role_from_binding(binding) = ret {
-    role = fugue.resources(binding.roleRef.kind)[_]
-    role.metadata.name == binding.roleRef.name
-    ret = role
-    # May need to add a namespace match condition in the future
+	role = fugue.resources(binding.roleRef.kind)[_]
+	role.metadata.name == binding.roleRef.name
+	ret = role
+	# May need to add a namespace match condition in the future
 }
 
 # Easy access to any default service accounts
@@ -126,15 +105,28 @@ default_service_accounts[id] = ret {
 	ret = account
 }
 
-# Access the pod template in different locations depending on the resource type
-pod_template(resource) = ret {
-	resource.kind == "Pod"
-	ret = resource
-} else = ret {
-	resource.kind == "CronJob"
-	ret = resource.spec.jobTemplate.spec.template
-} else = ret {
-	others := {
+# Access the pod template in different locations depending on the resource type.
+# Returns an object of the shape:
+#
+#     {
+#       "resource": <original resource>,
+#       "pod_template": <pod template>
+#     }
+resources_with_pod_templates[id] = ret {
+	resource := fugue.resources("Pod")[id]
+	ret := {"resource": resource, "pod_template": resource}
+}
+
+resources_with_pod_templates[id] = ret {
+	resource := fugue.resources("CronJob")[id]
+	ret := {
+		"resource": resource,
+		"pod_template": resource.spec.jobTemplate.spec.template,
+	}
+}
+
+resources_with_pod_templates[id] = ret {
+	others_types := {
 		"Deployment",
 		"DaemonSet",
 		"StatefulSet",
@@ -143,39 +135,9 @@ pod_template(resource) = ret {
 		"Job",
 	}
 
-	others[resource.kind]
-	ret = resource.spec.template
-}
-
-# Incremental definition of a set of all resources that may contain pod templates
-resources_with_pod_templates[resource] {
-	resource := fugue.resources("Deployment")[_]
-}
-
-resources_with_pod_templates[resource] {
-	resource := fugue.resources("DaemonSet")[_]
-}
-
-resources_with_pod_templates[resource] {
-	resource := fugue.resources("StatefulSet")[_]
-}
-
-resources_with_pod_templates[resource] {
-	resource := fugue.resources("ReplicaSet")[_]
-}
-
-resources_with_pod_templates[resource] {
-	resource := fugue.resources("ReplicationController")[_]
-}
-
-resources_with_pod_templates[resource] {
-	resource := fugue.resources("Job")[_]
-}
-
-resources_with_pod_templates[resource] {
-	resource := fugue.resources("CronJob")[_]
-}
-
-resources_with_pod_templates[resource] {
-	resource := fugue.resources("Pod")[_]
+	resource := fugue.resources(others_types[_])[id]
+	ret := {
+		"resource": resource,
+		"pod_template": resource.spec.template,
+	}
 }

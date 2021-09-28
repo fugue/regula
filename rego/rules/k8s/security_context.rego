@@ -31,8 +31,6 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = k8s.resources_with_pod_templates
-
 has_pod_security_context(template) {
 	template.spec.securityContext[_]
 }
@@ -47,27 +45,24 @@ has_container_security_contexts(template) {
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	count(template.spec.containers) > 0
-	has_pod_security_context(template)
-	j = fugue.allow_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	count(obj.pod_template.spec.containers) > 0
+	has_pod_security_context(obj.pod_template)
+	j := fugue.allow_resource(obj.resource)
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	count(template.spec.containers) > 0
-	not has_pod_security_context(template)
-	has_container_security_contexts(template)
-	j = fugue.allow_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	count(obj.pod_template.spec.containers) > 0
+	not has_pod_security_context(obj.pod_template)
+	has_container_security_contexts(obj.pod_template)
+	j := fugue.allow_resource(obj.resource)
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	count(template.spec.containers) > 0
-	not has_pod_security_context(template)
-	not has_container_security_contexts(template)
-	j = fugue.deny_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	count(obj.pod_template.spec.containers) > 0
+	not has_pod_security_context(obj.pod_template)
+	not has_container_security_contexts(obj.pod_template)
+	j = fugue.deny_resource(obj.resource)
 }

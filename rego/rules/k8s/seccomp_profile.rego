@@ -31,8 +31,6 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = k8s.resources_with_pod_templates
-
 # https://kubernetes.io/docs/concepts/policy/pod-security-policy/#seccomp
 # The Docker default seccomp profile is used. Deprecated as of Kubernetes 1.11.
 # Use runtime/default instead.
@@ -48,15 +46,13 @@ seccomp_set(template) {
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	seccomp_set(template)
-	j = fugue.allow_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	seccomp_set(obj.pod_template)
+	j := fugue.allow_resource(obj.resource)
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	not seccomp_set(template)
-	j = fugue.deny_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	not seccomp_set(obj.pod_template)
+	j := fugue.deny_resource(obj.resource)
 }

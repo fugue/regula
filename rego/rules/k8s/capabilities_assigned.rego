@@ -37,21 +37,25 @@ capabilities = {
 	"ALL",
 }
 
+is_valid_container(container) {
+	dropped := k8s.dropped_capabilities(container)
+	count(dropped & capabilities) >= 1
+}
+
 # Confirm every container drops one of the above capabilities
-is_valid(resource) {
-	containers = k8s.containers(resource)
-	dropped := k8s.dropped_capabilities(containers[_]) & capabilities
-	count(dropped) > 0
+is_invalid(obj) {
+	container = obj.containers[_]
+	not is_valid_container(container)
 }
 
 policy[j] {
-	resource := k8s.resources_with_containers[_]
-	is_valid(resource)
-	j = fugue.allow_resource(resource)
+	obj := k8s.resources_with_containers[_]
+	not is_invalid(obj)
+	j = fugue.allow_resource(obj.resource)
 }
 
 policy[j] {
-	resource := k8s.resources_with_containers[_]
-	not is_valid(resource)
-	j = fugue.deny_resource(resource)
+	obj := k8s.resources_with_containers[_]
+	is_invalid(obj)
+	j = fugue.deny_resource(obj.resource)
 }

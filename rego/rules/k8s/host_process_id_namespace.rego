@@ -31,22 +31,18 @@ input_type = "k8s"
 
 resource_type = "MULTIPLE"
 
-resources = k8s.resources_with_pod_templates
-
 host_pid_set(template) {
 	template.spec.hostPID == true
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	not host_pid_set(template)
-	j = fugue.allow_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	not host_pid_set(obj.pod_template)
+	j = fugue.allow_resource(obj.resource)
 }
 
 policy[j] {
-	resource := resources[_]
-	template := k8s.pod_template(resource)
-	host_pid_set(template)
-	j = fugue.deny_resource(resource)
+	obj := k8s.resources_with_pod_templates[_]
+	host_pid_set(obj.pod_template)
+	j = fugue.deny_resource(obj.resource)
 }

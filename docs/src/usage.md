@@ -327,6 +327,12 @@ Use the `--f | --format FORMAT` flag to specify the output format:
     Found one problem.
     ```
 
+You can also set the output format using the `REGULA_FORMAT` environment variable:
+
+```
+REGULA_FORMAT=compact regula run
+```
+
 For more about Regula's output, see [Report Output](report.md).
 
 ## init

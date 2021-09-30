@@ -1,0 +1,22 @@
+apiVersion: apps/v1beta2
+kind: DaemonSet
+metadata:
+  name: kill-httpd
+  labels:
+    app: kill-httpd
+spec:
+  selector:
+    matchLabels:
+      name: kill-httpd
+  template:
+    metadata:
+      labels:
+        name: kill-httpd
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+      containers:
+        - name: kill-httpd
+          image: foo/bar:v0.1
+          command: ["sh", "-c"]
+          args: ["./kill.sh, httpd"]

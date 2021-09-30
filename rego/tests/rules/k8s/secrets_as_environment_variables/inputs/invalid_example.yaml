@@ -1,0 +1,109 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: invalid1
+spec:
+  containers:
+  - name: mycontainer
+    image: redis
+    env:
+      - name: SECRET_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: mysecret
+            key: username
+      - name: SECRET_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: mysecret
+            key: password
+  restartPolicy: Never
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: invalid2
+  namespace: default
+  labels:
+    app: widget
+    chart: widget-2.2.0
+    release: RELEASE-NAME
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: widget
+      release: RELEASE-NAME
+  template:
+    metadata:
+      labels:
+        app: widget
+        release: RELEASE-NAME
+      annotations:
+        checksum/config: 81985e6edb592568080ee85db59b747664f91d75f2b452589c5a5659928f1076
+        prometheus.io/port: http-metrics
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: RELEASE-NAME-widget
+      containers:
+        - name: widget
+          image: "grafana/widget:2.1.0"
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-config.file=/etc/widget/widget.yaml"
+            - "-client.url=http://RELEASE-NAME-loki:3100/loki/api/v1/push"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/widget
+            - name: run
+              mountPath: /run/widget
+            - mountPath: /var/lib/docker/containers
+              name: docker
+              readOnly: true
+            - mountPath: /var/log/pods
+              name: pods
+              readOnly: true
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: SOME_CONFIDENTIAL_VALUE
+              valueFrom:
+                secretKeyRef:
+                  name: confidential_name
+                  key: confidential_key
+          ports:
+            - containerPort: 3101
+              name: http-metrics
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsGroup: 0
+            runAsUser: 0
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists
+      volumes:
+        - name: config
+          configMap:
+            name: RELEASE-NAME-widget
+        - name: run
+          hostPath:
+            path: /run/widget
+        - hostPath:
+            path: /var/lib/docker/containers
+          name: docker
+        - hostPath:
+            path: /var/log/pods
+          name: pods

@@ -15,11 +15,12 @@
 package metadoc
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"regexp"
 	"strconv"
 	"strings"
+
+	json "github.com/tailscale/hujson"
 )
 
 // Utility to modify metadata of rego files.

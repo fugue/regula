@@ -1,0 +1,73 @@
+---
+# Unspecified user is assumed dangerous
+apiVersion: v1
+kind: Pod
+metadata:
+  name: invalid1
+spec:
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+    - name: pause2
+      image: k8s.gcr.io/pause
+---
+# One good container and one bad container should still fail
+apiVersion: v1
+kind: Pod
+metadata:
+  name: invalid2
+spec:
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+    - name: pause2
+      image: k8s.gcr.io/pause
+---
+# Explicitly set UID 0 should fail
+apiVersion: v1
+kind: Pod
+metadata:
+  name: invalid3
+spec:
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsUser: 0
+    - name: pause2
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsUser: 1001
+---
+# Explicitly set UID 0 should fail
+apiVersion: v1
+kind: Pod
+metadata:
+  name: invalid4
+spec:
+  securityContext:
+    runAsUser: 0
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+---
+# Incorrect all around
+apiVersion: v1
+kind: Pod
+metadata:
+  name: invalid5
+spec:
+  securityContext:
+    runAsNonRoot: false
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsNonRoot: false
+    - name: pause2
+      image: k8s.gcr.io/pause
+      securityContext:
+        runAsUser: 0

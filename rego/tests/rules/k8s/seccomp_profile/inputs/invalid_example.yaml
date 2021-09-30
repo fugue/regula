@@ -1,0 +1,34 @@
+---
+# No annotation
+apiVersion: v1
+kind: Pod
+metadata:
+  name: invalid1
+spec:
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+---
+# Bad profile
+apiVersion: v1
+kind: Pod
+metadata:
+  name: invalid2
+  annotations:
+    seccomp.security.alpha.kubernetes.io/pod: "foo/default" 
+spec:
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+---
+# Empty profile
+apiVersion: v1
+kind: Pod
+metadata:
+  name: invalid3
+  annotations:
+    seccomp.security.alpha.kubernetes.io/pod: "" 
+spec:
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sec-demo
+spec:
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 2000
+  volumes:
+  - name: sec-vol
+    emptyDir: {}
+  containers:
+  - name: sec-demo
+    image: gcr.io/google-samples/node-hello:1.0
+    volumeMounts:
+    - name: sec-vol
+      mountPath: /var/demo
+    securityContext:
+      allowPrivilegeEscalation: true

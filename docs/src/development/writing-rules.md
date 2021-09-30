@@ -207,7 +207,7 @@ Here's an example rule result to show how this metadata looks in the report:
     }
 ```
 
-## CloudFormation vs. Terraform rules
+## CloudFormation vs. Terraform vs. Kubernetes rules
 
 CloudFormation rules are written the same way Terraform rules are, but require the line `input_type := "cfn"`, as shown in the simple rule below:
 
@@ -225,9 +225,32 @@ allow {
 }
 ```
 
+Kubernetes rules require the line `input_type := "k8s"`, as shown in the simple rule below:
+
+```ruby hl_lines="9"
+package rules.k8s_job_check
+
+__rego__metadoc__ := {
+	"id": "K8S_TEST_0123",
+	"custom": {"severity": "Low"},
+	"title": "Job containers should not be named `test`",
+}
+
+input_type := "k8s"
+
+resource_type := "Job"
+
+default deny = false
+
+deny {
+    input.spec.template.spec.containers[_].name == "test"
+}
+```
+
 Terraform rules do not require `input_type` to be explicitly set.
 
-Additionally, the `resource_type` is specified differently for CloudFormation and Terraform:
+Additionally, the `resource_type` is specified differently depending on the input type:
 
 - [CloudFormation resource types](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) (e.g., `AWS::EC2::Instance`)
 - Terraform [AWS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs), [Azure](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs), [Google Cloud](https://registry.terraform.io/providers/hashicorp/google/latest/docs) resource types (e.g., `aws_instance`)
+- [Kubernetes resource types](https://kubernetes.io/docs/reference/kubectl/overview/#resource-types) (see the `KIND` column) (e.g., `Job`)

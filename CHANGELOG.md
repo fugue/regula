@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v1.5.0 (2021-09-30)
+
+### Added
+* Add resource source code location for regula scan
+* Kubernetes support and first batch of rules
+* Add CIS AWS v1.4.0 and CIS Google v1.2.0
+
+### Changed
+* Enhance ASG AZ rule by inspecting vpc_zone_identifier
+
+### Fixed
+* Fix trailing commas in rego metadocs for regula scan
+
 ## v1.4.0 (2021-09-16)
 
 ### Added

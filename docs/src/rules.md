@@ -224,3 +224,27 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |BigQuery datasets should not be anonymously or publicly accessible                                      |google_bigquery_dataset     |Critical|FG_R00437|
 |VPC subnet 'Private Google Access' should be enabled                                                    |google_compute_subnetwork   |Low     |FG_R00438|
 
+
+## Kubernetes
+|                                         Summary                                         |Resource Types|Severity| Rule ID |
+|-----------------------------------------------------------------------------------------|--------------|--------|---------|
+|Ensure that the cluster-admin role is only used where required                           | MULTIPLE     |High    |FG_R00501|
+|Minimize access to secrets                                                               | MULTIPLE     |Medium  |FG_R00502|
+|Minimize wildcard use in Roles and ClusterRoles                                          | MULTIPLE     |High    |FG_R00503|
+|Minimize access to create pods                                                           | MULTIPLE     |Medium  |FG_R00504|
+|Opt out of automounting API credentials for the default service account                  | MULTIPLE     |Medium  |FG_R00505|
+|Ensure that service account tokens are only mounted where necessary                      | MULTIPLE     |Medium  |FG_R00506|
+|Minimize the admission of privileged containers                                          | MULTIPLE     |High    |FG_R00507|
+|Minimize the admission of containers wishing to share the host process ID namespace      | MULTIPLE     |Medium  |FG_R00508|
+|Minimize the admission of containers wishing to share the host IPC namespace             | MULTIPLE     |Medium  |FG_R00509|
+|Minimize the admission of containers wishing to share the host network namespace         | MULTIPLE     |Medium  |FG_R00510|
+|Minimize the admission of containers with allowPrivilegeEscalation.                      | MULTIPLE     |Medium  |FG_R00511|
+|Containers should explicitly be configured to use a non-root user                        | MULTIPLE     |Medium  |FG_R00512|
+|Containers should drop the NET_RAW capability                                            | MULTIPLE     |Medium  |FG_R00513|
+|Minimize the admission of containers with added capabilities                             | MULTIPLE     |Medium  |FG_R00514|
+|Minimize the admission of containers with capabilities assigned                          | MULTIPLE     |Medium  |FG_R00515|
+|Prefer using secrets as files over secrets as environment variables                      | MULTIPLE     |Medium  |FG_R00518|
+|The seccomp profile should be set to runtime/default or docker/default in pod definitions| MULTIPLE     |Medium  |FG_R00522|
+|Apply a security context to pods and containers                                          | MULTIPLE     |Medium  |FG_R00523|
+|The default namespace should not be used                                                 | MULTIPLE     |Low     |FG_R00524|
+|Roles and cluster roles should not be bound to the default service account               | MULTIPLE     |Medium  |FG_R005XY|

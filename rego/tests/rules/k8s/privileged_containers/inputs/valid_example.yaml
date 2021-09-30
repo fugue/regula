@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privileged
+spec:
+  containers:
+    - name: pause1
+      image: k8s.gcr.io/pause
+    - name: pause2
+      image: k8s.gcr.io/pause

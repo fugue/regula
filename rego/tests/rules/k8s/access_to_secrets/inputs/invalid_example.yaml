@@ -1,0 +1,58 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-and-pod-logs-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "secrets"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-and-pod-logs-reader-global
+  labels:
+    rbac.example.com/aggregate-to-monitoring: "true"
+rules:
+  - apiGroups: [""]
+    resources: ["services", "endpoints", "secrets", "pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: invalid1
+  namespace: default
+subjects:
+  - kind: User
+    name: jane
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-and-pod-logs-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: invalid2
+subjects:
+  - kind: Group
+    name: manager
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: pod-and-pod-logs-reader-global
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: missing_ref
+subjects: []
+roleRef:
+  kind: Role
+  name: missing
+  apiGroup: rbac.authorization.k8s.io

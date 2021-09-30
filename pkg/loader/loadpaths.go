@@ -214,6 +214,7 @@ func detectorByInputType(inputType InputType) (ConfigurationDetector, error) {
 			&CfnDetector{},
 			&TfPlanDetector{},
 			&TfDetector{},
+			&KubernetesDetector{},
 		), nil
 	case Cfn:
 		return &CfnDetector{}, nil
@@ -221,6 +222,8 @@ func detectorByInputType(inputType InputType) (ConfigurationDetector, error) {
 		return &TfPlanDetector{}, nil
 	case Tf:
 		return &TfDetector{}, nil
+	case K8s:
+		return &KubernetesDetector{}, nil
 	default:
 		return nil, fmt.Errorf("Unsupported input type: %v", inputType)
 	}

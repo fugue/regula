@@ -1,0 +1,56 @@
+---
+# Explicit namespace
+apiVersion: v1
+kind: Pod
+metadata:
+  name: valid1
+  namespace: foo
+  labels:
+    app: myapp
+spec:
+  automountServiceAccountToken: false
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  initContainers:
+  - name: init-myservice
+    image: busybox:1.28
+    command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
+  - name: init-mydb
+    image: busybox:1.28
+    command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+---
+# Unspecified namespace
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: valid2
+spec:
+  template:
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: pi
+        image: perl
+        command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      restartPolicy: Never
+  backoffLimit: 4
+---
+# Default service account is ok
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: default
+---
+# Kubernetes service itself is ok
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2021-06-03T14:54:12Z"
+  labels:
+    component: apiserver
+    provider: kubernetes
+  name: kubernetes
+  namespace: default

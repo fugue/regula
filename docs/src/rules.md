@@ -226,25 +226,25 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 
 
 ## Kubernetes
-|                                         Summary                                         |Resource Types|Severity| Rule ID |
-|-----------------------------------------------------------------------------------------|--------------|--------|---------|
-|Ensure that the cluster-admin role is only used where required                           | MULTIPLE     |High    |FG_R00501|
-|Minimize access to secrets                                                               | MULTIPLE     |Medium  |FG_R00502|
-|Minimize wildcard use in Roles and ClusterRoles                                          | MULTIPLE     |High    |FG_R00503|
-|Minimize access to create pods                                                           | MULTIPLE     |Medium  |FG_R00504|
-|Opt out of automounting API credentials for the default service account                  | MULTIPLE     |Medium  |FG_R00505|
-|Ensure that service account tokens are only mounted where necessary                      | MULTIPLE     |Medium  |FG_R00506|
-|Minimize the admission of privileged containers                                          | MULTIPLE     |High    |FG_R00507|
-|Minimize the admission of containers wishing to share the host process ID namespace      | MULTIPLE     |Medium  |FG_R00508|
-|Minimize the admission of containers wishing to share the host IPC namespace             | MULTIPLE     |Medium  |FG_R00509|
-|Minimize the admission of containers wishing to share the host network namespace         | MULTIPLE     |Medium  |FG_R00510|
-|Minimize the admission of containers with allowPrivilegeEscalation.                      | MULTIPLE     |Medium  |FG_R00511|
-|Containers should explicitly be configured to use a non-root user                        | MULTIPLE     |Medium  |FG_R00512|
-|Containers should drop the NET_RAW capability                                            | MULTIPLE     |Medium  |FG_R00513|
-|Minimize the admission of containers with added capabilities                             | MULTIPLE     |Medium  |FG_R00514|
-|Minimize the admission of containers with capabilities assigned                          | MULTIPLE     |Medium  |FG_R00515|
-|Prefer using secrets as files over secrets as environment variables                      | MULTIPLE     |Medium  |FG_R00518|
-|The seccomp profile should be set to runtime/default or docker/default in pod definitions| MULTIPLE     |Medium  |FG_R00522|
-|Apply a security context to pods and containers                                          | MULTIPLE     |Medium  |FG_R00523|
-|The default namespace should not be used                                                 | MULTIPLE     |Low     |FG_R00524|
-|Roles and cluster roles should not be bound to the default service account               | MULTIPLE     |Medium  |FG_R005XY|
+|                                         Summary                                          |Resource Types|Severity| Rule ID |
+|------------------------------------------------------------------------------------------|--------------|--------|---------|
+|The 'cluster-admin' role should not be used                                               |              |High    |FG_R00479|
+|Roles and cluster roles should not grant 'get', 'list', or 'watch' permissions for secrets|              |Medium  |FG_R00480|
+|Roles and cluster roles should not use wildcards for resource, verb, or apiGroup entries  |              |High    |FG_R00481|
+|Roles and cluster roles should not grant 'create' permissions for pods                    |              |Medium  |FG_R00482|
+|Default service account 'automountServiceAccountToken' should be set to 'false'           |              |Medium  |FG_R00483|
+|Service account 'automountServiceAccountToken' should be set to 'false'                   |              |Medium  |FG_R00484|
+|Pods should not run privileged containers                                                 |              |High    |FG_R00485|
+|Pods should not run containers wishing to share the host process ID namespace             |              |Medium  |FG_R00486|
+|Pods should not run containers wishing to share the host IPC namespace                    |              |Medium  |FG_R00487|
+|Pods should not run containers wishing to share the host network namespace                |              |Medium  |FG_R00488|
+|Pods should not run containers with allowPrivilegeEscalation                              |              |Medium  |FG_R00489|
+|Pods should not run containers as the root user                                           |              |Medium  |FG_R00490|
+|Pods should not run containers with the NET_RAW capability                                |              |Medium  |FG_R00491|
+|Pods should not run containers with added capabilities                                    |              |Medium  |FG_R00492|
+|Pods should not run containers with default capabilities assigned                         |              |Medium  |FG_R00493|
+|Pods should not use secrets stored in environment variables                               |              |Medium  |FG_R00494|
+|Pod seccomp profile should be set to 'docker/default'                                     |              |Medium  |FG_R00495|
+|Pods and containers should apply a security context                                       |              |Medium  |FG_R00496|
+|The default namespace should not be used                                                  |              |Low     |FG_R00497|
+|Roles and cluster roles should not be bound to the default service account                |              |Medium  |FG_R00498|

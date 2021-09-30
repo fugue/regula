@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00493",
+	"title": "Pods should not run containers with default capabilities assigned",
+	"description": "Pods should not run containers with default capabilities assigned. A default set of Linux capabilities are granted when a container runs and many services do not need these capabilities to function. The recommended strategy is to drop all capabilities and then add back only the required ones, according to the principal of least privilege.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.9"]},
-		"severity": "Medium",
-	},
-	"description": "Minimize the admission of containers with capabilities assigned. A default set of Linux capabilities are granted when a container runs and many services do not need these capabilities to function. The recommended strategy is to drop all capabilities and then add back only the required ones, according to the principal of least privilege.",
-	"id": "FG_R00515",
-	"title": "Minimize the admission of containers with capabilities assigned",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.2.9"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

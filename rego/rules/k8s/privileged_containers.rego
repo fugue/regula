@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00485",
+	"title": "Pods should not run privileged containers",
+	"description": "Pods should not run privileged containers. An attacker may be able to use a vulnerability in a privileged pod to directly attack the host. Therefore, running containers with full privileges should only be done in exceptional situations in which accessing resources and kernel capabilities of the host system is required.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.1"]},
-		"severity": "High",
-	},
-	"description": "Minimize the admission of privileged containers. Running containers with full privileges should only be done in exceptional situations in which accessing resources and kernel capabilities of the host system is required. An attacker may be able to use a vulnerability in a privileged pod to directly attack the host.",
-	"id": "FG_R00507",
-	"title": "Minimize the admission of privileged containers",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.2.1"
+			]
+		},
+		"severity": "High"
+	}
 }
 
 input_type = "k8s"

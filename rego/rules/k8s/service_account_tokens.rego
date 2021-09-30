@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00484",
+	"title": "Service account 'automountServiceAccountToken' should be set to 'false'",
+	"description": "Service account 'automountServiceAccountToken' should be set to 'false'. Avoid automounting service account tokens. Service account tokens are used to authenticate requests from in-cluster processes to the Kubernetes API server. Many workloads do not need to communicate with the API server and hence should have automountServiceAccountToken set to false.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.6"]},
-		"severity": "Medium",
-	},
-	"description": "Ensure that service account tokens are only mounted where necessary. Service account tokens are used to authenticate requests from in-cluster processes to the Kubernetes API server. Many workloads do not need to communicate with the API server and hence should have automountServiceAccountToken set to false.",
-	"id": "FG_R00506",
-	"title": "Ensure that service account tokens are only mounted where necessary",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.1.6"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

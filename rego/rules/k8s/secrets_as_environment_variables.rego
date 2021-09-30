@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00494",
+	"title": "Pods should not use secrets stored in environment variables",
+	"description": "Pods should not use secrets stored in environment variables. Providing access to secrets via volume mounts is preferred. Any secrets stored in environment variables could be exposed if the environment is logged or otherwise exposed by an application.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.4.1"]},
-		"severity": "Medium",
-	},
-	"description": "Prefer using secrets as files over secrets as environment variables. Providing access to secrets via volume mounts is preferred. Any secrets stored in environment variables could be exposed if the environment is logged or otherwise exposed by an application.",
-	"id": "FG_R00518",
-	"title": "Prefer using secrets as files over secrets as environment variables",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.4.1"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

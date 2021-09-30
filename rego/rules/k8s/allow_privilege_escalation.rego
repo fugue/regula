@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00489",
+	"title": "Pods should not run containers with allowPrivilegeEscalation",
+	"description": "Pods should not run containers with allowPrivilegeEscalation. The allowPrivilegeEscalation setting controls whether a process can gain more privileges than its parent process. Set allowPrivilegeEscalation to false unless it is absolutely required.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.5"]},
-		"severity": "Medium",
-	},
-	"description": "Minimize the admission of containers with allowPrivilegeEscalation. This setting controls whether a process can gain more privileges than its parent process. Set allowPrivilegeEscalation to false unless it is absolutely required.",
-	"id": "FG_R00511",
-	"title": "Minimize the admission of containers with allowPrivilegeEscalation.",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.2.5"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00482",
+	"title": "Roles and cluster roles should not grant 'create' permissions for pods",
+	"description": "Roles and cluster roles should not grant 'create' permissions for pods. Minimize access to create pods for RBAC roles. Privilege escalation is possible when these permissions are available, since the created pods could be assigned privileged service accounts or have access to sensitive data. Avoid granting pod creation privileges by default.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.4"]},
-		"severity": "Medium",
-	},
-	"description": "Minimize access to create pods. Privilege escalation is possible when these permissions are available, since the created pods could be assigned privileged service accounts or have access to sensitive data. Avoid granting pod creation privileges by default.",
-	"id": "FG_R00504",
-	"title": "Minimize access to create pods",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.1.4"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

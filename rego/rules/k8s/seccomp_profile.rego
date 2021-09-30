@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00495",
+	"title": "Pod seccomp profile should be set to 'docker/default'",
+	"description": "Pod seccomp profile should be set to 'docker/default'. The seccomp profile should be set to runtime/default or docker/default in pod definitions. The Secure Computing Mode (seccomp) in Linux is used to restrict which syscalls are allowed, which generally increases workload security. The docker/default profile was deprecated in Kubernetes 1.11 and runtime/default should now be used.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.7.2"]},
-		"severity": "Medium",
-	},
-	"description": "The seccomp profile should be set to runtime/default or docker/default in pod definitions. The Secure Computing Mode (seccomp) in Linux is used to restrict which syscalls are allowed, which generally increases workload security. The docker/default profile was deprecated in Kubernetes 1.11 and runtime/default should now be used.",
-	"id": "FG_R00522",
-	"title": "The seccomp profile should be set to runtime/default or docker/default in pod definitions",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.7.2"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

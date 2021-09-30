@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00483",
+	"title": "Default service account 'automountServiceAccountToken' should be set to 'false'",
+	"description": "Default service account 'automountServiceAccountToken' should be set to 'false'. Avoid automounting tokens for the default service account. The default service account should not be used and its ability to provide API credentials should be disabled.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.5"]},
-		"severity": "Medium",
-	},
-	"description": "Opt out of automounting API credentials for the default service account. The default service account should not be used and its ability to provide API credentials should be disabled.",
-	"id": "FG_R00505",
-	"title": "Opt out of automounting API credentials for the default service account",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.1.5"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

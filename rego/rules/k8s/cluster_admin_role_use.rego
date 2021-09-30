@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00479",
+	"title": "The 'cluster-admin' role should not be used",
+	"description": "The 'cluster-admin' role should not be used. The 'cluster-admin' role comes with super-user level access which can be used to manipulate all resources in the cluster. Avoid using this role unless it's absolutely necessary.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.1"]},
-		"severity": "High",
-	},
-	"description": "Ensure that the cluster-admin role is only used where required. This role comes with super-user level access which can be used to manipulate all resources in the cluster. Avoid using this role unless it's absolutely necessary.",
-	"id": "FG_R00501",
-	"title": "Ensure that the cluster-admin role is only used where required",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.1.1"
+			]
+		},
+		"severity": "High"
+	}
 }
 
 input_type = "k8s"

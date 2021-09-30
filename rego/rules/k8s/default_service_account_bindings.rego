@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.1.5"]},
-		"severity": "Medium",
-	},
-	"description": "Roles and cluster roles should not be bound to the default service account. Dedicated service accounts should be created for each workload with appropriate rights assigned.",
-	"id": "FG_R005XY",
+	"id": "FG_R00498",
 	"title": "Roles and cluster roles should not be bound to the default service account",
+	"description": "Roles and cluster roles should not be bound to the default service account. Dedicated service accounts should be created for each workload with appropriate rights assigned.",
+	"custom": {
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.1.5"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

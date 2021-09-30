@@ -17,13 +17,17 @@ package rules.k8s_default_namespace_use
 import data.fugue
 
 __rego__metadoc__ := {
-	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.7.4"]},
-		"severity": "Low",
-	},
-	"description": "The default namespace should not be used. Kubernetes cluster resources should be segregated by namespace to support security controls and resource management.",
-	"id": "FG_R00524",
+	"id": "FG_R00497",
 	"title": "The default namespace should not be used",
+	"description": "The default namespace should not be used. Kubernetes cluster resources should be segregated by namespace to support security controls and resource management.",
+	"custom": {
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.7.4"
+			]
+		},
+		"severity": "Low"
+	}
 }
 
 input_type = "k8s"

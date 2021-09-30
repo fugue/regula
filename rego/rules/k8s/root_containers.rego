@@ -23,13 +23,17 @@ import data.k8s
 # level securityContext is applied if container overrides are not present.
 
 __rego__metadoc__ := {
+	"id": "FG_R00490",
+	"title": "Pods should not run containers as the root user",
+	"description": "Pods should not run containers as the root user. Running as a non-root user helps ensure that an attacker does not gain root privileges to the host system in the event of a container breakout.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.6"]},
-		"severity": "Medium",
-	},
-	"description": "Containers should explicitly be configured to use a non-root user. Running as a non-root user helps ensure that an attacker does not gain root privileges to the host system in the event of a container breakout.",
-	"id": "FG_R00512",
-	"title": "Containers should explicitly be configured to use a non-root user",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.2.6"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

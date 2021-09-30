@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00488",
+	"title": "Pods should not run containers wishing to share the host network namespace",
+	"description": "Pods should not run containers wishing to share the host network namespace. A container that runs with hostNetwork set has the ability to interact with host services listening on localhost and potentially monitor traffic belonging to other pods. This opts-out of the network isolation provided by Linux network namespace mechanism.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.4"]},
-		"severity": "Medium",
-	},
-	"description": "Minimize the admission of containers wishing to share the host network namespace. A container that runs with hostNetwork set has the ability to interact with host services listening on localhost and potentially monitor traffic belonging to other pods. This opts-out of the network isolation provided by Linux network namespace mechanism.",
-	"id": "FG_R00510",
-	"title": "Minimize the admission of containers wishing to share the host network namespace",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.2.4"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

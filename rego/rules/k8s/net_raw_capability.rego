@@ -18,13 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
+	"id": "FG_R00491",
+	"title": "Pods should not run containers with the NET_RAW capability",
+	"description": "Pods should not run containers with the NET_RAW capability. NET_RAW capability is present by default, but is unnecessary in most applications. An attacker could leverage NET_RAW to spy on network traffic or to generate IP traffic with spoofed addresses.",
 	"custom": {
-		"controls": {"CIS-Kubernetes_v1.6.1": ["CIS-Kubernetes_v1.6.1_5.2.7"]},
-		"severity": "Medium",
-	},
-	"description": "Containers should drop the NET_RAW capability. This capability is present by default, but is unnecessary in most applications. An attacker could leverage NET_RAW to spy on network traffic or to generate IP traffic with spoofed addresses.",
-	"id": "FG_R00513",
-	"title": "Containers should drop the NET_RAW capability",
+		"controls": {
+			"CIS-Kubernetes_v1.6.1": [
+				"CIS-Kubernetes_v1.6.1_5.2.7"
+			]
+		},
+		"severity": "Medium"
+	}
 }
 
 input_type = "k8s"

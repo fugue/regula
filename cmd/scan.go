@@ -30,6 +30,7 @@ import (
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/regotools/doublequote"
 	"github.com/fugue/regula/pkg/regotools/metadoc"
+	"github.com/fugue/regula/pkg/reporter"
 	"github.com/fugue/regula/pkg/swagger/client"
 	apiclient "github.com/fugue/regula/pkg/swagger/client"
 	"github.com/fugue/regula/pkg/swagger/client/custom_rules"
@@ -39,7 +40,6 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	opa "github.com/open-policy-agent/opa/rego"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -195,93 +195,182 @@ func filterInputTypes(inputTypes []loader.InputType) []loader.InputType {
 	return filtered
 }
 
-func NewScanCommand() *cobra.Command {
+type scanConfig struct {
+	EnvironmentID string
+	UserOnly      bool
+	InputTypes    []loader.InputType
+	Inputs        []string
+}
+
+func loadScanConfig(paths []string) scanConfig {
+	if len(paths) > 1 {
+		logrus.Fatal("regula scan only takes one directory that contains a regula configuration file.")
+	} else if len(paths) == 1 {
+		if err := os.Chdir(paths[0]); err != nil {
+			logrus.Fatal(err)
+		}
+	}
+
+	viper.BindEnv(environmentIdFlag, "ENVIRONMENT_ID")
+
+	if err := loadConfigFile(""); err != nil {
+		logrus.Fatal(err)
+	}
+	if c := viper.ConfigFileUsed(); c == "" {
+		logrus.Fatal("A configuration file is required for regula scan.")
+	}
+
+	// Need to find a better long-term solution for enums with viper. These
+	// libraries do not play nicely with eachother.
 	inputTypes := []loader.InputType{loader.Auto}
+	flagSet := pflag.NewFlagSet("", pflag.ExitOnError)
+	pf := flagSet.VarPF(
+		// Still using full InputTypeIDs map here because this config file also
+		// needs to work with regula run. So, we need to support all input types.
+		enumflag.NewSlice(&inputTypes, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
+		inputTypeFlag,
+		"",
+		"",
+	)
+	if viper.IsSet(inputTypeFlag) {
+		value := strings.Join(viper.GetStringSlice(inputTypeFlag), ",")
+		if err := pf.Value.Set(value); err != nil {
+			logrus.Fatal(fmt.Errorf("Invalid value for '%s' in config file: %s", inputTypeFlag, err))
+		}
+	}
+
+	userOnly := viper.GetBool(userOnlyFlag)
+	environmentId := viper.GetString(environmentIdFlag)
+
+	if environmentId == "" {
+		logrus.Fatal("An environment ID is required for regula scan. It can be set either in the regula configuration file or via the ENVIRONMENT_ID environment variable.")
+	}
+
+	var inputs []string
+	if p := viper.GetStringSlice(inputsFlag); p != nil {
+		// Inputs are set in config file
+		inputs = p
+	} else {
+		// Otherwise use CWD
+		inputs = []string{"."}
+	}
+
+	return scanConfig{
+		EnvironmentID: environmentId,
+		UserOnly:      userOnly,
+		InputTypes:    inputTypes,
+		Inputs:        inputs,
+	}
+}
+
+func runScan(
+	ctx context.Context,
+	client *client.Fugue,
+	auth runtime.ClientAuthInfoWriter,
+	config scanConfig,
+) (string, error) {
+	// Request custom rules from SaaS.
+	customRulesDir, err := temporaryCustomRulesDir(ctx, client, auth)
+	defer os.RemoveAll(customRulesDir)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	includes := []string{customRulesDir}
+
+	// Load files first.
+	loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
+		Paths:      config.Inputs,
+		InputTypes: filterInputTypes(config.InputTypes),
+	})
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	// Produce scan view.
+	result, err := rego.ScanView(&rego.ScanViewOptions{
+		Ctx:      ctx,
+		UserOnly: config.UserOnly,
+		Includes: includes,
+		Input:    loadedFiles.RegulaInput(),
+	})
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	scanView, err := reporter.ParseScanView(loadedFiles, *result)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	return jsonMarshal(scanView)
+}
+
+func uploadScanView(
+	ctx context.Context,
+	client *client.Fugue,
+	auth runtime.ClientAuthInfoWriter,
+	config scanConfig,
+	scanViewString string,
+) {
+	// Create scan.
+	logrus.Infof("Creating scan for environment %s...", config.EnvironmentID)
+	createScanParams := &scans.CreateScanParams{
+		EnvironmentID: config.EnvironmentID,
+		Context:       ctx,
+	}
+	createScanResponse, err := client.Scans.CreateScan(createScanParams, auth)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	// Get presigned S3 URL for scan view upload.
+	scanId := createScanResponse.Payload.ID
+	logrus.Infof("Retrieving presigned URL for scan %s...", scanId)
+	uploadScanViewParams := &scans.UploadRegulaScanViewParams{
+		ScanID:  scanId,
+		Context: ctx,
+	}
+	uploadScanViewResponse, err := client.Scans.UploadRegulaScanView(uploadScanViewParams, auth)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	// Use presigned URL to upload scan view.
+	logrus.Infof("Uploading to presigned URL...")
+	uploadUrl := uploadScanViewResponse.Payload.URL
+	httpClient := &http.Client{}
+	uploadRequest, err := http.NewRequestWithContext(ctx, http.MethodPut, uploadUrl, bytes.NewBufferString(scanViewString))
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	uploadRequest.Header.Set("Content-Type", "application/json")
+	uploadResponse, err := httpClient.Do(uploadRequest)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	if uploadResponse.StatusCode != 200 {
+		logrus.Fatalf("Upload response: %s", uploadResponse.Status)
+	}
+}
+
+func NewScanCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "scan [directory with regula config]",
 		Short: "Run regula and upload results to Fugue SaaS",
 		Run: func(cmd *cobra.Command, paths []string) {
-			if len(paths) > 1 {
-				logrus.Fatal("regula scan only takes one directory that contains a regula configuration file.")
-			} else if len(paths) == 1 {
-				if err := os.Chdir(paths[0]); err != nil {
-					logrus.Fatal(err)
-				}
-			}
-
-			viper.BindEnv(environmentIdFlag, "ENVIRONMENT_ID")
-
-			if err := loadConfigFile(""); err != nil {
-				logrus.Fatal(err)
-			}
-			if c := viper.ConfigFileUsed(); c == "" {
-				logrus.Fatal("A configuration file is required for regula scan.")
-			}
-
-			// Need to find a better long-term solution for enums with viper. These
-			// libraries do not play nicely with eachother.
-			flagSet := pflag.NewFlagSet("", pflag.ExitOnError)
-			pf := flagSet.VarPF(
-				// Still using full InputTypeIDs map here because this config file also
-				// needs to work with regula run. So, we need to support all input types.
-				enumflag.NewSlice(&inputTypes, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
-				inputTypeFlag,
-				"",
-				"",
-			)
-			if viper.IsSet(inputTypeFlag) {
-				value := strings.Join(viper.GetStringSlice(inputTypeFlag), ",")
-				if err := pf.Value.Set(value); err != nil {
-					logrus.Fatal(fmt.Errorf("Invalid value for '%s' in config file: %s", inputTypeFlag, err))
-				}
-			}
-
-			userOnly := viper.GetBool(userOnlyFlag)
-			environmentId := viper.GetString(environmentIdFlag)
-			if environmentId == "" {
-				logrus.Fatal("An environment ID is required for regula scan. It can be set either in the regula configuration file or via the ENVIRONMENT_ID environment variable.")
-			}
-			var inputs []string
-			if p := viper.GetStringSlice(inputsFlag); p != nil {
-				// Inputs are set in config file
-				inputs = p
-			} else {
-				// Otherwise use CWD
-				inputs = []string{"."}
-			}
+			// Initialize config
+			config := loadScanConfig(paths)
 
 			// Check that we can construct a client.
 			ctx := context.Background()
 			client, auth := getFugueClient()
 
-			// Request custom rules from SaaS.
-			customRulesDir, err := temporaryCustomRulesDir(ctx, client, auth)
-			defer os.RemoveAll(customRulesDir)
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			includes := []string{customRulesDir}
-
-			// Load files first.
-			loadedFiles, err := loader.LoadPaths(loader.LoadPathsOptions{
-				Paths:      inputs,
-				InputTypes: filterInputTypes(inputTypes),
-			})
-			if err != nil {
-				logrus.Fatal(err)
-			}
-
-			// Produce scan view.
-			result, err := rego.ScanView(&rego.ScanViewOptions{
-				Ctx:      ctx,
-				UserOnly: userOnly,
-				Includes: includes,
-				Input:    loadedFiles.RegulaInput(),
-			})
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			scanViewString, err := jsonMarshal(result)
+			// Generate scan view
+			scanViewString, err := runScan(
+				ctx,
+				client,
+				auth,
+				config,
+			)
 			if err != nil {
 				logrus.Fatal(err)
 			}
@@ -289,45 +378,13 @@ func NewScanCommand() *cobra.Command {
 				logrus.Fatal("Could not create scan view")
 			}
 
-			// Create scan.
-			logrus.Infof("Creating scan for environment %s...", environmentId)
-			createScanParams := &scans.CreateScanParams{
-				EnvironmentID: environmentId,
-				Context:       ctx,
-			}
-			createScanResponse, err := client.Scans.CreateScan(createScanParams, auth)
-			if err != nil {
-				logrus.Fatal(err)
-			}
-
-			// Get presigned S3 URL for scan view upload.
-			scanId := createScanResponse.Payload.ID
-			logrus.Infof("Retrieving presigned URL for scan %s...", scanId)
-			uploadScanViewParams := &scans.UploadRegulaScanViewParams{
-				ScanID:  scanId,
-				Context: ctx,
-			}
-			uploadScanViewResponse, err := client.Scans.UploadRegulaScanView(uploadScanViewParams, auth)
-			if err != nil {
-				logrus.Fatal(err)
-			}
-
-			// Use presigned URL to upload scan view.
-			logrus.Infof("Uploading to presigned URL...")
-			uploadUrl := uploadScanViewResponse.Payload.URL
-			httpClient := &http.Client{}
-			uploadRequest, err := http.NewRequestWithContext(ctx, http.MethodPut, uploadUrl, bytes.NewBufferString(scanViewString))
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			uploadRequest.Header.Set("Content-Type", "application/json")
-			uploadResponse, err := httpClient.Do(uploadRequest)
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			if uploadResponse.StatusCode != 200 {
-				logrus.Fatalf("Upload response: %s", uploadResponse.Status)
-			}
+			uploadScanView(
+				ctx,
+				client,
+				auth,
+				config,
+				scanViewString,
+			)
 
 			logrus.Infof("OK")
 		},
@@ -336,12 +393,12 @@ func NewScanCommand() *cobra.Command {
 	return cmd
 }
 
-func jsonMarshal(r *opa.Result) (string, error) {
+func jsonMarshal(s *reporter.ScanView) (string, error) {
 	buf := &bytes.Buffer{}
 	enc := json.NewEncoder(buf)
 	enc.SetEscapeHTML(false)
 	enc.SetIndent("", "  ")
-	if err := enc.Encode(r.Expressions[0].Value); err != nil {
+	if err := enc.Encode(s); err != nil {
 		return "", err
 	}
 	return buf.String(), nil

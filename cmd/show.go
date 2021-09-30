@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -26,7 +27,8 @@ import (
 func NewShowCommand() *cobra.Command {
 	inputTypes := []loader.InputType{loader.Auto}
 	longDescription := `Show debug information.  Currently the available items are:
-	input [file..]   Show the JSON input being passed to regula`
+	input [file..]         Show the JSON input being passed to regula
+	scan-view [directory]  Runs a regula scan and prints the result to stdout instead of submitting it to Fugue`
 	cmd := &cobra.Command{
 		Use:   "show [item]",
 		Short: "Show debug information.",
@@ -53,6 +55,29 @@ func NewShowCommand() *cobra.Command {
 				}
 				fmt.Println(string(bytes))
 
+			case "scan-view":
+				paths := args[1:]
+				// Initialize config
+				config := loadScanConfig(paths)
+
+				// Check that we can construct a client.
+				ctx := context.Background()
+				client, auth := getFugueClient()
+
+				// Generate scan view
+				scanViewString, err := runScan(
+					ctx,
+					client,
+					auth,
+					config,
+				)
+				if err != nil {
+					logrus.Fatal(err)
+				}
+				if scanViewString == "" {
+					logrus.Fatal("Could not create scan view")
+				}
+				fmt.Println(scanViewString)
 			default:
 				logrus.Fatalf("Unknown item: %s\n", args[0])
 			}

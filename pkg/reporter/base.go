@@ -19,6 +19,7 @@ import (
 	"sort"
 
 	"github.com/fugue/regula/pkg/loader"
+	"github.com/fugue/regula/pkg/version"
 	embedded "github.com/fugue/regula/rego"
 	"github.com/open-policy-agent/opa/rego"
 )
@@ -299,10 +300,61 @@ func (r RuleResult) Message() string {
 	return r.RuleDescription
 }
 
+func (r *RuleResult) EnrichRuleResult(conf loader.LoadedConfigurations) {
+	filepath := r.Filepath
+	location, err := conf.Location(filepath, []string{r.ResourceID})
+	if err == nil {
+		r.SourceLocation = location
+	}
+	r.RuleRemediationDoc = getRemediationDoc(r.RuleID)
+}
+
 type Summary struct {
 	Filepaths   []string       `json:"filepaths"`
 	RuleResults map[string]int `json:"rule_results"`
 	Severities  map[string]int `json:"severities"`
+}
+
+type ScanRuleResult struct {
+	RuleResult
+	RuleEnabled bool `json:"rule_enabled"`
+	RuleValid   bool `json:"rule_valid"`
+	RuleWaived  bool `json:"rule_waived"`
+}
+type ScanInput struct {
+	Filepath  string                            `json:"filepath"`
+	InputType string                            `json:"input_type"`
+	Resources map[string]map[string]interface{} `json:"resources"`
+}
+
+func (s *ScanInput) EnrichResources(conf loader.LoadedConfigurations) {
+	for resourceId, r := range s.Resources {
+		var filepath string
+		if f, ok := r["_filepath"]; ok {
+			if fString, ok := f.(string); ok {
+				filepath = fString
+			}
+		}
+		if filepath == "" {
+			filepath = s.Filepath
+		}
+		location, err := conf.Location(filepath, []string{resourceId})
+		if err == nil && location != nil {
+			s.Resources[resourceId]["_source_location"] = location
+		}
+	}
+}
+
+type ScanReport struct {
+	RuleResults []ScanRuleResult `json:"rule_results"`
+	Summary     Summary          `json:"summary"`
+}
+
+type ScanView struct {
+	Inputs          []ScanInput `json:"inputs"`
+	RegulaVersion   string      `json:"regula_version"`
+	ScanViewVersion string      `json:"scan_view_version"`
+	Report          ScanReport  `json:"report"`
 }
 
 func ParseRegulaOutput(conf loader.LoadedConfigurations, r rego.Result) (*RegulaOutput, error) {
@@ -315,13 +367,29 @@ func ParseRegulaOutput(conf loader.LoadedConfigurations, r rego.Result) (*Regula
 		return nil, err
 	}
 
-	for i, result := range output.RuleResults {
-		filepath := result.Filepath
-		location, err := conf.Location(filepath, []string{result.ResourceID})
-		if err == nil {
-			output.RuleResults[i].SourceLocation = location
-		}
-		output.RuleResults[i].RuleRemediationDoc = getRemediationDoc(result.RuleID)
+	for i := range output.RuleResults {
+		output.RuleResults[i].EnrichRuleResult(conf)
+	}
+
+	return output, nil
+}
+
+func ParseScanView(conf loader.LoadedConfigurations, r rego.Result) (*ScanView, error) {
+	j, err := json.Marshal(r.Expressions[0].Value)
+	if err != nil {
+		return nil, err
+	}
+	output := &ScanView{}
+	if err = json.Unmarshal(j, output); err != nil {
+		return nil, err
+	}
+
+	output.RegulaVersion = version.Version
+	for i := range output.Inputs {
+		output.Inputs[i].EnrichResources(conf)
+	}
+	for i := range output.Report.RuleResults {
+		output.Report.RuleResults[i].EnrichRuleResult(conf)
 	}
 
 	return output, nil

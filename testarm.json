@@ -1,0 +1,159 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2019-04-01",
+        "name": "myStorageAccount",
+        "location": "string",
+        "tags": {
+          "tagName1": "tagValue1",
+          "tagName2": "tagValue2"
+        },
+        "sku": {
+          "name": "string"
+        },
+        "kind": "string",
+        "extendedLocation": {
+          "name": "string",
+          "type": "EdgeZone"
+        },
+        "identity": {
+          "type": "string",
+          "userAssignedIdentities": {}
+        },
+        "properties": {
+          "accessTier": "Hot",
+          "allowBlobPublicAccess": "bool",
+          "allowCrossTenantReplication": "bool",
+          "allowSharedKeyAccess": "bool",
+          "azureFilesIdentityBasedAuthentication": {
+            "activeDirectoryProperties": {
+              "azureStorageSid": "string",
+              "domainGuid": "string",
+              "domainName": "string",
+              "domainSid": "string",
+              "forestName": "string",
+              "netBiosDomainName": "string"
+            },
+            "defaultSharePermission": "string",
+            "directoryServiceOptions": "string"
+          },
+          "customDomain": {
+            "name": "string",
+            "useSubDomainName": "bool"
+          },
+          "encryption": {
+            "identity": {
+              "userAssignedIdentity": "string"
+            },
+            "keySource": "string",
+            "keyvaultproperties": {
+              "keyname": "string",
+              "keyvaulturi": "string",
+              "keyversion": "string"
+            },
+            "requireInfrastructureEncryption": "bool",
+            "services": {
+              "blob": {
+                "enabled": "bool",
+                "keyType": "string"
+              },
+              "file": {
+                "enabled": "bool",
+                "keyType": "string"
+              },
+              "queue": {
+                "enabled": "bool",
+                "keyType": "string"
+              },
+              "table": {
+                "enabled": "bool",
+                "keyType": "string"
+              }
+            }
+          },
+          "isHnsEnabled": "bool",
+          "isNfsV3Enabled": "bool",
+          "keyPolicy": {
+            "keyExpirationPeriodInDays": "int"
+          },
+          "largeFileSharesState": "string",
+          "minimumTlsVersion": "string",
+          "networkAcls": {
+            "bypass": "string",
+            "defaultAction": "string",
+            "ipRules": [
+              {
+                "action": "Allow",
+                "value": "string"
+              }
+            ],
+            "resourceAccessRules": [
+              {
+                "resourceId": "string",
+                "tenantId": "string"
+              }
+            ],
+            "virtualNetworkRules": [
+              {
+                "action": "Allow",
+                "id": "string",
+                "state": "string"
+              }
+            ]
+          },
+          "routingPreference": {
+            "publishInternetEndpoints": "bool",
+            "publishMicrosoftEndpoints": "bool",
+            "routingChoice": "string"
+          },
+          "sasPolicy": {
+            "expirationAction": "Log",
+            "sasExpirationPeriod": "string"
+          },
+          "supportsHttpsTrafficOnly": "true"
+        }
+      },
+      {
+        "type": "Microsoft.Compute/virtualMachines",
+        "name": "[concat('myvm', copyindex(int(parameters('offsetIndexValue'))))]",
+        "apiVersion": "2017-03-30",
+        "location": "[resourceGroup().location]",
+        "tags": {
+          "tag1": "vmtag1",
+          "tag2": "vmtag2",
+          "tag3": "vmtag3",
+          "tag4": "vmtag4",
+          "tag5": "vmtag5",
+          "tag6": "vmtag6",
+          "tag7": "vmtag7",
+          "tag8": "vmtag8",
+          "tag9": "vmtag9",
+          "tag10": "vmtag10",
+          "tag11": "vmtag11",
+          "tag12": "vmtag12",
+          "tag13": "vmtag13"
+	      },
+        "copy": {
+          "name": "virtualMachineLoop",
+          "count": "[parameters('numberOfInstances')]"
+        },
+        "dependsOn": [
+          "nicLoop",
+		      "vmDiskResLoop"
+        ],
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "Standard_A0"
+          },
+          "osProfile": {
+            "computerName": "[concat('vm', copyindex(int(parameters('offsetIndexValue'))))]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
+          }
+        }
+      }
+    ]
+}

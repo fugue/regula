@@ -69,7 +69,13 @@ func (c *KubernetesDetector) DetectFile(i InputFile, opts DetectOptions) (IACCon
 		"resources":                 resources,
 	}
 
-	for _, document := range documents {
+	sources := map[string]SourceInfoNode{}
+	documentSources, err := LoadMultiSourceInfoNode(contents)
+	if err != nil {
+		return nil, err
+	}
+
+	for documentIdx, document := range documents {
 		var name, namespace string
 		kind, ok := document["kind"]
 		if !ok {
@@ -85,12 +91,16 @@ func (c *KubernetesDetector) DetectFile(i InputFile, opts DetectOptions) (IACCon
 		if namespace == "" {
 			namespace = "default"
 		}
-		resources[fmt.Sprintf("%s.%s.%s", kind, namespace, name)] = document
+
+		resourceId := fmt.Sprintf("%s.%s.%s", kind, namespace, name)
+		resources[resourceId] = document
+		sources[resourceId] = documentSources[documentIdx]
 	}
 
 	return &k8sConfiguration{
 		path:    i.Path(),
 		content: content,
+		sources: sources,
 	}, nil
 }
 
@@ -101,6 +111,7 @@ func (c *KubernetesDetector) DetectDirectory(i InputDirectory, opts DetectOption
 type k8sConfiguration struct {
 	path    string
 	content map[string]interface{}
+	sources map[string]SourceInfoNode
 }
 
 func (l *k8sConfiguration) RegulaInput() RegulaInput {
@@ -110,8 +121,18 @@ func (l *k8sConfiguration) RegulaInput() RegulaInput {
 	}
 }
 
-func (l *k8sConfiguration) Location(attributePath []string) (LocationStack, error) {
-	return []Location{}, nil
+func (l *k8sConfiguration) Location(path []string) (LocationStack, error) {
+	if len(path) < 1 {
+		return nil, nil
+	}
+
+	resourceId := path[0]
+	if resource, ok := l.sources[resourceId]; ok {
+		line, column := resource.Location()
+		return []Location{{Path: l.path, Line: line, Col: column}}, nil
+	} else {
+		return nil, nil
+	}
 }
 
 func (l *k8sConfiguration) LoadedFiles() []string {

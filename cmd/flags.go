@@ -48,6 +48,7 @@ Input types:
     tf-plan     Terraform plan JSON
     cfn         CloudFormation template in YAML or JSON format
     tf          Terraform directory or file
+    k8s         Kubernetes manifest in YAML format
 `
 const formatDescriptions = `
 Output formats:

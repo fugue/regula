@@ -50,7 +50,7 @@ func (c *CfnDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurat
 	}
 
 	path := i.Path()
-	source, err := LoadCfnSourceInfo(path, contents)
+	source, err := LoadSourceInfoNode(contents)
 	if err != nil {
 		source = nil // Don't consider source code locations essential.
 	}
@@ -69,7 +69,7 @@ func (c *CfnDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IAC
 type cfnConfiguration struct {
 	path     string
 	template cfnTemplate
-	source   *CfnSourceInfo
+	source   *SourceInfoNode
 }
 
 func (l *cfnConfiguration) RegulaInput() RegulaInput {
@@ -79,15 +79,36 @@ func (l *cfnConfiguration) RegulaInput() RegulaInput {
 	}
 }
 
-func (l *cfnConfiguration) Location(attributePath []string) (LocationStack, error) {
-	if l.source == nil {
+func (l *cfnConfiguration) Location(path []string) (LocationStack, error) {
+	if l.source == nil || len(path) < 1 {
 		return nil, nil
 	}
-	loc, err := l.source.Location(attributePath)
-	if loc == nil || err != nil {
-		return nil, err
+
+	resourcePath := []string{"Resources"}
+	resourcePath = append(resourcePath, path[0])
+	resource, err := l.source.GetPath(resourcePath)
+	if err != nil {
+		return nil, nil
 	}
-	return []Location{*loc}, nil
+	resourceLine, resourceColumn := resource.Location()
+	resourceLocation := Location{
+		Path: l.path,
+		Line: resourceLine,
+		Col:  resourceColumn,
+	}
+
+	properties, err := resource.GetKey("Properties")
+	if err != nil {
+		return []Location{resourceLocation}, nil
+	}
+
+	attribute, err := properties.GetPath(path[1:])
+	if attribute != nil {
+		return []Location{resourceLocation}, nil
+	}
+
+	line, column := attribute.Location()
+	return []Location{{Path: l.path, Line: line, Col: column}}, nil
 }
 
 func (l *cfnConfiguration) LoadedFiles() []string {

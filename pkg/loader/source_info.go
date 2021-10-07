@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -76,7 +75,7 @@ func LoadMultiSourceInfoNode(contents []byte) ([]SourceInfoNode, error) {
 
 func (node *SourceInfoNode) GetKey(key string) (*SourceInfoNode, error) {
 	if node.body.Kind != yaml.MappingNode {
-		return nil, fmt.Errorf("GetKey: Expected MappingNode")
+		return nil, fmt.Errorf("Expected %s but got %s", prettyKind(yaml.MappingNode), prettyKind(node.body.Kind))
 	}
 
 	for i := 0; i+1 < len(node.body.Content); i += 2 {
@@ -85,16 +84,16 @@ func (node *SourceInfoNode) GetKey(key string) (*SourceInfoNode, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("DocSourceGetKey: Key %s not found", key)
+	return nil, fmt.Errorf("Key %s not found", key)
 }
 
 func (node *SourceInfoNode) GetIndex(index int) (*SourceInfoNode, error) {
 	if node.body.Kind != yaml.SequenceNode {
-		return nil, fmt.Errorf("DocSourceGetIndex: Expected SequenceNode")
+		return nil, fmt.Errorf("Expected %s but got %s", prettyKind(yaml.SequenceNode), prettyKind(node.body.Kind))
 	}
 
 	if index < 0 || index >= len(node.body.Content) {
-		return nil, fmt.Errorf("DocSourceGetIndex: index out of bounds: %d", index)
+		return nil, fmt.Errorf("Index %d out of bounds for length %d", index, len(node.body.Content))
 	}
 
 	return &SourceInfoNode{body: node.body.Content[index]}, nil
@@ -127,9 +126,9 @@ func (node *SourceInfoNode) GetPath(path []string) (*SourceInfoNode, error) {
 				return child.GetPath(path[1:])
 			}
 		}
+	default:
+		return node, fmt.Errorf("Expected %s or %s at key %s but got %s", prettyKind(yaml.MappingNode), prettyKind(yaml.SequenceNode), key, prettyKind(node.body.Kind))
 	}
-
-	return node, fmt.Errorf("DocSourceGetPath: Expected map or array %s", strings.Join(path, "."))
 }
 
 func (node *SourceInfoNode) Location() (int, int) {
@@ -137,5 +136,22 @@ func (node *SourceInfoNode) Location() (int, int) {
 		return node.key.Line, node.key.Column
 	} else {
 		return node.body.Line, node.body.Column
+	}
+}
+
+func prettyKind(kind yaml.Kind) string {
+	switch kind {
+	case yaml.MappingNode:
+		return "map"
+	case yaml.SequenceNode:
+		return "array"
+	case yaml.DocumentNode:
+		return "doc"
+	case yaml.AliasNode:
+		return "alias"
+	case yaml.ScalarNode:
+		return "scalar"
+	default:
+		return "unknown"
 	}
 }

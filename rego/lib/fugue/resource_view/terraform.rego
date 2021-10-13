@@ -238,6 +238,15 @@ configuration_resolve_ref(outputs, module_path, vars, ref) = ret {
 } else = ret {
   # A local resource.
   not startswith(ref, "var.")
+  not startswith(ref, "data.")
+  # Filter out specific properties - we only want resource IDs here
+  not count(split(ref, ".")) > 2
+  ret = module_qualify(module_path, ref)
+} else = ret {
+  # A local data resource.
+  startswith(ref, "data.")
+  # Filter out specific properties - we only want resource IDs here
+  not count(split(ref, ".")) > 3
   ret = module_qualify(module_path, ref)
 }
 

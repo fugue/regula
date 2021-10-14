@@ -20,6 +20,7 @@ nav:
   - Examples:
       - "examples/waive-and-disable.md"
       - "examples/writing-a-rule.md"
+      - "examples/debug-tutorial.md"
   - "contributing.md"
   - CHANGELOG: "docs-changelog.md"
   - "about.md"

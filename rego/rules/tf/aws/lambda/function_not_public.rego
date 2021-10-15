@@ -14,7 +14,7 @@
 package rules.tf_aws_lambda_function_not_public
 
 import data.fugue
-import data.fugue.utils
+import data.aws.lambda.permissions_library as lib
 
 # Lambda function policies should not allow global access
 #
@@ -36,49 +36,26 @@ resource_type = "MULTIPLE"
 
 message = "Lambda function policies should not allow global access"
 
-permissions = fugue.resources("aws_lambda_permission")
-functions = fugue.resources("aws_lambda_function")
-
-function_key(func) = ret {
-    ret = sprintf("%s/%s", [utils.provider(func), func.function_name])
-}
-
-permission_key(perm) = ret {
-    ret = sprintf("%s/%s", [utils.provider(perm), perm.function_name])
-}
-
-# Obviously functions names are unique so we shouldn't have multiple functions
-# that share a name.  However, this can be the case if e.g. regula doesn't pick
-# up names correctly, so we want to err on the side of caution.
-funcs_by_key = {k: rs |
-  k = function_key(functions[_])
-  rs = [r | r = functions[_]; function_key(r) = k]
-}
-perm_by_key = {k: rs |
-  k = permission_key(permissions[_])
-  rs = [r | r = permissions[_]; permission_key(r) = k]
-}
-
 valid_permission(permission) {
     is_string(permission.principal)
     permission.principal != "*"
 }
 
 policy[j] {
-  func = funcs_by_key[k][_]
-  not perm_by_key[k]
+  func = lib.funcs_by_key[k][_]
+  not lib.perm_by_key[k]
   j = fugue.allow_resource(func)
 } {
-  permission = permissions[_]
+  permission = lib.permissions[_]
   valid_permission(permission)
-  k = permission_key(permission)
-  f = funcs_by_key[k][_]
+  k = lib.permission_key(permission)
+  f = lib.funcs_by_key[k][_]
   j = fugue.allow_resource(f)
 } {
-  permission = permissions[_]
+  permission = lib.permissions[_]
   not valid_permission(permission)
-  k = permission_key(permission)
-  f = funcs_by_key[k][_]
+  k = lib.permission_key(permission)
+  f = lib.funcs_by_key[k][_]
   j = fugue.deny_resource_with_message(f, message)
 }
 

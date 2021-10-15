@@ -160,20 +160,16 @@ module_qualify(module_path, unqualified) = ret {
   ret = concat(".", ["module", concat(".module.", module_path), unqualified])
 }
 
-should_filter(r1, r2) = ret {
+should_filter(r1, r2) {
   # returns true for parents
   # in module output references, the parent is the module
   startswith(r1, "module.")
-  startswith(r2, r1) == true
-  startswith(r1, r2) == false
-  ret = true
-} else = ret {
+  startswith(r2, concat("", [r1, "."]))
+} else {
   # returns true for children
   # in all other cases, we want to filter out the children
   not startswith(r1, "module.")
-  startswith(r2, r1) == false
-  startswith(r1, r2) == true
-  ret = true
+  startswith(r1, concat("", [r2, "."]))
 }
 
 filter_refs(refs) = ret {

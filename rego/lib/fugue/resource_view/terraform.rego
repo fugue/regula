@@ -185,13 +185,12 @@ filter_refs(refs) = ret {
   # remove one of them (determined in should_filter) in order to maintain
   # consistent behavior. The ordering is reliable - property followed by
   # resource.
-  filter_set = {r1 |
+  ret = [r1 |
     r1 = refs[_]
     r2 = refs[_]
     r1 != r2
-    should_filter(r1, r2)
-  }
-  ret = [r | r = refs[_]; not filter_set[r]]
+    not should_filter(r1, r2)
+  ]
 }
 
 # Grab info from the configuration.  The only thing we're currently

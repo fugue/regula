@@ -137,7 +137,8 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |VPC network ACLs should not allow ingress from 0.0.0.0/0 to port 3389                                                                 |MULTIPLE                   |High    |FG_R00359|
 |API Gateway classic custom domains should use secure TLS protocol versions (1.2 and above)                                            |MULTIPLE                   |Medium  |FG_R00375|
 |API Gateway v2 custom domains should use secure TLS protocol versions (1.2 and above)                                                 |MULTIPLE                   |Medium  |FG_R00376|
-|VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443                                        |aws_security_group         |        |FG_R00377|
+|VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443                                        |aws_security_group         |Medium  |FG_R00377|
+|Lambda permissions with a service principal should apply to only one resource and AWS account                                         |MULTIPLE                   |Medium  |FG_R00499|
 
 ## Azure
 |                                                   Summary                                                    |      Resource Types       |Severity| Rule ID |

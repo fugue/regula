@@ -44,6 +44,12 @@ mock_config := {
             },
             "name": {
               "constant_value": "/ecs/fargate-task-definition"
+            },
+            "tags": {
+              "references": [
+                "local.tag_name",
+                "local.tag_poc"
+              ]
             }
           },
           "mode": "managed",
@@ -63,6 +69,12 @@ mock_config := {
             },
             "enable_key_rotation": {
               "constant_value": true
+            },
+            "tags": {
+              "references": [
+                "local.tag_name",
+                "local.tag_poc"
+              ]
             }
           },
           "mode": "managed",
@@ -85,6 +97,7 @@ mock_config := {
           "provider_name": "registry.terraform.io/hashicorp/aws",
           "schema_version": 0,
           "sensitive_values": {
+            "tags": {},
             "tags_all": {}
           },
           "type": "aws_cloudwatch_log_group",
@@ -92,7 +105,14 @@ mock_config := {
             "name": "/ecs/fargate-task-definition",
             "name_prefix": null,
             "retention_in_days": 0,
-            "tags": null
+            "tags": {
+              "Name": "foo",
+              "POC": "bar"
+            },
+            "tags_all": {
+              "Name": "foo",
+              "POC": "bar"
+            }
           }
         },
         {
@@ -102,6 +122,7 @@ mock_config := {
           "provider_name": "registry.terraform.io/hashicorp/aws",
           "schema_version": 0,
           "sensitive_values": {
+            "tags": {},
             "tags_all": {}
           },
           "type": "aws_kms_key",
@@ -113,7 +134,14 @@ mock_config := {
             "enable_key_rotation": true,
             "is_enabled": true,
             "key_usage": "ENCRYPT_DECRYPT",
-            "tags": null
+            "tags": {
+              "Name": "foo",
+              "POC": "bar"
+            },
+            "tags_all": {
+              "Name": "foo",
+              "POC": "bar"
+            }
           }
         }
       ]
@@ -130,16 +158,25 @@ mock_config := {
           "name": "/ecs/fargate-task-definition",
           "name_prefix": null,
           "retention_in_days": 0,
-          "tags": null
+          "tags": {
+            "Name": "foo",
+            "POC": "bar"
+          },
+          "tags_all": {
+            "Name": "foo",
+            "POC": "bar"
+          }
         },
         "after_sensitive": {
+          "tags": {},
           "tags_all": {}
         },
         "after_unknown": {
           "arn": true,
           "id": true,
           "kms_key_id": true,
-          "tags_all": true
+          "tags": {},
+          "tags_all": {}
         },
         "before": null,
         "before_sensitive": false
@@ -163,9 +200,17 @@ mock_config := {
           "enable_key_rotation": true,
           "is_enabled": true,
           "key_usage": "ENCRYPT_DECRYPT",
-          "tags": null
+          "tags": {
+            "Name": "foo",
+            "POC": "bar"
+          },
+          "tags_all": {
+            "Name": "foo",
+            "POC": "bar"
+          }
         },
         "after_sensitive": {
+          "tags": {},
           "tags_all": {}
         },
         "after_unknown": {
@@ -173,7 +218,8 @@ mock_config := {
           "id": true,
           "key_id": true,
           "policy": true,
-          "tags_all": true
+          "tags": {},
+          "tags_all": {}
         },
         "before": null,
         "before_sensitive": false

@@ -134,7 +134,7 @@ configuration_modules[module_path] = ret {
 
   # Calculate input variables used in this module.
   vars = {k: ref |
-     val.expressions[k].references = refs
+     filter_refs(val.expressions[k].references) = refs
      count(refs) == 1
      ref = refs[0]
   }
@@ -145,7 +145,7 @@ configuration_modules[module_path] = ret {
 # Calculate outputs into a globally qualified map.
 configuration_module_outputs[qualified_var] = qualified_val {
   configuration_modules[module_path] = [_, module]
-  module.outputs[var].expression.references = refs
+  filter_refs(module.outputs[var].expression.references) = refs
   count(refs) == 1
   val = refs[0]
   qualified_val = module_qualify(module_path, val)
@@ -158,6 +158,40 @@ module_qualify(module_path, unqualified) = ret {
   ret = unqualified
 } else = ret {
   ret = concat(".", ["module", concat(".module.", module_path), unqualified])
+}
+
+should_filter(r1, r2) = ret {
+  # returns true for parents
+  # in module output references, the parent is the module
+  startswith(r1, "module.")
+  startswith(r2, r1) == true
+  startswith(r1, r2) == false
+  ret = true
+} else = ret {
+  # returns true for children
+  # in all other cases, we want to filter out the children
+  not startswith(r1, "module.")
+  startswith(r2, r1) == false
+  startswith(r1, r2) == true
+  ret = true
+}
+
+filter_refs(refs) = ret {
+  count(refs) < 2
+  ret = refs
+} else = ret {
+  # Terraform plan format 0.2 introduced a change where the references array
+  # always includes both the property and its parent resource. We want to
+  # remove one of them (determined in should_filter) in order to maintain
+  # consistent behavior. The ordering is reliable - property followed by
+  # resource.
+  filter_set = {r1 |
+    r1 = refs[_]
+    r2 = refs[_]
+    r1 != r2
+    should_filter(r1, r2)
+  }
+  ret = [r | r = refs[_]; not filter_set[r]]
 }
 
 # Grab info from the configuration.  The only thing we're currently
@@ -200,7 +234,7 @@ configuration_references = ret {
       # Resolve and return.
       resolved = [
         configuration_resolve_ref(outputs, module_path, vars, ref) |
-        ref = refs[_]
+        ref = filter_refs(refs)[_]
       ]
     ]
 
@@ -238,15 +272,6 @@ configuration_resolve_ref(outputs, module_path, vars, ref) = ret {
 } else = ret {
   # A local resource.
   not startswith(ref, "var.")
-  not startswith(ref, "data.")
-  # Filter out specific properties - we only want resource IDs here
-  not count(split(ref, ".")) > 2
-  ret = module_qualify(module_path, ref)
-} else = ret {
-  # A local data resource.
-  startswith(ref, "data.")
-  # Filter out specific properties - we only want resource IDs here
-  not count(split(ref, ".")) > 3
   ret = module_qualify(module_path, ref)
 }
 

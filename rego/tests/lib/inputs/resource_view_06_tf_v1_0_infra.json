@@ -1,0 +1,630 @@
+{
+    "format_version": "0.2",
+    "terraform_version": "1.0.8",
+    "planned_values": {
+        "outputs": {
+            "parent_vpc": {
+                "sensitive": false
+            }
+        },
+        "root_module": {
+            "resources": [
+                {
+                    "address": "aws_security_group.parent",
+                    "mode": "managed",
+                    "type": "aws_security_group",
+                    "name": "parent",
+                    "provider_name": "registry.terraform.io/hashicorp/aws",
+                    "schema_version": 1,
+                    "values": {
+                        "description": "Managed by Terraform",
+                        "revoke_rules_on_delete": false,
+                        "tags": null,
+                        "timeouts": null
+                    },
+                    "sensitive_values": {
+                        "egress": [],
+                        "ingress": [],
+                        "tags_all": {}
+                    }
+                },
+                {
+                    "address": "aws_vpc.parent",
+                    "mode": "managed",
+                    "type": "aws_vpc",
+                    "name": "parent",
+                    "provider_name": "registry.terraform.io/hashicorp/aws",
+                    "schema_version": 1,
+                    "values": {
+                        "assign_generated_ipv6_cidr_block": false,
+                        "cidr_block": "10.0.0.0/16",
+                        "enable_dns_support": true,
+                        "instance_tenancy": "default",
+                        "tags": null
+                    },
+                    "sensitive_values": {
+                        "tags_all": {}
+                    }
+                }
+            ],
+            "child_modules": [
+                {
+                    "resources": [
+                        {
+                            "address": "module.child1.aws_vpc.child",
+                            "mode": "managed",
+                            "type": "aws_vpc",
+                            "name": "child",
+                            "provider_name": "registry.terraform.io/hashicorp/aws",
+                            "schema_version": 1,
+                            "values": {
+                                "assign_generated_ipv6_cidr_block": false,
+                                "cidr_block": "10.0.0.0/16",
+                                "enable_dns_support": true,
+                                "instance_tenancy": "default",
+                                "tags": null
+                            },
+                            "sensitive_values": {
+                                "tags_all": {}
+                            }
+                        }
+                    ],
+                    "address": "module.child1",
+                    "child_modules": [
+                        {
+                            "resources": [
+                                {
+                                    "address": "module.child1.module.grandchild1.aws_security_group.grandchild",
+                                    "mode": "managed",
+                                    "type": "aws_security_group",
+                                    "name": "grandchild",
+                                    "provider_name": "registry.terraform.io/hashicorp/aws",
+                                    "schema_version": 1,
+                                    "values": {
+                                        "description": "Managed by Terraform",
+                                        "revoke_rules_on_delete": false,
+                                        "tags": null,
+                                        "timeouts": null
+                                    },
+                                    "sensitive_values": {
+                                        "egress": [],
+                                        "ingress": [],
+                                        "tags_all": {}
+                                    }
+                                },
+                                {
+                                    "address": "module.child1.module.grandchild1.aws_vpc.grandchild",
+                                    "mode": "managed",
+                                    "type": "aws_vpc",
+                                    "name": "grandchild",
+                                    "provider_name": "registry.terraform.io/hashicorp/aws",
+                                    "schema_version": 1,
+                                    "values": {
+                                        "assign_generated_ipv6_cidr_block": false,
+                                        "cidr_block": "10.0.0.0/16",
+                                        "enable_dns_support": true,
+                                        "instance_tenancy": "default",
+                                        "tags": null
+                                    },
+                                    "sensitive_values": {
+                                        "tags_all": {}
+                                    }
+                                }
+                            ],
+                            "address": "module.child1.module.grandchild1"
+                        }
+                    ]
+                },
+                {
+                    "resources": [
+                        {
+                            "address": "module.child2.aws_security_group.child",
+                            "mode": "managed",
+                            "type": "aws_security_group",
+                            "name": "child",
+                            "provider_name": "registry.terraform.io/hashicorp/aws",
+                            "schema_version": 1,
+                            "values": {
+                                "description": "Managed by Terraform",
+                                "revoke_rules_on_delete": false,
+                                "tags": null,
+                                "timeouts": null
+                            },
+                            "sensitive_values": {
+                                "egress": [],
+                                "ingress": [],
+                                "tags_all": {}
+                            }
+                        },
+                        {
+                            "address": "module.child2.aws_vpc.child",
+                            "mode": "managed",
+                            "type": "aws_vpc",
+                            "name": "child",
+                            "provider_name": "registry.terraform.io/hashicorp/aws",
+                            "schema_version": 1,
+                            "values": {
+                                "assign_generated_ipv6_cidr_block": false,
+                                "cidr_block": "10.0.0.0/16",
+                                "enable_dns_support": true,
+                                "instance_tenancy": "default",
+                                "tags": null
+                            },
+                            "sensitive_values": {
+                                "tags_all": {}
+                            }
+                        }
+                    ],
+                    "address": "module.child2"
+                }
+            ]
+        }
+    },
+    "resource_changes": [
+        {
+            "address": "aws_security_group.parent",
+            "mode": "managed",
+            "type": "aws_security_group",
+            "name": "parent",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "change": {
+                "actions": [
+                    "create"
+                ],
+                "before": null,
+                "after": {
+                    "description": "Managed by Terraform",
+                    "revoke_rules_on_delete": false,
+                    "tags": null,
+                    "timeouts": null
+                },
+                "after_unknown": {
+                    "arn": true,
+                    "egress": true,
+                    "id": true,
+                    "ingress": true,
+                    "name": true,
+                    "name_prefix": true,
+                    "owner_id": true,
+                    "tags_all": true,
+                    "vpc_id": true
+                },
+                "before_sensitive": false,
+                "after_sensitive": {
+                    "egress": [],
+                    "ingress": [],
+                    "tags_all": {}
+                }
+            }
+        },
+        {
+            "address": "aws_vpc.parent",
+            "mode": "managed",
+            "type": "aws_vpc",
+            "name": "parent",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "change": {
+                "actions": [
+                    "create"
+                ],
+                "before": null,
+                "after": {
+                    "assign_generated_ipv6_cidr_block": false,
+                    "cidr_block": "10.0.0.0/16",
+                    "enable_dns_support": true,
+                    "instance_tenancy": "default",
+                    "tags": null
+                },
+                "after_unknown": {
+                    "arn": true,
+                    "default_network_acl_id": true,
+                    "default_route_table_id": true,
+                    "default_security_group_id": true,
+                    "dhcp_options_id": true,
+                    "enable_classiclink": true,
+                    "enable_classiclink_dns_support": true,
+                    "enable_dns_hostnames": true,
+                    "id": true,
+                    "ipv6_association_id": true,
+                    "ipv6_cidr_block": true,
+                    "main_route_table_id": true,
+                    "owner_id": true,
+                    "tags_all": true
+                },
+                "before_sensitive": false,
+                "after_sensitive": {
+                    "tags_all": {}
+                }
+            }
+        },
+        {
+            "address": "module.child1.aws_vpc.child",
+            "module_address": "module.child1",
+            "mode": "managed",
+            "type": "aws_vpc",
+            "name": "child",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "change": {
+                "actions": [
+                    "create"
+                ],
+                "before": null,
+                "after": {
+                    "assign_generated_ipv6_cidr_block": false,
+                    "cidr_block": "10.0.0.0/16",
+                    "enable_dns_support": true,
+                    "instance_tenancy": "default",
+                    "tags": null
+                },
+                "after_unknown": {
+                    "arn": true,
+                    "default_network_acl_id": true,
+                    "default_route_table_id": true,
+                    "default_security_group_id": true,
+                    "dhcp_options_id": true,
+                    "enable_classiclink": true,
+                    "enable_classiclink_dns_support": true,
+                    "enable_dns_hostnames": true,
+                    "id": true,
+                    "ipv6_association_id": true,
+                    "ipv6_cidr_block": true,
+                    "main_route_table_id": true,
+                    "owner_id": true,
+                    "tags_all": true
+                },
+                "before_sensitive": false,
+                "after_sensitive": {
+                    "tags_all": {}
+                }
+            }
+        },
+        {
+            "address": "module.child1.module.grandchild1.aws_security_group.grandchild",
+            "module_address": "module.child1.module.grandchild1",
+            "mode": "managed",
+            "type": "aws_security_group",
+            "name": "grandchild",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "change": {
+                "actions": [
+                    "create"
+                ],
+                "before": null,
+                "after": {
+                    "description": "Managed by Terraform",
+                    "revoke_rules_on_delete": false,
+                    "tags": null,
+                    "timeouts": null
+                },
+                "after_unknown": {
+                    "arn": true,
+                    "egress": true,
+                    "id": true,
+                    "ingress": true,
+                    "name": true,
+                    "name_prefix": true,
+                    "owner_id": true,
+                    "tags_all": true,
+                    "vpc_id": true
+                },
+                "before_sensitive": false,
+                "after_sensitive": {
+                    "egress": [],
+                    "ingress": [],
+                    "tags_all": {}
+                }
+            }
+        },
+        {
+            "address": "module.child1.module.grandchild1.aws_vpc.grandchild",
+            "module_address": "module.child1.module.grandchild1",
+            "mode": "managed",
+            "type": "aws_vpc",
+            "name": "grandchild",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "change": {
+                "actions": [
+                    "create"
+                ],
+                "before": null,
+                "after": {
+                    "assign_generated_ipv6_cidr_block": false,
+                    "cidr_block": "10.0.0.0/16",
+                    "enable_dns_support": true,
+                    "instance_tenancy": "default",
+                    "tags": null
+                },
+                "after_unknown": {
+                    "arn": true,
+                    "default_network_acl_id": true,
+                    "default_route_table_id": true,
+                    "default_security_group_id": true,
+                    "dhcp_options_id": true,
+                    "enable_classiclink": true,
+                    "enable_classiclink_dns_support": true,
+                    "enable_dns_hostnames": true,
+                    "id": true,
+                    "ipv6_association_id": true,
+                    "ipv6_cidr_block": true,
+                    "main_route_table_id": true,
+                    "owner_id": true,
+                    "tags_all": true
+                },
+                "before_sensitive": false,
+                "after_sensitive": {
+                    "tags_all": {}
+                }
+            }
+        },
+        {
+            "address": "module.child2.aws_security_group.child",
+            "module_address": "module.child2",
+            "mode": "managed",
+            "type": "aws_security_group",
+            "name": "child",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "change": {
+                "actions": [
+                    "create"
+                ],
+                "before": null,
+                "after": {
+                    "description": "Managed by Terraform",
+                    "revoke_rules_on_delete": false,
+                    "tags": null,
+                    "timeouts": null
+                },
+                "after_unknown": {
+                    "arn": true,
+                    "egress": true,
+                    "id": true,
+                    "ingress": true,
+                    "name": true,
+                    "name_prefix": true,
+                    "owner_id": true,
+                    "tags_all": true,
+                    "vpc_id": true
+                },
+                "before_sensitive": false,
+                "after_sensitive": {
+                    "egress": [],
+                    "ingress": [],
+                    "tags_all": {}
+                }
+            }
+        },
+        {
+            "address": "module.child2.aws_vpc.child",
+            "module_address": "module.child2",
+            "mode": "managed",
+            "type": "aws_vpc",
+            "name": "child",
+            "provider_name": "registry.terraform.io/hashicorp/aws",
+            "change": {
+                "actions": [
+                    "create"
+                ],
+                "before": null,
+                "after": {
+                    "assign_generated_ipv6_cidr_block": false,
+                    "cidr_block": "10.0.0.0/16",
+                    "enable_dns_support": true,
+                    "instance_tenancy": "default",
+                    "tags": null
+                },
+                "after_unknown": {
+                    "arn": true,
+                    "default_network_acl_id": true,
+                    "default_route_table_id": true,
+                    "default_security_group_id": true,
+                    "dhcp_options_id": true,
+                    "enable_classiclink": true,
+                    "enable_classiclink_dns_support": true,
+                    "enable_dns_hostnames": true,
+                    "id": true,
+                    "ipv6_association_id": true,
+                    "ipv6_cidr_block": true,
+                    "main_route_table_id": true,
+                    "owner_id": true,
+                    "tags_all": true
+                },
+                "before_sensitive": false,
+                "after_sensitive": {
+                    "tags_all": {}
+                }
+            }
+        }
+    ],
+    "output_changes": {
+        "parent_vpc": {
+            "actions": [
+                "create"
+            ],
+            "before": null,
+            "after_unknown": true,
+            "before_sensitive": false,
+            "after_sensitive": false
+        }
+    },
+    "configuration": {
+        "provider_config": {
+            "aws": {
+                "name": "aws",
+                "expressions": {
+                    "region": {
+                        "constant_value": "us-east-2"
+                    }
+                }
+            }
+        },
+        "root_module": {
+            "outputs": {
+                "parent_vpc": {
+                    "expression": {
+                        "references": [
+                            "aws_vpc.parent.id",
+                            "aws_vpc.parent"
+                        ]
+                    }
+                }
+            },
+            "resources": [
+                {
+                    "address": "aws_security_group.parent",
+                    "mode": "managed",
+                    "type": "aws_security_group",
+                    "name": "parent",
+                    "provider_config_key": "aws",
+                    "expressions": {
+                        "vpc_id": {
+                            "references": [
+                                "module.child1.grandchild_vpc",
+                                "module.child1"
+                            ]
+                        }
+                    },
+                    "schema_version": 1
+                },
+                {
+                    "address": "aws_vpc.parent",
+                    "mode": "managed",
+                    "type": "aws_vpc",
+                    "name": "parent",
+                    "provider_config_key": "aws",
+                    "expressions": {
+                        "cidr_block": {
+                            "constant_value": "10.0.0.0/16"
+                        }
+                    },
+                    "schema_version": 1
+                }
+            ],
+            "module_calls": {
+                "child1": {
+                    "source": "./child1",
+                    "module": {
+                        "outputs": {
+                            "grandchild_vpc": {
+                                "expression": {
+                                    "references": [
+                                        "module.grandchild1.grandchild_vpc",
+                                        "module.grandchild1"
+                                    ]
+                                }
+                            }
+                        },
+                        "resources": [
+                            {
+                                "address": "aws_vpc.child",
+                                "mode": "managed",
+                                "type": "aws_vpc",
+                                "name": "child",
+                                "provider_config_key": "child1:aws",
+                                "expressions": {
+                                    "cidr_block": {
+                                        "constant_value": "10.0.0.0/16"
+                                    }
+                                },
+                                "schema_version": 1
+                            }
+                        ],
+                        "module_calls": {
+                            "grandchild1": {
+                                "source": "./grandchild1",
+                                "module": {
+                                    "outputs": {
+                                        "grandchild_vpc": {
+                                            "expression": {
+                                                "references": [
+                                                    "aws_vpc.grandchild.id",
+                                                    "aws_vpc.grandchild"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "resources": [
+                                        {
+                                            "address": "aws_security_group.grandchild",
+                                            "mode": "managed",
+                                            "type": "aws_security_group",
+                                            "name": "grandchild",
+                                            "provider_config_key": "grandchild1:aws",
+                                            "expressions": {
+                                                "vpc_id": {
+                                                    "references": [
+                                                        "aws_vpc.grandchild.id",
+                                                        "aws_vpc.grandchild"
+                                                    ]
+                                                }
+                                            },
+                                            "schema_version": 1
+                                        },
+                                        {
+                                            "address": "aws_vpc.grandchild",
+                                            "mode": "managed",
+                                            "type": "aws_vpc",
+                                            "name": "grandchild",
+                                            "provider_config_key": "grandchild1:aws",
+                                            "expressions": {
+                                                "cidr_block": {
+                                                    "constant_value": "10.0.0.0/16"
+                                                }
+                                            },
+                                            "schema_version": 1
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "child2": {
+                    "source": "./child2",
+                    "expressions": {
+                        "child_vpc_id": {
+                            "references": [
+                                "module.child1.grandchild_vpc",
+                                "module.child1"
+                            ]
+                        }
+                    },
+                    "module": {
+                        "resources": [
+                            {
+                                "address": "aws_security_group.child",
+                                "mode": "managed",
+                                "type": "aws_security_group",
+                                "name": "child",
+                                "provider_config_key": "child2:aws",
+                                "expressions": {
+                                    "vpc_id": {
+                                        "references": [
+                                            "var.child_vpc_id"
+                                        ]
+                                    }
+                                },
+                                "schema_version": 1
+                            },
+                            {
+                                "address": "aws_vpc.child",
+                                "mode": "managed",
+                                "type": "aws_vpc",
+                                "name": "child",
+                                "provider_config_key": "child2:aws",
+                                "expressions": {
+                                    "cidr_block": {
+                                        "constant_value": "10.0.0.0/16"
+                                    }
+                                },
+                                "schema_version": 1
+                            }
+                        ],
+                        "variables": {
+                            "child_vpc_id": {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

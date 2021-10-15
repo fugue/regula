@@ -1,160 +1,204 @@
 {
-    "format_version": "0.1",
-    "terraform_version": "0.15.3",
-    "planned_values": {
-        "root_module": {
-            "resources": [
-                {
-                    "address": "aws_cloudwatch_log_group.fargate-logs",
-                    "mode": "managed",
-                    "type": "aws_cloudwatch_log_group",
-                    "name": "fargate-logs",
-                    "provider_name": "registry.terraform.io/hashicorp/aws",
-                    "schema_version": 0,
-                    "values": {
-                        "name": "/ecs/fargate-task-definition",
-                        "name_prefix": null,
-                        "retention_in_days": 0,
-                        "tags": null
-                    }
-                },
-                {
-                    "address": "aws_kms_key.cloudwatch",
-                    "mode": "managed",
-                    "type": "aws_kms_key",
-                    "name": "cloudwatch",
-                    "provider_name": "registry.terraform.io/hashicorp/aws",
-                    "schema_version": 0,
-                    "values": {
-                        "bypass_policy_lockout_safety_check": false,
-                        "customer_master_key_spec": "SYMMETRIC_DEFAULT",
-                        "deletion_window_in_days": 10,
-                        "description": "cloudwatch kms key",
-                        "enable_key_rotation": true,
-                        "is_enabled": true,
-                        "key_usage": "ENCRYPT_DECRYPT",
-                        "tags": null
-                    }
-                }
-            ]
-        }
-    },
-    "resource_changes": [
+  "format_version": "0.1",
+  "terraform_version": "0.15.3",
+  "planned_values": {
+    "root_module": {
+      "resources": [
         {
-            "address": "aws_cloudwatch_log_group.fargate-logs",
-            "mode": "managed",
-            "type": "aws_cloudwatch_log_group",
-            "name": "fargate-logs",
-            "provider_name": "registry.terraform.io/hashicorp/aws",
-            "change": {
-                "actions": [
-                    "create"
-                ],
-                "before": null,
-                "after": {
-                    "name": "/ecs/fargate-task-definition",
-                    "name_prefix": null,
-                    "retention_in_days": 0,
-                    "tags": null
-                },
-                "after_unknown": {
-                    "arn": true,
-                    "id": true,
-                    "kms_key_id": true,
-                    "tags_all": true
-                },
-                "before_sensitive": false,
-                "after_sensitive": {
-                    "tags_all": {}
-                }
+          "address": "aws_cloudwatch_log_group.fargate-logs",
+          "mode": "managed",
+          "type": "aws_cloudwatch_log_group",
+          "name": "fargate-logs",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "/ecs/fargate-task-definition",
+            "name_prefix": null,
+            "retention_in_days": 0,
+            "tags": {
+              "Name": "foo",
+              "POC": "bar"
+            },
+            "tags_all": {
+              "Name": "foo",
+              "POC": "bar"
             }
+          }
         },
         {
-            "address": "aws_kms_key.cloudwatch",
-            "mode": "managed",
-            "type": "aws_kms_key",
-            "name": "cloudwatch",
-            "provider_name": "registry.terraform.io/hashicorp/aws",
-            "change": {
-                "actions": [
-                    "create"
-                ],
-                "before": null,
-                "after": {
-                    "bypass_policy_lockout_safety_check": false,
-                    "customer_master_key_spec": "SYMMETRIC_DEFAULT",
-                    "deletion_window_in_days": 10,
-                    "description": "cloudwatch kms key",
-                    "enable_key_rotation": true,
-                    "is_enabled": true,
-                    "key_usage": "ENCRYPT_DECRYPT",
-                    "tags": null
-                },
-                "after_unknown": {
-                    "arn": true,
-                    "id": true,
-                    "key_id": true,
-                    "policy": true,
-                    "tags_all": true
-                },
-                "before_sensitive": false,
-                "after_sensitive": {
-                    "tags_all": {}
-                }
+          "address": "aws_kms_key.cloudwatch",
+          "mode": "managed",
+          "type": "aws_kms_key",
+          "name": "cloudwatch",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bypass_policy_lockout_safety_check": false,
+            "customer_master_key_spec": "SYMMETRIC_DEFAULT",
+            "deletion_window_in_days": 10,
+            "description": "cloudwatch kms key",
+            "enable_key_rotation": true,
+            "is_enabled": true,
+            "key_usage": "ENCRYPT_DECRYPT",
+            "tags": {
+              "Name": "foo",
+              "POC": "bar"
+            },
+            "tags_all": {
+              "Name": "foo",
+              "POC": "bar"
             }
+          }
         }
-    ],
-    "configuration": {
-        "provider_config": {
-            "aws": {
-                "name": "aws",
-                "expressions": {
-                    "region": {
-                        "constant_value": "us-east-1"
-                    }
-                }
-            }
-        },
-        "root_module": {
-            "resources": [
-                {
-                    "address": "aws_cloudwatch_log_group.fargate-logs",
-                    "mode": "managed",
-                    "type": "aws_cloudwatch_log_group",
-                    "name": "fargate-logs",
-                    "provider_config_key": "aws",
-                    "expressions": {
-                        "kms_key_id": {
-                            "references": [
-                                "aws_kms_key.cloudwatch"
-                            ]
-                        },
-                        "name": {
-                            "constant_value": "/ecs/fargate-task-definition"
-                        }
-                    },
-                    "schema_version": 0
-                },
-                {
-                    "address": "aws_kms_key.cloudwatch",
-                    "mode": "managed",
-                    "type": "aws_kms_key",
-                    "name": "cloudwatch",
-                    "provider_config_key": "aws",
-                    "expressions": {
-                        "deletion_window_in_days": {
-                            "constant_value": 10
-                        },
-                        "description": {
-                            "constant_value": "cloudwatch kms key"
-                        },
-                        "enable_key_rotation": {
-                            "constant_value": true
-                        }
-                    },
-                    "schema_version": 0
-                }
-            ]
-        }
+      ]
     }
+  },
+  "resource_changes": [
+    {
+      "address": "aws_cloudwatch_log_group.fargate-logs",
+      "mode": "managed",
+      "type": "aws_cloudwatch_log_group",
+      "name": "fargate-logs",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "/ecs/fargate-task-definition",
+          "name_prefix": null,
+          "retention_in_days": 0,
+          "tags": {
+            "Name": "foo",
+            "POC": "bar"
+          },
+          "tags_all": {
+            "Name": "foo",
+            "POC": "bar"
+          }
+        },
+        "after_unknown": {
+          "arn": true,
+          "id": true,
+          "kms_key_id": true,
+          "tags": {},
+          "tags_all": {}
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "tags": {},
+          "tags_all": {}
+        }
+      }
+    },
+    {
+      "address": "aws_kms_key.cloudwatch",
+      "mode": "managed",
+      "type": "aws_kms_key",
+      "name": "cloudwatch",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "bypass_policy_lockout_safety_check": false,
+          "customer_master_key_spec": "SYMMETRIC_DEFAULT",
+          "deletion_window_in_days": 10,
+          "description": "cloudwatch kms key",
+          "enable_key_rotation": true,
+          "is_enabled": true,
+          "key_usage": "ENCRYPT_DECRYPT",
+          "tags": {
+            "Name": "foo",
+            "POC": "bar"
+          },
+          "tags_all": {
+            "Name": "foo",
+            "POC": "bar"
+          }
+        },
+        "after_unknown": {
+          "arn": true,
+          "id": true,
+          "key_id": true,
+          "policy": true,
+          "tags": {},
+          "tags_all": {}
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "tags": {},
+          "tags_all": {}
+        }
+      }
+    }
+  ],
+  "configuration": {
+    "provider_config": {
+      "aws": {
+        "name": "aws",
+        "expressions": {
+          "region": {
+            "constant_value": "us-east-1"
+          }
+        }
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_cloudwatch_log_group.fargate-logs",
+          "mode": "managed",
+          "type": "aws_cloudwatch_log_group",
+          "name": "fargate-logs",
+          "provider_config_key": "aws",
+          "expressions": {
+            "kms_key_id": {
+              "references": [
+                "aws_kms_key.cloudwatch"
+              ]
+            },
+            "name": {
+              "constant_value": "/ecs/fargate-task-definition"
+            },
+            "tags": {
+              "references": [
+                "local.tag_name",
+                "local.tag_poc"
+              ]
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_kms_key.cloudwatch",
+          "mode": "managed",
+          "type": "aws_kms_key",
+          "name": "cloudwatch",
+          "provider_config_key": "aws",
+          "expressions": {
+            "deletion_window_in_days": {
+              "constant_value": 10
+            },
+            "description": {
+              "constant_value": "cloudwatch kms key"
+            },
+            "enable_key_rotation": {
+              "constant_value": true
+            },
+            "tags": {
+              "references": [
+                "local.tag_name",
+                "local.tag_poc"
+              ]
+            }
+          },
+          "schema_version": 0
+        }
+      ]
+    }
+  }
 }

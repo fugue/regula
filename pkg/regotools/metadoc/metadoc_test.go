@@ -110,13 +110,13 @@ allow {
 						"NIST-800-53_vRev4": {"NIST-800-53_vRev4_SC-13"},
 					},
 					rego.Controls)
-				assert.Equal(t, "AWS", rego.Provider)
+				assert.Equal(t, []string{"AWS"}, rego.Providers)
 
 				rego.Description = "Updated description"
 				rego.Severity = "Low"
 				rego.Families[1] = "ee1dfd49-a46f-433d-99b9-25805d7e8766"
 				delete(rego.Controls, "CIS-AWS_v1.3.0")
-				rego.Provider = "Azure"
+				rego.Providers = []string{"AZURE", "REPOSITORY"}
 			},
 			expected: `
 # Copyright 2020 Fugue, Inc.
@@ -133,7 +133,10 @@ __rego__metadoc__ := {
       "MyCustomFamily",
       "ee1dfd49-a46f-433d-99b9-25805d7e8766"
     ],
-    "provider": "Azure",
+    "providers": [
+      "AZURE",
+      "REPOSITORY"
+    ],
     "severity": "Low"
   },
   "description": "Updated description",

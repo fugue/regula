@@ -49,7 +49,7 @@ type RegoMeta struct {
 	Severity    string
 	Controls    map[string][]string
 	Families    []string
-	Provider    string
+	Providers   []string
 
 	ResourceType     string // Resource type
 	resourceTypeLine int
@@ -73,10 +73,11 @@ func RegoMetaFromPath(path string) (*RegoMeta, error) {
 }
 
 type metadocCustom struct {
-	Severity string              `json:"severity"`
-	Controls map[string][]string `json:"controls"`
-	Families []string            `json:"families"`
-	Provider string              `json:"provider"`
+	Severity  string              `json:"severity"`
+	Controls  map[string][]string `json:"controls"`
+	Families  []string            `json:"families"`
+	Provider  string              `json:"provider"`
+	Providers []string            `json:"providers"`
 }
 
 type metadoc struct {
@@ -190,7 +191,15 @@ func RegoMetaFromString(str string) (*RegoMeta, error) {
 			rego.Controls = metadoc.Custom.Controls
 			rego.Severity = metadoc.Custom.Severity
 			rego.Families = metadoc.Custom.Families
-			rego.Provider = metadoc.Custom.Provider
+			rego.Providers = metadoc.Custom.Providers
+
+			// Migrate old provider field.
+			if len(rego.Providers) == 0 && len(metadoc.Custom.Provider) != 0 {
+				rego.Providers = []string{metadoc.Custom.Provider}
+				if c, ok := rego.metadoc["custom"].(map[string]interface{}); ok {
+					delete(c, "provider")
+				}
+			}
 		}
 	}
 
@@ -236,10 +245,10 @@ func (rego *RegoMeta) String() string {
 	} else {
 		custom["families"] = rego.Families
 	}
-	if len(rego.Provider) == 0 {
-		delete(custom, "provider")
+	if len(rego.Providers) == 0 {
+		delete(custom, "providers")
 	} else {
-		custom["provider"] = rego.Provider
+		custom["providers"] = rego.Providers
 	}
 	if len(custom) == 0 {
 		delete(custom, "custom")

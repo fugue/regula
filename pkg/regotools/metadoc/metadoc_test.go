@@ -292,6 +292,29 @@ import data.foo
 import data.foo as bar
 deny { input.age <= 21 }`,
 		},
+		{
+			// Check migrating from provider to providers
+			input: `
+__rego__metadoc__ := {
+  "custom": {
+    "provider": "AWS"
+  }
+}
+
+allow = true`,
+			run: func(rego *RegoMeta) {
+			},
+			expected: `
+__rego__metadoc__ := {
+  "custom": {
+    "providers": [
+      "AWS"
+    ]
+  }
+}
+
+allow = true`,
+		},
 	}
 
 	for _, test := range tests {

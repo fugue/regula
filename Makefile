@@ -132,8 +132,8 @@ docker: $(CLI_SOURCE) $(REGO_LIB_SOURCE) $(REGO_RULES_SOURCE)
 ################################
 
 .PHONY: remediation
-remediation: ## Regenerate remediation links
-remediation: rules/remediation.yaml
+remediation: ## Generate remediation links
+remediation: rego/remediation.yaml
 
 $(REMEDIATION_LINKS):
 	curl -s "https://docs.fugue.co/remediation.html" | grep -Eo 'FG_R[0-9]+' | sort -u | awk '{ print $$1 ":\n  url: https://docs.fugue.co/" $$1 ".html" }' > "$@"

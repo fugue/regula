@@ -17,6 +17,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.0
 	github.com/hashicorp/terraform-provider-google v0.0.0-20210823165731-26ff814b39d0
 	github.com/manifoldco/promptui v0.8.0
+	github.com/moby/buildkit v0.9.1 // indirect
 	github.com/open-policy-agent/opa v0.28.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.2.2

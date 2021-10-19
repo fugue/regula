@@ -21,6 +21,7 @@ import data.fugue.input_type_internal
 import data.fugue.resource_view.cloudformation
 import data.fugue.resource_view.terraform
 import data.fugue.resource_view.kubernetes
+import data.fugue.resource_view.dockerfile
 
 resource_view = ret {
   # If we are already given a resource view, just pass it through.
@@ -35,6 +36,9 @@ resource_view = ret {
 } else = ret {
   input_type_internal.kubernetes_input_type
   ret = kubernetes.resource_view
+} else = ret {
+  input_type_internal.dockerfile_input_type
+  ret = dockerfile.resource_view
 }
 
 resource_view_input = ret {
@@ -48,5 +52,8 @@ resource_view_input = ret {
   ret = {"resources": resource_view, "_template": input}
 } else = ret {
   input_type_internal.kubernetes_input_type
+  ret = {"resources": resource_view, "_template": input}
+} else = ret {
+  input_type_internal.dockerfile_input_type
   ret = {"resources": resource_view, "_template": input}
 }

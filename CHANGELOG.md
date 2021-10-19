@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v1.6.0 (2021-10-15)
+
+### Added
+* Resource line numbers for Kubernetes manifests
+* `k8s` input type in help text (#217)
+* A tutorial on [how to debug a rule](https://regula.dev/examples/debug-tutorial.html)
+* A new rule to enforce lambda permission conditions (#200)
+
+### Changed
+* Base docker image from scratch to alpine (#215)
+
+### Fixed
+* Incompatibility with plan files from Terraform v1.0.8 (#220) (#221) (#222)
+
 ## v1.5.0 (2021-09-30)
 
 ### Added

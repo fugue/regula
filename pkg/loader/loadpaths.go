@@ -254,6 +254,7 @@ func detectorByInputType(inputType InputType) (ConfigurationDetector, error) {
 			&TfPlanDetector{},
 			&TfDetector{},
 			&KubernetesDetector{},
+			&DockerfileDetector{},
 		), nil
 	case Cfn:
 		return &CfnDetector{}, nil
@@ -263,6 +264,8 @@ func detectorByInputType(inputType InputType) (ConfigurationDetector, error) {
 		return &TfDetector{}, nil
 	case K8s:
 		return &KubernetesDetector{}, nil
+	case Dockerfile:
+		return &DockerfileDetector{}, nil
 	default:
 		return nil, fmt.Errorf("Unsupported input type: %v", inputType)
 	}

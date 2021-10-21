@@ -20,7 +20,7 @@ import data.k8s
 __rego__metadoc__ := {
 	"id": "FG_R00486",
 	"title": "Pods should not run containers wishing to share the host process ID namespace",
-	"description": "Pods should not run containers wishing to share the host process ID namespace. A container that runs with hostPID set has visbility into processes running on the host, which could expose information including environment variables to an attacker.",
+	"description": "Pods should not run containers wishing to share the host process ID namespace. A container that runs with hostPID set has visibility into processes running on the host, which could expose information including environment variables to an attacker.",
 	"custom": {
 		"controls": {
 			"CIS-Kubernetes_v1.6.1": [

@@ -130,6 +130,7 @@ rule_resource_result(rule, judgement) = ret {
     "resource_type": judgement.type,
     "rule_message": judgement.message,
     "rule_result": result_string(judgement),
+    "rule_valid": judgement.valid,
     "rule_name": rule["package"],
     "rule_id": rule.metadata.id,
     "rule_summary": rule.metadata.summary,
@@ -359,4 +360,21 @@ report = ret {
   ret := waiver_patch_report(merged)
 } else = ret {
   ret := waiver_patch_report(single_report)
+}
+
+scan_view = ret {
+  ret := {
+    "scan_view_version": "v1",
+    "report": report,
+    "inputs": [input_resources |
+      item := input[_]
+      r := resource_view.resource_view_input.resources with input as item.content
+      t := input_type_internal.input_type with input as item.content
+      input_resources = {
+        "filepath": item.filepath,
+        "input_type": t,
+        "resources": r,
+      }
+    ]
+  }
 }

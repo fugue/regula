@@ -16,26 +16,35 @@ package cmd
 
 import (
 	"context"
-	_ "embed"
-	"os"
+	"fmt"
 
-	"github.com/fugue/regula/pkg/loader"
+	"github.com/fugue/regula/pkg/fugue"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/spf13/cobra"
 )
 
-func NewWriteTestInputsCommand() *cobra.Command {
-	description := "Persist dynamically-generated test inputs for use with other Rego interpreters"
-	inputTypes := []loader.InputType{loader.Auto}
+func NewShowCustomRuleCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "write-test-inputs [input...]",
-		Short: description,
-		Long:  description,
-		RunE: func(cmd *cobra.Command, paths []string) error {
-			cb := func(r rego.RegoFile) error {
-				return os.WriteFile(r.Path(), r.Raw(), 0644)
+		Use:   "custom-rule <rule ID>",
+		Short: "Show a custom rule from your Fugue account",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 1 {
+				return fmt.Errorf("Only one Rule ID can be specified at a time.")
 			}
-			provider := rego.TestInputsProvider(paths, inputTypes)
+			if len(args) < 1 {
+				return fmt.Errorf("A Rule ID must be specified.")
+			}
+			cmd.SilenceUsage = true
+			ruleID := args[0]
+			client, err := fugue.NewFugueClient()
+			if err != nil {
+				return err
+			}
+			cb := func(r rego.RegoFile) error {
+				fmt.Print(r.String())
+				return nil
+			}
+			provider := client.CustomRuleProvider(ruleID)
 			ctx := context.Background()
 			if err := provider(ctx, cb); err != nil {
 				return err
@@ -44,11 +53,10 @@ func NewWriteTestInputsCommand() *cobra.Command {
 		},
 	}
 
-	addInputTypeFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }
 
 func init() {
-	rootCmd.AddCommand(NewWriteTestInputsCommand())
+	showCommand.AddCommand(NewShowCustomRuleCommand())
 }

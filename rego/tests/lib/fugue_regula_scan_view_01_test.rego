@@ -16,7 +16,7 @@
 # as the `input`.
 package fugue.regula_scan_view_01_test
 
-import data.fugue.scan_view
+import data.fugue.regula
 import data.fugue.regula_report_01_test as base
 import data.tests.lib.inputs.volume_encrypted_infra_tf
 
@@ -53,7 +53,7 @@ mock_rules = {
 
 # Produce a scan view
 output = ret {
-  ret = scan_view.scan_view with input as mock_input with data.rules as mock_rules
+  ret = regula.scan_view with input as mock_input with data.rules as mock_rules
 }
 
 contains_result(arr, result) {
@@ -118,15 +118,13 @@ expected_scan_view = {
         "resource_id": "aws_ebs_volume.bad",
         "resource_type": "aws_ebs_volume",
         "rule_description": "This rule always passes",
-        "rule_enabled": true,
         "rule_id": "FG_R00001",
         "rule_message": "",
         "rule_name": "always_pass",
         "rule_result": "PASS",
         "rule_severity": "High",
         "rule_summary": "Always pass",
-        "rule_valid": true,
-        "rule_waived": false
+        "rule_valid": true
       },
       {
         "controls": [
@@ -138,15 +136,13 @@ expected_scan_view = {
         "resource_id": "aws_ebs_volume.good",
         "resource_type": "aws_ebs_volume",
         "rule_description": "This rule always passes",
-        "rule_enabled": true,
         "rule_id": "FG_R00001",
         "rule_message": "",
         "rule_name": "always_pass",
         "rule_result": "PASS",
         "rule_severity": "High",
         "rule_summary": "Always pass",
-        "rule_valid": true,
-        "rule_waived": false
+        "rule_valid": true
       },
       {
         "controls": [
@@ -158,15 +154,13 @@ expected_scan_view = {
         "resource_id": "aws_ebs_volume.missing",
         "resource_type": "aws_ebs_volume",
         "rule_description": "This rule always passes",
-        "rule_enabled": true,
         "rule_id": "FG_R00001",
         "rule_message": "",
         "rule_name": "always_pass",
         "rule_result": "PASS",
         "rule_severity": "High",
         "rule_summary": "Always pass",
-        "rule_valid": true,
-        "rule_waived": false
+        "rule_valid": true
       },
       {
         "controls": [],
@@ -176,15 +170,13 @@ expected_scan_view = {
         "resource_id": "aws_ebs_volume.bad",
         "resource_type": "aws_ebs_volume",
         "rule_description": "",
-        "rule_enabled": true,
         "rule_id": "",
         "rule_message": "",
         "rule_name": "always_fail",
         "rule_result": "FAIL",
         "rule_severity": "Unknown",
         "rule_summary": "",
-        "rule_valid": false,
-        "rule_waived": false
+        "rule_valid": false
       },
       {
         "controls": [],
@@ -194,15 +186,13 @@ expected_scan_view = {
         "resource_id": "aws_ebs_volume.good",
         "resource_type": "aws_ebs_volume",
         "rule_description": "",
-        "rule_enabled": true,
         "rule_id": "",
         "rule_message": "",
         "rule_name": "always_fail",
         "rule_result": "FAIL",
         "rule_severity": "Unknown",
         "rule_summary": "",
-        "rule_valid": false,
-        "rule_waived": false
+        "rule_valid": false
       },
       {
         "controls": [],
@@ -212,15 +202,13 @@ expected_scan_view = {
         "resource_id": "aws_ebs_volume.missing",
         "resource_type": "aws_ebs_volume",
         "rule_description": "",
-        "rule_enabled": true,
         "rule_id": "",
         "rule_message": "",
         "rule_name": "always_fail",
         "rule_result": "FAIL",
         "rule_severity": "Unknown",
         "rule_summary": "",
-        "rule_valid": false,
-        "rule_waived": false
+        "rule_valid": false
       }
     ],
     "summary": {

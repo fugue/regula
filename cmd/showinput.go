@@ -15,31 +15,32 @@
 package cmd
 
 import (
-	"context"
-	_ "embed"
-	"os"
+	"encoding/json"
+	"fmt"
 
 	"github.com/fugue/regula/pkg/loader"
-	"github.com/fugue/regula/pkg/rego"
 	"github.com/spf13/cobra"
 )
 
-func NewWriteTestInputsCommand() *cobra.Command {
-	description := "Persist dynamically-generated test inputs for use with other Rego interpreters"
+func NewShowInputCommand() *cobra.Command {
 	inputTypes := []loader.InputType{loader.Auto}
 	cmd := &cobra.Command{
-		Use:   "write-test-inputs [input...]",
-		Short: description,
-		Long:  description,
+		Use:   "input [file...]",
+		Short: "Show the JSON input being passed to regula",
 		RunE: func(cmd *cobra.Command, paths []string) error {
-			cb := func(r rego.RegoFile) error {
-				return os.WriteFile(r.Path(), r.Raw(), 0644)
-			}
-			provider := rego.TestInputsProvider(paths, inputTypes)
-			ctx := context.Background()
-			if err := provider(ctx, cb); err != nil {
+			loadedFiles, err := loader.LocalConfigurationLoader(loader.LoadPathsOptions{
+				Paths:      paths,
+				InputTypes: inputTypes,
+			})()
+			if err != nil {
 				return err
 			}
+
+			bytes, err := json.MarshalIndent(loadedFiles.RegulaInput(), "", "  ")
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(bytes))
 			return nil
 		},
 	}
@@ -50,5 +51,5 @@ func NewWriteTestInputsCommand() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(NewWriteTestInputsCommand())
+	showCommand.AddCommand(NewShowInputCommand())
 }

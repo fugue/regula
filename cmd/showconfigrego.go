@@ -16,26 +16,30 @@ package cmd
 
 import (
 	"context"
-	_ "embed"
-	"os"
+	"fmt"
 
-	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/spf13/cobra"
 )
 
-func NewWriteTestInputsCommand() *cobra.Command {
-	description := "Persist dynamically-generated test inputs for use with other Rego interpreters"
-	inputTypes := []loader.InputType{loader.Auto}
+func NewShowConfigCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "write-test-inputs [input...]",
-		Short: description,
-		Long:  description,
-		RunE: func(cmd *cobra.Command, paths []string) error {
-			cb := func(r rego.RegoFile) error {
-				return os.WriteFile(r.Path(), r.Raw(), 0644)
+		Use:   "config-rego <options>",
+		Short: "Show the generated config rego file",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			excludes, err := cmd.Flags().GetStringSlice(excludeFlag)
+			if err != nil {
+				return err
 			}
-			provider := rego.TestInputsProvider(paths, inputTypes)
+			only, err := cmd.Flags().GetStringSlice(onlyFlag)
+			if err != nil {
+				return err
+			}
+			cb := func(r rego.RegoFile) error {
+				fmt.Print(r.String())
+				return nil
+			}
+			provider := rego.RegulaConfigProvider(excludes, only)
 			ctx := context.Background()
 			if err := provider(ctx, cb); err != nil {
 				return err
@@ -44,11 +48,12 @@ func NewWriteTestInputsCommand() *cobra.Command {
 		},
 	}
 
-	addInputTypeFlag(cmd)
+	addExcludeFlag(cmd)
+	addOnlyFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }
 
 func init() {
-	rootCmd.AddCommand(NewWriteTestInputsCommand())
+	showCommand.AddCommand(NewShowConfigCommand())
 }

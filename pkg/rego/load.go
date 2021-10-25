@@ -1,6 +1,21 @@
+// Copyright 2021 Fugue, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package rego
 
 import (
+	"context"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -14,12 +29,6 @@ import (
 
 var opaExts map[string]bool = map[string]bool{
 	".rego": true,
-	// TODO: We should evaluate how useful it is for end-users to load non-rego files
-	// in their rules. We'll need to change how these files get loaded into OPA in
-	// order to support these other extensions.
-	// ".yaml": true,
-	// ".yml":  true,
-	// ".json": true,
 }
 
 type regoFile struct {
@@ -58,111 +67,117 @@ func newRegoFile(fsys fs.FS, path string) (RegoFile, error) {
 	}, nil
 }
 
-func LoadDirectory(fsys fs.FS, path string, cb func(r RegoFile) error) error {
-	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			return nil
-		}
-		if ext := filepath.Ext(path); !opaExts[ext] {
-			return nil
-		}
-		regoFile, err := newRegoFile(fsys, path)
-		if err != nil {
-			return err
-		}
-		if err := cb(regoFile); err != nil {
-			return err
-		}
-		return nil
+func RegoFileFromString(path string, contents string) RegoFile {
+	return &regoFile{
+		path:     path,
+		contents: []byte(contents),
 	}
-
-	if err := fs.WalkDir(fsys, path, walkDirFunc); err != nil {
-		return err
-	}
-
-	return nil
 }
 
-func LoadOSFiles(paths []string, cb func(r RegoFile) error) error {
-	fsys := &osFs{}
-	for _, path := range paths {
-		info, err := os.Stat(path)
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			err := LoadDirectory(fsys, path, cb)
+func FSProvider(fsys fs.FS, path string) RegoProvider {
+	return func(_ context.Context, p RegoProcessor) error {
+		walkDirFunc := func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
-			continue
-		}
-		if ext := filepath.Ext(path); !opaExts[ext] {
-			continue
-		}
-		file, err := newRegoFile(fsys, path)
-		if err != nil {
-			return err
-		}
-		if err := cb(file); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func LoadRegula(userOnly bool, cb func(r RegoFile) error) error {
-	if err := LoadDirectory(embedded.RegulaLib, "lib", cb); err != nil {
-		return err
-	}
-	if !userOnly {
-		if err := LoadDirectory(embedded.RegulaRules, "rules", cb); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func LoadTestInputs(paths []string, inputTypes []loader.InputType, cb func(r RegoFile) error) error {
-	filteredPaths := []string{}
-	for _, p := range paths {
-		if !opaExts[filepath.Ext(p)] {
-			filteredPaths = append(filteredPaths, p)
-		}
-	}
-	if len(filteredPaths) < 1 {
-		return nil
-	}
-	configs, err := loader.LoadPaths(loader.LoadPathsOptions{
-		Paths:      filteredPaths,
-		IgnoreDirs: true,
-		InputTypes: inputTypes,
-	})
-	if err != nil {
-		// Ignore if we can't load any configs
-		if _, ok := err.(*loader.NoLoadableConfigsError); ok {
-			logrus.Warning("No IaC configurations found in input paths")
+			if d.IsDir() {
+				return nil
+			}
+			if ext := filepath.Ext(path); !opaExts[ext] {
+				return nil
+			}
+			regoFile, err := newRegoFile(fsys, path)
+			if err != nil {
+				return err
+			}
+			if err := p(regoFile); err != nil {
+				return err
+			}
 			return nil
 		}
-		return err
-	}
-	logrus.Infof("Loaded %v IaC configurations as test inputs\n", configs.Count())
-	for _, regulaInput := range configs.RegulaInput() {
-		r, err := NewTestInput(regulaInput)
-		if err != nil {
+
+		if err := fs.WalkDir(fsys, path, walkDirFunc); err != nil {
 			return err
 		}
-		cb(r)
+
+		return nil
 	}
-	return nil
 }
 
-// I might be missing something, but it looks like the only fs.FS implementation
-// with os methods is os.DirFS, which has behavior that we don't want.
+func LocalProvider(paths []string) RegoProvider {
+	return func(ctx context.Context, p RegoProcessor) error {
+		fsys := &osFs{}
+		for _, path := range paths {
+			info, err := os.Stat(path)
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				err := FSProvider(fsys, path)(ctx, p)
+				if err != nil {
+					return err
+				}
+				continue
+			}
+			if ext := filepath.Ext(path); !opaExts[ext] {
+				continue
+			}
+			file, err := newRegoFile(fsys, path)
+			if err != nil {
+				return err
+			}
+			if err := p(file); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+}
+
+func RegulaLibProvider() RegoProvider {
+	return FSProvider(embedded.RegulaLib, "lib")
+}
+
+func RegulaRulesProvider() RegoProvider {
+	return FSProvider(embedded.RegulaRules, "rules")
+}
+
+func TestInputsProvider(paths []string, inputTypes []loader.InputType) RegoProvider {
+	return func(_ context.Context, p RegoProcessor) error {
+		filteredPaths := []string{}
+		for _, p := range paths {
+			if !opaExts[filepath.Ext(p)] {
+				filteredPaths = append(filteredPaths, p)
+			}
+		}
+		if len(filteredPaths) < 1 {
+			return nil
+		}
+		configs, err := loader.LocalConfigurationLoader(loader.LoadPathsOptions{
+			Paths:      filteredPaths,
+			IgnoreDirs: true,
+			InputTypes: inputTypes,
+		})()
+		if err != nil {
+			// Ignore if we can't load any configs
+			if _, ok := err.(*loader.NoLoadableConfigsError); ok {
+				logrus.Warning("No IaC configurations found in input paths")
+				return nil
+			}
+			return err
+		}
+		logrus.Infof("Loaded %v IaC configurations as test inputs\n", configs.Count())
+		for _, regulaInput := range configs.RegulaInput() {
+			r, err := NewTestInput(regulaInput)
+			if err != nil {
+				return err
+			}
+			p(r)
+		}
+		return nil
+	}
+}
+
 type osFs struct {
 	fs.FS
 	fs.GlobFS

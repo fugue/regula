@@ -18,9 +18,9 @@ import (
 	"context"
 	_ "embed"
 
+	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -28,25 +28,35 @@ func NewTestCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "test [paths containing rego or test inputs]",
 		Short: "Run OPA test with Regula.",
-		Run: func(cmd *cobra.Command, includes []string) {
+		RunE: func(cmd *cobra.Command, includes []string) error {
 			trace, err := cmd.Flags().GetBool(traceFlag)
 			if err != nil {
-				logrus.Fatal(err)
+				return err
 			}
 			noTestInputs, err := cmd.Flags().GetBool(noTestInputsFlag)
 			if err != nil {
-				logrus.Fatal(err)
+				return err
 			}
+			providers := []rego.RegoProvider{
+				rego.RegulaLibProvider(),
+				rego.LocalProvider(includes),
+			}
+			if !noTestInputs {
+				providers = append(
+					providers,
+					rego.TestInputsProvider(includes, []loader.InputType{loader.Auto}),
+				)
+			}
+
 			ctx := context.Background()
-			err = rego.RunTest(&rego.RunTestOptions{
-				Ctx:          ctx,
-				Includes:     includes,
-				Trace:        trace,
-				NoTestInputs: noTestInputs,
+			err = rego.RunTest(ctx, &rego.RunTestOptions{
+				Providers: providers,
+				Trace:     trace,
 			})
 			if err != nil {
-				logrus.Fatal(err)
+				return err
 			}
+			return nil
 		},
 	}
 	addTraceFlag(cmd)

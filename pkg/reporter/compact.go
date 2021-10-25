@@ -29,6 +29,6 @@ func init() {
 }
 
 // TextReporter returns the Regula report in a human-friendly format
-func CompactReporter(o *RegulaOutput) (string, error) {
+func CompactReporter(o *RegulaReport) (string, error) {
 	return textReporterWithTemplate(o, compactTemplate)
 }

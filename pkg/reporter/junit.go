@@ -21,7 +21,7 @@ import (
 	"strings"
 )
 
-func JUnitReporter(o *RegulaOutput) (string, error) {
+func JUnitReporter(o *RegulaReport) (string, error) {
 	testSuites := o.AggregateByFilepath().ToTestSuites()
 	x, err := xml.MarshalIndent(testSuites, "", "  ")
 	if err != nil {

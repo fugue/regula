@@ -143,7 +143,7 @@ func init() {
 	textTemplate = createTextReporterTemplate(textTemplateDefinition)
 }
 
-func textReporterWithTemplate(o *RegulaOutput, tmpl *template.Template) (string, error) {
+func textReporterWithTemplate(o *RegulaReport, tmpl *template.Template) (string, error) {
 	buf := &bytes.Buffer{}
 	if err := tmpl.Execute(buf, o); err != nil {
 		return "", err
@@ -152,7 +152,7 @@ func textReporterWithTemplate(o *RegulaOutput, tmpl *template.Template) (string,
 }
 
 // TextReporter returns the Regula report in a human-friendly format
-func TextReporter(o *RegulaOutput) (string, error) {
+func TextReporter(o *RegulaReport) (string, error) {
 	return textReporterWithTemplate(o, textTemplate)
 }
 

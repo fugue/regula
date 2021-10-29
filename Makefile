@@ -95,6 +95,7 @@ terraform_gen:
 	find pkg/terraform/ -name '*.go' \
     	-exec sed -i".bak" 's#github\.com/hashicorp/terraform/version#github.com/fugue/regula/pkg/terraform/version#' '{}' \;
 	find pkg/terraform/ -name '*.bak' -delete
+	find pkg/terraform/ -name '*_test.go' -delete
 	rm -rf terraform.zip terraform-$(TERRAFORM_VERSION)
 
 #############

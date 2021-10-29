@@ -35,9 +35,12 @@ import (
 
 	"github.com/fugue/regula/pkg/tf_resource_schemas"
 	"github.com/fugue/regula/pkg/topsort"
+	"github.com/fugue/regula/pkg/regulatf"
 )
 
 type TfDetector struct{}
+
+var data regulatf.Data
 
 func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfiguration, error) {
 	if !opts.IgnoreExt && i.Ext() != ".tf" {

@@ -64,6 +64,24 @@ swagger_gen: $(SWAGGER)
     	quay.io/goswagger/swagger:v0.23.0 \
     	generate client -t pkg/swagger -f "$(SWAGGER)"
 
+#######################
+# Terraform vendoring #
+#######################
+
+TERRAFORM_VERSION=1.0.10
+
+.PHONY: terraform_gen
+terraform_gen:
+	curl -Lo terraform.zip https://github.com/hashicorp/terraform/archive/refs/tags/v$(TERRAFORM_VERSION).zip
+	unzip -o terraform.zip
+	mkdir -p pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/* pkg/terraform
+	cp terraform-$(TERRAFORM_VERSION)/LICENSE pkg/terraform
+	find pkg/terraform/ -name '*.go' \
+    	-exec sed -i".bak" 's#github\.com/hashicorp/terraform/internal/#github.com/fugue/regula/pkg/terraform/#' '{}' \;
+	find pkg/terraform/ -name '*.bak' -delete
+	rm -rf terraform.zip terraform-$(TERRAFORM_VERSION)
+
 #############
 #   Tools   #
 #############

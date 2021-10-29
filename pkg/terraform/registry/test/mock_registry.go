@@ -16,7 +16,7 @@ import (
 	"github.com/fugue/regula/pkg/terraform/httpclient"
 	"github.com/fugue/regula/pkg/terraform/registry/regsrc"
 	"github.com/fugue/regula/pkg/terraform/registry/response"
-	tfversion "github.com/hashicorp/terraform/version"
+	tfversion "github.com/fugue/regula/pkg/terraform/version"
 )
 
 // Disco return a *disco.Disco mapping registry.terraform.io, localhost,

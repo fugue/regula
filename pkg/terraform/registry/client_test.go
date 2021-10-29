@@ -13,7 +13,7 @@ import (
 	"github.com/fugue/regula/pkg/terraform/httpclient"
 	"github.com/fugue/regula/pkg/terraform/registry/regsrc"
 	"github.com/fugue/regula/pkg/terraform/registry/test"
-	tfversion "github.com/hashicorp/terraform/version"
+	tfversion "github.com/fugue/regula/pkg/terraform/version"
 )
 
 func TestConfigureDiscoveryRetry(t *testing.T) {

@@ -23,7 +23,7 @@ import (
 	"github.com/fugue/regula/pkg/terraform/addrs"
 	"github.com/fugue/regula/pkg/terraform/httpclient"
 	"github.com/fugue/regula/pkg/terraform/logging"
-	"github.com/hashicorp/terraform/version"
+	"github.com/fugue/regula/pkg/terraform/version"
 )
 
 const (

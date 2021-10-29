@@ -75,10 +75,25 @@ terraform_gen:
 	curl -Lo terraform.zip https://github.com/hashicorp/terraform/archive/refs/tags/v$(TERRAFORM_VERSION).zip
 	unzip -o terraform.zip
 	mkdir -p pkg/terraform
-	cp -r terraform-$(TERRAFORM_VERSION)/internal/* pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/addrs pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/configs pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/didyoumean pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/experiments pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/getproviders pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/httpclient pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/instances pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/lang pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/logging pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/modsdir pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/registry pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/tfdiags pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/internal/typeexpr pkg/terraform
+	cp -r terraform-$(TERRAFORM_VERSION)/version pkg/terraform
 	cp terraform-$(TERRAFORM_VERSION)/LICENSE pkg/terraform
 	find pkg/terraform/ -name '*.go' \
     	-exec sed -i".bak" 's#github\.com/hashicorp/terraform/internal/#github.com/fugue/regula/pkg/terraform/#' '{}' \;
+	find pkg/terraform/ -name '*.go' \
+    	-exec sed -i".bak" 's#github\.com/hashicorp/terraform/version#github.com/fugue/regula/pkg/terraform/version#' '{}' \;
 	find pkg/terraform/ -name '*.bak' -delete
 	rm -rf terraform.zip terraform-$(TERRAFORM_VERSION)
 

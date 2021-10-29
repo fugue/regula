@@ -184,10 +184,3 @@ func TestTfResourceLocation(t *testing.T) {
 		assert.Equal(t, i.expected, loc)
 	}
 }
-
-func TestTfFilePathJoin(t *testing.T) {
-	assert.Equal(t, loader.TfFilePathJoin(".", "examples/mssql/"), "examples/mssql/")
-	assert.Equal(t, loader.TfFilePathJoin("modules", "./examples/mssql/"), "modules/examples/mssql/")
-	assert.Equal(t, loader.TfFilePathJoin("examples/mssql/", "../../"), "examples/mssql/../../")
-	assert.Equal(t, loader.TfFilePathJoin("examples/mssql/", "./../../"), "examples/mssql/../../")
-}

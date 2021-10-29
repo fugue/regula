@@ -102,5 +102,5 @@ func (c *HclConfiguration) Location(path []string) (LocationStack, error) {
 }
 
 func (c *HclConfiguration) RegulaInput() RegulaInput {
-	return nil
+	return map[string]interface{}{}
 }

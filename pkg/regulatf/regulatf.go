@@ -81,7 +81,7 @@ func (v *AnalyzeVisitor) PrepareVariables(name FullName, expr hcl.Expression) Va
 			resourceName := FullName{name.Module, local[:2]}
 			resourceKey := resourceName.ToString()
 			if _, ok := v.Resources[resourceKey]; ok {
-				fmt.Fprintf(os.Stderr, "Found reference to resource %d\n", resourceName.ToString())
+				fmt.Fprintf(os.Stderr, "Found reference to resource %s\n", resourceName.ToString())
 				dependency = SingletonValTree(local, cty.StringVal(resourceKey))
 			}
 		}
@@ -144,7 +144,7 @@ func (v *AnalyzeVisitor) Sort() ([]string, error) {
 		expr := v.Expressions[key]
 		name, err := StringToFullName(key)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping sorted with bad key: %s\n", key, err)
+			fmt.Fprintf(os.Stderr, "Skipping sorted with bad key: %s: %s\n", key, err)
 			continue
 		}
 		moduleKey := ModuleNameToString(name.Module)

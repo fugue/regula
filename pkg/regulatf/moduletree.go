@@ -19,6 +19,7 @@ import (
 
 type ModuleMeta struct {
 	dir                  string
+	recurse              bool
 	filepaths            []string
 	missingRemoteModules []string
 	location             *hcl.Range
@@ -64,6 +65,7 @@ func ParseFiles(
 ) (*ModuleTree, error) {
 	meta := &ModuleMeta{
 		dir:       dir,
+		recurse:   recurse,
 		filepaths: filepaths,
 	}
 
@@ -152,6 +154,22 @@ func (mtree *ModuleTree) Warnings() []string {
 	}
 
 	return warnings
+}
+
+func (mtree *ModuleTree) LoadedFiles() []string {
+	filepaths := []string{filepath.Join(mtree.meta.dir, ".terraform")}
+	if mtree.meta.recurse {
+		filepaths = append(filepaths, mtree.meta.dir)
+	}
+	for _, fp := range mtree.meta.filepaths {
+		filepaths = append(filepaths, fp)
+	}
+	for _, child := range mtree.children {
+		if child != nil {
+			filepaths = append(filepaths, child.LoadedFiles()...)
+		}
+	}
+	return filepaths
 }
 
 // Takes a module source and returns true if the module is local.

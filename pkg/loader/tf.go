@@ -93,18 +93,8 @@ type HclConfiguration struct {
 	moduleTree *regulatf.ModuleTree
 }
 
-func parseFiles(
-	path []string,
-	dir string,
-	recurse bool,
-	filepaths []string,
-	parserFs afero.Fs,
-) (*HclConfiguration, error) {
-	return nil, nil
-}
-
 func (c *HclConfiguration) LoadedFiles() []string {
-	return nil
+	return c.moduleTree.LoadedFiles()
 }
 
 func (c *HclConfiguration) Location(path []string) (LocationStack, error) {

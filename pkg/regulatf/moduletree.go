@@ -127,36 +127,31 @@ func ParseFiles(
 }
 
 func (mtree *ModuleTree) Warnings() []string {
-    warnings := []string{}
+	warnings := []string{}
 
-    var missingRemoteModules func(*ModuleTree) []string
-    missingRemoteModules = func(m *ModuleTree) []string {
-        missing := m.meta.missingRemoteModules
-        for _, child := range m.children {
-            missing = append(missing, missingRemoteModules(child)...)
-        }
-        return missing
-    }
+	missingModules := mtree.meta.missingRemoteModules
+	if len(missingModules) > 0 {
+		missingModulesList := strings.Join(missingModules, ", ")
+		firstSentence := "Could not load some remote submodules"
+		if mtree.meta.dir != "." {
+			firstSentence += fmt.Sprintf(
+				" that are used by '%s'",
+				mtree.meta.dir,
+			)
+		}
 
-    missingModules := missingRemoteModules(mtree)
-    if len(missingModules) > 0 {
-    	missingModulesList := strings.Join(missingRemoteModules(mtree), ", ")
-    	firstSentence := "Could not load some remote submodules"
-    	if mtree.meta.dir != "." {
-    		firstSentence += fmt.Sprintf(
-    			" that are used by '%s'",
-    			mtree.meta.dir,
-    		)
-    	}
+		warnings = append(warnings, fmt.Sprintf(
+			"%s. Run 'terraform init' if you would like to include them in the evaluation: %s",
+			firstSentence,
+			missingModulesList,
+		))
+	}
 
-    	warnings = append(warnings, fmt.Sprintf(
-    		"%s. Run 'terraform init' if you would like to include them in the evaluation: %s",
-    		firstSentence,
-    		missingModulesList,
-    	))
-    }
+	for _, child := range mtree.children {
+		warnings = append(warnings, child.Warnings()...)
+	}
 
-    return warnings
+	return warnings
 }
 
 // Takes a module source and returns true if the module is local.

@@ -2,10 +2,10 @@
 package regulatf
 
 import (
+	"github.com/zclconf/go-cty/cty"
+
 	"github.com/fugue/regula/pkg/terraform/addrs"
 	"github.com/fugue/regula/pkg/terraform/tfdiags"
-
-	"github.com/zclconf/go-cty/cty"
 )
 
 type Data struct {
@@ -68,4 +68,3 @@ func (c *Data) GetTerraformAttr(addrs.TerraformAttr, tfdiags.SourceRange) (cty.V
 func (c *Data) GetInputVariable(v addrs.InputVariable, s tfdiags.SourceRange) (cty.Value, tfdiags.Diagnostics) {
 	return cty.UnknownVal(cty.DynamicPseudoType), tfdiags.Diagnostics{UnsupportedOperationDiag{}}
 }
-

@@ -15,23 +15,92 @@
 package loader
 
 import (
+	"fmt"
+	"path/filepath"
+
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
+
 	"github.com/fugue/regula/pkg/regulatf"
 )
 
 type TfDetector struct{}
 
-var data regulatf.Data
-
 func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfiguration, error) {
-	return nil, nil
+	if !opts.IgnoreExt && i.Ext() != ".tf" {
+		return nil, fmt.Errorf("Expected a .tf extension for %s", i.Path())
+	}
+	dir := filepath.Dir(i.Path())
 
+	var inputFs afero.Fs
+	var err error
+	if i.Path() == stdIn {
+		inputFs, err = makeStdInFs(i)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	moduleTree, err := regulatf.ParseFiles(nil, inputFs, false, dir, []string{i.Path()})
+	if err != nil {
+		return nil, err
+	}
+
+	return &HclConfiguration{moduleTree}, nil
+}
+
+func makeStdInFs(i InputFile) (afero.Fs, error) {
+	contents, err := i.Contents()
+	if err != nil {
+		return nil, err
+	}
+	inputFs := afero.NewMemMapFs()
+	afero.WriteFile(inputFs, i.Path(), contents, 0644)
+	return inputFs, nil
 }
 
 func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
-	return nil, nil
+	if opts.IgnoreDirs {
+		return nil, nil
+	}
+	// First check that a `.tf` file exists in the directory.
+	tfExists := false
+	for _, child := range i.Children() {
+		if c, ok := child.(InputFile); ok && c.Ext() == ".tf" {
+			tfExists = true
+		}
+	}
+	if !tfExists {
+		return nil, nil
+	}
+
+	moduleRegister := regulatf.NewTerraformRegister(i.Path())
+	moduleTree, err := regulatf.ParseDirectory(moduleRegister, nil, i.Path())
+	if err != nil {
+		return nil, err
+	}
+
+	if moduleTree != nil {
+		for _, warning := range moduleTree.Warnings() {
+			logrus.Warn(warning)
+		}
+	}
+
+	return &HclConfiguration{moduleTree}, nil
 }
 
 type HclConfiguration struct {
+	moduleTree *regulatf.ModuleTree
+}
+
+func parseFiles(
+	path []string,
+	dir string,
+	recurse bool,
+	filepaths []string,
+	parserFs afero.Fs,
+) (*HclConfiguration, error) {
+	return nil, nil
 }
 
 func (c *HclConfiguration) LoadedFiles() []string {

@@ -10,43 +10,161 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/fugue/regula/pkg/terraform/configs"
 )
 
+type ModuleMeta struct {
+	dir                  string
+	filepaths            []string
+	missingRemoteModules []string
+	location             *hcl.Range
+}
+
 // We load the entire tree of submodules in one pass.
 type ModuleTree struct {
+	meta     *ModuleMeta
 	config   *hclsyntax.Body // Call to the module, nil if root.
 	module   *configs.Module
 	children map[string]*ModuleTree
 }
 
-func ParseModuleTree(dir string) (*ModuleTree, error) {
-	parser := configs.NewParser(nil)
-	module, diags := parser.LoadConfigDir(dir)
+func ParseDirectory(
+	moduleRegister *TerraformModuleRegister,
+	parserFs afero.Fs,
+	dir string,
+) (*ModuleTree, error) {
+	parser := configs.NewParser(parserFs)
+	var diags hcl.Diagnostics
+
+	primary, _, diags := parser.ConfigDirFiles(dir)
 	if diags.HasErrors() {
 		return nil, diags
 	}
 
+	// ConfigDirFiles will return `main.tf` rather than `foo/bar/../../main.tf`.
+	// Rejoin the files using `TfFilePathJoin` to fix this.
+	filepaths := make([]string, len(primary))
+	for i, file := range primary {
+		filepaths[i] = TfFilePathJoin(dir, filepath.Base(file))
+	}
+
+	return ParseFiles(moduleRegister, parserFs, true, dir, filepaths)
+}
+
+func ParseFiles(
+	moduleRegister *TerraformModuleRegister,
+	parserFs afero.Fs,
+	recurse bool,
+	dir string,
+	filepaths []string,
+) (*ModuleTree, error) {
+	meta := &ModuleMeta{
+		dir:       dir,
+		filepaths: filepaths,
+	}
+
+	parser := configs.NewParser(parserFs)
+	var diags hcl.Diagnostics
+	parsedFiles := make([]*configs.File, 0)
+	overrideFiles := make([]*configs.File, 0)
+
+	for _, file := range filepaths {
+		f, fDiags := parser.LoadConfigFile(file)
+		diags = append(diags, fDiags...)
+		parsedFiles = append(parsedFiles, f)
+	}
+	module, lDiags := configs.NewModule(parsedFiles, overrideFiles)
+	diags = append(diags, lDiags...)
+	if diags.HasErrors() {
+		logrus.Warn(diags.Error())
+	}
+	if module == nil {
+		// Only actually throw an error if we don't have a module.  We can
+		// still try and validate what we can.
+		return nil, fmt.Errorf(diags.Error())
+	}
+
 	children := map[string]*ModuleTree{}
-	for key, moduleCall := range module.ModuleCalls {
-		if body, ok := moduleCall.Config.(*hclsyntax.Body); ok {
-			if attr, ok := body.Attributes["source"]; ok {
-				if val, err := attr.Expr.Value(nil); err == nil && val.Type() == cty.String {
-					source := val.AsString()
-					full := TfFilePathJoin(dir, source)
-					tree, err := ParseModuleTree(full)
-					if err == nil {
-						tree.config = body
-						children[key] = tree
+	if recurse {
+		for key, moduleCall := range module.ModuleCalls {
+			if body, ok := moduleCall.Config.(*hclsyntax.Body); ok {
+				if attr, ok := body.Attributes["source"]; ok {
+					if val, err := attr.Expr.Value(nil); err == nil && val.Type() == cty.String {
+						source := val.AsString()
+						childDir := TfFilePathJoin(dir, source)
+
+						if register := moduleRegister.GetDir(source); register != nil {
+							childDir = *register
+						} else if !moduleIsLocal(source) {
+							logrus.Debugf("Remote submodule missing from registry '%s'", source)
+							meta.missingRemoteModules = append(
+								meta.missingRemoteModules,
+								source,
+							)
+							continue
+						}
+						logrus.Debugf("Loading source from %s", childDir)
+
+						child, err := ParseDirectory(moduleRegister, parserFs, childDir)
+						if err == nil {
+							child.meta.location = &moduleCall.SourceAddrRange
+							child.config = body
+							children[key] = child
+						} else {
+							logrus.Warnf("Error loading submodule '%s': %s", key, err)
+						}
 					}
 				}
 			}
 		}
 	}
 
-	return &ModuleTree{nil, module, children}, nil
+	return &ModuleTree{meta, nil, module, children}, nil
+}
+
+func (mtree *ModuleTree) Warnings() []string {
+    warnings := []string{}
+
+    var missingRemoteModules func(*ModuleTree) []string
+    missingRemoteModules = func(m *ModuleTree) []string {
+        missing := m.meta.missingRemoteModules
+        for _, child := range m.children {
+            missing = append(missing, missingRemoteModules(child)...)
+        }
+        return missing
+    }
+
+    missingModules := missingRemoteModules(mtree)
+    if len(missingModules) > 0 {
+    	missingModulesList := strings.Join(missingRemoteModules(mtree), ", ")
+    	firstSentence := "Could not load some remote submodules"
+    	if mtree.meta.dir != "." {
+    		firstSentence += fmt.Sprintf(
+    			" that are used by '%s'",
+    			mtree.meta.dir,
+    		)
+    	}
+
+    	warnings = append(warnings, fmt.Sprintf(
+    		"%s. Run 'terraform init' if you would like to include them in the evaluation: %s",
+    		firstSentence,
+    		missingModulesList,
+    	))
+    }
+
+    return warnings
+}
+
+// Takes a module source and returns true if the module is local.
+func moduleIsLocal(source string) bool {
+	// Relevant bit from terraform docs:
+	//    A local path must begin with either ./ or ../ to indicate that a local path
+	//    is intended, to distinguish from a module registry address.
+	return strings.HasPrefix(source, "./") || strings.HasPrefix(source, "../")
 }
 
 type Visitor interface {

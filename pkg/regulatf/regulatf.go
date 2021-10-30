@@ -13,36 +13,130 @@ import (
 	"github.com/fugue/regula/pkg/topsort"
 )
 
-type AnalyzeVisitor struct {
-	Modules     map[string]ValTree
+type Analysis struct {
+	Modules     map[string]*ModuleMeta
 	Resources   map[string]*configs.Resource
 	Expressions map[string]hcl.Expression
 }
 
-func NewAnalyzeVisitor() *AnalyzeVisitor {
-	return &AnalyzeVisitor{
-		Modules:     map[string]ValTree{},
+func AnalyzeModuleTree(mtree *ModuleTree) *Analysis {
+	analysis := &Analysis{
+		Modules:     map[string]*ModuleMeta{},
 		Resources:   map[string]*configs.Resource{},
 		Expressions: map[string]hcl.Expression{},
 	}
+	mtree.Walk(analysis)
+	return analysis
 }
 
-func (v *AnalyzeVisitor) VisitModule(name ModuleName) {
-	v.Modules[ModuleNameToString(name)] = EmptyObjectValTree()
+func (v *Analysis) VisitModule(name ModuleName, meta *ModuleMeta) {
+	v.Modules[ModuleNameToString(name)] = meta
 }
 
-func (v *AnalyzeVisitor) VisitResource(name FullName, resource *configs.Resource) {
+func (v *Analysis) VisitResource(name FullName, resource *configs.Resource) {
 	v.Resources[name.ToString()] = resource
 }
 
-func (v *AnalyzeVisitor) VisitExpr(name FullName, expr hcl.Expression) {
+func (v *Analysis) VisitExpr(name FullName, expr hcl.Expression) {
 	v.Expressions[name.ToString()] = expr
 }
 
-func (v *AnalyzeVisitor) PrepareVariables(name FullName, expr hcl.Expression) ValTree {
+// Iterate all dependencies of a the given expression with the given name.
+func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []FullName {
+	deps := []FullName{}
+	for _, traversal := range expr.Variables() {
+		local, err := TraversalToLocalName(traversal)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Skipping dependency with bad key: %s\n", err)
+			continue
+		}
+		full := FullName{Module: name.Module, Local: local}
+		fmt.Fprintf(os.Stderr, "- %s\n", full.ToString())
+
+		// Rewrite module outputs.
+		moduleOutput := full.AsModuleOutput()
+		if moduleOutput != nil {
+			fmt.Fprintf(os.Stderr, "-> %s\n", moduleOutput.ToString())
+			deps = append(deps, *moduleOutput)
+			continue
+		}
+
+		// Rewrite variables. Add a dependency both on the actual variable
+		// as well as the default.  The order is important here: putting the
+		// default first allows it to be overridden later.
+		asDefault := full.AsDefault()
+		if asDefault != nil {
+			fmt.Fprintf(os.Stderr, "-> %s\n", asDefault.ToString())
+			deps = append(deps, *asDefault)
+			deps = append(deps, full)
+			continue
+		}
+
+		deps = append(deps, full)
+	}
+	return deps
+}
+
+// Iterate all expressions to be evaluated in the "correct" order.
+func (v *Analysis) order() ([]FullName, error) {
+	graph := map[string][]string{}
+	for key, expr := range v.Expressions {
+		name, err := StringToFullName(key)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Skipping expression with bad key %s: %s\n", key, err)
+			continue
+		}
+
+		graph[key] = []string{}
+		for _, dependencyName := range v.dependencies(*name, expr) {
+			graph[key] = append(graph[key], dependencyName.ToString())
+		}
+	}
+
+	sorted, err := topsort.Topsort(graph)
+	if err != nil {
+		return nil, err
+	}
+
+	sortedNames := []FullName{}
+	for _, key := range sorted {
+		name, err := StringToFullName(key)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Skipping sorted with bad key: %s: %s\n", key, err)
+			continue
+		}
+		sortedNames = append(sortedNames, *name)
+	}
+	return sortedNames, nil
+}
+
+type Evaluation struct {
+	Analysis *Analysis
+	Modules  map[string]ValTree
+}
+
+func EvaluateAnalysis(analysis *Analysis) (*Evaluation, error) {
+	eval := &Evaluation{
+		Analysis: analysis,
+		Modules:  map[string]ValTree{},
+	}
+
+	for moduleKey, _ := range analysis.Modules {
+		eval.Modules[moduleKey] = EmptyObjectValTree()
+	}
+
+	if err := eval.evaluate(); err != nil {
+		return nil, err
+	}
+
+	return eval, nil
+}
+
+func (v *Evaluation) prepareVariables(name FullName, expr hcl.Expression) ValTree {
 	moduleKey := ModuleNameToString(name.Module)
 	sparse := EmptyObjectValTree()
 	for _, traversal := range expr.Variables() {
+		// TODO: clean this up using .dependencies()
 		local, err := TraversalToLocalName(traversal)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Skipping dependency with bad key: %s\n", err)
@@ -80,7 +174,7 @@ func (v *AnalyzeVisitor) PrepareVariables(name FullName, expr hcl.Expression) Va
 		if dependency == nil && len(local) > 2 {
 			resourceName := FullName{name.Module, local[:2]}
 			resourceKey := resourceName.ToString()
-			if _, ok := v.Resources[resourceKey]; ok {
+			if _, ok := v.Analysis.Resources[resourceKey]; ok {
 				fmt.Fprintf(os.Stderr, "Found reference to resource %s\n", resourceName.ToString())
 				dependency = SingletonValTree(local, cty.StringVal(resourceKey))
 			}
@@ -93,63 +187,17 @@ func (v *AnalyzeVisitor) PrepareVariables(name FullName, expr hcl.Expression) Va
 	return sparse
 }
 
-func (v *AnalyzeVisitor) Sort() ([]string, error) {
-	graph := map[string][]string{}
-	for key, expr := range v.Expressions {
-		graph[key] = []string{}
-		name, err := StringToFullName(key)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping expression with bad key %s: %s\n", key, err)
-			continue
-		}
-
-		for _, traversal := range expr.Variables() {
-			local, err := TraversalToLocalName(traversal)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Skipping dependency with bad key: %s\n", err)
-				continue
-			}
-			full := FullName{Module: name.Module, Local: local}
-			fmt.Fprintf(os.Stderr, "- %s\n", full.ToString())
-
-			// Rewrite module outputs.
-			moduleOutput := full.AsModuleOutput()
-			if moduleOutput != nil {
-				fmt.Fprintf(os.Stderr, "-> %s\n", moduleOutput.ToString())
-				graph[key] = append(graph[key], moduleOutput.ToString())
-				continue
-			}
-
-			// Rewrite variables. Add a dependency both on the actual variable
-			// as well as the default.
-			asDefault := full.AsDefault()
-			if asDefault != nil {
-				fmt.Fprintf(os.Stderr, "-> %s\n", asDefault.ToString())
-				graph[key] = append(graph[key], full.ToString())
-				graph[key] = append(graph[key], asDefault.ToString())
-				continue
-			}
-
-			graph[key] = append(graph[key], full.ToString())
-		}
-	}
-
-	sorted, err := topsort.Topsort(graph)
+func (v *Evaluation) evaluate() error {
+	order, err := v.Analysis.order()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	for _, key := range sorted {
-		fmt.Fprintf(os.Stderr, "Sorted: %s\n", key)
-		expr := v.Expressions[key]
-		name, err := StringToFullName(key)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping sorted with bad key: %s: %s\n", key, err)
-			continue
-		}
+	for _, name := range order {
+		expr := v.Analysis.Expressions[name.ToString()]
 		moduleKey := ModuleNameToString(name.Module)
 
-		variables := v.PrepareVariables(*name, expr)
+		variables := v.prepareVariables(name, expr)
 		fmt.Fprintf(os.Stderr, "    Context: %s\n", PrettyValTree(variables))
 
 		data := Data{}
@@ -177,5 +225,13 @@ func (v *AnalyzeVisitor) Sort() ([]string, error) {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", moduleKey, PrettyValTree(tree))
 	}
 
-	return sorted, nil
+	return nil
+}
+
+func (v *Evaluation) RegulaInput() map[string]interface{} {
+	input := map[string]interface{}{}
+	for moduleKey, valTree := range v.Modules {
+		input[moduleKey] = ValueToInterface(ValTreeToValue(valTree))
+	}
+	return input
 }

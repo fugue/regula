@@ -181,7 +181,7 @@ func moduleIsLocal(source string) bool {
 }
 
 type Visitor interface {
-	VisitModule(name ModuleName)
+	VisitModule(name ModuleName, meta *ModuleMeta)
 	VisitResource(name FullName, resource *configs.Resource)
 	VisitExpr(name FullName, expr hcl.Expression)
 }
@@ -191,7 +191,7 @@ func (mtree *ModuleTree) Walk(v Visitor) {
 }
 
 func walkModuleTree(v Visitor, moduleName ModuleName, mtree *ModuleTree) {
-	v.VisitModule(moduleName)
+	v.VisitModule(moduleName, mtree.meta)
 	walkModule(v, moduleName, mtree.module)
 	for key, child := range mtree.children {
 		childModuleName := make([]string, len(moduleName)+1)

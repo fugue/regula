@@ -46,7 +46,7 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 		return nil, err
 	}
 
-	return &HclConfiguration{moduleTree}, nil
+	return newHclConfiguration(moduleTree)
 }
 
 func makeStdInFs(i InputFile) (afero.Fs, error) {
@@ -86,11 +86,25 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 		}
 	}
 
-	return &HclConfiguration{moduleTree}, nil
+	return newHclConfiguration(moduleTree)
 }
 
 type HclConfiguration struct {
 	moduleTree *regulatf.ModuleTree
+	evaluation *regulatf.Evaluation
+}
+
+func newHclConfiguration(moduleTree *regulatf.ModuleTree) (*HclConfiguration, error) {
+	analysis := regulatf.AnalyzeModuleTree(moduleTree)
+	evaluation, err := regulatf.EvaluateAnalysis(analysis)
+	if err != nil {
+		return nil, err
+	}
+
+	return &HclConfiguration{
+		moduleTree: moduleTree,
+		evaluation: evaluation,
+	}, nil
 }
 
 func (c *HclConfiguration) LoadedFiles() []string {
@@ -102,5 +116,5 @@ func (c *HclConfiguration) Location(path []string) (LocationStack, error) {
 }
 
 func (c *HclConfiguration) RegulaInput() RegulaInput {
-	return map[string]interface{}{}
+	return c.evaluation.RegulaInput()
 }

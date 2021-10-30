@@ -207,7 +207,7 @@ func walkModuleTree(v Visitor, moduleName ModuleName, mtree *ModuleTree) {
 		childModuleName[len(moduleName)] = key
 
 		// TODO: This is not good.  We end up walking child2 as it were child2.
-		configName := FullName{childModuleName, LocalName{"var"}}
+		configName := FullName{moduleName, LocalName{"input", key}}
 		walkBody(v, configName, child.config)
 
 		walkModuleTree(v, childModuleName, child)

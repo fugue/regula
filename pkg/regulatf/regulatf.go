@@ -50,6 +50,7 @@ type dependency struct {
 // Iterate all dependencies of a the given expression with the given name.
 func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency {
 	deps := []dependency{}
+	fmt.Fprintf(os.Stderr, "# %s\n", name.ToString())
 	for _, traversal := range expr.Variables() {
 		local, err := TraversalToLocalName(traversal)
 		if err != nil {
@@ -68,9 +69,24 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 			fmt.Fprintf(os.Stderr, "-> %s\n", moduleOutput.ToString())
 			deps = append(deps, dependency{full, moduleOutput, nil})
 		} else if asDefault := full.AsDefault(); asDefault != nil {
+			var dep *dependency
+			asModuleInput := full.AsModuleInput()
+			if asModuleInput != nil {
+				if _, ok := v.Expressions[asModuleInput.ToString()]; ok {
+					fmt.Fprintf(os.Stderr, "-> %s\n", asModuleInput.ToString())
+					dep = &dependency{full, asModuleInput, nil}
+				} else {
+					fmt.Fprintf(os.Stderr, "-> no expression %s\n", asModuleInput.ToString())
+				}
+			} else {
+				fmt.Fprintf(os.Stderr, "-> no module input %s\n", full.ToString())
+			}
+			if dep == nil {
+				fmt.Fprintf(os.Stderr, "-> %s\n", asDefault.ToString())
+				dep = &dependency{full, asDefault, nil}
+			}
 			// Rewrite variables.
-			fmt.Fprintf(os.Stderr, "-> %s\n", asDefault.ToString())
-			deps = append(deps, dependency{full, asDefault, nil})
+			deps = append(deps, *dep)
 		} else if len(local) > 2 {
 			resourceName := FullName{name.Module, local[:2]}
 			resourceKey := resourceName.ToString()

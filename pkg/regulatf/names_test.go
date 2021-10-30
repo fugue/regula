@@ -34,3 +34,13 @@ func TestStringToFullName(t *testing.T) {
 		assert.Equal(t, test.expected, name)
 	}
 }
+
+func TestAsModuleInput(t *testing.T) {
+	assert.Equal(t,
+		&FullName{ModuleName{}, LocalName{"input", "child1", "myvar"}},
+		FullName{ModuleName{"child1"}, LocalName{"var", "myvar"}}.AsModuleInput(),
+	)
+	assert.Nil(t,
+		FullName{EmptyModuleName, LocalName{"var", "myvar"}}.AsModuleInput(),
+	)
+}

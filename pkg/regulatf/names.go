@@ -134,6 +134,20 @@ func (name FullName) AsModuleOutput() *FullName {
 	return nil
 }
 
+// Parses "module.child.var.foo" into "input.child.foo"
+func (name FullName) AsModuleInput() *FullName {
+	if len(name.Module) > 0 && len(name.Local) >= 2 {
+		if str, ok := name.Local[0].(string); ok && str == "var" {
+			parentModuleName := make(ModuleName, len(name.Module)-1)
+			copy(parentModuleName, name.Module)
+			local := LocalName{"input", name.Module[len(name.Module)-1]}
+			local = append(local, name.Local[1:]...)
+			return &FullName{parentModuleName, local}
+		}
+	}
+	return nil
+}
+
 // Parses "var.my_var" into "variable.my_var"
 func (name FullName) AsDefault() *FullName {
 	if len(name.Local) >= 2 {

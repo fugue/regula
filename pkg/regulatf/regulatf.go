@@ -201,10 +201,26 @@ func (v *Evaluation) evaluate() error {
 	return nil
 }
 
-func (v *Evaluation) RegulaInput() map[string]interface{} {
+func (v *Evaluation) Resources() map[string]interface{} {
 	input := map[string]interface{}{}
-	for moduleKey, valTree := range v.Modules {
-		input[moduleKey] = ValueToInterface(ValTreeToValue(valTree))
+
+	for resourceKey, resource := range v.Analysis.Resources {
+		resourceName, err := StringToFullName(resourceKey)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Skipping resource with bad key %s: %s\n", resourceKey, err)
+		}
+		module := ModuleNameToString(resourceName.Module)
+
+		tree := SingletonValTree(LocalName{"id"}, cty.StringVal(resourceKey))
+		tree = MergeValTree(tree, SingletonValTree(LocalName{"_type"}, cty.StringVal(resource.Type)))
+		tree = MergeValTree(tree, SingletonValTree(LocalName{"_provider"}, cty.StringVal(resource.Provider.Type)))
+		tree = MergeValTree(tree, SingletonValTree(LocalName{"_filepath"}, cty.StringVal(resource.DeclRange.Filename)))
+
+		attributes := LookupValTree(v.Modules[module], resourceName.Local)
+		tree = MergeValTree(tree, attributes)
+
+		input[resourceKey] = ValueToInterface(ValTreeToValue(tree))
 	}
+
 	return input
 }

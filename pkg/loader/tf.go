@@ -116,5 +116,11 @@ func (c *HclConfiguration) Location(path []string) (LocationStack, error) {
 }
 
 func (c *HclConfiguration) RegulaInput() RegulaInput {
-	return c.evaluation.RegulaInput()
+	return map[string]interface{}{
+		"filepath": c.moduleTree.FilePath(),
+		"content": map[string]interface{}{
+			"hcl_resource_view_version": "0.0.1",
+			"resources":                 c.evaluation.Resources(),
+		},
+	}
 }

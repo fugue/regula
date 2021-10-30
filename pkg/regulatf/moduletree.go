@@ -156,6 +156,14 @@ func (mtree *ModuleTree) Warnings() []string {
 	return warnings
 }
 
+func (mtree *ModuleTree) FilePath() string {
+	if mtree.meta.recurse {
+		return mtree.meta.dir
+	} else {
+		return mtree.meta.filepaths[0]
+	}
+}
+
 func (mtree *ModuleTree) LoadedFiles() []string {
 	filepaths := []string{filepath.Join(mtree.meta.dir, ".terraform")}
 	if mtree.meta.recurse {

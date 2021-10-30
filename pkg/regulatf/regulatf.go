@@ -41,9 +41,15 @@ func (v *Analysis) VisitExpr(name FullName, expr hcl.Expression) {
 	v.Expressions[name.ToString()] = expr
 }
 
+type dependency struct {
+	destination FullName
+	source      *FullName
+	value       *cty.Value
+}
+
 // Iterate all dependencies of a the given expression with the given name.
-func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []FullName {
-	deps := []FullName{}
+func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency {
+	deps := []dependency{}
 	for _, traversal := range expr.Variables() {
 		local, err := TraversalToLocalName(traversal)
 		if err != nil {
@@ -52,27 +58,27 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []FullName {
 		}
 		full := FullName{Module: name.Module, Local: local}
 		fmt.Fprintf(os.Stderr, "- %s\n", full.ToString())
+		_, exists := v.Expressions[full.ToString()]
 
-		// Rewrite module outputs.
-		moduleOutput := full.AsModuleOutput()
-		if moduleOutput != nil {
+		if exists {
+			deps = append(deps, dependency{full, &full, nil})
+		} else if moduleOutput := full.AsModuleOutput(); moduleOutput != nil {
+			// Rewrite module outputs.
 			fmt.Fprintf(os.Stderr, "-> %s\n", moduleOutput.ToString())
-			deps = append(deps, *moduleOutput)
-			continue
-		}
-
-		// Rewrite variables. Add a dependency both on the actual variable
-		// as well as the default.  The order is important here: putting the
-		// default first allows it to be overridden later.
-		asDefault := full.AsDefault()
-		if asDefault != nil {
+			deps = append(deps, dependency{full, moduleOutput, nil})
+		} else if asDefault := full.AsDefault(); asDefault != nil {
+			// Rewrite variables.
 			fmt.Fprintf(os.Stderr, "-> %s\n", asDefault.ToString())
-			deps = append(deps, *asDefault)
-			deps = append(deps, full)
-			continue
+			deps = append(deps, dependency{full, asDefault, nil})
+		} else if len(local) > 2 {
+			resourceName := FullName{name.Module, local[:2]}
+			resourceKey := resourceName.ToString()
+			if _, ok := v.Resources[resourceKey]; ok {
+				fmt.Fprintf(os.Stderr, "Found reference to resource %s\n", resourceName.ToString())
+				val := cty.StringVal(resourceKey)
+				deps = append(deps, dependency{full, nil, &val})
+			}
 		}
-
-		deps = append(deps, full)
 	}
 	return deps
 }
@@ -88,8 +94,10 @@ func (v *Analysis) order() ([]FullName, error) {
 		}
 
 		graph[key] = []string{}
-		for _, dependencyName := range v.dependencies(*name, expr) {
-			graph[key] = append(graph[key], dependencyName.ToString())
+		for _, dep := range v.dependencies(*name, expr) {
+			if dep.source != nil {
+				graph[key] = append(graph[key], dep.source.ToString())
+			}
 		}
 	}
 
@@ -133,53 +141,18 @@ func EvaluateAnalysis(analysis *Analysis) (*Evaluation, error) {
 }
 
 func (v *Evaluation) prepareVariables(name FullName, expr hcl.Expression) ValTree {
-	moduleKey := ModuleNameToString(name.Module)
 	sparse := EmptyObjectValTree()
-	for _, traversal := range expr.Variables() {
-		// TODO: clean this up using .dependencies()
-		local, err := TraversalToLocalName(traversal)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping dependency with bad key: %s\n", err)
-			continue
-		}
-
-		dependencyName := FullName{name.Module, local}
+	for _, dep := range v.Analysis.dependencies(name, expr) {
 		var dependency ValTree
-
-		// Grab outputs from other modules.
-		asModuleOutput := dependencyName.AsModuleOutput()
-		if dependency == nil && asModuleOutput != nil {
-			module := ModuleNameToString(asModuleOutput.Module)
-			val := LookupValTree(v.Modules[module], asModuleOutput.Local)
-			dependency = SingletonValTree(local, ValTreeToValue(val))
+		if dep.source != nil {
+			sourceModule := ModuleNameToString(dep.source.Module)
+			dependency = BuildValTree(
+				dep.destination.Local,
+				LookupValTree(v.Modules[sourceModule], dep.source.Local),
+			)
+		} else if dep.value != nil {
+			dependency = SingletonValTree(dep.destination.Local, *dep.value)
 		}
-
-		// Normal execution
-		if dependency == nil {
-			dependency = SparseValTree(v.Modules[moduleKey], local)
-		}
-
-		// Rename variables to the name of their default.
-		asDefault := dependencyName.AsDefault()
-		if dependency == nil && asDefault != nil {
-			val := LookupValTree(v.Modules[moduleKey], asDefault.Local)
-			dependency = BuildValTree(dependencyName.Local, val)
-		}
-
-		// The attribute does not exist.  Most likely it is a reference to
-		// a runtime attribute, like `arn`.  Replace it with a reference
-		// to the resource.
-		//
-		// TODO: Better check to see if this belongs to a resource.
-		if dependency == nil && len(local) > 2 {
-			resourceName := FullName{name.Module, local[:2]}
-			resourceKey := resourceName.ToString()
-			if _, ok := v.Analysis.Resources[resourceKey]; ok {
-				fmt.Fprintf(os.Stderr, "Found reference to resource %s\n", resourceName.ToString())
-				dependency = SingletonValTree(local, cty.StringVal(resourceKey))
-			}
-		}
-
 		if dependency != nil {
 			sparse = MergeValTree(sparse, dependency)
 		}

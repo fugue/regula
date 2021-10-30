@@ -17,7 +17,12 @@ var EmptyModuleName = []string{}
 func ModuleNameToString(moduleName ModuleName) string {
 	str := ""
 	for _, p := range moduleName {
-		str += "module." + p
+		if str == "" {
+			str += "module."
+		} else {
+			str += ".module."
+		}
+		str += p
 	}
 	return str
 }
@@ -34,7 +39,7 @@ func EmptyFullName(module ModuleName) FullName {
 	return FullName{module, nil}
 }
 
-func takeModulePrefix (parts []Fragment) (*string, []Fragment) {
+func takeModulePrefix(parts []Fragment) (*string, []Fragment) {
 	if len(parts) >= 2 {
 		if p1, ok := parts[0].(string); ok && p1 == "module" {
 			if p2, ok := parts[1].(string); ok {
@@ -116,30 +121,30 @@ func (name FullName) AddIndex(i int) FullName {
 // Parses the use of an output (e.g. "module.child.x") to the fully expanded
 // output name (e.g. module.child.output.x")
 func (name FullName) AsModuleOutput() *FullName {
-    moduleName, tail := takeModulePrefix(name.Local)
-    if moduleName != nil && len(tail) == 1 {
-        if str, ok := tail[0].(string); ok {
-            expandedModule := make([]string, len(name.Module)+1)
-            copy(expandedModule, name.Module)
-            expandedModule[len(name.Module)] = *moduleName
-            local := []Fragment{"output", str}
-            return &FullName{expandedModule, local}
-        }
-    }
-    return nil
+	moduleName, tail := takeModulePrefix(name.Local)
+	if moduleName != nil && len(tail) == 1 {
+		if str, ok := tail[0].(string); ok {
+			expandedModule := make([]string, len(name.Module)+1)
+			copy(expandedModule, name.Module)
+			expandedModule[len(name.Module)] = *moduleName
+			local := []Fragment{"output", str}
+			return &FullName{expandedModule, local}
+		}
+	}
+	return nil
 }
 
 // Parses "var.my_var" into "variable.my_var"
 func (name FullName) AsDefault() *FullName {
-    if len(name.Local) >= 2 {
-        if str, ok := name.Local[0].(string); ok && str == "var" {
-            local := make(LocalName, len(name.Local))
-            copy(local, name.Local)
-            local[0] = "variable"
-            return &FullName{name.Module, local}
-        }
-    }
-    return nil
+	if len(name.Local) >= 2 {
+		if str, ok := name.Local[0].(string); ok && str == "var" {
+			local := make(LocalName, len(name.Local))
+			copy(local, name.Local)
+			local[0] = "variable"
+			return &FullName{name.Module, local}
+		}
+	}
+	return nil
 }
 
 // TODO: Refactor to TraversalToName?

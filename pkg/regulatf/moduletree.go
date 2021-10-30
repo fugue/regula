@@ -206,6 +206,7 @@ func walkModuleTree(v Visitor, moduleName ModuleName, mtree *ModuleTree) {
 		copy(childModuleName, moduleName)
 		childModuleName[len(moduleName)] = key
 
+		// TODO: This is not good.  We end up walking child2 as it were child2.
 		configName := FullName{childModuleName, LocalName{"var"}}
 		walkBody(v, configName, child.config)
 

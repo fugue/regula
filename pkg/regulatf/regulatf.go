@@ -62,6 +62,7 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 
 		if exists {
 			deps = append(deps, dependency{full, &full, nil})
+			fmt.Fprintf(os.Stderr, "-> %s\n", full.ToString())
 		} else if moduleOutput := full.AsModuleOutput(); moduleOutput != nil {
 			// Rewrite module outputs.
 			fmt.Fprintf(os.Stderr, "-> %s\n", moduleOutput.ToString())

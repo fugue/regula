@@ -53,32 +53,34 @@ func TestTf(t *testing.T) {
 	for _, entry := range c {
 		if entry.IsDir() {
 			path := filepath.Join(testDir, entry.Name())
-			outputPath := filepath.Join(testDir, entry.Name()+".json")
-			hcl, err := DefaultParseTfDirectory(path)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			actualBytes, err := json.MarshalIndent(hcl.RegulaInput(), "", "  ")
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			expectedBytes := []byte{}
-			if _, err := os.Stat(outputPath); err == nil {
-				expectedBytes, _ = ioutil.ReadFile(outputPath)
+			t.Run(path, func(t *testing.T) {
+				outputPath := filepath.Join(testDir, entry.Name()+".json")
+				hcl, err := DefaultParseTfDirectory(path)
 				if err != nil {
 					t.Fatal(err)
 				}
-			}
 
-			actual := string(actualBytes)
-			expected := string(expectedBytes)
-			assert.Equal(t, expected, actual)
+				actualBytes, err := json.MarshalIndent(hcl.RegulaInput(), "", "  ")
+				if err != nil {
+					t.Fatal(err)
+				}
 
-			if fixTests {
-				ioutil.WriteFile(outputPath, actualBytes, 0644)
-			}
+				expectedBytes := []byte{}
+				if _, err := os.Stat(outputPath); err == nil {
+					expectedBytes, _ = ioutil.ReadFile(outputPath)
+					if err != nil {
+						t.Fatal(err)
+					}
+				}
+
+				actual := string(actualBytes)
+				expected := string(expectedBytes)
+				assert.Equal(t, expected, actual)
+
+				if fixTests {
+					ioutil.WriteFile(outputPath, actualBytes, 0644)
+				}
+			})
 		}
 	}
 }

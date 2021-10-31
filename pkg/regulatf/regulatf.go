@@ -50,7 +50,6 @@ type dependency struct {
 // Iterate all dependencies of a the given expression with the given name.
 func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency {
 	deps := []dependency{}
-	fmt.Fprintf(os.Stderr, "# %s\n", name.ToString())
 	for _, traversal := range expr.Variables() {
 		local, err := TraversalToLocalName(traversal)
 		if err != nil {
@@ -58,40 +57,31 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 			continue
 		}
 		full := FullName{Module: name.Module, Local: local}
-		fmt.Fprintf(os.Stderr, "- %s\n", full.ToString())
 		_, exists := v.Expressions[full.ToString()]
 
 		if exists {
 			deps = append(deps, dependency{full, &full, nil})
-			fmt.Fprintf(os.Stderr, "-> %s\n", full.ToString())
 		} else if moduleOutput := full.AsModuleOutput(); moduleOutput != nil {
 			// Rewrite module outputs.
-			fmt.Fprintf(os.Stderr, "-> %s\n", moduleOutput.ToString())
 			deps = append(deps, dependency{full, moduleOutput, nil})
 		} else if asDefault := full.AsDefault(); asDefault != nil {
+			// Rewrite variables either as default, or as module input.
 			var dep *dependency
 			asModuleInput := full.AsModuleInput()
 			if asModuleInput != nil {
 				if _, ok := v.Expressions[asModuleInput.ToString()]; ok {
-					fmt.Fprintf(os.Stderr, "-> %s\n", asModuleInput.ToString())
 					dep = &dependency{full, asModuleInput, nil}
-				} else {
-					fmt.Fprintf(os.Stderr, "-> no expression %s\n", asModuleInput.ToString())
 				}
-			} else {
-				fmt.Fprintf(os.Stderr, "-> no module input %s\n", full.ToString())
 			}
 			if dep == nil {
-				fmt.Fprintf(os.Stderr, "-> %s\n", asDefault.ToString())
 				dep = &dependency{full, asDefault, nil}
 			}
-			// Rewrite variables.
 			deps = append(deps, *dep)
 		} else if len(local) > 2 {
+			// Rewrite resource references.
 			resourceName := FullName{name.Module, local[:2]}
 			resourceKey := resourceName.ToString()
 			if _, ok := v.Resources[resourceKey]; ok {
-				fmt.Fprintf(os.Stderr, "Found reference to resource %s\n", resourceName.ToString())
 				val := cty.StringVal(resourceKey)
 				deps = append(deps, dependency{full, nil, &val})
 			}
@@ -186,9 +176,10 @@ func (v *Evaluation) evaluate() error {
 	for _, name := range order {
 		expr := v.Analysis.Expressions[name.ToString()]
 		moduleKey := ModuleNameToString(name.Module)
+		moduleMeta := v.Analysis.Modules[moduleKey]
 
-		variables := v.prepareVariables(name, expr)
-		fmt.Fprintf(os.Stderr, "    Context: %s\n", PrettyValTree(variables))
+		vars := v.prepareVariables(name, expr)
+		vars = MergeValTree(vars, SingletonValTree(LocalName{"path", "module"}, cty.StringVal(moduleMeta.dir)))
 
 		data := Data{}
 		scope := lang.Scope{
@@ -198,21 +189,17 @@ func (v *Evaluation) evaluate() error {
 		}
 		ctx := hcl.EvalContext{
 			Functions: scope.Functions(),
-			Variables: ValTreeToVariables(variables),
+			Variables: ValTreeToVariables(vars),
 		}
 
 		val, diags := expr.Value(&ctx)
 		if diags.HasErrors() {
 			fmt.Fprintf(os.Stderr, "    Value() error: %s\n", diags)
-			continue
+			val = cty.NilVal
 		}
 
 		singleton := SingletonValTree(name.Local, val)
 		v.Modules[moduleKey] = MergeValTree(v.Modules[moduleKey], singleton)
-	}
-
-	for moduleKey, tree := range v.Modules {
-		fmt.Fprintf(os.Stderr, "%s: %s\n", moduleKey, PrettyValTree(tree))
 	}
 
 	return nil

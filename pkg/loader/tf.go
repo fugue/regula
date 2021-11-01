@@ -112,7 +112,20 @@ func (c *HclConfiguration) LoadedFiles() []string {
 }
 
 func (c *HclConfiguration) Location(path []string) (LocationStack, error) {
-	return nil, nil
+	if len(path) < 1 {
+		return nil, nil
+	}
+
+	ranges := c.evaluation.Location(path[0])
+	locs := LocationStack{}
+	for _, r := range ranges {
+		locs = append(locs, Location{
+			Path: r.Filename,
+			Line: r.Start.Line,
+			Col: r.Start.Column,
+		})
+	}
+	return locs, nil
 }
 
 func (c *HclConfiguration) RegulaInput() RegulaInput {

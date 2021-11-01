@@ -228,3 +228,20 @@ func (v *Evaluation) Resources() map[string]interface{} {
 
 	return input
 }
+
+func (v *Evaluation) Location(resourceKey string) []hcl.Range {
+	resource, ok := v.Analysis.Resources[resourceKey]
+	name, _ := StringToFullName(resourceKey)
+	if !ok || name == nil {
+		return nil
+	}
+
+	ranges := []hcl.Range{resource.DeclRange}
+	for i := len(name.Module); i >= 1; i-- {
+		moduleKey := ModuleNameToString(name.Module[:i])
+		if module, ok := v.Analysis.Modules[moduleKey]; ok && module.location != nil {
+			ranges = append(ranges, *module.location)
+		}
+	}
+	return ranges
+}

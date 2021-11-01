@@ -122,7 +122,7 @@ func (c *HclConfiguration) Location(path []string) (LocationStack, error) {
 		locs = append(locs, Location{
 			Path: r.Filename,
 			Line: r.Start.Line,
-			Col: r.Start.Column,
+			Col:  r.Start.Column,
 		})
 	}
 	return locs, nil

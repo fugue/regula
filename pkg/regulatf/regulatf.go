@@ -223,6 +223,15 @@ func (v *Evaluation) Resources() map[string]interface{} {
 		attributes := LookupValTree(v.Modules[module], resourceName.Local)
 		tree = MergeValTree(tree, attributes)
 
+		if countTree := LookupValTree(tree, LocalName{"count"}); countTree != nil {
+			if countVal, ok := countTree.(cty.Value); ok {
+				count := ValueToInt(countVal)
+				if count != nil && *count < 1 {
+					continue
+				}
+			}
+		}
+
 		input[resourceKey] = ValueToInterface(ValTreeToValue(tree))
 	}
 

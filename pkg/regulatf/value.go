@@ -6,6 +6,18 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
+func ValueToInt(val cty.Value) *int {
+	if val.Type() == cty.Number {
+		b := val.AsBigFloat()
+		if b.IsInt() {
+			i64, _ := b.Int64()
+			i := int(i64)
+			return &i
+		}
+	}
+	return nil
+}
+
 func ValueToInterface(val cty.Value) interface{} {
 	if !val.IsKnown() || val.IsNull() {
 		return nil

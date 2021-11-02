@@ -245,6 +245,11 @@ func walkModule(v Visitor, moduleName ModuleName, module *configs.Module) {
 func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource) {
 	name := EmptyFullName(moduleName).AddKey(resource.Type).AddKey(resource.Name)
 	v.VisitResource(name, resource)
+
+	if resource.Count != nil {
+		v.VisitExpr(name.AddKey("count"), resource.Count)
+	}
+
 	body, ok := resource.Config.(*hclsyntax.Body)
 	if !ok {
 		fmt.Fprintf(os.Stderr, "Missing body\n")

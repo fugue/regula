@@ -5,7 +5,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/zclconf/go-cty/cty"
 
-	"github.com/fugue/regula/pkg/terraform/configs"
 	"github.com/fugue/regula/pkg/terraform/lang"
 
 	"github.com/fugue/regula/pkg/topsort"
@@ -13,14 +12,14 @@ import (
 
 type Analysis struct {
 	Modules     map[string]*ModuleMeta
-	Resources   map[string]*configs.Resource
+	Resources   map[string]*ResourceMeta
 	Expressions map[string]hcl.Expression
 }
 
 func AnalyzeModuleTree(mtree *ModuleTree) *Analysis {
 	analysis := &Analysis{
 		Modules:     map[string]*ModuleMeta{},
-		Resources:   map[string]*configs.Resource{},
+		Resources:   map[string]*ResourceMeta{},
 		Expressions: map[string]hcl.Expression{},
 	}
 	mtree.Walk(analysis)
@@ -31,7 +30,7 @@ func (v *Analysis) VisitModule(name ModuleName, meta *ModuleMeta) {
 	v.Modules[ModuleNameToString(name)] = meta
 }
 
-func (v *Analysis) VisitResource(name FullName, resource *configs.Resource) {
+func (v *Analysis) VisitResource(name FullName, resource *ResourceMeta) {
 	v.Resources[name.ToString()] = resource
 }
 
@@ -190,7 +189,7 @@ func (v *Evaluation) evaluate() error {
 		moduleMeta := v.Analysis.Modules[moduleKey]
 
 		vars := v.prepareVariables(name, expr)
-		vars = MergeValTree(vars, SingletonValTree(LocalName{"path", "module"}, cty.StringVal(moduleMeta.dir)))
+		vars = MergeValTree(vars, SingletonValTree(LocalName{"path", "module"}, cty.StringVal(moduleMeta.Dir)))
 
 		data := Data{}
 		scope := lang.Scope{
@@ -220,6 +219,10 @@ func (v *Evaluation) Resources() map[string]interface{} {
 	input := map[string]interface{}{}
 
 	for resourceKey, resource := range v.Analysis.Resources {
+		if resource.Data {
+			continue // Skip data resource in output.
+		}
+
 		resourceName, err := StringToFullName(resourceKey)
 		if err != nil {
 			logrus.Warningf("Skipping resource with bad key %s: %s", resourceKey, err)
@@ -229,8 +232,8 @@ func (v *Evaluation) Resources() map[string]interface{} {
 
 		tree := SingletonValTree(LocalName{"id"}, cty.StringVal(resourceKey))
 		tree = MergeValTree(tree, SingletonValTree(LocalName{"_type"}, cty.StringVal(resource.Type)))
-		tree = MergeValTree(tree, SingletonValTree(LocalName{"_provider"}, cty.StringVal(resource.Provider.Type)))
-		tree = MergeValTree(tree, SingletonValTree(LocalName{"_filepath"}, cty.StringVal(resource.DeclRange.Filename)))
+		tree = MergeValTree(tree, SingletonValTree(LocalName{"_provider"}, cty.StringVal(resource.Provider)))
+		tree = MergeValTree(tree, SingletonValTree(LocalName{"_filepath"}, cty.StringVal(resource.Location.Filename)))
 
 		attributes := LookupValTree(v.Modules[module], resourceName.Local)
 		tree = MergeValTree(tree, attributes)
@@ -257,11 +260,11 @@ func (v *Evaluation) Location(resourceKey string) []hcl.Range {
 		return nil
 	}
 
-	ranges := []hcl.Range{resource.DeclRange}
+	ranges := []hcl.Range{resource.Location}
 	for i := len(name.Module); i >= 1; i-- {
 		moduleKey := ModuleNameToString(name.Module[:i])
-		if module, ok := v.Analysis.Modules[moduleKey]; ok && module.location != nil {
-			ranges = append(ranges, *module.location)
+		if module, ok := v.Analysis.Modules[moduleKey]; ok && module.Location != nil {
+			ranges = append(ranges, *module.Location)
 		}
 	}
 	return ranges

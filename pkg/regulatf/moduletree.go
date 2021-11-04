@@ -17,11 +17,18 @@ import (
 )
 
 type ModuleMeta struct {
-	dir                  string
-	recurse              bool
-	filepaths            []string
-	missingRemoteModules []string
-	location             *hcl.Range
+	Dir                  string
+	Recurse              bool
+	Filepaths            []string
+	MissingRemoteModules []string
+	Location             *hcl.Range
+}
+
+type ResourceMeta struct {
+	Data     bool
+	Type     string
+	Provider string
+	Location hcl.Range
 }
 
 // We load the entire tree of submodules in one pass.
@@ -63,9 +70,9 @@ func ParseFiles(
 	filepaths []string,
 ) (*ModuleTree, error) {
 	meta := &ModuleMeta{
-		dir:       dir,
-		recurse:   recurse,
-		filepaths: filepaths,
+		Dir:       dir,
+		Recurse:   recurse,
+		Filepaths: filepaths,
 	}
 
 	parser := configs.NewParser(parserFs)
@@ -102,8 +109,8 @@ func ParseFiles(
 							childDir = *register
 						} else if !moduleIsLocal(source) {
 							logrus.Debugf("Remote submodule missing from registry '%s'", source)
-							meta.missingRemoteModules = append(
-								meta.missingRemoteModules,
+							meta.MissingRemoteModules = append(
+								meta.MissingRemoteModules,
 								source,
 							)
 							continue
@@ -112,7 +119,7 @@ func ParseFiles(
 
 						child, err := ParseDirectory(moduleRegister, parserFs, childDir)
 						if err == nil {
-							child.meta.location = &moduleCall.SourceAddrRange
+							child.meta.Location = &moduleCall.SourceAddrRange
 							child.config = body
 							children[key] = child
 						} else {
@@ -130,14 +137,14 @@ func ParseFiles(
 func (mtree *ModuleTree) Warnings() []string {
 	warnings := []string{}
 
-	missingModules := mtree.meta.missingRemoteModules
+	missingModules := mtree.meta.MissingRemoteModules
 	if len(missingModules) > 0 {
 		missingModulesList := strings.Join(missingModules, ", ")
 		firstSentence := "Could not load some remote submodules"
-		if mtree.meta.dir != "." {
+		if mtree.meta.Dir != "." {
 			firstSentence += fmt.Sprintf(
 				" that are used by '%s'",
-				mtree.meta.dir,
+				mtree.meta.Dir,
 			)
 		}
 
@@ -156,19 +163,19 @@ func (mtree *ModuleTree) Warnings() []string {
 }
 
 func (mtree *ModuleTree) FilePath() string {
-	if mtree.meta.recurse {
-		return mtree.meta.dir
+	if mtree.meta.Recurse {
+		return mtree.meta.Dir
 	} else {
-		return mtree.meta.filepaths[0]
+		return mtree.meta.Filepaths[0]
 	}
 }
 
 func (mtree *ModuleTree) LoadedFiles() []string {
-	filepaths := []string{filepath.Join(mtree.meta.dir, ".terraform")}
-	if mtree.meta.recurse {
-		filepaths = append(filepaths, mtree.meta.dir)
+	filepaths := []string{filepath.Join(mtree.meta.Dir, ".terraform")}
+	if mtree.meta.Recurse {
+		filepaths = append(filepaths, mtree.meta.Dir)
 	}
-	for _, fp := range mtree.meta.filepaths {
+	for _, fp := range mtree.meta.Filepaths {
 		filepaths = append(filepaths, fp)
 	}
 	for _, child := range mtree.children {
@@ -189,7 +196,7 @@ func moduleIsLocal(source string) bool {
 
 type Visitor interface {
 	VisitModule(name ModuleName, meta *ModuleMeta)
-	VisitResource(name FullName, resource *configs.Resource)
+	VisitResource(name FullName, resource *ResourceMeta)
 	VisitExpr(name FullName, expr hcl.Expression)
 }
 
@@ -229,11 +236,11 @@ func walkModule(v Visitor, moduleName ModuleName, module *configs.Module) {
 	}
 
 	for _, resource := range module.DataResources {
-		walkResource(v, moduleName, resource)
+		walkResource(v, moduleName, resource, true)
 	}
 
 	for _, resource := range module.ManagedResources {
-		walkResource(v, moduleName, resource)
+		walkResource(v, moduleName, resource, false)
 	}
 
 	for _, output := range module.Outputs {
@@ -241,9 +248,15 @@ func walkModule(v Visitor, moduleName ModuleName, module *configs.Module) {
 	}
 }
 
-func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource) {
+func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, isDataResource bool) {
 	name := EmptyFullName(moduleName).AddKey(resource.Type).AddKey(resource.Name)
-	v.VisitResource(name, resource)
+	resourceMeta := &ResourceMeta{
+		Data:     isDataResource,
+		Provider: resource.Provider.Type,
+		Type:     resource.Type,
+		Location: resource.DeclRange,
+	}
+	v.VisitResource(name, resourceMeta)
 
 	if resource.Count != nil {
 		v.VisitExpr(name.AddKey("count"), resource.Count)

@@ -130,12 +130,8 @@ func (l *dockerConfiguration) RegulaInput() RegulaInput {
 	}
 }
 
-func (l *dockerConfiguration) Location(attributePath []string) (*Location, error) {
-	return &Location{
-		Path: l.path,
-		Line: 0,
-		Col:  0,
-	}, nil
+func (l *dockerConfiguration) Location(path []string) (LocationStack, error) {
+	return nil, nil
 }
 
 func (l *dockerConfiguration) LoadedFiles() []string {

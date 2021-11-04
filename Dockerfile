@@ -1,8 +1,5 @@
-FROM alpine:3.14
-ENV APP_USER=regula
-ENV APP_DIR=/workspace
-RUN adduser -s /bin/true -u 1000 -D -h $APP_DIR $APP_USER
-COPY regula /bin/regula
-USER ${APP_USER}
-WORKDIR ${APP_DIR}
-ENTRYPOINT [ "/bin/regula" ]
+# syntax=docker/dockerfile:1
+FROM ubuntu:18.04
+COPY . /app
+RUN make /app
+CMD python /app/app.py

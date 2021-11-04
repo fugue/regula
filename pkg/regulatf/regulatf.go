@@ -1,10 +1,8 @@
 package regulatf
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/hashicorp/hcl/v2"
+	"github.com/sirupsen/logrus"
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/fugue/regula/pkg/terraform/configs"
@@ -53,20 +51,20 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 	for _, traversal := range expr.Variables() {
 		local, err := TraversalToLocalName(traversal)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping dependency with bad key: %s\n", err)
+			logrus.Warningf("Skipping dependency with bad key: %s", err)
 			continue
 		}
 		full := FullName{Module: name.Module, Local: local}
 		_, exists := v.Expressions[full.ToString()]
+		var dep *dependency
 
 		if exists {
-			deps = append(deps, dependency{full, &full, nil})
+			dep = &dependency{full, &full, nil}
 		} else if moduleOutput := full.AsModuleOutput(); moduleOutput != nil {
 			// Rewrite module outputs.
-			deps = append(deps, dependency{full, moduleOutput, nil})
+			dep = &dependency{full, moduleOutput, nil}
 		} else if asDefault := full.AsDefault(); asDefault != nil {
 			// Rewrite variables either as default, or as module input.
-			var dep *dependency
 			asModuleInput := full.AsModuleInput()
 			if asModuleInput != nil {
 				if _, ok := v.Expressions[asModuleInput.ToString()]; ok {
@@ -76,15 +74,28 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 			if dep == nil {
 				dep = &dependency{full, asDefault, nil}
 			}
-			deps = append(deps, *dep)
-		} else if len(local) > 2 {
+		} else if len(local) >= 2 {
 			// Rewrite resource references.
 			resourceName := FullName{name.Module, local[:2]}
 			resourceKey := resourceName.ToString()
 			if _, ok := v.Resources[resourceKey]; ok {
 				val := cty.StringVal(resourceKey)
-				deps = append(deps, dependency{full, nil, &val})
+				dep = &dependency{full, nil, &val}
 			}
+		}
+
+		if dep != nil {
+			dst := dep.destination.ToString()
+			src := "?"
+			if dep.source != nil {
+				src = dep.source.ToString()
+			} else if dep.value != nil {
+				src = dep.value.GoString()
+			}
+			logrus.Debugf("%s: %s -> %s", name.ToString(), dst, src)
+			deps = append(deps, *dep)
+		} else {
+			logrus.Debugf("%s: %s -> missing", name.ToString(), full.ToString())
 		}
 	}
 	return deps
@@ -96,7 +107,7 @@ func (v *Analysis) order() ([]FullName, error) {
 	for key, expr := range v.Expressions {
 		name, err := StringToFullName(key)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping expression with bad key %s: %s\n", key, err)
+			logrus.Warningf("Skipping expression with bad key %s: %s", key, err)
 			continue
 		}
 
@@ -117,7 +128,7 @@ func (v *Analysis) order() ([]FullName, error) {
 	for _, key := range sorted {
 		name, err := StringToFullName(key)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping sorted with bad key: %s: %s\n", key, err)
+			logrus.Warningf("Skipping sorted with bad key: %s: %s", key, err)
 			continue
 		}
 		sortedNames = append(sortedNames, *name)
@@ -194,7 +205,7 @@ func (v *Evaluation) evaluate() error {
 
 		val, diags := expr.Value(&ctx)
 		if diags.HasErrors() {
-			fmt.Fprintf(os.Stderr, "    Value() error: %s\n", diags)
+			logrus.Warningf("    Value() error: %s", diags)
 			val = cty.NilVal
 		}
 
@@ -211,7 +222,8 @@ func (v *Evaluation) Resources() map[string]interface{} {
 	for resourceKey, resource := range v.Analysis.Resources {
 		resourceName, err := StringToFullName(resourceKey)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Skipping resource with bad key %s: %s\n", resourceKey, err)
+			logrus.Warningf("Skipping resource with bad key %s: %s", resourceKey, err)
+			continue
 		}
 		module := ModuleNameToString(resourceName.Module)
 

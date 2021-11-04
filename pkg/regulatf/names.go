@@ -2,7 +2,6 @@ package regulatf
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 
@@ -159,24 +158,6 @@ func (name FullName) AsDefault() *FullName {
 		}
 	}
 	return nil
-}
-
-// TODO: Refactor to TraversalToName?
-func TraversalToPath(traversal hcl.Traversal) []string {
-	parts := make([]string, 0)
-
-	for _, traverser := range traversal {
-		switch t := traverser.(type) {
-		case hcl.TraverseRoot:
-			parts = append(parts, t.Name)
-		case hcl.TraverseAttr:
-			parts = append(parts, t.Name)
-		case hcl.TraverseIndex:
-			fmt.Fprintf(os.Stderr, "TraverseIndex not yet supported")
-		}
-	}
-
-	return parts
 }
 
 // TODO: Refactor to TraversalToName?

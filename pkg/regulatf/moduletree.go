@@ -4,7 +4,6 @@ package regulatf
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -252,7 +251,7 @@ func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource) 
 
 	body, ok := resource.Config.(*hclsyntax.Body)
 	if !ok {
-		fmt.Fprintf(os.Stderr, "Missing body\n")
+		logrus.Warningf("Missing body for resource %f", name.ToString())
 		return
 	}
 

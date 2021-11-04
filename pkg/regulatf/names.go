@@ -29,6 +29,22 @@ func ModuleNameToString(moduleName ModuleName) string {
 type Fragment = interface{} // Either string or int
 type LocalName = []Fragment
 
+func LocalNameToString(name LocalName) string {
+    str := ""
+	for _, p := range name {
+		switch v := p.(type) {
+		case string:
+			if str != "" {
+				str += "."
+			}
+			str += v
+		case int:
+			str += fmt.Sprintf("[%d]", v)
+		}
+	}
+	return str
+}
+
 type FullName struct {
 	Module ModuleName
 	Local  LocalName
@@ -87,19 +103,11 @@ func StringToFullName(name string) (*FullName, error) {
 }
 
 func (name FullName) ToString() string {
-	str := ModuleNameToString(name.Module)
-	for _, p := range name.Local {
-		switch v := p.(type) {
-		case string:
-			if str != "" {
-				str += "."
-			}
-			str += v
-		case int:
-			str += fmt.Sprintf("[%d]", v)
-		}
-	}
-	return str
+    if len(name.Module) == 0 {
+        return LocalNameToString(name.Local)
+    } else {
+        return ModuleNameToString(name.Module) + "." + LocalNameToString(name.Local)
+    }
 }
 
 func (name FullName) add(p Fragment) FullName {

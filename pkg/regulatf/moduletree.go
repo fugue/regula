@@ -249,7 +249,12 @@ func walkModule(v Visitor, moduleName ModuleName, module *configs.Module) {
 }
 
 func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, isDataResource bool) {
-	name := EmptyFullName(moduleName).AddKey(resource.Type).AddKey(resource.Name)
+	name := EmptyFullName(moduleName)
+	if isDataResource {
+		name = name.AddKey("data")
+	}
+	name = name.AddKey(resource.Type).AddKey(resource.Name)
+
 	resourceMeta := &ResourceMeta{
 		Data:     isDataResource,
 		Provider: resource.Provider.Type,

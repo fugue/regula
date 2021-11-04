@@ -80,6 +80,11 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 			if _, ok := v.Resources[resourceKey]; ok {
 				val := cty.StringVal(resourceKey)
 				dep = &dependency{full, nil, &val}
+			} else {
+				// In other cases, just use the local name.  This is sort of
+				// a catch-all and we should try to not rely on this too much.
+				val := cty.StringVal(LocalNameToString(local))
+				dep = &dependency{full, nil, &val}
 			}
 		}
 

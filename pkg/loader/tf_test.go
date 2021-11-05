@@ -59,6 +59,9 @@ func TestTf(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
+				if hcl == nil {
+    				t.Fatalf("No configuration found in %s", path)
+				}
 
 				actualBytes, err := json.MarshalIndent(hcl.RegulaInput(), "", "  ")
 				if err != nil {

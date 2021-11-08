@@ -3,7 +3,6 @@ module github.com/fugue/regula
 go 1.16
 
 require (
-	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/agext/levenshtein v1.2.3
 	github.com/alexeyco/simpletable v1.0.0
 	github.com/apparentlymart/go-cidr v1.1.0
@@ -36,9 +35,8 @@ require (
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/mitchellh/panicwrap v1.0.0
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/open-policy-agent/opa v0.24.0
+	github.com/open-policy-agent/opa v0.28.0
 	github.com/pelletier/go-toml v1.9.4 // indirect
-	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cast v1.4.1 // indirect

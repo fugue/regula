@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/reporter"
@@ -26,6 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 func NewInitCommand() *cobra.Command {
@@ -88,13 +90,15 @@ func NewInitCommand() *cobra.Command {
 					return err
 				}
 				if force || shouldOverwrite {
-					v.WriteConfig()
+					if err := writeConfig(v); err != nil {
+						return err
+					}
 				} else {
 					logrus.Infof("Not overwriting %s", configPath)
 					return nil
 				}
 			} else {
-				if err := v.WriteConfig(); err != nil {
+				if err := writeConfig(v); err != nil {
 					return err
 				}
 			}
@@ -195,6 +199,68 @@ func overwritePrompt(configPath string) (bool, error) {
 		return false, fmt.Errorf(".regula.yaml exists and unable to prompt to overwrite. Use --force to disable the prompt.")
 	}
 	return result == "Yes", nil
+}
+
+func writeConfig(v *viper.Viper) error {
+	defaults := map[string]interface{}{}
+	if !v.IsSet(environmentIDFlag) {
+		defaults[environmentIDFlag] = ""
+	}
+	if !v.IsSet(excludeFlag) {
+		defaults[excludeFlag] = []string{}
+	}
+	if !v.IsSet(formatFlag) {
+		defaults[formatFlag] = reporter.DefaultFormat
+	}
+	if !v.IsSet(includeFlag) {
+		defaults[includeFlag] = []string{}
+	}
+	if !v.IsSet(inputTypeFlag) {
+		defaults[inputTypeFlag] = loader.DefaultInputTypes
+	}
+	if !v.IsSet(noBuiltInsFlag) {
+		defaults[noBuiltInsFlag] = false
+	}
+	if !v.IsSet(noIgnoreFlag) {
+		defaults[noIgnoreFlag] = false
+	}
+	if !v.IsSet(onlyFlag) {
+		defaults[onlyFlag] = []string{}
+	}
+	if !v.IsSet(severityFlag) {
+		defaults[severityFlag] = reporter.DefaultSeverity
+	}
+	if !v.IsSet(syncFlag) {
+		defaults[syncFlag] = false
+	}
+	if !v.IsSet(inputsFlag) {
+		defaults[inputsFlag] = []string{}
+	}
+	if len(defaults) < 1 {
+		return v.WriteConfig()
+	}
+	defaultsBytes, err := yaml.Marshal(defaults)
+	if err != nil {
+		return err
+	}
+	defaultsLines := strings.Split(string(defaultsBytes), "\n")
+	commentedDefaults := make([]string, len(defaultsLines))
+	for i, l := range defaultsLines {
+		if l != "" {
+			commentedDefaults[i] = "# " + l
+		}
+	}
+	if err := v.WriteConfig(); err != nil {
+		return err
+	}
+	f, err := os.OpenFile(v.ConfigFileUsed(), os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	if _, err := f.WriteString(strings.Join(commentedDefaults, "\n")); err != nil {
+		return err
+	}
+	return nil
 }
 
 func init() {

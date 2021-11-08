@@ -24,6 +24,10 @@ import (
 	"github.com/fugue/regula/pkg/regulatf"
 )
 
+// This is the loader that supports reading files and directories of HCL (.tf)
+// files.  The implementation is in the `./pkg/regulatf/` package in this
+// repository: this file just wraps that.  That directory also contains a
+// README explaining how everything fits together.
 type TfDetector struct{}
 
 func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfiguration, error) {

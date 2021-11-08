@@ -1,3 +1,4 @@
+// Look in `/pkg/regulatf/README.md` for an explanation of how this works.
 package regulatf
 
 import (

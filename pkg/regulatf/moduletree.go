@@ -269,7 +269,7 @@ func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, 
 
 	body, ok := resource.Config.(*hclsyntax.Body)
 	if !ok {
-		logrus.Warningf("Missing body for resource %f", name.ToString())
+		logrus.Warningf("Missing body for resource %s", name.ToString())
 		return
 	}
 

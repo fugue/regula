@@ -130,7 +130,7 @@ rule_resource_result(rule, judgement) = ret {
     "resource_type": judgement.type,
     "rule_message": judgement.message,
     "rule_result": result_string(judgement),
-    "rule_valid": judgement.valid,
+    "rule_raw_result": judgement.valid,
     "rule_name": rule["package"],
     "rule_id": rule.metadata.id,
     "rule_summary": rule.metadata.summary,

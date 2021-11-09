@@ -316,11 +316,11 @@ type RuleResult struct {
 	RuleID             string   `json:"rule_id"`
 	RuleMessage        string   `json:"rule_message"`
 	RuleName           string   `json:"rule_name"`
+	RuleRawResult      bool     `json:"rule_raw_result"`
+	RuleRemediationDoc string   `json:"rule_remediation_doc,omitempty"`
 	RuleResult         string   `json:"rule_result"`
 	RuleSeverity       string   `json:"rule_severity"`
 	RuleSummary        string   `json:"rule_summary"`
-	RuleRemediationDoc string   `json:"rule_remediation_doc,omitempty"`
-	RuleValid          bool     `json:"rule_valid"`
 	// List of source code locations this rule result pertains to.  The first
 	// element of the list always refers to the most specific source code site,
 	// and further elements indicate modules in which this was included, like

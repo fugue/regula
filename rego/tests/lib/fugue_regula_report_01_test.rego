@@ -58,7 +58,7 @@ contains_result(arr, result) {
 # Test the report.
 test_report {
   count(expected_report.rule_results) == count(report.rule_results)
-  all([c | r = expected_report.rule_results[_]; c = contains_result(report.rule_results, r)])
+  count([c | r = expected_report.rule_results[_]; c = contains_result(report.rule_results, r)]) == count(report.rule_results)
   expected_report.summary == report.summary
 }
 
@@ -71,13 +71,14 @@ expected_report = {
       "rule_message": "",
       "rule_result": "PASS",
       "rule_name": "always_pass",
-      "platform": "terraform",
+      "input_type": "tf_plan",
       "rule_id": "FG_R00001",
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
       "rule_severity": "High",
       "controls": {"MOCK_1.2.3"},
       "filepath": "",
+      "rule_raw_result": true
     },
     {
       "provider": "aws",
@@ -86,13 +87,14 @@ expected_report = {
       "rule_message": "",
       "rule_result": "PASS",
       "rule_name": "always_pass",
-      "platform": "terraform",
+      "input_type": "tf_plan",
       "rule_id": "FG_R00001",
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
       "rule_severity": "High",
       "controls": {"MOCK_1.2.3"},
       "filepath": "",
+      "rule_raw_result": true
     },
     {
       "provider": "aws",
@@ -101,13 +103,14 @@ expected_report = {
       "rule_message": "",
       "rule_result": "PASS",
       "rule_name": "always_pass",
-      "platform": "terraform",
+      "input_type": "tf_plan",
       "rule_id": "FG_R00001",
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
       "rule_severity": "High",
       "controls": {"MOCK_1.2.3"},
       "filepath": "",
+      "rule_raw_result": true
     },
     {
       "provider": "aws",
@@ -116,13 +119,14 @@ expected_report = {
       "rule_message": "",
       "rule_result": "FAIL",
       "rule_name": "always_fail",
-      "platform": "terraform",
+      "input_type": "tf_plan",
       "rule_id": "",
       "rule_summary": "",
       "rule_description": "",
       "rule_severity": "Unknown",
       "controls": set(),
       "filepath": "",
+      "rule_raw_result": false
     },
     {
       "provider": "aws",
@@ -131,13 +135,14 @@ expected_report = {
       "rule_message": "",
       "rule_result": "FAIL",
       "rule_name": "always_fail",
-      "platform": "terraform",
+      "input_type": "tf_plan",
       "rule_id": "",
       "rule_summary": "",
       "rule_description": "",
       "rule_severity": "Unknown",
       "controls": set(),
       "filepath": "",
+      "rule_raw_result": false
     },
     {
       "provider": "aws",
@@ -146,13 +151,14 @@ expected_report = {
       "rule_message": "",
       "rule_result": "FAIL",
       "rule_name": "always_fail",
-      "platform": "terraform",
+      "input_type": "tf_plan",
       "rule_id": "",
       "rule_summary": "",
       "rule_description": "",
       "rule_severity": "Unknown",
       "controls": set(),
       "filepath": "",
+      "rule_raw_result": false
     }
   ],
   "summary": {

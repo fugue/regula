@@ -64,7 +64,7 @@ contains_result(arr, result) {
 # Test the report.
 test_scan_view {
   count(expected_scan_view.report.rule_results) == count(output.report.rule_results)
-  all([c | r = expected_scan_view.report.rule_results[_]; c = contains_result(output.report.rule_results, r)])
+  count([c | r = expected_scan_view.report.rule_results[_]; c = contains_result(output.report.rule_results, r)]) == count(output.report.rule_results)
   expected_scan_view.report.summary == output.report.summary
   expected_scan_view.inputs == output.inputs
   expected_scan_view.scan_view_version == output.scan_view_version
@@ -109,9 +109,9 @@ expected_scan_view = {
   "report": {
     "rule_results": [
       {
-        "controls": [
+        "controls": {
           "MOCK_1.2.3"
-        ],
+        },
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",
@@ -124,12 +124,12 @@ expected_scan_view = {
         "rule_result": "PASS",
         "rule_severity": "High",
         "rule_summary": "Always pass",
-        "rule_valid": true
+        "rule_raw_result": true
       },
       {
-        "controls": [
+        "controls": {
           "MOCK_1.2.3"
-        ],
+        },
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",
@@ -142,12 +142,12 @@ expected_scan_view = {
         "rule_result": "PASS",
         "rule_severity": "High",
         "rule_summary": "Always pass",
-        "rule_valid": true
+        "rule_raw_result": true
       },
       {
-        "controls": [
+        "controls": {
           "MOCK_1.2.3"
-        ],
+        },
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",
@@ -160,10 +160,10 @@ expected_scan_view = {
         "rule_result": "PASS",
         "rule_severity": "High",
         "rule_summary": "Always pass",
-        "rule_valid": true
+        "rule_raw_result": true
       },
       {
-        "controls": [],
+        "controls": set(),
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",
@@ -176,10 +176,10 @@ expected_scan_view = {
         "rule_result": "FAIL",
         "rule_severity": "Unknown",
         "rule_summary": "",
-        "rule_valid": false
+        "rule_raw_result": false
       },
       {
-        "controls": [],
+        "controls": set(),
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",
@@ -192,10 +192,10 @@ expected_scan_view = {
         "rule_result": "FAIL",
         "rule_severity": "Unknown",
         "rule_summary": "",
-        "rule_valid": false
+        "rule_raw_result": false
       },
       {
-        "controls": [],
+        "controls": set(),
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",
@@ -208,7 +208,7 @@ expected_scan_view = {
         "rule_result": "FAIL",
         "rule_severity": "Unknown",
         "rule_summary": "",
-        "rule_valid": false
+        "rule_raw_result": false
       }
     ],
     "summary": {

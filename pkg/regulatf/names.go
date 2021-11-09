@@ -30,7 +30,7 @@ type Fragment = interface{} // Either string or int
 type LocalName = []Fragment
 
 func LocalNameToString(name LocalName) string {
-    str := ""
+	str := ""
 	for _, p := range name {
 		switch v := p.(type) {
 		case string:
@@ -103,11 +103,11 @@ func StringToFullName(name string) (*FullName, error) {
 }
 
 func (name FullName) ToString() string {
-    if len(name.Module) == 0 {
-        return LocalNameToString(name.Local)
-    } else {
-        return ModuleNameToString(name.Module) + "." + LocalNameToString(name.Local)
-    }
+	if len(name.Module) == 0 {
+		return LocalNameToString(name.Local)
+	} else {
+		return ModuleNameToString(name.Module) + "." + LocalNameToString(name.Local)
+	}
 }
 
 func (name FullName) add(p Fragment) FullName {
@@ -166,6 +166,21 @@ func (name FullName) AsDefault() *FullName {
 		}
 	}
 	return nil
+}
+
+// Parses "aws_s3_bucket.my_bucket.bucket_prefix" into "aws_s3_bucket.my_bucket"
+// and also returns the remainder.
+func (name FullName) AsResourceName() (*FullName, LocalName) {
+	if len(name.Local) >= 2 {
+		if str, ok := name.Local[0].(string); ok {
+			cut := 2
+			if str == "data" && len(name.Local) >= 3 {
+				cut = 3
+			}
+			return &FullName{name.Module, name.Local[:cut]}, name.Local[cut:]
+		}
+	}
+	return nil, nil
 }
 
 // TODO: Refactor to TraversalToName?

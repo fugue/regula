@@ -74,10 +74,9 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 			if dep == nil {
 				dep = &dependency{full, asDefault, nil}
 			}
-		} else if len(local) >= 2 {
+		} else if asResourceName, _ := full.AsResourceName(); asResourceName != nil {
 			// Rewrite resource references.
-			resourceName := FullName{name.Module, local[:2]}
-			resourceKey := resourceName.ToString()
+			resourceKey := asResourceName.ToString()
 			if _, ok := v.Resources[resourceKey]; ok {
 				val := cty.StringVal(resourceKey)
 				dep = &dependency{full, nil, &val}
@@ -225,10 +224,6 @@ func (v *Evaluation) Resources() map[string]interface{} {
 	input := map[string]interface{}{}
 
 	for resourceKey, resource := range v.Analysis.Resources {
-		if resource.Data {
-			continue // Skip data resource in output.
-		}
-
 		resourceName, err := StringToFullName(resourceKey)
 		if err != nil {
 			logrus.Warningf("Skipping resource with bad key %s: %s", resourceKey, err)
@@ -236,8 +231,13 @@ func (v *Evaluation) Resources() map[string]interface{} {
 		}
 		module := ModuleNameToString(resourceName.Module)
 
+		resourceType := resource.Type
+		if resource.Data {
+			resourceType = "data." + resourceType
+		}
+
 		tree := SingletonValTree(LocalName{"id"}, cty.StringVal(resourceKey))
-		tree = MergeValTree(tree, SingletonValTree(LocalName{"_type"}, cty.StringVal(resource.Type)))
+		tree = MergeValTree(tree, SingletonValTree(LocalName{"_type"}, cty.StringVal(resourceType)))
 		tree = MergeValTree(tree, SingletonValTree(LocalName{"_provider"}, cty.StringVal(resource.Provider)))
 		tree = MergeValTree(tree, SingletonValTree(LocalName{"_filepath"}, cty.StringVal(resource.Location.Filename)))
 

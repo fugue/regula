@@ -277,8 +277,10 @@ func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, 
 }
 
 func walkBody(v Visitor, name FullName, body *hclsyntax.Body) {
+	empty := true
 	for _, attribute := range body.Attributes {
 		v.VisitExpr(name.AddKey(attribute.Name), attribute.Expr)
+		empty = false
 	}
 
 	blockCounter := map[string]int{} // Which index we're at per block type.
@@ -291,6 +293,16 @@ func walkBody(v Visitor, name FullName, body *hclsyntax.Body) {
 			blockCounter[block.Type] = 1
 		}
 		walkBody(v, name.AddKey(block.Type).AddIndex(idx), block.Body)
+		empty = false
+	}
+
+	if empty {
+		// For empty blocks, ensure there is an empty object in the output.
+		expr := hclsyntax.LiteralValueExpr{
+			Val:      cty.ObjectVal(map[string]cty.Value{}),
+			SrcRange: body.SrcRange,
+		}
+		v.VisitExpr(name, &expr)
 	}
 }
 

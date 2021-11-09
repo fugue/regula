@@ -189,6 +189,7 @@ func (v *Evaluation) evaluate() error {
 	}
 
 	for _, name := range order {
+		logrus.Debugf("evaluate: %s", name.ToString())
 		expr := v.Analysis.Expressions[name.ToString()]
 		moduleKey := ModuleNameToString(name.Module)
 		moduleMeta := v.Analysis.Modules[moduleKey]

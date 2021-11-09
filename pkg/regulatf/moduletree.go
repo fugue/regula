@@ -286,6 +286,7 @@ func walkBody(v Visitor, name FullName, body *hclsyntax.Body) {
 		idx := 0
 		if i, ok := blockCounter[block.Type]; ok {
 			idx = i
+			blockCounter[block.Type] += 1
 		} else {
 			blockCounter[block.Type] = 1
 		}

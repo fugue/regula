@@ -16,6 +16,7 @@ package rego
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/open-policy-agent/opa/ast"
@@ -26,6 +27,14 @@ import (
 type RunTestOptions struct {
 	Providers []RegoProvider
 	Trace     bool
+}
+
+type TestsFailedError struct {
+	fails int
+}
+
+func (e *TestsFailedError) Error() string {
+	return fmt.Sprintf("%v tests failed", e.fails)
 }
 
 func RunTest(ctx context.Context, options *RunTestOptions) error {
@@ -52,11 +61,30 @@ func RunTest(ctx context.Context, options *RunTestOptions) error {
 	if err != nil {
 		return err
 	}
+	dup := make(chan *tester.Result)
+	fails := 0
+	go func() {
+		defer close(dup)
+		for tr := range ch {
+			if !tr.Pass() && !tr.Skip {
+				fails += 1
+			}
+			dup <- tr
+		}
+	}()
+
 	reporter := tester.PrettyReporter{
 		Output:      os.Stdout,
 		FailureLine: true,
 		Verbose:     options.Trace,
 	}
-	reporter.Report(ch)
+	if err := reporter.Report(dup); err != nil {
+		return err
+	}
+	if fails > 0 {
+		return &TestsFailedError{
+			fails: fails,
+		}
+	}
 	return nil
 }

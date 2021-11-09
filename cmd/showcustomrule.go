@@ -34,6 +34,7 @@ func NewShowCustomRuleCommand() *cobra.Command {
 			if len(args) < 1 {
 				return fmt.Errorf("A Rule ID must be specified.")
 			}
+			// Silence usage now that we're past arg parsing
 			cmd.SilenceUsage = true
 			ruleID := args[0]
 			client, err := fugue.NewFugueClient()

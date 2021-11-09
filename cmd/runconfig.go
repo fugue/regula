@@ -92,7 +92,6 @@ func (c *runConfig) Providers() ([]rego.RegoProvider, error) {
 func (c *runConfig) ConfigurationLoader() (loader.ConfigurationLoader, error) {
 	inputTypes := c.inputTypes
 	if c.upload {
-
 		inputTypes = filterInputTypes(inputTypes)
 	}
 
@@ -129,7 +128,9 @@ func (c *runConfig) ResultProcessor() rego.RegoResultProcessor {
 				fmt.Print(reportStr)
 			}
 			if scanView.Report.ExceedsSeverity(c.severity) {
-				return fmt.Errorf("Exceeded severity")
+				return &ExceedsSeverityError{
+					configuredSeverity: c.severity.String(),
+				}
 			}
 
 			return nil

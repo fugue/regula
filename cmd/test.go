@@ -37,6 +37,7 @@ func NewTestCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			cmd.SilenceUsage = true
 			providers := []rego.RegoProvider{
 				rego.RegulaLibProvider(),
 				rego.LocalProvider(includes),

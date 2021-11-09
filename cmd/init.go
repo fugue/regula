@@ -84,6 +84,9 @@ func NewInitCommand() *cobra.Command {
 				return err
 			}
 
+			// Silence usage now that we're past arg parsing
+			cmd.SilenceUsage = true
+
 			if _, err := os.Stat(configPath); err == nil {
 				shouldOverwrite, err := overwritePrompt(configPath)
 				if err != nil {

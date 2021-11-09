@@ -37,6 +37,7 @@ func NewREPLCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// Silence usage now that we're past arg parsing
 			cmd.SilenceUsage = true
 
 			ctx := context.Background()

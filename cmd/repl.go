@@ -18,9 +18,9 @@ import (
 	"context"
 	_ "embed"
 
+	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -28,30 +28,43 @@ func NewREPLCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "repl [paths containing rego or test inputs]",
 		Short: "Start an interactive session for testing rules with Regula",
-		Run: func(cmd *cobra.Command, includes []string) {
-			userOnly, err := cmd.Flags().GetBool(userOnlyFlag)
+		RunE: func(cmd *cobra.Command, includes []string) error {
+			noBuiltIns, err := cmd.Flags().GetBool(noBuiltInsFlag)
 			if err != nil {
-				logrus.Fatal(err)
+				return err
 			}
 			noTestInputs, err := cmd.Flags().GetBool(noTestInputsFlag)
 			if err != nil {
-				logrus.Fatal(err)
+				return err
 			}
-			ctx := context.Background()
-			err = rego.RunREPL(&rego.RunREPLOptions{
-				Ctx:          ctx,
-				UserOnly:     userOnly,
-				Includes:     includes,
-				NoTestInputs: noTestInputs,
-			})
+			// Silence usage now that we're past arg parsing
+			cmd.SilenceUsage = true
 
-			if err != nil {
-				logrus.Fatal(err)
+			ctx := context.Background()
+			regoProviders := []rego.RegoProvider{
+				rego.RegulaLibProvider(),
+				rego.LocalProvider(includes),
 			}
+			if !noBuiltIns {
+				regoProviders = append(regoProviders, rego.RegulaRulesProvider())
+			}
+			if !noTestInputs {
+				regoProviders = append(
+					regoProviders,
+					rego.TestInputsProvider(includes, []loader.InputType{loader.Auto}),
+				)
+			}
+			err = rego.RunREPL(ctx, &rego.RunREPLOptions{
+				Providers: regoProviders,
+			})
+			if err != nil {
+				return err
+			}
+			return nil
 		},
 	}
 
-	addUserOnlyFlag(cmd)
+	addNoBuiltInsFlag(cmd)
 	addNoTestInputsFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd

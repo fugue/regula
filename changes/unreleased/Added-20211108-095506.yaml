@@ -1,0 +1,3 @@
+kind: Added
+body: '`--only` flag to `regula run`. `--only` takes a rule ID or rule name and excludes
+  all other rules from the evaluation.'

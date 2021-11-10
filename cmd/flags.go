@@ -25,10 +25,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/thediveo/enumflag"
 )
 
-const userOnlyFlag = "user-only"
+const noBuiltInsFlag = "no-built-ins"
 const noTestInputsFlag = "no-test-inputs"
 const includeFlag = "include"
 const noIgnoreFlag = "no-ignore"
@@ -40,7 +39,11 @@ const configFlag = "config"
 const noConfigFlag = "no-config"
 const inputsFlag = "inputs"
 const forceFlag = "force"
-const environmentIdFlag = "environment-id"
+const environmentIDFlag = "environment-id"
+const syncFlag = "sync"
+const uploadFlag = "upload"
+const excludeFlag = "exclude"
+const onlyFlag = "only"
 
 const inputTypeDescriptions = `
 Input types:
@@ -71,9 +74,9 @@ Severities:
     off             Never exit with a non-zero exit code.
 `
 
-func addUserOnlyFlag(cmd *cobra.Command) {
-	cmd.Flags().BoolP(userOnlyFlag, "u", false, "Disable built-in rules")
-	viper.BindPFlag(userOnlyFlag, cmd.Flags().Lookup(userOnlyFlag))
+func addNoBuiltInsFlag(cmd *cobra.Command) {
+	cmd.Flags().BoolP(noBuiltInsFlag, "n", false, "Disable built-in rules")
+	viper.BindPFlag(noBuiltInsFlag, cmd.Flags().Lookup(noBuiltInsFlag))
 }
 
 func addNoTestInputsFlag(cmd *cobra.Command) {
@@ -82,48 +85,29 @@ func addNoTestInputsFlag(cmd *cobra.Command) {
 
 func addIncludeFlag(cmd *cobra.Command) {
 	cmd.Flags().StringSliceP(includeFlag, "i", nil, "Specify additional rego files or directories to include")
-	viper.BindPFlag(includeFlag, cmd.Flags().Lookup(includeFlag))
 }
 
 func addNoIgnoreFlag(cmd *cobra.Command) {
-	cmd.Flags().BoolP(noIgnoreFlag, "n", false, "Disable use of .gitignore")
+	cmd.Flags().Bool(noIgnoreFlag, false, "Disable use of .gitignore")
+	viper.BindPFlag(noIgnoreFlag, cmd.Flags().Lookup(noIgnoreFlag))
 }
 
-func addInputTypeFlag(cmd *cobra.Command, inputTypes *[]loader.InputType) {
-	cmd.Flags().VarP(
-		enumflag.NewSlice(inputTypes, "string", loader.InputTypeIDs, enumflag.EnumCaseInsensitive),
-		inputTypeFlag, "t",
-		"Search for or assume the input type for the given paths. Can be specified multiple times.")
+func addInputTypeFlag(cmd *cobra.Command) {
+	cmd.Flags().StringSliceP(inputTypeFlag, "t", loader.DefaultInputTypes, "Search for or assume the input type for the given paths. Can be specified multiple times.")
 	viper.BindPFlag(inputTypeFlag, cmd.Flags().Lookup(inputTypeFlag))
 	cmd.Long = joinDescriptions(cmd.Long, inputTypeDescriptions)
 }
 
-func addSeverityFlag(cmd *cobra.Command, severity *reporter.Severity) {
-	cmd.Flags().VarP(
-		enumflag.New(severity, "string", reporter.SeverityIds, enumflag.EnumCaseInsensitive),
-		severityFlag, "s",
-		"Set the minimum severity that will result in a non-zero exit code.")
+func addSeverityFlag(cmd *cobra.Command) {
+	cmd.Flags().StringP(severityFlag, "s", reporter.DefaultSeverity, "Set the minimum severity that will result in a non-zero exit code.")
 	viper.BindPFlag(severityFlag, cmd.Flags().Lookup(severityFlag))
 	cmd.Long = joinDescriptions(cmd.Long, severityDescriptions)
 }
 
-func addFormatFlag(cmd *cobra.Command, format *reporter.Format) {
-	// Set the default to $REGULA_FORMAT (if set).
-	envName := os.Getenv("REGULA_FORMAT")
-	if envName != "" {
-		for curFormat, names := range reporter.FormatIds {
-			for _, name := range names {
-				if name == envName {
-					*format = curFormat
-				}
-			}
-		}
-	}
-
-	cmd.Flags().VarP(
-		enumflag.New(format, "string", reporter.FormatIds, enumflag.EnumCaseInsensitive),
-		formatFlag, "f",
-		"Set the output format")
+func addFormatFlag(cmd *cobra.Command) {
+	cmd.Flags().StringP(formatFlag, "f", reporter.DefaultFormat, "Set the output format")
+	viper.BindPFlag(formatFlag, cmd.Flags().Lookup(formatFlag))
+	viper.BindEnv(formatFlag, "REGULA_FORMAT")
 	cmd.Long = joinDescriptions(cmd.Long, formatDescriptions)
 }
 
@@ -140,11 +124,32 @@ func addNoConfigFlag(cmd *cobra.Command) {
 }
 
 func addForceFlag(cmd *cobra.Command) {
-	cmd.Flags().BoolP(forceFlag, "f", false, "Overwrite configuration file without prompting for confirmation.")
+	cmd.Flags().Bool(forceFlag, false, "Overwrite configuration file without prompting for confirmation.")
 }
 
-func addEnvironmentIdFlag(cmd *cobra.Command) {
-	cmd.Flags().StringP(environmentIdFlag, "e", "", "Environment ID in Fugue SaaS")
+func addEnvironmentIDFlag(cmd *cobra.Command) {
+	cmd.Flags().StringP(environmentIDFlag, "e", "", "Environment ID in Fugue")
+	viper.BindPFlag(environmentIDFlag, cmd.Flags().Lookup(environmentIDFlag))
+	viper.BindEnv(environmentIDFlag, "ENVIRONMENT_ID")
+}
+
+func addSyncFlag(cmd *cobra.Command) {
+	cmd.Flags().Bool(syncFlag, false, "Fetch rules and configuration from Fugue")
+	viper.BindPFlag(syncFlag, cmd.Flags().Lookup(syncFlag))
+}
+
+func addUploadFlag(cmd *cobra.Command) {
+	cmd.Flags().Bool(uploadFlag, false, "Upload rule results to Fugue")
+}
+
+func addExcludeFlag(cmd *cobra.Command) {
+	cmd.Flags().StringSliceP(excludeFlag, "x", nil, "Rule IDs, names, or local paths to exclude. Can be specified multiple times.")
+	viper.BindPFlag(excludeFlag, cmd.Flags().Lookup(excludeFlag))
+}
+
+func addOnlyFlag(cmd *cobra.Command) {
+	cmd.Flags().StringSliceP(onlyFlag, "o", nil, "Rule IDs or names to run. All other rules will be excluded. Can be specified multiple times.")
+	viper.BindPFlag(onlyFlag, cmd.Flags().Lookup(onlyFlag))
 }
 
 func joinDescriptions(descriptions ...string) string {

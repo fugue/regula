@@ -20,7 +20,7 @@ import (
 	"strings"
 )
 
-func TapReporter(o *RegulaOutput) (string, error) {
+func TapReporter(o *RegulaReport) (string, error) {
 	results := o.RuleResults
 	sort.SliceStable(results, func(i, j int) bool {
 		if results[i].ResourceID == results[j].ResourceID {

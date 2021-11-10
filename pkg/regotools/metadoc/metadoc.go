@@ -206,7 +206,13 @@ func RegoMetaFromString(str string) (*RegoMeta, error) {
 	return &rego, nil
 }
 
-func (rego *RegoMeta) String() string {
+// HasMetadoc returns true if the rego file has a metadoc section.
+func (rego *RegoMeta) HasMetadoc() bool {
+	rego.syncMetadoc()
+	return len(rego.metadoc) > 0
+}
+
+func (rego *RegoMeta) syncMetadoc() {
 	// Sync metadoc
 	if rego.metadoc == nil {
 		rego.metadoc = map[string]interface{}{}
@@ -255,8 +261,11 @@ func (rego *RegoMeta) String() string {
 	} else {
 		rego.metadoc["custom"] = custom
 	}
+}
 
+func (rego *RegoMeta) String() string {
 	// Render metadoc
+	rego.syncMetadoc()
 	haveMetadoc := len(rego.metadoc) > 0
 	metadocString := "__rego__metadoc__ := {\n}"
 	if metadocBytes, err := json.MarshalIndent(rego.metadoc, "", "  "); err == nil {

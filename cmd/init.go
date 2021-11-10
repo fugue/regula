@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/reporter"
@@ -26,11 +27,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 func NewInitCommand() *cobra.Command {
-	inputTypes := []loader.InputType{loader.Auto}
-	severity := reporter.Unknown
 	description := "Create a new Regula configuration file in the current working directory."
 	cmd := &cobra.Command{
 		Use:   "init [input...]",
@@ -39,104 +39,231 @@ func NewInitCommand() *cobra.Command {
 			description,
 			"Pass one or more inputs (like you would with the 'regula run' command) in order to change the default inputs for 'regula run'.",
 		),
-		Run: func(cmd *cobra.Command, paths []string) {
+		RunE: func(cmd *cobra.Command, paths []string) error {
 			configPath := filepath.Join(".", ".regula.yaml")
 			v := viper.New()
 			v.SetConfigType("yaml")
 			v.SetConfigFile(configPath)
 
-			if cmd.Flags().Lookup(inputTypeFlag).Changed {
-				configuredInputTypes := []string{}
-				for _, t := range inputTypes {
-					configuredInputTypes = append(
-						configuredInputTypes,
-						loader.InputTypeIDs[t][0],
-					)
-				}
-				v.Set(inputTypeFlag, configuredInputTypes)
+			if err := configureStringIfSet(cmd, v, environmentIDFlag); err != nil {
+				return err
 			}
-
-			if cmd.Flags().Lookup(severityFlag).Changed {
-				// These conditions hopefully aren't possible
-				if _, ok := reporter.SeverityIds[severity]; !ok {
-					logrus.Fatalf("Invalid severity %d", severity)
-				}
-				if len(reporter.SeverityIds[severity]) < 1 {
-					logrus.Fatalf("Could not map string value for severity %d", severity)
-				}
-				configuredSeverity := reporter.SeverityIds[severity][0]
-				v.Set(severityFlag, configuredSeverity)
+			if err := configureStringSliceIfSet(cmd, v, excludeFlag); err != nil {
+				return err
 			}
-
-			if cmd.Flags().Lookup(includeFlag).Changed {
-				configuredIncludes, err := cmd.Flags().GetStringSlice(includeFlag)
-				if err != nil {
-					logrus.Fatal(err)
-				}
-				v.Set(includeFlag, configuredIncludes)
+			if err := configureEnumIfSet(cmd, v, formatFlag, reporter.ValidateFormat); err != nil {
+				return err
 			}
-
-			if cmd.Flags().Lookup(userOnlyFlag).Changed {
-				configuredUserOnly, err := cmd.Flags().GetBool(userOnlyFlag)
-				if err != nil {
-					logrus.Fatal(err)
-				}
-				v.Set(userOnlyFlag, configuredUserOnly)
+			if err := configureStringSliceIfSet(cmd, v, includeFlag); err != nil {
+				return err
 			}
-
-			if cmd.Flags().Lookup(environmentIdFlag).Changed {
-				configuredEnvironmentId, err := cmd.Flags().GetString(environmentIdFlag)
-				if err != nil {
-					logrus.Fatal(err)
-				}
-				v.Set(environmentIdFlag, configuredEnvironmentId)
+			if err := configureEnumSliceIfSet(cmd, v, inputTypeFlag, loader.ValidateInputTypes); err != nil {
+				return err
 			}
-
+			if err := configureBoolIfSet(cmd, v, noBuiltInsFlag); err != nil {
+				return err
+			}
+			if err := configureBoolIfSet(cmd, v, noIgnoreFlag); err != nil {
+				return err
+			}
+			if err := configureStringSliceIfSet(cmd, v, onlyFlag); err != nil {
+				return err
+			}
+			if err := configureEnumIfSet(cmd, v, severityFlag, reporter.ValidateSeverity); err != nil {
+				return err
+			}
+			if err := configureBoolIfSet(cmd, v, syncFlag); err != nil {
+				return err
+			}
 			if len(paths) > 0 {
 				v.Set(inputsFlag, paths)
 			}
 
 			force, err := cmd.Flags().GetBool(forceFlag)
 			if err != nil {
-				logrus.Fatal(err)
+				return err
 			}
 
+			// Silence usage now that we're past arg parsing
+			cmd.SilenceUsage = true
+
 			if _, err := os.Stat(configPath); err == nil {
-				if force || overwritePrompt(configPath) {
-					v.WriteConfig()
+				shouldOverwrite, err := overwritePrompt(configPath)
+				if err != nil {
+					return err
+				}
+				if force || shouldOverwrite {
+					if err := writeConfig(v); err != nil {
+						return err
+					}
 				} else {
 					logrus.Infof("Not overwriting %s", configPath)
-					return
+					return nil
 				}
 			} else {
-				v.WriteConfig()
+				if err := writeConfig(v); err != nil {
+					return err
+				}
 			}
 
 			logrus.Infof("Wrote configuration file to %s", configPath)
+			return nil
 		},
 	}
 
-	addEnvironmentIdFlag(cmd)
+	addEnvironmentIDFlag(cmd)
+	addExcludeFlag(cmd)
 	addForceFlag(cmd)
+	addFormatFlag(cmd)
 	addIncludeFlag(cmd)
-	addUserOnlyFlag(cmd)
-	addInputTypeFlag(cmd, &inputTypes)
-	addSeverityFlag(cmd, &severity)
-
+	addInputTypeFlag(cmd)
+	addNoBuiltInsFlag(cmd)
+	addNoIgnoreFlag(cmd)
+	addOnlyFlag(cmd)
+	addSeverityFlag(cmd)
+	addSyncFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }
 
-func overwritePrompt(configPath string) bool {
+func configureStringIfSet(cmd *cobra.Command, v *viper.Viper, flagName string) error {
+	if !cmd.Flags().Changed(flagName) {
+		return nil
+	}
+	val, err := cmd.Flags().GetString(flagName)
+	if err != nil {
+		return err
+	}
+	v.Set(flagName, val)
+	return nil
+}
+
+func configureStringSliceIfSet(cmd *cobra.Command, v *viper.Viper, flagName string) error {
+	if !cmd.Flags().Changed(flagName) {
+		return nil
+	}
+	val, err := cmd.Flags().GetStringSlice(flagName)
+	if err != nil {
+		return err
+	}
+	v.Set(flagName, val)
+	return nil
+}
+
+func configureBoolIfSet(cmd *cobra.Command, v *viper.Viper, flagName string) error {
+	if !cmd.Flags().Changed(flagName) {
+		return nil
+	}
+	val, err := cmd.Flags().GetBool(flagName)
+	if err != nil {
+		return err
+	}
+	v.Set(flagName, val)
+	return nil
+}
+
+func configureEnumIfSet(cmd *cobra.Command, v *viper.Viper, flagName string, validate func(s string) error) error {
+	if !cmd.Flags().Changed(flagName) {
+		return nil
+	}
+	val, err := cmd.Flags().GetString(flagName)
+	if err != nil {
+		return err
+	}
+	if err := validate(val); err != nil {
+		return err
+	}
+	v.Set(flagName, val)
+	return nil
+}
+
+func configureEnumSliceIfSet(cmd *cobra.Command, v *viper.Viper, flagName string, validate func(s []string) error) error {
+	if !cmd.Flags().Changed(flagName) {
+		return nil
+	}
+	val, err := cmd.Flags().GetStringSlice(flagName)
+	if err != nil {
+		return err
+	}
+	if err := validate(val); err != nil {
+		return err
+	}
+	v.Set(flagName, val)
+	return nil
+}
+
+func overwritePrompt(configPath string) (bool, error) {
 	prompt := promptui.Select{
 		Label: fmt.Sprintf("Overwrite existing %s? [Yes/No]", configPath),
 		Items: []string{"Yes", "No"},
 	}
 	_, result, err := prompt.Run()
 	if err != nil {
-		logrus.Fatalf(".regula.yaml exists and unable to prompt to overwrite. Use --force to disable the prompt.")
+		return false, fmt.Errorf(".regula.yaml exists and unable to prompt to overwrite. Use --force to disable the prompt.")
 	}
-	return result == "Yes"
+	return result == "Yes", nil
+}
+
+func writeConfig(v *viper.Viper) error {
+	defaults := map[string]interface{}{}
+	if !v.IsSet(environmentIDFlag) {
+		defaults[environmentIDFlag] = ""
+	}
+	if !v.IsSet(excludeFlag) {
+		defaults[excludeFlag] = []string{}
+	}
+	if !v.IsSet(formatFlag) {
+		defaults[formatFlag] = reporter.DefaultFormat
+	}
+	if !v.IsSet(includeFlag) {
+		defaults[includeFlag] = []string{}
+	}
+	if !v.IsSet(inputTypeFlag) {
+		defaults[inputTypeFlag] = loader.DefaultInputTypes
+	}
+	if !v.IsSet(noBuiltInsFlag) {
+		defaults[noBuiltInsFlag] = false
+	}
+	if !v.IsSet(noIgnoreFlag) {
+		defaults[noIgnoreFlag] = false
+	}
+	if !v.IsSet(onlyFlag) {
+		defaults[onlyFlag] = []string{}
+	}
+	if !v.IsSet(severityFlag) {
+		defaults[severityFlag] = reporter.DefaultSeverity
+	}
+	if !v.IsSet(syncFlag) {
+		defaults[syncFlag] = false
+	}
+	if !v.IsSet(inputsFlag) {
+		defaults[inputsFlag] = []string{}
+	}
+	if len(defaults) < 1 {
+		return v.WriteConfig()
+	}
+	defaultsBytes, err := yaml.Marshal(defaults)
+	if err != nil {
+		return err
+	}
+	defaultsLines := strings.Split(string(defaultsBytes), "\n")
+	commentedDefaults := make([]string, len(defaultsLines))
+	for i, l := range defaultsLines {
+		if l != "" {
+			commentedDefaults[i] = "# " + l
+		}
+	}
+	if err := v.WriteConfig(); err != nil {
+		return err
+	}
+	f, err := os.OpenFile(v.ConfigFileUsed(), os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	if _, err := f.WriteString(strings.Join(commentedDefaults, "\n")); err != nil {
+		return err
+	}
+	return nil
 }
 
 func init() {

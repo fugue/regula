@@ -1,0 +1,3 @@
+kind: Added
+body: '`--exclude` flag to `regula run`. `--exclude` takes a rule ID or rule name
+  and excludes that rule from the evaluation.'

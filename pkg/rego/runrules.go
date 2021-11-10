@@ -17,63 +17,57 @@ package rego
 import (
 	"context"
 	"fmt"
-	"io/fs"
 
 	"github.com/fugue/regula/pkg/loader"
+	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
+	"github.com/sirupsen/logrus"
 )
 
-// EmbeddedInclude can be used to load embedded rego code when regula
-// is used as a library.
-type EmbeddedInclude struct {
-	FS        fs.FS
-	Directory string
-}
+const REPORT_QUERY = "data.fugue.regula.report"
+const SCAN_VIEW_QUERY = "data.fugue.regula.scan_view"
 
-// RunRulesOptions is the set of options for RunRules
 type RunRulesOptions struct {
-	Ctx              context.Context
-	UserOnly         bool
-	Includes         []string
-	EmbeddedIncludes []EmbeddedInclude
-	Input            []loader.RegulaInput
+	Providers []RegoProvider
+	Input     []loader.RegulaInput
+	Query     string
 }
 
-// RunRules runs regula and user-specified rules on loaded inputs
-func RunRules(options *RunRulesOptions) (*rego.Result, error) {
-	query, err := prepare(options)
-	if err != nil {
-		return nil, err
+func RunRules(ctx context.Context, options *RunRulesOptions) (RegoResult, error) {
+	query := options.Query
+	if query == "" {
+		query = REPORT_QUERY
 	}
-	results, err := query.Eval(options.Ctx, rego.EvalInput(options.Input))
-	if err != nil {
-		return nil, err
-	}
-	return &results[0], nil
-}
-
-func prepare(options *RunRulesOptions) (*rego.PreparedEvalQuery, error) {
 	regoFuncs := []func(r *rego.Rego){
-		rego.Query("data.fugue.regula.report"),
+		rego.Query(query),
 	}
 	cb := func(r RegoFile) error {
 		regoFuncs = append(regoFuncs, rego.Module(r.Path(), r.String()))
 		return nil
 	}
-	if err := LoadRegula(options.UserOnly, cb); err != nil {
-		return nil, err
-	}
-	for _, e := range options.EmbeddedIncludes {
-		if err := LoadDirectory(e.FS, e.Directory, cb); err != nil {
+	for _, p := range options.Providers {
+		if err := p(ctx, cb); err != nil {
 			return nil, err
 		}
 	}
-	if err := LoadOSFiles(options.Includes, cb); err != nil {
+	regoQuery, err := rego.New(regoFuncs...).PrepareForEval(ctx)
+	if err != nil {
+		if regoErrors, ok := err.(rego.Errors); ok {
+			for _, e := range regoErrors {
+				if astError, ok := e.(*ast.Error); ok {
+					module := regoQuery.Modules()[astError.Location.File]
+					logrus.Info(module.String())
+				}
+			}
+		}
+		return nil, fmt.Errorf("Failed to initialize OPA: %v, %t", err, err)
+	}
+	if err != nil {
 		return nil, err
 	}
-	query, err := rego.New(regoFuncs...).PrepareForEval(options.Ctx)
+	results, err := regoQuery.Eval(ctx, rego.EvalInput(options.Input))
 	if err != nil {
-		return nil, fmt.Errorf("Failed to initialize OPA: %v", err)
+		return nil, err
 	}
-	return &query, nil
+	return &results[0], nil
 }

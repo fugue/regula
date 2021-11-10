@@ -14,7 +14,10 @@
 
 package loader
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 //go:generate mockgen -destination=../mocks/mock_iacconfiguration.go -package=mocks github.com/fugue/regula/pkg/loader IACConfiguration
 //go:generate mockgen -destination=../mocks/mock_configurationdetector.go -package=mocks github.com/fugue/regula/pkg/loader ConfigurationDetector
@@ -55,23 +58,44 @@ var InputTypeIDs = map[InputType][]string{
 	K8s:    {"k8s", "kubernetes"},
 }
 
-// InputTypeForString is a utility function to translate the string name of an input
-// type to an InputType enum
-func InputTypeForString(typeStr string) (InputType, error) {
-	switch typeStr {
-	case "auto":
-		return Auto, nil
-	case "cfn":
-		return Cfn, nil
-	case "tf-plan":
-		return TfPlan, nil
-	case "tf":
-		return Tf, nil
-	case "k8s":
-		return K8s, nil
-	default:
-		return -1, fmt.Errorf("Unrecognized input type %v", typeStr)
+var DefaultInputTypes = InputTypeIDs[Auto]
+
+func InputTypeFromString(name string) (InputType, error) {
+	lower := strings.ToLower(name)
+	for t, ids := range InputTypeIDs {
+		for _, i := range ids {
+			if lower == i {
+				return t, nil
+			}
+		}
 	}
+	return -1, fmt.Errorf("Unrecognized input type %v", name)
+}
+
+func ValidateInputType(name string) error {
+	if _, err := InputTypeFromString(name); err != nil {
+		return err
+	}
+	return nil
+}
+
+func InputTypesFromStrings(names []string) ([]InputType, error) {
+	inputTypes := make([]InputType, len(names))
+	for idx, n := range names {
+		t, err := InputTypeFromString(n)
+		if err != nil {
+			return nil, err
+		}
+		inputTypes[idx] = t
+	}
+	return inputTypes, nil
+}
+
+func ValidateInputTypes(names []string) error {
+	if _, err := InputTypesFromStrings(names); err != nil {
+		return err
+	}
+	return nil
 }
 
 // LoadedConfigurations is a container for IACConfigurations loaded by Regula.
@@ -89,6 +113,8 @@ type LoadedConfigurations interface {
 	// Count returns the number of loaded configurations.
 	Count() int
 }
+
+type ConfigurationLoader func() (LoadedConfigurations, error)
 
 // RegulaInput is a generic map that can be fed to OPA for regula.
 type RegulaInput map[string]interface{}

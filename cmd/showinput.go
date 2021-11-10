@@ -15,57 +15,43 @@
 package cmd
 
 import (
-	"context"
-	_ "embed"
+	"encoding/json"
+	"fmt"
 
 	"github.com/fugue/regula/pkg/loader"
-	"github.com/fugue/regula/pkg/rego"
-
 	"github.com/spf13/cobra"
 )
 
-func NewTestCommand() *cobra.Command {
+func NewShowInputCommand() *cobra.Command {
+	inputTypes := []loader.InputType{loader.Auto}
 	cmd := &cobra.Command{
-		Use:   "test [paths containing rego or test inputs]",
-		Short: "Run OPA test with Regula.",
-		RunE: func(cmd *cobra.Command, includes []string) error {
-			trace, err := cmd.Flags().GetBool(traceFlag)
+		Use:   "input [file...]",
+		Short: "Show the JSON input being passed to regula",
+		RunE: func(cmd *cobra.Command, paths []string) error {
+			loadedFiles, err := loader.LocalConfigurationLoader(loader.LoadPathsOptions{
+				Paths:      paths,
+				InputTypes: inputTypes,
+			})()
 			if err != nil {
 				return err
 			}
-			noTestInputs, err := cmd.Flags().GetBool(noTestInputsFlag)
-			if err != nil {
-				return err
-			}
+			// Silence usage now that we're past arg parsing
 			cmd.SilenceUsage = true
-			providers := []rego.RegoProvider{
-				rego.RegulaLibProvider(),
-				rego.LocalProvider(includes),
-			}
-			if !noTestInputs {
-				providers = append(
-					providers,
-					rego.TestInputsProvider(includes, []loader.InputType{loader.Auto}),
-				)
-			}
 
-			ctx := context.Background()
-			err = rego.RunTest(ctx, &rego.RunTestOptions{
-				Providers: providers,
-				Trace:     trace,
-			})
+			bytes, err := json.MarshalIndent(loadedFiles.RegulaInput(), "", "  ")
 			if err != nil {
 				return err
 			}
+			fmt.Println(string(bytes))
 			return nil
 		},
 	}
-	addTraceFlag(cmd)
-	addNoTestInputsFlag(cmd)
+
+	addInputTypeFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }
 
 func init() {
-	rootCmd.AddCommand(NewTestCommand())
+	showCommand.AddCommand(NewShowInputCommand())
 }

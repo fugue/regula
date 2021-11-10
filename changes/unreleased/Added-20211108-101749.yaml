@@ -1,0 +1,4 @@
+kind: Added
+body: '`rule_valid` field to Regula JSON report output. This boolean field indicates
+  the unwaived rule status - `true` if the rule passed before waivers were applied
+  and `false` otherwise.'

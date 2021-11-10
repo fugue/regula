@@ -16,8 +16,10 @@ package cmd
 
 import (
 	"math/rand"
+	"os"
 	"time"
 
+	"github.com/fugue/regula/pkg/rego"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -32,10 +34,23 @@ var rootCmd = &cobra.Command{
 			logrus.SetLevel(logrus.DebugLevel)
 		}
 	},
+	PersistentPreRunE: func(cmd *cobra.Command, paths []string) error {
+		if verbose {
+			logrus.SetLevel(logrus.DebugLevel)
+		}
+		cmd.SilenceErrors = true
+		return nil
+	},
 }
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
+		if _, ok := err.(*ExceedsSeverityError); ok {
+			os.Exit(1)
+		}
+		if _, ok := err.(*rego.TestsFailedError); ok {
+			os.Exit(1)
+		}
 		logrus.Fatal(err)
 	}
 }

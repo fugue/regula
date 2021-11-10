@@ -37,6 +37,7 @@ default allow = false
 `,
 			run: func(rego *RegoMeta) {
 				assert.Equal(t, "foo.bar", rego.PackageName)
+				assert.False(t, rego.HasMetadoc())
 				rego.PackageName = "bar.qux"
 			},
 			expected: `
@@ -95,6 +96,7 @@ allow {
 }
 `,
 			run: func(rego *RegoMeta) {
+				assert.True(t, rego.HasMetadoc())
 				assert.Equal(t, "rules.tf_aws_ebs_volume_encrypted", rego.PackageName)
 				assert.Equal(t, "FG_R00016", rego.Id)
 				assert.Equal(t, "EBS volume encryption should be enabled", rego.Title)

@@ -16,56 +16,46 @@ package cmd
 
 import (
 	"context"
-	_ "embed"
+	"fmt"
 
-	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
-
 	"github.com/spf13/cobra"
 )
 
-func NewTestCommand() *cobra.Command {
+func NewShowConfigCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "test [paths containing rego or test inputs]",
-		Short: "Run OPA test with Regula.",
-		RunE: func(cmd *cobra.Command, includes []string) error {
-			trace, err := cmd.Flags().GetBool(traceFlag)
+		Use:   "config-rego <options>",
+		Short: "Show the generated config rego file",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			excludes, err := cmd.Flags().GetStringSlice(excludeFlag)
 			if err != nil {
 				return err
 			}
-			noTestInputs, err := cmd.Flags().GetBool(noTestInputsFlag)
+			only, err := cmd.Flags().GetStringSlice(onlyFlag)
 			if err != nil {
 				return err
 			}
+			// Silence usage now that we're past arg parsing
 			cmd.SilenceUsage = true
-			providers := []rego.RegoProvider{
-				rego.RegulaLibProvider(),
-				rego.LocalProvider(includes),
+			cb := func(r rego.RegoFile) error {
+				fmt.Print(r.String())
+				return nil
 			}
-			if !noTestInputs {
-				providers = append(
-					providers,
-					rego.TestInputsProvider(includes, []loader.InputType{loader.Auto}),
-				)
-			}
-
+			provider := rego.RegulaConfigProvider(excludes, only)
 			ctx := context.Background()
-			err = rego.RunTest(ctx, &rego.RunTestOptions{
-				Providers: providers,
-				Trace:     trace,
-			})
-			if err != nil {
+			if err := provider(ctx, cb); err != nil {
 				return err
 			}
 			return nil
 		},
 	}
-	addTraceFlag(cmd)
-	addNoTestInputsFlag(cmd)
+
+	addExcludeFlag(cmd)
+	addOnlyFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }
 
 func init() {
-	rootCmd.AddCommand(NewTestCommand())
+	showCommand.AddCommand(NewShowConfigCommand())
 }

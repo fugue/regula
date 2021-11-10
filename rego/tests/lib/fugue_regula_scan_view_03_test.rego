@@ -15,7 +15,7 @@
 # This test case is about waivers.
 package fugue.regula_scan_view_03_test
 
-import data.fugue.scan_view
+import data.fugue.regula
 import data.tests.lib.inputs.invalid_encryption_infra_yaml as input1
 import data.tests.lib.inputs.valid_encryption_infra_yaml as input2
 
@@ -50,7 +50,7 @@ mock_rules := {
 }
 
 test_scan_view_01 {
-  output := scan_view.scan_view with
+  output := regula.scan_view with
     data.rules as mock_rules with
     input as mock_input with
     data.fugue.regula.config.waivers as {
@@ -58,12 +58,12 @@ test_scan_view_01 {
     }
 
   num := count([r | r := output.report.rule_results[_]; r.rule_name == "deny_buckets"])
-  num == count([r | r := output.report.rule_results[_]; r.rule_waived == true])
+  num == count([r | r := output.report.rule_results[_]; r.rule_result == "WAIVED"])
   num > 0
 }
 
 test_report_02 {
-  output := scan_view.scan_view with
+  output := regula.scan_view with
     data.rules as mock_rules with
     input as mock_input with
     data.fugue.regula.config.waivers as {
@@ -71,12 +71,12 @@ test_report_02 {
     }
 
   num := count([r | r := output.report.rule_results[_]; r.filepath == "invalid_encryption_infra.yaml"])
-  num == count([r | r := output.report.rule_results[_]; r.rule_waived == true])
+  num == count([r | r := output.report.rule_results[_]; r.rule_result == "WAIVED"])
   num == 3
 }
 
 test_report_03 {
-  output := scan_view.scan_view with
+  output := regula.scan_view with
     data.rules as mock_rules with
     input as mock_input with
     data.fugue.regula.config.waivers as {
@@ -84,12 +84,12 @@ test_report_03 {
     }
 
   num := count([r | r := output.report.rule_results[_]; r.rule_id == "TEST_123"])
-  num == count([r | r := output.report.rule_results[_]; r.rule_waived == true])
+  num == count([r | r := output.report.rule_results[_]; r.rule_result == "WAIVED"])
   num == 2
 }
 
 test_report_04 {
-  output := scan_view.scan_view with
+  output := regula.scan_view with
     data.rules as mock_rules with
     input as mock_input with
     data.fugue.regula.config.waivers as {
@@ -101,12 +101,12 @@ test_report_04 {
     r.rule_name == "deny_buckets"
     r.resource_id == "LoggingBucket"
   ])
-  num == count([r | r := output.report.rule_results[_]; r.rule_waived == true])
+  num == count([r | r := output.report.rule_results[_]; r.rule_result == "WAIVED"])
   num == 1
 }
 
 test_report_05 {
-  output := scan_view.scan_view with
+  output := regula.scan_view with
     data.rules as mock_rules with
     input as mock_input with
     data.fugue.regula.config.waivers as {
@@ -114,11 +114,11 @@ test_report_05 {
       {}
     }
 
-  count([r | r := output.report.rule_results[_]; r.rule_waived == true]) == 0
+  count([r | r := output.report.rule_results[_]; r.rule_result == "WAIVED"]) == 0
 }
 
 test_report_06 {
-  output := scan_view.scan_view with
+  output := regula.scan_view with
     data.rules as mock_rules with
     input as mock_input with
     data.fugue.regula.config.waivers as {
@@ -126,6 +126,6 @@ test_report_06 {
     }
 
   num := count([r | r := output.report.rule_results[_]; r.resource_type == "AWS::S3::Bucket"])
-  num == count([r | r := output.report.rule_results[_]; r.rule_waived == true])
+  num == count([r | r := output.report.rule_results[_]; r.rule_result == "WAIVED"])
   num == 4
 }

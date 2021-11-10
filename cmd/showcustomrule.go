@@ -16,56 +16,48 @@ package cmd
 
 import (
 	"context"
-	_ "embed"
+	"fmt"
 
-	"github.com/fugue/regula/pkg/loader"
+	"github.com/fugue/regula/pkg/fugue"
 	"github.com/fugue/regula/pkg/rego"
-
 	"github.com/spf13/cobra"
 )
 
-func NewTestCommand() *cobra.Command {
+func NewShowCustomRuleCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "test [paths containing rego or test inputs]",
-		Short: "Run OPA test with Regula.",
-		RunE: func(cmd *cobra.Command, includes []string) error {
-			trace, err := cmd.Flags().GetBool(traceFlag)
-			if err != nil {
-				return err
+		Use:   "custom-rule <rule ID>",
+		Short: "Show a custom rule from your Fugue account",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 1 {
+				return fmt.Errorf("Only one Rule ID can be specified at a time.")
 			}
-			noTestInputs, err := cmd.Flags().GetBool(noTestInputsFlag)
-			if err != nil {
-				return err
+			if len(args) < 1 {
+				return fmt.Errorf("A Rule ID must be specified.")
 			}
+			// Silence usage now that we're past arg parsing
 			cmd.SilenceUsage = true
-			providers := []rego.RegoProvider{
-				rego.RegulaLibProvider(),
-				rego.LocalProvider(includes),
-			}
-			if !noTestInputs {
-				providers = append(
-					providers,
-					rego.TestInputsProvider(includes, []loader.InputType{loader.Auto}),
-				)
-			}
-
-			ctx := context.Background()
-			err = rego.RunTest(ctx, &rego.RunTestOptions{
-				Providers: providers,
-				Trace:     trace,
-			})
+			ruleID := args[0]
+			client, err := fugue.NewFugueClient()
 			if err != nil {
+				return err
+			}
+			cb := func(r rego.RegoFile) error {
+				fmt.Print(r.String())
+				return nil
+			}
+			provider := client.CustomRuleProvider(ruleID)
+			ctx := context.Background()
+			if err := provider(ctx, cb); err != nil {
 				return err
 			}
 			return nil
 		},
 	}
-	addTraceFlag(cmd)
-	addNoTestInputsFlag(cmd)
+
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }
 
 func init() {
-	rootCmd.AddCommand(NewTestCommand())
+	showCommand.AddCommand(NewShowCustomRuleCommand())
 }

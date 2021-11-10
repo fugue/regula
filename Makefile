@@ -112,7 +112,7 @@ $(CHANGIE):
 	$(GO) install github.com/miniscruff/changie@v0.5.0
 
 $(GORELEASER):
-	$(GO) install github.com/goreleaser/goreleaser@v0.164.0
+	$(GO) install github.com/goreleaser/goreleaser@v0.183.0
 
 .PHONY: install_tools
 install_tools: ## Download and install golint, mockgen, changie, and goreleaser

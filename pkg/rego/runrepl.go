@@ -1,3 +1,17 @@
+// Copyright 2021 Fugue, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package rego
 
 import (
@@ -7,7 +21,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/version"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/repl"
@@ -16,16 +29,26 @@ import (
 )
 
 type RunREPLOptions struct {
-	Ctx          context.Context
-	UserOnly     bool
-	Includes     []string
-	NoTestInputs bool
+	Providers []RegoProvider
 }
 
-func RunREPL(options *RunREPLOptions) error {
-	RegisterBuiltins()
-	store, err := initStore(options.Ctx, options.UserOnly, options.Includes, options.NoTestInputs)
+func RunREPL(ctx context.Context, options *RunREPLOptions) error {
+	store := inmem.New()
+	txn, err := store.NewTransaction(ctx, storage.TransactionParams{
+		Write: true,
+	})
 	if err != nil {
+		return err
+	}
+	cb := func(r RegoFile) error {
+		return store.UpsertPolicy(ctx, txn, r.Path(), r.Raw())
+	}
+	for _, p := range options.Providers {
+		if err := p(ctx, cb); err != nil {
+			return err
+		}
+	}
+	if err := store.Commit(ctx, txn); err != nil {
 		return err
 	}
 	var historyPath string
@@ -41,37 +64,9 @@ func RunREPL(options *RunREPLOptions) error {
 		"pretty",
 		ast.CompileErrorLimitDefault,
 		getBanner())
-	r.OneShot(options.Ctx, "strict-builtin-errors")
-	r.Loop(options.Ctx)
+	r.OneShot(ctx, "strict-builtin-errors")
+	r.Loop(ctx)
 	return nil
-}
-
-func initStore(ctx context.Context, userOnly bool, includes []string, noTestInputs bool) (storage.Store, error) {
-	store := inmem.New()
-	txn, err := store.NewTransaction(ctx, storage.TransactionParams{
-		Write: true,
-	})
-	if err != nil {
-		return nil, err
-	}
-	cb := func(r RegoFile) error {
-		return store.UpsertPolicy(ctx, txn, r.Path(), r.Raw())
-	}
-	if err := LoadRegula(userOnly, cb); err != nil {
-		return nil, err
-	}
-	if err := LoadOSFiles(includes, cb); err != nil {
-		return nil, err
-	}
-	if !noTestInputs {
-		if err := LoadTestInputs(includes, []loader.InputType{loader.Auto}, cb); err != nil {
-			return nil, err
-		}
-	}
-	if err := store.Commit(ctx, txn); err != nil {
-		return nil, err
-	}
-	return store, nil
 }
 
 func getBanner() string {

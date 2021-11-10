@@ -41,118 +41,120 @@ func (e *NoLoadableConfigsError) Error() string {
 	return fmt.Sprintf("No loadable files in provided paths: %v", e.paths)
 }
 
-func LoadPaths(options LoadPathsOptions) (LoadedConfigurations, error) {
-	configurations := newLoadedConfigurations()
-	detector, err := DetectorByInputTypes(options.InputTypes)
-	// We want to ignore file extension mismatches when 'auto' is not present in
-	// the selected input types and there is only one input type selected.
-	autoInputTypeSelected := false
-	for _, t := range options.InputTypes {
-		if t == Auto {
-			autoInputTypeSelected = true
-			break
-		}
-	}
-	ignoreFileExtension := !autoInputTypeSelected && len(options.InputTypes) < 2
-	if err != nil {
-		return nil, err
-	}
-	walkFunc := func(i InputPath) (skip bool, err error) {
-		if configurations.AlreadyLoaded(i.Path()) {
-			skip = true
-			return
-		}
-		// Ignore errors when we're recursing
-		loader, _ := i.DetectType(detector, DetectOptions{
-			IgnoreExt:  false,
-			IgnoreDirs: options.IgnoreDirs,
-		})
-		if loader != nil {
-			configurations.AddConfiguration(i.Path(), loader)
-		}
-		return
-	}
-	gitRepoFinder := git.NewRepoFinder(options.Paths)
-	for _, path := range options.Paths {
-		if path == "-" {
-			path = stdIn
-		} else {
-			path = filepath.Clean(path)
-		}
-		if configurations.AlreadyLoaded(path) {
-			continue
-		}
-		if path == stdIn {
-			i := newFile(stdIn, stdIn)
-			loader, err := i.DetectType(detector, DetectOptions{
-				IgnoreExt: true,
-			})
-			if err != nil {
-				return nil, err
+func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
+	return func() (LoadedConfigurations, error) {
+		configurations := newLoadedConfigurations()
+		detector, err := DetectorByInputTypes(options.InputTypes)
+		// We want to ignore file extension mismatches when 'auto' is not present in
+		// the selected input types and there is only one input type selected.
+		autoInputTypeSelected := false
+		for _, t := range options.InputTypes {
+			if t == Auto {
+				autoInputTypeSelected = true
+				break
 			}
-			if loader != nil {
-				configurations.AddConfiguration(stdIn, loader)
-			} else {
-				return nil, fmt.Errorf("Unable to detect input type of stdin")
-			}
-			continue
 		}
-		name := filepath.Base(path)
-		info, err := os.Stat(path)
+		ignoreFileExtension := !autoInputTypeSelected && len(options.InputTypes) < 2
 		if err != nil {
 			return nil, err
 		}
-		if info.IsDir() {
-			// We want to override the gitignore behavior if the user explicitly gives
-			// us a directory that is ignored.
-			noIgnore := options.NoGitIgnore
-			if !noIgnore {
-				if repo := gitRepoFinder.FindRepo(path); repo != nil {
-					noIgnore = repo.IsPathIgnored(path, true)
-				}
+		walkFunc := func(i InputPath) (skip bool, err error) {
+			if configurations.AlreadyLoaded(i.Path()) {
+				skip = true
+				return
 			}
-			i, err := newDirectory(directoryOptions{
-				Path:          path,
-				Name:          name,
-				NoGitIgnore:   noIgnore,
-				GitRepoFinder: gitRepoFinder,
-			})
-			if err != nil {
-				return nil, err
-			}
-			loader, err := i.DetectType(detector, DetectOptions{
-				IgnoreExt:  ignoreFileExtension,
+			// Ignore errors when we're recursing
+			loader, _ := i.DetectType(detector, DetectOptions{
+				IgnoreExt:  false,
 				IgnoreDirs: options.IgnoreDirs,
 			})
-			if err != nil {
-				return nil, err
-			}
 			if loader != nil {
-				configurations.AddConfiguration(path, loader)
+				configurations.AddConfiguration(i.Path(), loader)
 			}
-			if err := i.Walk(walkFunc); err != nil {
-				return nil, err
-			}
-		} else {
-			i := newFile(path, name)
-			loader, err := i.DetectType(detector, DetectOptions{
-				IgnoreExt: ignoreFileExtension,
-			})
-			if err != nil {
-				return nil, err
-			}
-			if loader != nil {
-				configurations.AddConfiguration(path, loader)
+			return
+		}
+		gitRepoFinder := git.NewRepoFinder(options.Paths)
+		for _, path := range options.Paths {
+			if path == "-" {
+				path = stdIn
 			} else {
-				return nil, fmt.Errorf("Unable to detect input type of file %v", i.Path())
+				path = filepath.Clean(path)
+			}
+			if configurations.AlreadyLoaded(path) {
+				continue
+			}
+			if path == stdIn {
+				i := newFile(stdIn, stdIn)
+				loader, err := i.DetectType(detector, DetectOptions{
+					IgnoreExt: true,
+				})
+				if err != nil {
+					return nil, err
+				}
+				if loader != nil {
+					configurations.AddConfiguration(stdIn, loader)
+				} else {
+					return nil, fmt.Errorf("Unable to detect input type of stdin")
+				}
+				continue
+			}
+			name := filepath.Base(path)
+			info, err := os.Stat(path)
+			if err != nil {
+				return nil, err
+			}
+			if info.IsDir() {
+				// We want to override the gitignore behavior if the user explicitly gives
+				// us a directory that is ignored.
+				noIgnore := options.NoGitIgnore
+				if !noIgnore {
+					if repo := gitRepoFinder.FindRepo(path); repo != nil {
+						noIgnore = repo.IsPathIgnored(path, true)
+					}
+				}
+				i, err := newDirectory(directoryOptions{
+					Path:          path,
+					Name:          name,
+					NoGitIgnore:   noIgnore,
+					GitRepoFinder: gitRepoFinder,
+				})
+				if err != nil {
+					return nil, err
+				}
+				loader, err := i.DetectType(detector, DetectOptions{
+					IgnoreExt:  ignoreFileExtension,
+					IgnoreDirs: options.IgnoreDirs,
+				})
+				if err != nil {
+					return nil, err
+				}
+				if loader != nil {
+					configurations.AddConfiguration(path, loader)
+				}
+				if err := i.Walk(walkFunc); err != nil {
+					return nil, err
+				}
+			} else {
+				i := newFile(path, name)
+				loader, err := i.DetectType(detector, DetectOptions{
+					IgnoreExt: ignoreFileExtension,
+				})
+				if err != nil {
+					return nil, err
+				}
+				if loader != nil {
+					configurations.AddConfiguration(path, loader)
+				} else {
+					return nil, fmt.Errorf("Unable to detect input type of file %v", i.Path())
+				}
 			}
 		}
-	}
-	if configurations.Count() < 1 {
-		return nil, &NoLoadableConfigsError{options.Paths}
-	}
+		if configurations.Count() < 1 {
+			return nil, &NoLoadableConfigsError{options.Paths}
+		}
 
-	return configurations, nil
+		return configurations, nil
+	}
 }
 
 type cachedLocation struct {

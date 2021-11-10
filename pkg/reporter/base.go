@@ -15,13 +15,16 @@
 package reporter
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/fugue/regula/pkg/loader"
+	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/version"
 	embedded "github.com/fugue/regula/rego"
-	"github.com/open-policy-agent/opa/rego"
 )
 
 type Severity int
@@ -36,6 +39,10 @@ const (
 	Off
 )
 
+func (s Severity) String() string {
+	return strings.Title(SeverityIds[s][0])
+}
+
 var SeverityIds = map[Severity][]string{
 	Unknown:       {"unknown"},
 	Informational: {"informational"},
@@ -44,6 +51,27 @@ var SeverityIds = map[Severity][]string{
 	High:          {"high"},
 	Critical:      {"critical"},
 	Off:           {"off"},
+}
+
+var DefaultSeverity = SeverityIds[Unknown][0]
+
+func SeverityFromString(name string) (Severity, error) {
+	lower := strings.ToLower(name)
+	for s, ids := range SeverityIds {
+		for _, i := range ids {
+			if lower == i {
+				return s, nil
+			}
+		}
+	}
+	return -1, fmt.Errorf("Unrecognized input type %v", name)
+}
+
+func ValidateSeverity(name string) error {
+	if _, err := SeverityFromString(name); err != nil {
+		return err
+	}
+	return nil
 }
 
 type Format int
@@ -58,7 +86,7 @@ const (
 	Compact
 )
 
-var FormatIds = map[Format][]string{
+var FormatIDs = map[Format][]string{
 	JSON:    {"json"},
 	Table:   {"table"},
 	Junit:   {"junit"},
@@ -66,6 +94,27 @@ var FormatIds = map[Format][]string{
 	None:    {"none"},
 	Text:    {"text"},
 	Compact: {"compact"},
+}
+
+var DefaultFormat = FormatIDs[Text][0]
+
+func FormatFromString(name string) (Format, error) {
+	lower := strings.ToLower(name)
+	for f, ids := range FormatIDs {
+		for _, i := range ids {
+			if lower == i {
+				return f, nil
+			}
+		}
+	}
+	return -1, fmt.Errorf("Unrecognized input type %v", name)
+}
+
+func ValidateFormat(name string) error {
+	if _, err := FormatFromString(name); err != nil {
+		return err
+	}
+	return nil
 }
 
 type Result int
@@ -82,7 +131,7 @@ var regulaResults map[string]Result = map[string]Result{
 	"FAIL":   FAIL,
 }
 
-type RegulaOutput struct {
+type RegulaReport struct {
 	RuleResults []RuleResult `json:"rule_results"`
 	Summary     Summary      `json:"summary"`
 }
@@ -96,7 +145,7 @@ var regulaSeverities map[string]Severity = map[string]Severity{
 	"Critical":      Critical,
 }
 
-func (o RegulaOutput) ExceedsSeverity(severity Severity) bool {
+func (o RegulaReport) ExceedsSeverity(severity Severity) bool {
 	if o.Summary.RuleResults["FAIL"] < 1 {
 		return false
 	}
@@ -151,7 +200,7 @@ func (r ResultsByFilepath) SortedKeys() []string {
 	return keys
 }
 
-func (o RegulaOutput) AggregateByFilepath() ResultsByFilepath {
+func (o RegulaReport) AggregateByFilepath() ResultsByFilepath {
 	byFilepath := ResultsByFilepath{}
 	for _, r := range o.RuleResults {
 		filepathResults, ok := byFilepath[r.Filepath]
@@ -192,7 +241,7 @@ func getRemediationDoc(RuleID string) string {
 }
 
 // AggregateByRule returns all rule results grouped by rule
-func (o RegulaOutput) AggregateByRule() ResultsByRule {
+func (o RegulaReport) AggregateByRule() ResultsByRule {
 
 	// Collect all results by rule name
 	byRule := map[string][]*RuleResult{}
@@ -242,7 +291,7 @@ func (o RegulaOutput) AggregateByRule() ResultsByRule {
 }
 
 // FailuresByRule returns failing rule results grouped by rule
-func (o RegulaOutput) FailuresByRule() ResultsByRule {
+func (o RegulaReport) FailuresByRule() ResultsByRule {
 	results := o.AggregateByRule()
 	for i, rule := range results {
 		var filtered []*RuleResult
@@ -267,10 +316,11 @@ type RuleResult struct {
 	RuleID             string   `json:"rule_id"`
 	RuleMessage        string   `json:"rule_message"`
 	RuleName           string   `json:"rule_name"`
+	RuleRawResult      bool     `json:"rule_raw_result"`
+	RuleRemediationDoc string   `json:"rule_remediation_doc,omitempty"`
 	RuleResult         string   `json:"rule_result"`
 	RuleSeverity       string   `json:"rule_severity"`
 	RuleSummary        string   `json:"rule_summary"`
-	RuleRemediationDoc string   `json:"rule_remediation_doc,omitempty"`
 	// List of source code locations this rule result pertains to.  The first
 	// element of the list always refers to the most specific source code site,
 	// and further elements indicate modules in which this was included, like
@@ -315,12 +365,6 @@ type Summary struct {
 	Severities  map[string]int `json:"severities"`
 }
 
-type ScanRuleResult struct {
-	RuleResult
-	RuleEnabled bool `json:"rule_enabled"`
-	RuleValid   bool `json:"rule_valid"`
-	RuleWaived  bool `json:"rule_waived"`
-}
 type ScanInput struct {
 	Filepath  string                            `json:"filepath"`
 	InputType string                            `json:"input_type"`
@@ -345,24 +389,30 @@ func (s *ScanInput) EnrichResources(conf loader.LoadedConfigurations) {
 	}
 }
 
-type ScanReport struct {
-	RuleResults []ScanRuleResult `json:"rule_results"`
-	Summary     Summary          `json:"summary"`
-}
-
 type ScanView struct {
-	Inputs          []ScanInput `json:"inputs"`
-	RegulaVersion   string      `json:"regula_version"`
-	ScanViewVersion string      `json:"scan_view_version"`
-	Report          ScanReport  `json:"report"`
+	Inputs          []ScanInput  `json:"inputs"`
+	RegulaVersion   string       `json:"regula_version"`
+	ScanViewVersion string       `json:"scan_view_version"`
+	Report          RegulaReport `json:"report"`
 }
 
-func ParseRegulaOutput(conf loader.LoadedConfigurations, r rego.Result) (*RegulaOutput, error) {
+func (s *ScanView) ToJSON() (string, error) {
+	buf := &bytes.Buffer{}
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(s); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+
+func ParseRegulaOutput(conf loader.LoadedConfigurations, r rego.RegoResult) (*RegulaReport, error) {
 	j, err := json.Marshal(r.Expressions[0].Value)
 	if err != nil {
 		return nil, err
 	}
-	output := &RegulaOutput{}
+	output := &RegulaReport{}
 	if err = json.Unmarshal(j, output); err != nil {
 		return nil, err
 	}
@@ -374,7 +424,7 @@ func ParseRegulaOutput(conf loader.LoadedConfigurations, r rego.Result) (*Regula
 	return output, nil
 }
 
-func ParseScanView(conf loader.LoadedConfigurations, r rego.Result) (*ScanView, error) {
+func ParseScanView(conf loader.LoadedConfigurations, r rego.RegoResult) (*ScanView, error) {
 	j, err := json.Marshal(r.Expressions[0].Value)
 	if err != nil {
 		return nil, err
@@ -395,7 +445,7 @@ func ParseScanView(conf loader.LoadedConfigurations, r rego.Result) (*ScanView, 
 	return output, nil
 }
 
-type Reporter func(r *RegulaOutput) (string, error)
+type Reporter func(r *RegulaReport) (string, error)
 
 // RuleResults carries a slice of RuleResults associated with a specific rule.
 // A minimal amount of rule metadata is duplicated here for convenience.

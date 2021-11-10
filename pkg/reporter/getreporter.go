@@ -33,10 +33,10 @@ func GetReporter(format Format) (Reporter, error) {
 	case Compact:
 		return CompactReporter, nil
 	default:
-		return nil, fmt.Errorf("Unsupported or unrecognized reporter: %v", FormatIds[format])
+		return nil, fmt.Errorf("Unsupported or unrecognized reporter: %v", FormatIDs[format])
 	}
 }
 
-func noneReporter(o *RegulaOutput) (string, error) {
+func noneReporter(o *RegulaReport) (string, error) {
 	return "", nil
 }

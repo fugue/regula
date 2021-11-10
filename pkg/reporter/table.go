@@ -21,7 +21,7 @@ import (
 	"github.com/fatih/color"
 )
 
-func TableReporter(o *RegulaOutput) (string, error) {
+func TableReporter(o *RegulaReport) (string, error) {
 	tableData := []TableRow{}
 	var overall string
 	if o.Summary.RuleResults["FAIL"] > 0 {

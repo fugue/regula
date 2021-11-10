@@ -15,7 +15,7 @@
 # This test case tests disabled rules.
 package fugue.regula_scan_view_02_test
 
-import data.fugue.scan_view
+import data.fugue.regula
 import data.tests.lib.inputs.invalid_encryption_infra_yaml as input1
 import data.tests.lib.inputs.valid_encryption_infra_yaml as input2
 
@@ -55,7 +55,7 @@ mock_rule_config := {
 }
 
 output = ret {
-  ret := scan_view.scan_view with
+  ret := regula.scan_view with
     data.rules as mock_rules with
     data.fugue.regula.config.rules as mock_rule_config with
     input as mock_input

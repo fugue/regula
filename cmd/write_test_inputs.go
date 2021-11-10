@@ -15,12 +15,12 @@
 package cmd
 
 import (
+	"context"
 	_ "embed"
 	"os"
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -31,17 +31,20 @@ func NewWriteTestInputsCommand() *cobra.Command {
 		Use:   "write-test-inputs [input...]",
 		Short: description,
 		Long:  description,
-		Run: func(cmd *cobra.Command, paths []string) {
+		RunE: func(cmd *cobra.Command, paths []string) error {
 			cb := func(r rego.RegoFile) error {
 				return os.WriteFile(r.Path(), r.Raw(), 0644)
 			}
-			if err := rego.LoadTestInputs(paths, inputTypes, cb); err != nil {
-				logrus.Fatal(err)
+			provider := rego.TestInputsProvider(paths, inputTypes)
+			ctx := context.Background()
+			if err := provider(ctx, cb); err != nil {
+				return err
 			}
+			return nil
 		},
 	}
 
-	addInputTypeFlag(cmd, &inputTypes)
+	addInputTypeFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

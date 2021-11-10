@@ -1,0 +1,57 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "google_sql_database_instance.default": {
+        "_filepath": "tf_test/repeated-blocks/main.tf",
+        "_provider": "google",
+        "_type": "google_sql_database_instance",
+        "database_version": "POSTGRES_11",
+        "deletion_protection": false,
+        "id": "google_sql_database_instance.default",
+        "name": "all-valid-flags-pg-instance",
+        "region": "us-east1",
+        "settings": [
+          {
+            "database_flags": [
+              {
+                "name": "log_checkpoints",
+                "value": "on"
+              },
+              {
+                "name": "log_connections",
+                "value": "on"
+              },
+              {
+                "name": "log_disconnections",
+                "value": "on"
+              },
+              {
+                "name": "log_lock_waits",
+                "value": "on"
+              },
+              {
+                "name": "log_min_error_statement",
+                "value": "error"
+              },
+              {
+                "name": "log_min_messages",
+                "value": "error"
+              },
+              {
+                "name": "log_temp_files",
+                "value": "0"
+              },
+              {
+                "name": "log_min_duration_statement",
+                "value": "-1"
+              }
+            ],
+            "tier": "db-f1-micro"
+          }
+        ]
+      }
+    }
+  },
+  "filepath": "tf_test/repeated-blocks"
+}

@@ -14,9 +14,10 @@
 
 package fugue.resource_view.dockerfile
 
+# Only one Dockerfile processed at a time. Fixed ID of "dockerfile" used.
 resource_view[id] = ret {
-    id := "dockerfile"
-	resource := input#.resources[id]
+	id = "dockerfile"
+	resource := input.resource
 	ret := json.patch(resource, [
 		{"op": "add", "path": ["id"], "value": "dockerfile"},
 		{"op": "add", "path": ["_type"], "value": "dockerfile"},

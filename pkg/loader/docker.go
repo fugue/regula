@@ -106,7 +106,10 @@ func (c *DockerfileDetector) DetectFile(i InputFile, opts DetectOptions) (IACCon
 	}
 	content := map[string]interface{}{
 		"dockerfile_resource_view_version": "0.0.1",
-		"commands":                         commands,
+		// For now, a Dockerfile "resource" contains only a list of commands
+		"resource": map[string]interface{}{
+			"commands": commands,
+		},
 	}
 	return &dockerConfiguration{
 		path:    i.Path(),

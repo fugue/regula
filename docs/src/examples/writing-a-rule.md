@@ -218,10 +218,10 @@ If you completed the Getting Started [tutorial](../getting-started.md#tutorial-r
 Make sure you're in the `regula-ci-example` directory and use the following command to check the sample Terraform project in [`regula-ci-example/infra_tf/main.tf`](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) against our custom rule, [`long_description.rego`](https://github.com/fugue/regula-ci-example/blob/master/example_custom_rule/long_description.rego):
 
 ```
-regula run -f json --user-only --include example_custom_rule infra_tf
+regula run -f json --no-built-ins --include example_custom_rule infra_tf
 ```
 
-Note that we've used the `--user-only` option because we want to test _only_ this custom rule. We don't need to apply Regula's library of rules.
+Note that we've used the `--no-built-ins` option because we want to test _only_ this custom rule. We don't need to apply Regula's library of rules.
 
 You'll see this output:
 
@@ -241,6 +241,7 @@ You'll see this output:
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
       "rule_name": "long_description",
+      "rule_raw_result": false,
       "rule_result": "FAIL",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",
@@ -265,6 +266,7 @@ You'll see this output:
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
       "rule_name": "long_description",
+      "rule_raw_result": true,
       "rule_result": "PASS",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",

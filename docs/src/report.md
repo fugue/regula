@@ -19,10 +19,11 @@ Here's a snippet of test results from a Regula JSON report:
       "rule_id": "FG_R00286",
       "rule_message": "",
       "rule_name": "tf_azurerm_network_flow_log_90days",
+      "rule_raw_result": true,
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00286.html",
       "rule_result": "PASS",
       "rule_severity": "Medium",
       "rule_summary": "Virtual Network security group flow log retention period should be set to 90 days or greater",
-      "rule_remediation_doc": "https://docs.fugue.co/FG_R00286.html",
       "source_location": [
         {
           "path": "dev_network/main.tf",
@@ -45,10 +46,11 @@ Here's a snippet of test results from a Regula JSON report:
       "rule_id": "FG_R00191",
       "rule_message": "",
       "rule_name": "tf_azurerm_network_security_group_no_inbound_22",
+      "rule_raw_result": false,
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00191.html",
       "rule_result": "FAIL",
       "rule_severity": "High",
       "rule_summary": "Network security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)",
-      "rule_remediation_doc": "https://docs.fugue.co/FG_R00191.html",
       "source_location": [
         {
           "path": "dev_network/main.tf",
@@ -71,10 +73,11 @@ Here's a snippet of test results from a Regula JSON report:
       "rule_id": "FG_R00152",
       "rule_message": "",
       "rule_name": "tf_azurerm_storage_account_secure_transfer",
+      "rule_raw_result": true,
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00152.html",
       "rule_result": "WAIVED",
       "rule_severity": "Medium",
       "rule_summary": "Storage Accounts 'Secure transfer required' should be enabled",
-      "rule_remediation_doc": "https://docs.fugue.co/FG_R00152.html",
       "source_location": [
         {
           "path": "dev_network/main.tf",
@@ -136,10 +139,11 @@ Each rule result in the JSON report lists the following attributes:
 - `rule_id`: ID of the rule; built-in rules start with `FG_R`
 - `rule_message`: Optional error message associated with the rule; see how to create custom error messages in [simple](development/writing-rules.md#custom-error-messages-and-attributes-simple-rules) and [advanced](development/writing-rules.md#custom-error-messages-advanced-rules) custom rules
 - `rule_name`: Name of the rule (filepath minus extension)
+- `rule_raw_result`: `true` if the rule result was `PASS` before any waivers were applied, `false` if it was `FAIL`
+- `rule_remediation_doc`: A URL with instructions for remediating the rule (built-in rules only)
 - `rule_result`: `PASS`, `FAIL`, or `WAIVED`
 - `rule_severity`: `Critical`, `High`, `Medium`, `Low`, `Informational`, or `Unknown`
 - `rule_summary`: A short summary of the rule
-- `rule_remediation_doc`: A URL with instructions for remediating the rule (built-in rules only)
 - `source_location`: The path, line, and column of the evaluated resource
 
 ## Compliance controls vs. rules

@@ -70,10 +70,10 @@ resource "google_storage_bucket" "bad" {
 
 As you can see, we have one "good" bucket with versioning enabled and one "bad" bucket with versioning disabled. We expect the "good" resource to return a `PASS` rule result and the "bad" resource to return a `FAIL`.
 
-Let's see what happens when we run Regula on `bucket.tf`. We're going to use the `--include` flag to include the custom rule (`google_bucket_versioning.rego`) and the `--user-only` flag to disable the library of built-in rules, since we only want to see results for our custom rule:
+Let's see what happens when we run Regula on `bucket.tf`. We're going to use the `--include` flag to include the custom rule (`google_bucket_versioning.rego`) and the `--no-built-ins` flag to disable the library of built-in rules, since we only want to see results for our custom rule:
 
 ```
-regula run bucket.tf --include google_bucket_versioning.rego --user-only
+regula run bucket.tf --include google_bucket_versioning.rego --no-built-ins
 ```
 
 We see this output:
@@ -301,7 +301,7 @@ As you can see, we've updated the `allow` logic to use `input.versioning[_].enab
 Since we've updated our rule file now, we can run the same `regula run` command we used earlier:
 
 ```
-regula run bucket.tf --include google_bucket_versioning.rego --user-only
+regula run bucket.tf --include google_bucket_versioning.rego --no-built-ins
 ```
 
 And we see this output:

@@ -52,6 +52,7 @@ We see this output:
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
       "rule_name": "long_description",
+      "rule_raw_result": false,
       "rule_result": "FAIL",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",
@@ -76,6 +77,7 @@ We see this output:
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
       "rule_name": "long_description",
+      "rule_raw_result": true,
       "rule_result": "PASS",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",
@@ -101,10 +103,11 @@ We see this output:
       "rule_id": "FG_R00092",
       "rule_message": "",
       "rule_name": "tf_aws_iam_admin_policy",
+      "rule_raw_result": false,
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "rule_result": "FAIL",
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
-      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "source_location": [
         {
           "path": "infra_tf/main.tf",
@@ -127,10 +130,11 @@ We see this output:
       "rule_id": "FG_R00092",
       "rule_message": "",
       "rule_name": "tf_aws_iam_admin_policy",
+      "rule_raw_result": true,
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "rule_result": "PASS",
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
-      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "source_location": [
         {
           "path": "infra_tf/main.tf",
@@ -217,6 +221,7 @@ We see this output:
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
       "rule_name": "long_description",
+      "rule_raw_result": false,
       "rule_result": "WAIVED",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",
@@ -241,6 +246,7 @@ We see this output:
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
       "rule_name": "long_description",
+      "rule_raw_result": true,
       "rule_result": "PASS",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",
@@ -266,10 +272,11 @@ We see this output:
       "rule_id": "FG_R00092",
       "rule_message": "",
       "rule_name": "tf_aws_iam_admin_policy",
+      "rule_raw_result": false,
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "rule_result": "FAIL",
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
-      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "source_location": [
         {
           "path": "infra_tf/main.tf",
@@ -292,10 +299,11 @@ We see this output:
       "rule_id": "FG_R00092",
       "rule_message": "",
       "rule_name": "tf_aws_iam_admin_policy",
+      "rule_raw_result": true,
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "rule_result": "PASS",
       "rule_severity": "High",
       "rule_summary": "IAM policies should not have full \"*:*\" administrative privileges",
-      "rule_remediation_doc": "https://docs.fugue.co/FG_R00092.html",
       "source_location": [
         {
           "path": "infra_tf/main.tf",
@@ -303,7 +311,7 @@ We see this output:
           "column": 1
         }
       ]
-    }
+    },
     <cut for length>
   ],
   "summary": {
@@ -370,6 +378,7 @@ We'll see this output:
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
       "rule_name": "long_description",
+      "rule_raw_result": false,
       "rule_result": "WAIVED",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",
@@ -394,6 +403,7 @@ We'll see this output:
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
       "rule_name": "long_description",
+      "rule_raw_result": true,
       "rule_result": "PASS",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",
@@ -404,7 +414,7 @@ We'll see this output:
           "column": 1
         }
       ]
-    }
+    },
     <cut for length>
   ],
   "summary": {

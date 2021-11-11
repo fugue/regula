@@ -519,7 +519,7 @@ regula init --environment-id a29aec17-ab48-42dc-ade5-c0ba8b650c4c --sync
 ```
 
 !!! note
-    If you're using `--sync` in your configuration file, note that the `--sync` flag takes precedence over options that modify the rule set (`--exclude`, `--include`, `--only`, `--no-built-ins`). Those options will be ignored. To use those options with `regula run`, set `--sync=false`:
+    If you're using `--sync` in your configuration file, note that the `--sync` flag takes precedence over options that modify the rule set (`--exclude`, `--include`, `--only`, `--no-built-ins`). Those options will be ignored. To override the `--sync` in your configuration file, include `--sync=false` in your `regula run` command:
 
     ```
     regula run --sync=false --include rules

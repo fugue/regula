@@ -149,7 +149,7 @@ Regula can use an optional `.regula.yaml` configuration file to set some default
 
 ```
   -e, --environment-id string   Environment ID in Fugue
-  -x, --exclude strings         Rule IDs, names, or local paths to exclude. Can be specified multiple times.
+  -x, --exclude strings         Rule IDs or names to exclude. Can be specified multiple times.
       --force                   Overwrite configuration file without prompting for confirmation.
   -i, --include strings         Specify additional rego files or directories to include
   -t, --input-type strings      Search for or assume the input type for the given paths. Can be specified multiple times. (default [auto])

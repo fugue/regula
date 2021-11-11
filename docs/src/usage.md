@@ -225,6 +225,10 @@ Regula operates on YAML Kubernetes manifests containing single resource definiti
     !!! note
         In Regula v2.0.0+, `regula run --sync --upload` has replaced `regula scan`.
 
+* Recurse through the working directory, locally run the ruleset synced from your [Fugue](https://www.fugue.co) tenant, and upload the results to a specific environment (overriding the environment set in [`.regula.yaml`](configuration.md#setting-defaults-for-regula-run)):
+
+        regula run --sync --upload --environment-id a29aec17-ab48-42dc-a7ef-c0ba8b650c4c
+
 #### Example output
 
 Use the `--f | --format FORMAT` flag to specify the output format:

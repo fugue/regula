@@ -144,6 +144,7 @@ Here's an example rule result demonstrating a missing resource message:
       "rule_id": "CUSTOM_0001",
       "rule_message": "No password policy exists.",
       "rule_name": "account_password_policy",
+      "rule_raw_result": false,
       "rule_result": "FAIL",
       "rule_severity": "Medium",
       "rule_summary": "An AWS account must have a password policy requiring a minimum of 16 characters"
@@ -194,6 +195,7 @@ Here's an example rule result to show how this metadata looks in the report:
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
       "rule_name": "long_description",
+      "rule_raw_result": false,
       "rule_result": "FAIL",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",

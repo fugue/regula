@@ -197,6 +197,17 @@ func (v *Evaluation) evaluate() error {
 		vars := v.prepareVariables(name, expr)
 		vars = MergeValTree(vars, SingletonValTree(LocalName{"path", "module"}, cty.StringVal(moduleMeta.Dir)))
 
+		// Add count.index if inside a counted resource.
+		resourceName, _ := name.AsResourceName()
+		if resourceName != nil {
+			resourceKey := resourceName.ToString()
+			if resource, ok := v.Analysis.Resources[resourceKey]; ok {
+				if resource.Count {
+					vars = MergeValTree(vars, SingletonValTree(LocalName{"count", "index"}, cty.NumberIntVal(0)))
+				}
+			}
+		}
+
 		data := Data{}
 		scope := lang.Scope{
 			Data:     &data,
@@ -210,7 +221,7 @@ func (v *Evaluation) evaluate() error {
 
 		val, diags := expr.Value(&ctx)
 		if diags.HasErrors() {
-			logrus.Warningf("    Value() error: %s", diags)
+			logrus.Debugf("evaluate: error: %s", diags)
 			val = cty.NilVal
 		}
 

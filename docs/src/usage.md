@@ -58,6 +58,12 @@ Global Flags:
   -v, --verbose   verbose output
 ```
 
+!!! note
+    Regula v2.0.0 introduced two flag changes:
+    
+    - `regula run --sync --upload` replaced `regula scan`
+    - The `-n | --no-built-ins` flag replaced `-u | --user-only`
+
 ### Input
 
 `regula run [input...]` supports passing in CloudFormation templates, Kubernetes manifests, Terraform HCL files, and Terraform plan JSON files.

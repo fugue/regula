@@ -23,7 +23,6 @@ VERSION = $(shell $(CHANGIE) latest)
 # Executables
 GO ?= go
 DOCKER ?= docker
-GOLINT ?= $(GO_BIN_DIR)/golint
 MOCKGEN ?= $(GO_BIN_DIR)/mockgen
 CHANGIE ?= $(GO_BIN_DIR)/changie
 GORELEASER ?= $(GO_BIN_DIR)/goreleaser
@@ -102,9 +101,6 @@ terraform_gen:
 #   Tools   #
 #############
 
-$(GOLINT):
-	$(GO) install golang.org/x/lint/golint
-
 $(MOCKGEN):
 	$(GO) install github.com/golang/mock/mockgen@v1.5.0
 
@@ -115,8 +111,8 @@ $(GORELEASER):
 	$(GO) install github.com/goreleaser/goreleaser@v0.183.0
 
 .PHONY: install_tools
-install_tools: ## Download and install golint, mockgen, changie, and goreleaser
-install_tools: $(GOLINT) $(MOCKGEN) $(CHANGIE) $(GORELEASER)
+install_tools: ## Download and install mockgen, changie, and goreleaser
+install_tools: $(MOCKGEN) $(CHANGIE) $(GORELEASER)
 
 ##############
 # Dev builds #
@@ -149,7 +145,6 @@ coverage: ## Run coverage analysis
 
 .PHONY: lint
 lint: ## Run the `go vet` linter
-	$(GOLINT) ./...
 	$(GO) vet ./...
 
 .PHONY: docker

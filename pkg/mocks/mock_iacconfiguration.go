@@ -49,10 +49,10 @@ func (mr *MockIACConfigurationMockRecorder) LoadedFiles() *gomock.Call {
 }
 
 // Location mocks base method.
-func (m *MockIACConfiguration) Location(arg0 []string) (*loader.Location, error) {
+func (m *MockIACConfiguration) Location(arg0 []string) ([]loader.Location, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Location", arg0)
-	ret0, _ := ret[0].(*loader.Location)
+	ret0, _ := ret[0].([]loader.Location)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

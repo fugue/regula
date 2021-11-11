@@ -106,7 +106,7 @@ func (mr *MockInputDirectoryMockRecorder) Path() *gomock.Call {
 }
 
 // Walk mocks base method.
-func (m *MockInputDirectory) Walk(arg0 func(loader.InputPath) error) error {
+func (m *MockInputDirectory) Walk(arg0 loader.WalkFunc) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Walk", arg0)
 	ret0, _ := ret[0].(error)

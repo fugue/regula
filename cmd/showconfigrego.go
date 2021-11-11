@@ -20,9 +20,11 @@ import (
 
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func NewShowConfigCommand() *cobra.Command {
+	v := viper.New()
 	cmd := &cobra.Command{
 		Use:   "config-rego <options>",
 		Short: "Show the generated config rego file",
@@ -50,8 +52,8 @@ func NewShowConfigCommand() *cobra.Command {
 		},
 	}
 
-	addExcludeFlag(cmd)
-	addOnlyFlag(cmd)
+	addExcludeFlag(cmd, v)
+	addOnlyFlag(cmd, v)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

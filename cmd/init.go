@@ -32,6 +32,7 @@ import (
 
 func NewInitCommand() *cobra.Command {
 	description := "Create a new Regula configuration file in the current working directory."
+	v := viper.New()
 	cmd := &cobra.Command{
 		Use:   "init [input...]",
 		Short: description,
@@ -41,7 +42,6 @@ func NewInitCommand() *cobra.Command {
 		),
 		RunE: func(cmd *cobra.Command, paths []string) error {
 			configPath := filepath.Join(".", ".regula.yaml")
-			v := viper.New()
 			v.SetConfigType("yaml")
 			v.SetConfigFile(configPath)
 
@@ -111,17 +111,17 @@ func NewInitCommand() *cobra.Command {
 		},
 	}
 
-	addEnvironmentIDFlag(cmd)
-	addExcludeFlag(cmd)
+	addEnvironmentIDFlag(cmd, v)
+	addExcludeFlag(cmd, v)
 	addForceFlag(cmd)
-	addFormatFlag(cmd)
+	addFormatFlag(cmd, v)
 	addIncludeFlag(cmd)
-	addInputTypeFlag(cmd)
-	addNoBuiltInsFlag(cmd)
-	addNoIgnoreFlag(cmd)
-	addOnlyFlag(cmd)
-	addSeverityFlag(cmd)
-	addSyncFlag(cmd)
+	addInputTypeFlag(cmd, v)
+	addNoBuiltInsFlag(cmd, v)
+	addNoIgnoreFlag(cmd, v)
+	addOnlyFlag(cmd, v)
+	addSeverityFlag(cmd, v)
+	addSyncFlag(cmd, v)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

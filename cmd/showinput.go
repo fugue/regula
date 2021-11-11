@@ -20,14 +20,22 @@ import (
 
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func NewShowInputCommand() *cobra.Command {
-	inputTypes := []loader.InputType{loader.Auto}
+	v := viper.New()
 	cmd := &cobra.Command{
 		Use:   "input [file...]",
 		Short: "Show the JSON input being passed to regula",
 		RunE: func(cmd *cobra.Command, paths []string) error {
+			inputTypeNames := v.GetStringSlice(inputTypeFlag)
+			inputTypes, err := loader.InputTypesFromStrings(inputTypeNames)
+			if err != nil {
+				return err
+			}
+			// Silence usage now that we're past arg parsing
+			cmd.SilenceUsage = true
 			loadedFiles, err := loader.LocalConfigurationLoader(loader.LoadPathsOptions{
 				Paths:      paths,
 				InputTypes: inputTypes,
@@ -35,9 +43,6 @@ func NewShowInputCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			// Silence usage now that we're past arg parsing
-			cmd.SilenceUsage = true
-
 			bytes, err := json.MarshalIndent(loadedFiles.RegulaInput(), "", "  ")
 			if err != nil {
 				return err
@@ -47,7 +52,7 @@ func NewShowInputCommand() *cobra.Command {
 		},
 	}
 
-	addInputTypeFlag(cmd)
+	addInputTypeFlag(cmd, v)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

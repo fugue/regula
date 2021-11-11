@@ -148,10 +148,16 @@ In contrast, if you don't want the "block public access" rule applied to *any* S
 Regula can use an optional `.regula.yaml` configuration file to set some default options and inputs for `regula run`. The following options can be set in the configuration file:
 
 ```
-  -i, --include strings     Specify additional rego files or directories to include
-  -t, --input-type string   Search for or assume the input type for the given paths. Can be specified multiple times. (default "[auto]")
-  -s, --severity string     Set the minimum severity that will result in a non-zero exit code. (default "unknown")
-  -u, --user-only           Disable built-in rules
+  -e, --environment-id string   Environment ID in Fugue
+  -x, --exclude strings         Rule IDs, names, or local paths to exclude. Can be specified multiple times.
+      --force                   Overwrite configuration file without prompting for confirmation.
+  -i, --include strings         Specify additional rego files or directories to include
+  -t, --input-type strings      Search for or assume the input type for the given paths. Can be specified multiple times. (default [auto])
+  -n, --no-built-ins            Disable built-in rules
+      --no-ignore               Disable use of .gitignore
+  -o, --only strings            Rule IDs or names to run. All other rules will be excluded. Can be specified multiple times.
+  -s, --severity string         Set the minimum severity that will result in a non-zero exit code. (default "unknown")
+      --sync                    Fetch rules and configuration from Fugue
 ```
 
 To create the configuration file, run `regula init [input...] [flags]`. An easy way to setup the configuration file is to use `regula run` to figure out which options you want to set:

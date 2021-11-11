@@ -28,6 +28,7 @@ import (
 )
 
 func NewShowScanViewCommand() *cobra.Command {
+	v := viper.New()
 	cmd := &cobra.Command{
 		Use:   "scan-view [file...]",
 		Short: "Show the JSON output being passed to Fugue.",
@@ -38,10 +39,10 @@ func NewShowScanViewCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if err := loadConfigFile(configPath); err != nil {
+			if err := loadConfigFile(configPath, v); err != nil {
 				return err
 			}
-			if c := viper.ConfigFileUsed(); c != "" {
+			if c := v.ConfigFileUsed(); c != "" {
 				rootDir = filepath.Dir(c)
 			}
 
@@ -50,30 +51,27 @@ func NewShowScanViewCommand() *cobra.Command {
 			}
 
 			// Inputs
-			configFileInputs := viper.GetStringSlice(inputsFlag)
+			configFileInputs := v.GetStringSlice(inputsFlag)
 			inputs, err := translateInputs(args, configFileInputs, rootDir)
 			if err != nil {
 				return err
 			}
 
 			// Enum types
-			inputTypeNames, err := getStringSlice(cmd, inputTypeFlag)
-			if err != nil {
-				return err
-			}
+			inputTypeNames := v.GetStringSlice(inputTypeFlag)
 			inputTypes, err := loader.InputTypesFromStrings(inputTypeNames)
 			if err != nil {
 				return err
 			}
 
 			config := &runConfig{
-				configPath:   configPath,
-				environmenId: viper.GetString(environmentIDFlag),
-				inputs:       inputs,
-				inputTypes:   inputTypes,
-				rootDir:      rootDir,
-				sync:         true,
-				upload:       true,
+				configPath:    configPath,
+				environmentId: v.GetString(environmentIDFlag),
+				inputs:        inputs,
+				inputTypes:    inputTypes,
+				rootDir:       rootDir,
+				sync:          true,
+				upload:        true,
 			}
 			if err := config.Validate(); err != nil {
 				return err
@@ -123,9 +121,9 @@ func NewShowScanViewCommand() *cobra.Command {
 	}
 
 	addConfigFlag(cmd)
-	addEnvironmentIDFlag(cmd)
-	addInputTypeFlag(cmd)
-	addNoIgnoreFlag(cmd)
+	addEnvironmentIDFlag(cmd, v)
+	addInputTypeFlag(cmd, v)
+	addNoIgnoreFlag(cmd, v)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

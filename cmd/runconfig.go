@@ -25,26 +25,24 @@ import (
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 type runConfig struct {
-	configPath   string
-	environmenId string
-	excludes     []string
-	format       reporter.Format
-	includes     []string
-	inputs       []string
-	inputTypes   []loader.InputType
-	noBuiltIns   bool
-	noConfig     bool
-	noIgnore     bool
-	only         []string
-	rootDir      string
-	severity     reporter.Severity
-	sync         bool
-	upload       bool
+	configPath    string
+	environmentId string
+	excludes      []string
+	format        reporter.Format
+	includes      []string
+	inputs        []string
+	inputTypes    []loader.InputType
+	noBuiltIns    bool
+	noConfig      bool
+	noIgnore      bool
+	only          []string
+	rootDir       string
+	severity      reporter.Severity
+	sync          bool
+	upload        bool
 }
 
 func (c *runConfig) Validate() error {
@@ -113,7 +111,7 @@ func (c *runConfig) ResultProcessor() rego.RegoResultProcessor {
 			if err != nil {
 				return err
 			}
-			if err := client.UploadScan(ctx, c.environmenId, *scanView); err != nil {
+			if err := client.UploadScan(ctx, c.environmentId, *scanView); err != nil {
 				return err
 			}
 			reporter, err := reporter.GetReporter(c.format)
@@ -262,19 +260,4 @@ func translatePaths(paths []string, configDir string) (newPaths []string, err er
 	}
 
 	return
-}
-
-// TODO: Since we're using Viper's BindPFlag(), we should just be able to get the
-// value through viper like every other type of flag we use. For some reason, these
-// string slices are always coming back empty if they're not set in the config file.
-func getStringSlice(cmd *cobra.Command, flagName string) ([]string, error) {
-	if cmd.Flags().Changed(flagName) {
-		fromCmd, err := cmd.Flags().GetStringSlice(flagName)
-		if err != nil {
-			return nil, err
-		}
-		return fromCmd, nil
-	}
-
-	return viper.GetStringSlice(flagName), nil
 }

@@ -32,6 +32,7 @@ import (
 var runDescription string
 
 func NewRunCommand() *cobra.Command {
+	v := viper.New()
 	cmd := &cobra.Command{
 		Use:   "run [input...]",
 		Short: "Evaluate rules against infrastructure as code with Regula.",
@@ -55,15 +56,15 @@ func NewRunCommand() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if err := loadConfigFile(configPath); err != nil {
+				if err := loadConfigFile(configPath, v); err != nil {
 					return err
 				}
-				if c := viper.ConfigFileUsed(); c != "" {
+				if c := v.ConfigFileUsed(); c != "" {
 					rootDir = filepath.Dir(c)
 				}
 			}
 			// Inputs
-			configFileInputs := viper.GetStringSlice(inputsFlag)
+			configFileInputs := v.GetStringSlice(inputsFlag)
 			inputs, err := translateInputs(args, configFileInputs, rootDir)
 			if err != nil {
 				return err
@@ -74,56 +75,43 @@ func NewRunCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			configFileIncludes := viper.GetStringSlice(includeFlag)
+			configFileIncludes := v.GetStringSlice(includeFlag)
 			includes, err := translateIncludes(cliIncludes, configFileIncludes, rootDir)
 			if err != nil {
 				return err
 			}
 
 			// Enum types
-			inputTypeNames, err := getStringSlice(cmd, inputTypeFlag)
-			if err != nil {
-				return err
-			}
+			inputTypeNames := v.GetStringSlice(inputTypeFlag)
 			inputTypes, err := loader.InputTypesFromStrings(inputTypeNames)
 			if err != nil {
 				return err
 			}
-			format, err := reporter.FormatFromString(viper.GetString(formatFlag))
+			format, err := reporter.FormatFromString(v.GetString(formatFlag))
 			if err != nil {
 				return err
 			}
-			severity, err := reporter.SeverityFromString(viper.GetString(severityFlag))
-			if err != nil {
-				return err
-			}
-
-			// String slices
-			excludes, err := getStringSlice(cmd, excludeFlag)
-			if err != nil {
-				return err
-			}
-			only, err := getStringSlice(cmd, onlyFlag)
+			severity, err := reporter.SeverityFromString(v.GetString(severityFlag))
 			if err != nil {
 				return err
 			}
 
 			config := &runConfig{
-				configPath:   configPath,
-				environmenId: viper.GetString(environmentIDFlag),
-				excludes:     excludes,
-				format:       format,
-				includes:     includes,
-				inputs:       inputs,
-				inputTypes:   inputTypes,
-				noBuiltIns:   viper.GetBool(noBuiltInsFlag),
-				noConfig:     noConfig,
-				noIgnore:     viper.GetBool(noIgnoreFlag),
-				only:         only,
-				rootDir:      rootDir,
-				severity:     severity,
-				sync:         viper.GetBool(syncFlag),
-				upload:       upload,
+				configPath:    configPath,
+				environmentId: v.GetString(environmentIDFlag),
+				excludes:      v.GetStringSlice(excludeFlag),
+				format:        format,
+				includes:      includes,
+				inputs:        inputs,
+				inputTypes:    inputTypes,
+				noBuiltIns:    v.GetBool(noBuiltInsFlag),
+				noConfig:      noConfig,
+				noIgnore:      v.GetBool(noIgnoreFlag),
+				only:          v.GetStringSlice(onlyFlag),
+				rootDir:       rootDir,
+				severity:      severity,
+				sync:          v.GetBool(syncFlag),
+				upload:        upload,
 			}
 			if err := config.Validate(); err != nil {
 				return err
@@ -131,12 +119,7 @@ func NewRunCommand() *cobra.Command {
 
 			// Silence usage now that we're past arg parsing
 			cmd.SilenceUsage = true
-
 			// Interpret configuration
-			// config, err := RunConfigFromCmd(cmd, args)
-			if err != nil {
-				return err
-			}
 			configLoader, err := config.ConfigurationLoader()
 			if err != nil {
 				return err
@@ -178,17 +161,17 @@ func NewRunCommand() *cobra.Command {
 	}
 
 	addConfigFlag(cmd)
-	addEnvironmentIDFlag(cmd)
-	addExcludeFlag(cmd)
-	addFormatFlag(cmd)
+	addEnvironmentIDFlag(cmd, v)
+	addExcludeFlag(cmd, v)
+	addFormatFlag(cmd, v)
 	addIncludeFlag(cmd)
-	addInputTypeFlag(cmd)
-	addNoBuiltInsFlag(cmd)
+	addInputTypeFlag(cmd, v)
+	addNoBuiltInsFlag(cmd, v)
 	addNoConfigFlag(cmd)
-	addNoIgnoreFlag(cmd)
-	addOnlyFlag(cmd)
-	addSeverityFlag(cmd)
-	addSyncFlag(cmd)
+	addNoIgnoreFlag(cmd, v)
+	addOnlyFlag(cmd, v)
+	addSeverityFlag(cmd, v)
+	addSyncFlag(cmd, v)
 	addUploadFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd

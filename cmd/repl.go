@@ -22,9 +22,11 @@ import (
 	"github.com/fugue/regula/pkg/rego"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func NewREPLCommand() *cobra.Command {
+	v := viper.New()
 	cmd := &cobra.Command{
 		Use:   "repl [paths containing rego or test inputs]",
 		Short: "Start an interactive session for testing rules with Regula",
@@ -64,7 +66,7 @@ func NewREPLCommand() *cobra.Command {
 		},
 	}
 
-	addNoBuiltInsFlag(cmd)
+	addNoBuiltInsFlag(cmd, v)
 	addNoTestInputsFlag(cmd)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd

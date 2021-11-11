@@ -22,16 +22,24 @@ import (
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func NewWriteTestInputsCommand() *cobra.Command {
 	description := "Persist dynamically-generated test inputs for use with other Rego interpreters"
-	inputTypes := []loader.InputType{loader.Auto}
+	v := viper.New()
 	cmd := &cobra.Command{
 		Use:   "write-test-inputs [input...]",
 		Short: description,
 		Long:  description,
 		RunE: func(cmd *cobra.Command, paths []string) error {
+			inputTypeNames := v.GetStringSlice(inputTypeFlag)
+			inputTypes, err := loader.InputTypesFromStrings(inputTypeNames)
+			if err != nil {
+				return err
+			}
+			// Silence usage now that we're past arg parsing
+			cmd.SilenceUsage = true
 			cb := func(r rego.RegoFile) error {
 				return os.WriteFile(r.Path(), r.Raw(), 0644)
 			}
@@ -44,7 +52,7 @@ func NewWriteTestInputsCommand() *cobra.Command {
 		},
 	}
 
-	addInputTypeFlag(cmd)
+	addInputTypeFlag(cmd, v)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

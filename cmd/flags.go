@@ -74,9 +74,9 @@ Severities:
     off             Never exit with a non-zero exit code.
 `
 
-func addNoBuiltInsFlag(cmd *cobra.Command) {
+func addNoBuiltInsFlag(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().BoolP(noBuiltInsFlag, "n", false, "Disable built-in rules")
-	viper.BindPFlag(noBuiltInsFlag, cmd.Flags().Lookup(noBuiltInsFlag))
+	v.BindPFlag(noBuiltInsFlag, cmd.Flags().Lookup(noBuiltInsFlag))
 }
 
 func addNoTestInputsFlag(cmd *cobra.Command) {
@@ -87,27 +87,27 @@ func addIncludeFlag(cmd *cobra.Command) {
 	cmd.Flags().StringSliceP(includeFlag, "i", nil, "Specify additional rego files or directories to include")
 }
 
-func addNoIgnoreFlag(cmd *cobra.Command) {
+func addNoIgnoreFlag(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().Bool(noIgnoreFlag, false, "Disable use of .gitignore")
-	viper.BindPFlag(noIgnoreFlag, cmd.Flags().Lookup(noIgnoreFlag))
+	v.BindPFlag(noIgnoreFlag, cmd.Flags().Lookup(noIgnoreFlag))
 }
 
-func addInputTypeFlag(cmd *cobra.Command) {
+func addInputTypeFlag(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().StringSliceP(inputTypeFlag, "t", loader.DefaultInputTypes, "Search for or assume the input type for the given paths. Can be specified multiple times.")
-	viper.BindPFlag(inputTypeFlag, cmd.Flags().Lookup(inputTypeFlag))
+	v.BindPFlag(inputTypeFlag, cmd.Flags().Lookup(inputTypeFlag))
 	cmd.Long = joinDescriptions(cmd.Long, inputTypeDescriptions)
 }
 
-func addSeverityFlag(cmd *cobra.Command) {
+func addSeverityFlag(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().StringP(severityFlag, "s", reporter.DefaultSeverity, "Set the minimum severity that will result in a non-zero exit code.")
-	viper.BindPFlag(severityFlag, cmd.Flags().Lookup(severityFlag))
+	v.BindPFlag(severityFlag, cmd.Flags().Lookup(severityFlag))
 	cmd.Long = joinDescriptions(cmd.Long, severityDescriptions)
 }
 
-func addFormatFlag(cmd *cobra.Command) {
+func addFormatFlag(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().StringP(formatFlag, "f", reporter.DefaultFormat, "Set the output format")
-	viper.BindPFlag(formatFlag, cmd.Flags().Lookup(formatFlag))
-	viper.BindEnv(formatFlag, "REGULA_FORMAT")
+	v.BindPFlag(formatFlag, cmd.Flags().Lookup(formatFlag))
+	v.BindEnv(formatFlag, "REGULA_FORMAT")
 	cmd.Long = joinDescriptions(cmd.Long, formatDescriptions)
 }
 
@@ -127,29 +127,29 @@ func addForceFlag(cmd *cobra.Command) {
 	cmd.Flags().Bool(forceFlag, false, "Overwrite configuration file without prompting for confirmation.")
 }
 
-func addEnvironmentIDFlag(cmd *cobra.Command) {
+func addEnvironmentIDFlag(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().StringP(environmentIDFlag, "e", "", "Environment ID in Fugue")
-	viper.BindPFlag(environmentIDFlag, cmd.Flags().Lookup(environmentIDFlag))
-	viper.BindEnv(environmentIDFlag, "ENVIRONMENT_ID")
+	v.BindPFlag(environmentIDFlag, cmd.Flags().Lookup(environmentIDFlag))
+	v.BindEnv(environmentIDFlag, "ENVIRONMENT_ID")
 }
 
-func addSyncFlag(cmd *cobra.Command) {
+func addSyncFlag(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().Bool(syncFlag, false, "Fetch rules and configuration from Fugue")
-	viper.BindPFlag(syncFlag, cmd.Flags().Lookup(syncFlag))
+	v.BindPFlag(syncFlag, cmd.Flags().Lookup(syncFlag))
 }
 
 func addUploadFlag(cmd *cobra.Command) {
 	cmd.Flags().Bool(uploadFlag, false, "Upload rule results to Fugue")
 }
 
-func addExcludeFlag(cmd *cobra.Command) {
-	cmd.Flags().StringSliceP(excludeFlag, "x", nil, "Rule IDs, names, or local paths to exclude. Can be specified multiple times.")
-	viper.BindPFlag(excludeFlag, cmd.Flags().Lookup(excludeFlag))
+func addExcludeFlag(cmd *cobra.Command, v *viper.Viper) {
+	cmd.Flags().StringSliceP(excludeFlag, "x", nil, "Rule IDs or names to exclude. Can be specified multiple times.")
+	v.BindPFlag(excludeFlag, cmd.Flags().Lookup(excludeFlag))
 }
 
-func addOnlyFlag(cmd *cobra.Command) {
+func addOnlyFlag(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().StringSliceP(onlyFlag, "o", nil, "Rule IDs or names to run. All other rules will be excluded. Can be specified multiple times.")
-	viper.BindPFlag(onlyFlag, cmd.Flags().Lookup(onlyFlag))
+	v.BindPFlag(onlyFlag, cmd.Flags().Lookup(onlyFlag))
 }
 
 func joinDescriptions(descriptions ...string) string {
@@ -160,13 +160,12 @@ func joinDescriptions(descriptions ...string) string {
 	return strings.Join(normalizedDescriptions, "\n\n")
 }
 
-func loadConfigFile(configPath string) error {
-	viper.SetConfigType("yaml")
-
+func loadConfigFile(configPath string, v *viper.Viper) error {
+	v.SetConfigType("yaml")
 	if configPath != "" {
-		viper.SetConfigFile(configPath)
+		v.SetConfigFile(configPath)
 	} else {
-		viper.SetConfigName(".regula.yaml")
+		v.SetConfigName(".regula.yaml")
 		currDir, err := os.Getwd()
 		if err != nil {
 			return err
@@ -179,13 +178,13 @@ func loadConfigFile(configPath string) error {
 			if _, err := os.Stat(currDir); err != nil {
 				break
 			}
-			viper.AddConfigPath(currDir)
+			v.AddConfigPath(currDir)
 			prevDir = currDir
 			currDir = filepath.Dir(currDir)
 		}
 	}
 
-	if err := viper.ReadInConfig(); err != nil {
+	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			logrus.Debugf("Could not find configuration file: %s", err)
 			// This is only considered an error if the user specified a config file
@@ -197,25 +196,8 @@ func loadConfigFile(configPath string) error {
 		}
 	}
 
-	if p := viper.ConfigFileUsed(); p != "" {
+	if p := v.ConfigFileUsed(); p != "" {
 		fmt.Fprintf(os.Stderr, "Using config file '%s'\n", p)
-	}
-
-	return nil
-}
-
-func setEnumFromConfig(cmd *cobra.Command, flagName string) error {
-	flag := cmd.Flags().Lookup(flagName)
-
-	if flag.Changed {
-		return nil
-	}
-
-	if viper.IsSet(flagName) {
-		value := strings.Join(viper.GetStringSlice(flagName), ",")
-		if err := flag.Value.Set(value); err != nil {
-			return fmt.Errorf("Invalid value for '%s' in config file: %s", flagName, err)
-		}
 	}
 
 	return nil

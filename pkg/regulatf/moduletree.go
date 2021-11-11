@@ -28,6 +28,7 @@ type ResourceMeta struct {
 	Data     bool
 	Type     string
 	Provider string
+	Count    bool
 	Location hcl.Range
 }
 
@@ -260,6 +261,7 @@ func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, 
 		Provider: resource.Provider.Type,
 		Type:     resource.Type,
 		Location: resource.DeclRange,
+		Count:    resource.Count != nil,
 	}
 	v.VisitResource(name, resourceMeta)
 

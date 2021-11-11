@@ -99,6 +99,11 @@ func MergeValTree(left ValTree, right ValTree) ValTree {
 				}
 			}
 			return l
+		case cty.Value:
+			if r.Type().Equals(cty.EmptyObject) {
+				return l
+			}
+			return r
 		default:
 			return r
 		}
@@ -113,6 +118,11 @@ func MergeValTree(left ValTree, right ValTree) ValTree {
 				}
 			}
 			return l
+		case cty.Value:
+			if r.Type().Equals(cty.EmptyObject) {
+				return l
+			}
+			return r
 		default:
 			return r
 		}

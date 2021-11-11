@@ -13,6 +13,7 @@ Usage:
   regula [command]
 
 Available Commands:
+  completion        generate the autocompletion script for the specified shell
   help              Help about any command
   init              Create a new Regula configuration file in the current working directory.
   repl              Start an interactive session for testing rules with Regula
@@ -38,15 +39,20 @@ Usage:
   regula run [input...] [flags]
 
 Flags:
-  -c, --config string       Path to .regula.yaml file. By default regula will look in the current working directory and its parents.
-  -f, --format string       Set the output format (default "text")
-  -h, --help                help for run
-  -i, --include strings     Specify additional rego files or directories to include
-  -t, --input-type string   Search for or assume the input type for the given paths. Can be specified multiple times. (default "[auto]")
-      --no-config           Do not look for or load a regula config file.
-  -n, --no-ignore           Disable use of .gitignore
-  -s, --severity string     Set the minimum severity that will result in a non-zero exit code. (default "unknown")
-  -u, --user-only           Disable built-in rules
+  -c, --config string           Path to .regula.yaml file. By default regula will look in the current working directory and its parents.
+  -e, --environment-id string   Environment ID in Fugue
+  -x, --exclude strings         Rule IDs or names to exclude. Can be specified multiple times.
+  -f, --format string           Set the output format (default "text")
+  -h, --help                    help for run
+  -i, --include strings         Specify additional rego files or directories to include
+  -t, --input-type strings      Search for or assume the input type for the given paths. Can be specified multiple times. (default [auto])
+  -n, --no-built-ins            Disable built-in rules
+      --no-config               Do not look for or load a regula config file.
+      --no-ignore               Disable use of .gitignore
+  -o, --only strings            Rule IDs or names to run. All other rules will be excluded. Can be specified multiple times.
+  -s, --severity string         Set the minimum severity that will result in a non-zero exit code. (default "unknown")
+      --sync                    Fetch rules and configuration from Fugue
+      --upload                  Upload rule results to Fugue
 
 Global Flags:
   -v, --verbose   verbose output
@@ -133,6 +139,7 @@ Regula operates on YAML Kubernetes manifests containing single resource definiti
 - `table` -- An ASCII table of rule results
 - `junit` -- The JUnit XML format
 - `tap` -- The Test Anything Protocol format
+- `compact` -- An alternate, more compact human friendly format
 - `none` -- Do not print any output on stdout
 
 `-t, --input type INPUT-TYPE` values:
@@ -177,7 +184,7 @@ Regula operates on YAML Kubernetes manifests containing single resource definiti
 
 * Check the `test_infra/cfn/cfntest1.yaml` CloudFormation template against a directory of custom rules only (the Regula rule library is not applied):
 
-        regula run --user-only --include ../custom-rules test_infra/cfn/cfntest1.yaml
+        regula run --no-built-ins --include ../custom-rules test_infra/cfn/cfntest1.yaml
 
 * Recurse through the current working directory for all IaC files, and don't exclude files in `.gitignore`:
 
@@ -198,6 +205,25 @@ Regula operates on YAML Kubernetes manifests containing single resource definiti
 * Using stdin, check a CloudFormation stack defined in an AWS CDK app:
 
         cdk synth | regula run
+
+* Recurse through the working directory and exclude rule FG_R00275:
+
+        regula run --exclude FG_R00275
+
+* Recurse through the working directory and run _only_ the rule named `tf_aws_vpc_flow_log`:
+
+        regula run --only tf_aws_vpc_flow_log
+
+* Recurse through the working directory and locally run the ruleset synced from your [Fugue](https://www.fugue.co) tenant:
+
+        regula run --sync
+
+* Recurse through the working directory, locally run the ruleset synced from your [Fugue](https://www.fugue.co) tenant, and upload the results to the Fugue environment specified in [`.regula.yaml`](configuration.md#setting-defaults-for-regula-run):
+
+        regula run --sync --upload
+
+    !!! note
+        In Regula v2.0.0+, `regula run --sync --upload` has replaced `regula scan`.
 
 #### Example output
 
@@ -234,6 +260,7 @@ Use the `--f | --format FORMAT` flag to specify the output format:
           "rule_id": "CUSTOM_0001",
           "rule_message": "",
           "rule_name": "long_description_cfn",
+          "rule_raw_result": false,
           "rule_result": "FAIL",
           "rule_severity": "Low",
           "rule_summary": "IAM policies must have a description of at least 25 characters",
@@ -258,6 +285,7 @@ Use the `--f | --format FORMAT` flag to specify the output format:
           "rule_id": "CUSTOM_0001",
           "rule_message": "",
           "rule_name": "long_description_cfn",
+          "rule_raw_result": true,
           "rule_result": "PASS",
           "rule_severity": "Low",
           "rule_summary": "IAM policies must have a description of at least 25 characters",
@@ -340,6 +368,44 @@ REGULA_FORMAT=compact regula run
 
 For more about Regula's output, see [Report Output](report.md).
 
+## completion
+
+```
+Generate the autocompletion script for regula for the specified shell.
+See each sub-command's help for details on how to use the generated script.
+
+Usage:
+  regula completion [command]
+
+Available Commands:
+  bash        generate the autocompletion script for bash
+  fish        generate the autocompletion script for fish
+  powershell  generate the autocompletion script for powershell
+  zsh         generate the autocompletion script for zsh
+
+Flags:
+  -h, --help   help for completion
+
+Global Flags:
+  -v, --verbose   verbose output
+
+Use "regula completion [command] --help" for more information about a command.
+```
+
+The `completion` command enables you to set up autocompletion for a given shell. Use the `--help` flag to view instructions for your shell. Example:
+
+```
+regula completion bash --help
+```
+
+Use the subcommand for your shell to install the autogeneration script. Example:
+
+```
+regula completion bash
+```
+
+Once you've followed the instructions to load autocompletions, you can press the `Tab` key to autocomplete Regula commands and show available flags.
+
 ## init
 
 ```
@@ -351,12 +417,18 @@ Usage:
   regula init [input...] [flags]
 
 Flags:
-  -f, --force               Overwrite configuration file without prompting for confirmation.
-  -h, --help                help for init
-  -i, --include strings     Specify additional rego files or directories to include
-  -t, --input-type string   Search for or assume the input type for the given paths. Can be specified multiple times. (default "[auto]")
-  -s, --severity string     Set the minimum severity that will result in a non-zero exit code. (default "unknown")
-  -u, --user-only           Disable built-in rules
+  -e, --environment-id string   Environment ID in Fugue
+  -x, --exclude strings         Rule IDs or names to exclude. Can be specified multiple times.
+      --force                   Overwrite configuration file without prompting for confirmation.
+  -f, --format string           Set the output format (default "text")
+  -h, --help                    help for init
+  -i, --include strings         Specify additional rego files or directories to include
+  -t, --input-type strings      Search for or assume the input type for the given paths. Can be specified multiple times. (default [auto])
+  -n, --no-built-ins            Disable built-in rules
+      --no-ignore               Disable use of .gitignore
+  -o, --only strings            Rule IDs or names to run. All other rules will be excluded. Can be specified multiple times.
+  -s, --severity string         Set the minimum severity that will result in a non-zero exit code. (default "unknown")
+      --sync                    Fetch rules and configuration from Fugue
 
 Global Flags:
   -v, --verbose   verbose output
@@ -415,7 +487,7 @@ No problems found. Keep up the good work.
 Disable all built-in rules and add custom rules from a `rules` directory:
 
 ```
-regula init --user-only --include rules
+regula init --no-built-ins --include rules
 ```
 
 Configure some specific inputs and the severity flag:
@@ -430,20 +502,43 @@ Configure which input types Regula should search for:
 regula init --input-type tf --input-type cfn
 ```
 
+When using Regula with [Fugue](https://www.fugue.co), set the environment ID for Fugue to scan:
+
+```
+regula init --environment-id a29aec17-ab48-42dc-ade5-c0ba8b650c4c
+```
+
+Sync the built-in and custom rules from your [Fugue](https://www.fugue.co) tenant when running Regula locally:
+
+```
+regula init --environment-id a29aec17-ab48-42dc-ade5-c0ba8b650c4c --sync
+```
+
+!!! note
+    If you're using `--sync` in your configuration file, note that the `--sync` flag takes precedence over options that modify the rule set (`--exclude`, `--include`, `--only`, `--no-built-ins`). Those options will be ignored. To use those options with `regula run`, set `--sync=false`:
+
+    ```
+    regula run --sync=false --include rules
+    ```
+
 ## repl
 
 ```
 Start an interactive session for testing rules with Regula
 
 Usage:
-  regula repl [rego paths] [flags]
+  regula repl [paths containing rego or test inputs] [flags]
 
 Flags:
-  -h, --help        help for repl
-  -u, --user-only   Disable built-in rules
+  -h, --help             help for repl
+  -n, --no-built-ins     Disable built-in rules
+      --no-test-inputs   Disable loading test inputs
+
+Global Flags:
+  -v, --verbose   verbose output
 ```
 
-`regula repl` is the same as OPA's REPL ([`opa run`](https://www.openpolicyagent.org/docs/latest/#3-try-opa-run-interactive)), but with the Regula library and ruleset built in (unless you disable it with `--user-only`). Additionally, Regula's REPL allows you to generate [`mock_input`, `mock_resources`, and `mock_config`](development/test-inputs.md) at runtime.
+`regula repl` is the same as OPA's REPL ([`opa run`](https://www.openpolicyagent.org/docs/latest/#3-try-opa-run-interactive)), but with the Regula library and ruleset built in (unless you disable it with `--no-built-ins`). Additionally, Regula's REPL allows you to generate [`mock_input`, `mock_resources`, and `mock_config`](development/test-inputs.md) at runtime.
 
 To view this dynamically generated data, start by loading one or more IaC files or a directory containing IaC files. Note that `regula repl` will only operate on individual files rather than interpreting the entire directory as a single configuration.
 
@@ -533,22 +628,363 @@ For more information about testing and debugging rules with `regula repl`, see [
 ## show
 
 ```
-Show debug information.  Currently the available items are:
-  input [file..]   Show the JSON input being passed to regula
+Show debug information.
 
 Usage:
-  regula show [item] [flags]
+  regula show [command]
+
+Available Commands:
+  config-rego Show the generated config rego file
+  custom-rule Show a custom rule from your Fugue account
+  input       Show the JSON input being passed to regula
+  scan-view   Show the JSON output being passed to Fugue.
 
 Flags:
-  -h, --help                    help for show
-  -t, --input-type input-type   Set the input type for the given paths (default auto)
+  -h, --help   help for show
+
+Global Flags:
+  -v, --verbose   verbose output
+
+Use "regula show [command] --help" for more information about a command.
 ```
 
-### Input
+### config-rego
+
+```
+Show the generated config rego file
+
+Usage:
+  regula show config-rego <options> [flags]
+
+Flags:
+  -x, --exclude strings   Rule IDs, names, or local paths to exclude. Can be specified multiple times.
+  -h, --help              help for config-rego
+  -o, --only strings      Rule IDs or names to run. All other rules will be excluded. Can be specified multiple times.
+
+Global Flags:
+  -v, --verbose   verbose output
+```
+
+When you execute `regula run` with the `-x | --exclude` or `-o | --only` flags, Regula generates a Rego [configuration file](configuration.md) behind the scenes. `regula show config-rego` shows the configuration file that would be generated if you executed `regula run` with certain specified flags.
+
+#### Examples
+
+```
+regula show config-rego --exclude FG_R00275 --exclude FG_R00277
+```
+
+Example output:
+
+```ruby hl_lines="30"
+# Copyright 2020-2021 Fugue, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+package fugue.regula.config
+
+__rule_id(pkg) = ret {
+  metadoc = object.get(data.rules[pkg], "__rego__metadoc__", {})
+  ret = object.get(metadoc, "id", null)
+}
+
+__contains_name_or_id(s, pkg) {
+    s[pkg]
+}
+
+__contains_name_or_id(s, pkg) {
+    i = __rule_id(pkg)
+    s[i]
+}
+
+__excludes := {"FG_R00275","FG_R00277"}
+
+rules[rule] {
+    data.rules[pkg]
+    __contains_name_or_id(__excludes, pkg)
+    rule := {
+        "rule_name": pkg,
+        "status": "DISABLED"
+    }
+}
+```
+
+### custom-rule
+
+```
+Show a custom rule from your Fugue account
+
+Usage:
+  regula show custom-rule <rule ID> [flags]
+
+Flags:
+  -h, --help   help for custom-rule
+
+Global Flags:
+  -v, --verbose   verbose output
+```
+
+If you create a custom rule in [Fugue](https://www.fugue.co) and run it locally with `regula run --sync`, Regula adds some required information behind the scenes, such as a package declaration and metadata. To view the Fugue custom rule with Regula's additions, run the `regula show custom-rule <rule ID>` command. This is useful when debugging rules, as the line numbers given in an error message will correspond to the version shown in `regula show custom-rule`.
+
+#### Examples
+
+```
+regula show custom-rule 30348f33-72af-499e-add0-28c0b202cf66
+```
+
+Example output, and comparison to the original rule in Fugue:
+
+=== "Output"
+
+    ```ruby
+    package rules.rule_30348f33_72af_499e_add0_28c0b202cf66
+
+    import data.fugue
+
+    __rego__metadoc__ := {
+      "custom": {
+        "controls": {
+          "Custom": [
+            "custom/Storage accounts require 'stage:prod' tags"
+          ]
+        },
+        "severity": "Informational"
+      },
+      "description": "Azure storage accounts should be tagged 'stage:prod'",
+      "id": "30348f33-72af-499e-add0-28c0b202cf66",
+      "title": "Storage accounts require 'stage:prod' tags"
+    }
+
+    resource_type := "azurerm_storage_account"
+
+    allow {
+      input.tags.environment == "staging"
+    }
+    ```
+
+=== "Original rule"
+
+    ```ruby
+    allow {
+      input.tags.environment == "staging"
+    }
+    ```
+
+### scan-view
+
+```
+Show the JSON output being passed to Fugue
+
+Usage:
+  regula show scan-view [file...] [flags]
+
+Flags:
+  -c, --config string           Path to .regula.yaml file. By default regula will look in the current working directory and its parents.
+  -e, --environment-id string   Environment ID in Fugue
+  -h, --help                    help for scan-view
+  -t, --input-type strings      Search for or assume the input type for the given paths. Can be specified multiple times. (default [auto])
+      --no-ignore               Disable use of .gitignore
+
+Global Flags:
+  -v, --verbose   verbose output
+```
+
+Under the hood, whenever you use Regula with [Fugue](https://www.fugue.co) to scan your IaC, Regula syncs built-in and custom rules from Fugue and then generates a JSON scan view that is passed to Fugue. The scan view contains a [report](report.md) along with additional configuration and input information. You can see the scan view for a file by running `regula show scan-view [file...]` (or recurse through the current directory by running `regula show scan-view`). Regula will sync rules from Fugue and output the scan view.
+
+#### Examples
+
+Show the scan view of the file `pod.yaml`:
+
+```
+regula show scan-view pod.yaml
+```
+
+Example output:
+
+```json
+Using config file '/Users/becki/projects/k8s-test/.regula.yaml'
+INFO Retrieved 27 custom rules...
+{
+  "inputs": [
+    {
+      "filepath": "pod.yaml",
+      "input_type": "k8s",
+      "resources": {
+        "Pod.default.default": {
+          "_provider": "kubernetes",
+          "_source_location": [
+            {
+              "path": "pod.yaml",
+              "line": 1,
+              "column": 1
+            }
+          ],
+          "_type": "Pod",
+          "apiVersion": "v1",
+          "id": "Pod.default.default",
+          "kind": "Pod",
+          "metadata": {
+            "name": "default",
+            "namespace": "default"
+          },
+          "spec": {
+            "containers": [
+              {
+                "command": [
+                  "sh",
+                  "-c",
+                  "echo \"Hello, Kubernetes!\" && sleep 3600"
+                ],
+                "image": "busybox",
+                "name": "hello"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "regula_version": "v2.0.0",
+  "scan_view_version": "v1",
+  "report": {
+    "rule_results": [
+      {
+        "controls": [
+          "CIS-Kubernetes_v1.6.1_5.2.8"
+        ],
+        "filepath": "pod.yaml",
+        "input_type": "k8s",
+        "provider": "kubernetes",
+        "resource_id": "Pod.default.default",
+        "resource_type": "Pod",
+        "rule_description": "Pods should not run containers with added capabilities. Adding capabilities beyond the default set increases the risk of container breakout attacks. In most cases, applications are able to operate normally with all Linux capabilities dropped, or with the default set of capabilities.",
+        "rule_id": "FG_R00492",
+        "rule_message": "",
+        "rule_name": "k8s_added_capabilities",
+        "rule_raw_result": true,
+        "rule_result": "PASS",
+        "rule_severity": "Medium",
+        "rule_summary": "Pods should not run containers with added capabilities",
+        "source_location": [
+          {
+            "path": "pod.yaml",
+            "line": 1,
+            "column": 1
+          }
+        ]
+      },
+      ... cut for length ...
+    ],
+    "summary": {
+      "filepaths": [
+        "pod.yaml"
+      ],
+      "rule_results": {
+        "FAIL": 9,
+        "PASS": 7,
+        "WAIVED": 0
+      },
+      "severities": {
+        "Critical": 0,
+        "High": 0,
+        "Informational": 0,
+        "Low": 1,
+        "Medium": 8,
+        "Unknown": 0
+      }
+    }
+  }
+}
+```
+
+### input
+
+```
+Show the JSON input being passed to regula
+
+Usage:
+  regula show input [file...] [flags]
+
+Flags:
+  -h, --help                 help for input
+  -t, --input-type strings   Search for or assume the input type for the given paths. Can be specified multiple times. (default [auto])
+
+Global Flags:
+  -v, --verbose   verbose output
+```
 
 `regula show input [file...]` accepts Terraform HCL files or directories, Terraform plan JSON, Kubernetes manifests, and CloudFormation templates in YAML or JSON. In all cases, Regula transforms the input file and displays the resulting JSON.
 
 This command is used to facilitate development of Regula itself. If you'd like to see the mock input, mock resources, or mock config for an IaC file so you can develop rules, see [`regula repl`](#repl) and [Test Inputs](development/test-inputs.md#viewing-test-inputs).
+
+#### Examples
+
+Show the input for `pod.yaml`:
+
+```
+regula show input pod.yaml
+```
+
+Example output, and comparison to original file:
+
+=== "Output"
+
+    ```json
+    [
+      {
+        "content": {
+          "k8s_resource_view_version": "0.0.1",
+          "resources": {
+            "Pod.default.default": {
+              "apiVersion": "v1",
+              "kind": "Pod",
+              "metadata": {
+                "name": "default",
+                "namespace": "default"
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "command": [
+                      "sh",
+                      "-c",
+                      "echo \"Hello, Kubernetes!\" \u0026\u0026 sleep 3600"
+                    ],
+                    "image": "busybox",
+                    "name": "hello"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "filepath": "pod.yaml"
+      }
+    ]
+    ```
+
+=== "pod.yaml"
+
+    ```yaml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default
+      namespace: default
+    spec:
+      containers:
+        - name: hello
+          image: busybox
+          command: ['sh', '-c', 'echo "Hello, Kubernetes!" && sleep 3600']
+    ```
 
 !!! note
     See our note about how [Regula handles globbing](#globbing) in commands.
@@ -566,14 +1002,18 @@ This command is used to facilitate development of Regula itself. If you'd like t
 ## test
 
 ```
-Execute Rego test cases with Regula.
+Run OPA test with Regula.
 
 Usage:
   regula test [paths containing rego or test inputs] [flags]
 
 Flags:
-  -h, --help    help for test
-  -t, --trace   Enable trace output
+  -h, --help             help for test
+      --no-test-inputs   Disable loading test inputs
+  -t, --trace            Enable trace output
+
+Global Flags:
+  -v, --verbose   verbose output
 ```
 
 `regula test` is the same as [`opa test`](https://www.openpolicyagent.org/docs/latest/policy-testing/), but with the Regula library built in. Additionally, Regula allows you to generate [`mock_input`, `mock_resources`, and `mock_config`](development/test-inputs.md) at runtime. That means you can simply pass in an IaC file containing test infrastructure without having to run a script generating the inputs.

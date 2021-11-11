@@ -1,3 +1,0 @@
-kind: Removed
-body: '`regula scan` command. The functionality of `regula scan` has been combined
-  into `regula run`.'

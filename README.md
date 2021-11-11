@@ -100,7 +100,9 @@ Usage:
   regula [command]
 
 Available Commands:
+  completion        generate the autocompletion script for the specified shell
   help              Help about any command
+  init              Create a new Regula configuration file in the current working directory.
   repl              Start an interactive session for testing rules with Regula
   run               Evaluate rules against infrastructure as code with Regula.
   show              Show debug information.

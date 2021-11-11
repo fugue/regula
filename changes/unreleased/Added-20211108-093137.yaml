@@ -1,3 +1,0 @@
-kind: Added
-body: '`--sync` flag to `regula run`. When `--sync` is specified, Regula will fetch
-  custom rules from Fugue.'

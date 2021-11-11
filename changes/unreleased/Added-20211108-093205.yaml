@@ -1,3 +1,0 @@
-kind: Added
-body: '`--upload` flag to `regula run`. When `--upload` is specified, Regula will
-  upload rule results to Fugue.'

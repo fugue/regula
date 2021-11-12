@@ -166,7 +166,8 @@ __rego__metadoc__ := {
         "CORPORATE-POLICY_1.1"
       ]
     },
-    "severity": "Low"
+    "severity": "Low",
+    "rule_remediation_doc": "https://example.com"
   }
 }
 ```

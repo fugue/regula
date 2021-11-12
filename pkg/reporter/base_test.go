@@ -17,8 +17,12 @@ package reporter
 import (
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/fugue/regula/pkg/loader"
+	"github.com/fugue/regula/pkg/mocks"
 )
 
 func testOutput() RegulaReport {
@@ -127,4 +131,37 @@ func TestExceedsSeverity(t *testing.T) {
 
 	empty := RegulaReport{}
 	require.False(t, empty.ExceedsSeverity(Informational))
+}
+
+func TestEnrichRuleResult(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockLoadedConfs := mocks.NewMockLoadedConfigurations(ctrl)
+	locations := []loader.Location{
+		{
+			Path: "path",
+			Line: 1,
+			Col:  2,
+		},
+	}
+
+	rr := RuleResult{
+		Filepath:        "src/infra/database.yaml",
+		ResourceID:      "r2",
+		ResourceType:    "t2",
+		RuleID:          "FG_R00001",
+		RuleName:        "Invalid settings 2",
+		RuleDescription: "Check for such and such",
+		RuleResult:      "FAIL",
+		RuleSeverity:    "Medium",
+	}
+	mockLoadedConfs.EXPECT().Location("src/infra/database.yaml", []string{"r2"}).Return(locations, nil)
+	rr.EnrichRuleResult(mockLoadedConfs)
+	assert.Equal(t, rr.SourceLocation, locations)
+	assert.Equal(t, rr.RuleRemediationDoc, "https://docs.fugue.co/FG_R00001.html")
+
+	rr.RuleRemediationDoc = "https://example.com"
+	mockLoadedConfs.EXPECT().Location("src/infra/database.yaml", []string{"r2"}).Return(locations, nil)
+	rr.EnrichRuleResult(mockLoadedConfs)
+	assert.Equal(t, rr.SourceLocation, locations)
+	assert.Equal(t, rr.RuleRemediationDoc, "https://example.com")
 }

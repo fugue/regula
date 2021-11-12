@@ -15,6 +15,7 @@ type Analysis struct {
 	Modules     map[string]*ModuleMeta
 	Resources   map[string]*ResourceMeta
 	Expressions map[string]hcl.Expression
+	Blocks      []FullName
 }
 
 func AnalyzeModuleTree(mtree *ModuleTree) *Analysis {
@@ -22,6 +23,7 @@ func AnalyzeModuleTree(mtree *ModuleTree) *Analysis {
 		Modules:     map[string]*ModuleMeta{},
 		Resources:   map[string]*ResourceMeta{},
 		Expressions: map[string]hcl.Expression{},
+		Blocks:      []FullName{},
 	}
 	mtree.Walk(analysis)
 	return analysis
@@ -33,6 +35,10 @@ func (v *Analysis) VisitModule(name ModuleName, meta *ModuleMeta) {
 
 func (v *Analysis) VisitResource(name FullName, resource *ResourceMeta) {
 	v.Resources[name.ToString()] = resource
+}
+
+func (v *Analysis) VisitBlock(name FullName) {
+	v.Blocks = append(v.Blocks, name)
 }
 
 func (v *Analysis) VisitExpr(name FullName, expr hcl.Expression) {
@@ -183,11 +189,20 @@ func (v *Evaluation) prepareVariables(name FullName, expr hcl.Expression) ValTre
 }
 
 func (v *Evaluation) evaluate() error {
+	// Obtain order
 	order, err := v.Analysis.order()
 	if err != nil {
 		return err
 	}
 
+	// Initialize a skeleton with blocks, to ensure empty blocks are present
+	for _, name := range v.Analysis.Blocks {
+		moduleKey := ModuleNameToString(name.Module)
+		tree := BuildValTree(name.Local, EmptyObjectValTree())
+		v.Modules[moduleKey] = MergeValTree(v.Modules[moduleKey], tree)
+	}
+
+	// Evaluate expressions
 	for _, name := range order {
 		logrus.Debugf("evaluate: %s", name.ToString())
 		expr := v.Analysis.Expressions[name.ToString()]

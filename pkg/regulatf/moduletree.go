@@ -198,6 +198,7 @@ func moduleIsLocal(source string) bool {
 type Visitor interface {
 	VisitModule(name ModuleName, meta *ModuleMeta)
 	VisitResource(name FullName, resource *ResourceMeta)
+	VisitBlock(name FullName)
 	VisitExpr(name FullName, expr hcl.Expression)
 }
 
@@ -215,7 +216,7 @@ func walkModuleTree(v Visitor, moduleName ModuleName, mtree *ModuleTree) {
 
 		// TODO: This is not good.  We end up walking child2 as it were child2.
 		configName := FullName{moduleName, LocalName{"input", key}}
-		walkBody(v, configName, child.config)
+		walkBlock(v, configName, child.config)
 
 		walkModuleTree(v, childModuleName, child)
 	}
@@ -275,14 +276,14 @@ func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, 
 		return
 	}
 
-	walkBody(v, name, body)
+	walkBlock(v, name, body)
 }
 
-func walkBody(v Visitor, name FullName, body *hclsyntax.Body) {
-	empty := true
+func walkBlock(v Visitor, name FullName, body *hclsyntax.Body) {
+	v.VisitBlock(name)
+
 	for _, attribute := range body.Attributes {
 		v.VisitExpr(name.AddKey(attribute.Name), attribute.Expr)
-		empty = false
 	}
 
 	blockCounter := map[string]int{} // Which index we're at per block type.
@@ -294,17 +295,7 @@ func walkBody(v Visitor, name FullName, body *hclsyntax.Body) {
 		} else {
 			blockCounter[block.Type] = 1
 		}
-		walkBody(v, name.AddKey(block.Type).AddIndex(idx), block.Body)
-		empty = false
-	}
-
-	if empty {
-		// For empty blocks, ensure there is an empty object in the output.
-		expr := hclsyntax.LiteralValueExpr{
-			Val:      cty.ObjectVal(map[string]cty.Value{}),
-			SrcRange: body.SrcRange,
-		}
-		v.VisitExpr(name, &expr)
+		walkBlock(v, name.AddKey(block.Type).AddIndex(idx), block.Body)
 	}
 }
 

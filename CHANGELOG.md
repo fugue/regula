@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.0.1 (2021-11-12)
+
+### Fixed
+* Issue where some data resources would appear empty in the resource view for Terraform HCL inputs (#244)
+
 ## v2.0.0 (2021-11-11)
 
 This is a major release that contains a few breaking changes described below. Users who are upgrading from previous versions should:

@@ -226,11 +226,13 @@ func walkModule(v Visitor, moduleName ModuleName, module *configs.Module) {
 	name := EmptyFullName(moduleName)
 
 	for _, variable := range module.Variables {
-		expr := hclsyntax.LiteralValueExpr{
-			Val:      variable.Default,
-			SrcRange: variable.DeclRange,
+		if variable.Default != cty.NilVal {
+			expr := hclsyntax.LiteralValueExpr{
+				Val:      variable.Default,
+				SrcRange: variable.DeclRange,
+			}
+			v.VisitExpr(name.AddKey("variable").AddKey(variable.Name), &expr)
 		}
-		v.VisitExpr(name.AddKey("variable").AddKey(variable.Name), &expr)
 	}
 
 	for _, local := range module.Locals {

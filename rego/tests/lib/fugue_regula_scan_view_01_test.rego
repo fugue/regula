@@ -36,7 +36,8 @@ mock_rules = {
         "controls": {
           "MOCK": ["MOCK_1.2.3"]
         },
-        "severity": "hIgH"
+        "severity": "hIgH",
+        "rule_remediation_doc": "https://example.com"
       },
       "id": "FG_R00001",
       "title": "Always pass",
@@ -124,7 +125,8 @@ expected_scan_view = {
         "rule_result": "PASS",
         "rule_severity": "High",
         "rule_summary": "Always pass",
-        "rule_raw_result": true
+        "rule_raw_result": true,
+        "rule_remediation_doc": "https://example.com"
       },
       {
         "controls": {
@@ -142,7 +144,8 @@ expected_scan_view = {
         "rule_result": "PASS",
         "rule_severity": "High",
         "rule_summary": "Always pass",
-        "rule_raw_result": true
+        "rule_raw_result": true,
+        "rule_remediation_doc": "https://example.com"
       },
       {
         "controls": {
@@ -160,7 +163,8 @@ expected_scan_view = {
         "rule_result": "PASS",
         "rule_severity": "High",
         "rule_summary": "Always pass",
-        "rule_raw_result": true
+        "rule_raw_result": true,
+        "rule_remediation_doc": "https://example.com"
       },
       {
         "controls": set(),
@@ -176,7 +180,8 @@ expected_scan_view = {
         "rule_result": "FAIL",
         "rule_severity": "Unknown",
         "rule_summary": "",
-        "rule_raw_result": false
+        "rule_raw_result": false,
+        "rule_remediation_doc": ""
       },
       {
         "controls": set(),
@@ -192,7 +197,8 @@ expected_scan_view = {
         "rule_result": "FAIL",
         "rule_severity": "Unknown",
         "rule_summary": "",
-        "rule_raw_result": false
+        "rule_raw_result": false,
+        "rule_remediation_doc": ""
       },
       {
         "controls": set(),
@@ -208,7 +214,8 @@ expected_scan_view = {
         "rule_result": "FAIL",
         "rule_severity": "Unknown",
         "rule_summary": "",
-        "rule_raw_result": false
+        "rule_raw_result": false,
+        "rule_remediation_doc": ""
       }
     ],
     "summary": {

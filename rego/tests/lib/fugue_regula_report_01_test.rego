@@ -30,7 +30,8 @@ mock_rules = {
         "controls": {
           "MOCK": ["MOCK_1.2.3"]
         },
-        "severity": "hIgH"
+        "severity": "hIgH",
+        "rule_remediation_doc": "https://example.com"
       },
       "id": "FG_R00001",
       "title": "Always pass",
@@ -76,6 +77,7 @@ expected_report = {
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
       "rule_severity": "High",
+      "rule_remediation_doc": "https://example.com",
       "controls": {"MOCK_1.2.3"},
       "filepath": "",
       "rule_raw_result": true
@@ -92,6 +94,7 @@ expected_report = {
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
       "rule_severity": "High",
+      "rule_remediation_doc": "https://example.com",
       "controls": {"MOCK_1.2.3"},
       "filepath": "",
       "rule_raw_result": true
@@ -108,6 +111,7 @@ expected_report = {
       "rule_summary": "Always pass",
       "rule_description": "This rule always passes",
       "rule_severity": "High",
+      "rule_remediation_doc": "https://example.com",
       "controls": {"MOCK_1.2.3"},
       "filepath": "",
       "rule_raw_result": true
@@ -124,6 +128,7 @@ expected_report = {
       "rule_summary": "",
       "rule_description": "",
       "rule_severity": "Unknown",
+      "rule_remediation_doc": "",
       "controls": set(),
       "filepath": "",
       "rule_raw_result": false
@@ -140,6 +145,7 @@ expected_report = {
       "rule_summary": "",
       "rule_description": "",
       "rule_severity": "Unknown",
+      "rule_remediation_doc": "",
       "controls": set(),
       "filepath": "",
       "rule_raw_result": false
@@ -156,6 +162,7 @@ expected_report = {
       "rule_summary": "",
       "rule_description": "",
       "rule_severity": "Unknown",
+      "rule_remediation_doc": "",
       "controls": set(),
       "filepath": "",
       "rule_raw_result": false

@@ -356,7 +356,11 @@ func (r *RuleResult) EnrichRuleResult(conf loader.LoadedConfigurations) {
 	if err == nil {
 		r.SourceLocation = location
 	}
-	r.RuleRemediationDoc = getRemediationDoc(r.RuleID)
+	// look up remediation doc URL from remediation.yaml if
+	// it is not provided as part of the rule metadata
+	if r.RuleRemediationDoc == "" {
+		r.RuleRemediationDoc = getRemediationDoc(r.RuleID)
+	}
 }
 
 type Summary struct {

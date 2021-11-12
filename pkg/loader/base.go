@@ -24,6 +24,7 @@ import (
 //go:generate mockgen -destination=../mocks/mock_inputpath.go -package=mocks github.com/fugue/regula/pkg/loader InputPath
 //go:generate mockgen -destination=../mocks/mock_inputdirectory.go -package=mocks github.com/fugue/regula/pkg/loader InputDirectory
 //go:generate mockgen -destination=../mocks/mock_inputfile.go -package=mocks github.com/fugue/regula/pkg/loader InputFile
+//go:generate mockgen -destination=../mocks/mock_loadedconfigurations.go -package=mocks github.com/fugue/regula/pkg/loader LoadedConfigurations
 
 // stdIn is the path used for stdin.
 const stdIn = "<stdin>"

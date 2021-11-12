@@ -139,6 +139,7 @@ rule_resource_result(rule, judgement) = ret {
     "controls": rule.metadata.controls,
     "filepath": judgement.filepath,
     "input_type": input_type_internal.input_type,
+    "rule_remediation_doc": rule.metadata.rule_remediation_doc,
   }
 }
 
@@ -197,7 +198,8 @@ rule_metadata(pkg) = ret {
     "id": object.get(metadoc, "id", ""),
     "summary": object.get(metadoc, "title", ""),
     "severity": title_case(object.get(custom, "severity", "Unknown")),
-    "controls": controls(custom)
+    "controls": controls(custom),
+    "rule_remediation_doc": object.get(custom, "rule_remediation_doc", "")
   }
 }
 

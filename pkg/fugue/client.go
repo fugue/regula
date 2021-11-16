@@ -23,6 +23,7 @@ import (
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/fugue/regula/pkg/swagger/client"
 	apiclient "github.com/fugue/regula/pkg/swagger/client"
+	"github.com/fugue/regula/pkg/swagger/client/environments"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
@@ -53,6 +54,7 @@ func getEnvWithDefault(name, defaultValue string) string {
 }
 
 type FugueClient interface {
+	EnvironmentRules(ctx context.Context, environmentID string) ([]string, error)
 	CustomRulesProvider() rego.RegoProvider
 	CustomRuleProvider(ruleID string) rego.RegoProvider
 	UploadScan(ctx context.Context, environmentId string, scanView reporter.ScanView) error
@@ -85,4 +87,22 @@ func NewFugueClient() (FugueClient, error) {
 		client: client,
 		auth:   auth,
 	}, nil
+}
+
+func (c *fugueClient) EnvironmentRules(ctx context.Context, environmentID string) ([]string, error) {
+	getEnvironmentRulesParams := &environments.GetEnvironmentRulesParams{
+		EnvironmentID: environmentID,
+		Context:       ctx,
+	}
+	result, err := c.client.Environments.GetEnvironmentRules(getEnvironmentRulesParams, c.auth)
+	if err != nil {
+		return nil, err
+	}
+	rules := []string{}
+	for _, item := range result.Payload.Items {
+		if item.ID != nil {
+			rules = append(rules, *item.ID)
+		}
+	}
+	return rules, nil
 }

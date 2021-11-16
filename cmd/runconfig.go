@@ -76,13 +76,7 @@ func (c *runConfig) Providers() ([]rego.RegoProvider, error) {
 			rego.RegulaLibProvider(),
 			rego.RegulaRulesProvider(),
 			client.CustomRulesProvider(),
-			func(ctx context.Context, p rego.RegoProcessor) error {
-				selectedRules, err := client.EnvironmentRules(ctx, c.environmentId)
-				if err != nil {
-					return err
-				}
-				return rego.RegulaConfigProvider([]string{}, selectedRules)(ctx, p)
-			},
+			client.EnvironmentRegulaConfigProvider(c.environmentId),
 		}, nil
 	}
 

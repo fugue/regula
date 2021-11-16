@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/fugue/regula/pkg/fugue"
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -37,13 +38,28 @@ func NewShowConfigCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			sync := v.GetBool(syncFlag)
+			environmentId := v.GetString(environmentIDFlag)
+			if sync && environmentId == "" {
+				return fmt.Errorf("%s must be set", environmentIDFlag)
+			}
+
 			// Silence usage now that we're past arg parsing
 			cmd.SilenceUsage = true
 			cb := func(r rego.RegoFile) error {
 				fmt.Print(r.String())
 				return nil
 			}
-			provider := rego.RegulaConfigProvider(excludes, only)
+			var provider rego.RegoProvider
+			if sync {
+				client, err := fugue.NewFugueClient()
+				if err != nil {
+					return err
+				}
+				provider = client.EnvironmentRegulaConfigProvider(environmentId)
+			} else {
+				provider = rego.RegulaConfigProvider(excludes, only)
+			}
 			ctx := context.Background()
 			if err := provider(ctx, cb); err != nil {
 				return err
@@ -53,7 +69,9 @@ func NewShowConfigCommand() *cobra.Command {
 	}
 
 	addExcludeFlag(cmd, v)
+	addEnvironmentIDFlag(cmd, v)
 	addOnlyFlag(cmd, v)
+	addSyncFlag(cmd, v)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

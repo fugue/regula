@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
@@ -27,6 +28,7 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -98,11 +100,26 @@ func (c *fugueClient) EnvironmentRules(ctx context.Context, environmentID string
 	if err != nil {
 		return nil, err
 	}
+
+	numFugueRules := 0
+	numCustomRules := 0
 	rules := []string{}
 	for _, item := range result.Payload.Items {
 		if item.ID != nil {
-			rules = append(rules, *item.ID)
+			ruleID := *item.ID
+			if strings.HasPrefix(ruleID, "FG_") {
+				numFugueRules += 1
+			} else {
+				numCustomRules += 1
+			}
+			rules = append(rules, ruleID)
 		}
 	}
+	logrus.Infof(
+		"Selected %d Fugue rules and %d custom rules for environment %s",
+		numFugueRules,
+		numCustomRules,
+		environmentID,
+	)
 	return rules, nil
 }

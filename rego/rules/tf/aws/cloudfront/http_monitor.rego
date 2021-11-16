@@ -27,30 +27,11 @@ __rego__metadoc__ := {
   "title": "CloudFront distributions should be protected by WAFs"
 }
 
-cloudfronts = fugue.resources("aws_cloudfront_distribution")
+resource_type = "aws_cloudfront_distribution"
 
-wafv1_web_acls = fugue.resources("aws_waf_web_acl")
-wafv2_web_acls = fugue.resources("aws_wafv2_web_acl")
+default allow = false
 
-# WAFv1 ACLs are referenced by ID, while WAFv2 ACLs are referenced by ARN
-wafv1_web_acl_ids = {id | id = wafv1_web_acls[_].id}
-wafv2_web_acl_arns = {arn | arn = wafv2_web_acls[_].arn}
-
-has_web_acl(cf) {
-    wafv1_web_acl_ids[cf.web_acl_id]
-} {
-    wafv2_web_acl_arns[cf.web_acl_id]
-}
-
-resource_type = "MULTIPLE"
-
-policy[j] {
-  cf = cloudfronts[_]
-  has_web_acl(cf)
-  j = fugue.allow_resource(cf)
-} {
-  cf = cloudfronts[_]
-  not has_web_acl(cf)
-  j = fugue.deny_resource(cf)
+allow {
+  input.web_acl_id != ""
 }
 

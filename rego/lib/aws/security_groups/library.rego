@@ -128,6 +128,8 @@ resource_is_load_balancer(resource) {
   resource._type == "aws_elb"
 } {
   resource._type == "aws_lb"
+} {
+  resource._type == "aws_alb"
 }
 
 # Is a resource allowed in a public security group?

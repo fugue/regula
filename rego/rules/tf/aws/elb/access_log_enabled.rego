@@ -34,6 +34,10 @@ all_resources[id] = resource {
   elbs[id] = resource
 } {
   lbs[id] = resource
+} {
+  # Check that aws_alb is in the input. Should only be true in regula.
+  fugue.resource_types_v0["aws_alb"]
+  fugue.resources("aws_alb")[id] = resource
 }
 
 access_logs_enabled(obj) {

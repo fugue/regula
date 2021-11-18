@@ -162,10 +162,8 @@ docker: $(CLI_SOURCE) $(REGO_LIB_SOURCE) $(REGO_RULES_SOURCE)
 
 .PHONY: remediation
 remediation: ## Generate remediation links
-remediation: rego/remediation.yaml
-
-$(REMEDIATION_LINKS):
-	curl -s "https://docs.fugue.co/remediation.html" | grep -Eo 'FG_R[0-9]+' | sort -u | awk '{ print $$1 ":\n  url: https://docs.fugue.co/" $$1 ".html" }' > "$@"
+remediation:
+	curl -s "https://docs.fugue.co/remediation.html" | grep -Eo 'FG_R[0-9]+' | sort -u | awk '{ print $$1 ":\n  url: https://docs.fugue.co/" $$1 ".html" }' > "rego/remediation.yaml"
 
 #####################
 # Release processes #
@@ -177,11 +175,11 @@ change: $(CHANGIE)
 
 define bump_rule
 .PHONY: bump_$(1)_version
-bump_$(1)_version: $$(CHANGIE)
+bump_$(1)_version: $$(CHANGIE) remediation
 	$$(CHANGIE) batch $(2)
 	$$(CHANGIE) merge
 	$$(YQ) eval --inplace '.extra.version = "$(2)"' ./mkdocs.yml
-	git add changes CHANGELOG.md mkdocs.yml
+	git add changes CHANGELOG.md mkdocs.yml rego/remediation.yaml
 	@echo "Run the following to complete the release:"
 	@echo "    git commit -m 'Bump version to $(2)'"
 	@echo "    git tag -a -F changes/$(2).md $(2)"

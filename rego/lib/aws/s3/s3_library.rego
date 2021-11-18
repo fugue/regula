@@ -27,9 +27,19 @@ bucket_policies_for_bucket(bucket) = ret {
     # External
     [pol.policy |
       pol = bucket_policies[_]
-      pol.bucket == bucket.id
+      matches_bucket_or_id(pol.bucket, bucket)
     ]
   )
+}
+
+matches_bucket_or_id(val, bucket) {
+  not is_null(val)
+  val == bucket.bucket
+}
+
+matches_bucket_or_id(val, bucket) {
+  not is_null(val)
+  val == bucket.id
 }
 
 bucket_name_or_id(bucket) = ret {

@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v2.1.0 (2021-11-18)
+
+### Added
+* Ability to specify remediation doc URL for custom rules (#247 authored by @darrendao)
+* Support for aws_alb resource type in Terraform rules (#252)
+* Remediation doc links for some newer rules
+
+### Fixed
+* Panic from HCL loader for variables without defaults (#245)
+* Bucket policies not correctly associated with buckets in some Terraform rules (#251)
+* Lambda permissions not associated with functions when values besides function name are used (#200)
+* False positives from FG_R00073 for WAFv2 with Terraform HCL inputs (#249)
+
 ## v2.0.1 (2021-11-12)
 
 ### Fixed

@@ -59,7 +59,7 @@ func (c *ArmDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IAC
 type armConfiguration struct {
 	path     string
 	template armTemplate
-	source   *CfnSourceInfo
+	source   *SourceInfoNode
 }
 
 func (l *armConfiguration) RegulaInput() RegulaInput {
@@ -69,15 +69,36 @@ func (l *armConfiguration) RegulaInput() RegulaInput {
 	}
 }
 
-func (l *armConfiguration) Location(attributePath []string) (LocationStack, error) {
-	if l.source == nil {
+func (l *armConfiguration) Location(path []string) (LocationStack, error) {
+	if l.source == nil || len(path) < 1 {
 		return nil, nil
 	}
-	loc, err := l.source.Location(attributePath)
-	if loc == nil || err != nil {
-		return nil, err
+
+	resourcePath := []string{"Resources"}
+	resourcePath = append(resourcePath, path[0])
+	resource, err := l.source.GetPath(resourcePath)
+	if err != nil {
+		return nil, nil
 	}
-	return []Location{*loc}, nil
+	resourceLine, resourceColumn := resource.Location()
+	resourceLocation := Location{
+		Path: l.path,
+		Line: resourceLine,
+		Col:  resourceColumn,
+	}
+
+	properties, err := resource.GetKey("Properties")
+	if err != nil {
+		return []Location{resourceLocation}, nil
+	}
+
+	attribute, err := properties.GetPath(path[1:])
+	if attribute != nil {
+		return []Location{resourceLocation}, nil
+	}
+
+	line, column := attribute.Location()
+	return []Location{{Path: l.path, Line: line, Col: column}}, nil
 }
 
 func (l *armConfiguration) LoadedFiles() []string {

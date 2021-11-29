@@ -15,7 +15,12 @@
 package rego
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"context"
+	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -131,6 +136,55 @@ func LocalProvider(paths []string) RegoProvider {
 			}
 		}
 		return nil
+	}
+}
+
+func TarGzProvider(reader io.Reader) RegoProvider {
+	return func(ctx context.Context, p RegoProcessor) error {
+		gzf, err := gzip.NewReader(reader)
+		if err != nil {
+			return err
+		}
+
+		tarReader := tar.NewReader(gzf)
+		for true {
+			header, err := tarReader.Next()
+			if err == io.EOF {
+				break
+			} else if err != nil {
+				return err
+			}
+
+			path := header.Name
+
+			switch header.Typeflag {
+			case tar.TypeReg:
+				if ext := filepath.Ext(path); !opaExts[ext] {
+					continue
+				}
+				buffer := bytes.NewBuffer([]byte{})
+				io.Copy(buffer, tarReader)
+				if err != nil {
+					return fmt.Errorf("Error reading file %s in tar: %s", path, err)
+				}
+				p(&regoFile{
+					path:     path,
+					contents: buffer.Bytes(),
+				})
+			}
+		}
+		return nil
+	}
+}
+
+func RegulaBundleProvider() RegoProvider {
+	return func(ctx context.Context, p RegoProcessor) error {
+		f, err := os.Open("/home/jasper/Luminal/risk-manager/src/iac_rules/build/rego.tar.gz")
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		return TarGzProvider(f)(ctx, p)
 	}
 }
 

@@ -76,7 +76,7 @@ func (c *runConfig) Providers() ([]rego.RegoProvider, error) {
 	}
 
 	providers := []rego.RegoProvider{
-		rego.RegulaLibProvider(),
+		rego.OverrideRegoProvider(rego.RegulaBundleProvider(), rego.RegulaLibProvider()),
 		rego.RegulaConfigProvider(c.excludes, c.only),
 		rego.LocalProvider(c.includes),
 	}

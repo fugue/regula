@@ -37,3 +37,24 @@ type RegoProvider func(ctx context.Context, p RegoProcessor) error
 type RegoResult *rego.Result
 
 type RegoResultProcessor func(ctx context.Context, c loader.LoadedConfigurations, r RegoResult) error
+
+// Merges two rego providers, preferring files from the left argument if they
+// exist in both.
+func OverrideRegoProvider(left RegoProvider, right RegoProvider) RegoProvider {
+	paths := map[string]struct{}{}
+	return func(ctx context.Context, p RegoProcessor) error {
+		if err := left(ctx, func(r RegoFile) error {
+			paths[r.Path()] = struct{}{}
+			return p(r)
+		}); err != nil {
+			return err
+		}
+		return right(ctx, func(r RegoFile) error {
+			if _, ok := paths[r.Path()]; ok {
+				return nil
+			} else {
+				return p(r)
+			}
+		})
+	}
+}

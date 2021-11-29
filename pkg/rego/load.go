@@ -163,8 +163,7 @@ func TarGzProvider(reader io.Reader) RegoProvider {
 					continue
 				}
 				buffer := bytes.NewBuffer([]byte{})
-				io.Copy(buffer, tarReader)
-				if err != nil {
+				if _, err := io.Copy(buffer, tarReader); err != nil {
 					return fmt.Errorf("Error reading file %s in tar: %s", path, err)
 				}
 				p(&regoFile{

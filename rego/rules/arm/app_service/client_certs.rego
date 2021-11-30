@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "App Service web apps should have 'Incoming client certificates' enabled",
 	"description": "Client certificates allow for the app to request a certificate for incoming requests. Only clients that have a valid certificate will be able to reach the app.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_9.4"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_9.4"
+			]
+		},
 		"severity": "Medium"
 	}
 }

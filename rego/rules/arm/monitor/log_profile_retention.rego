@@ -21,7 +21,11 @@ __rego__metadoc__ := {
 	"title": "Monitor 'Activity Log Retention' should be 365 days or greater",
 	"description": "A log profile controls how the activity log is exported and retained. Since the average time to detect a breach is 210 days, the activity log should be retained for 365 days or more in order to have time to respond to any incidents.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_5.1.2"
+			]
+		},
 		"severity": "Medium"
 	}
 }

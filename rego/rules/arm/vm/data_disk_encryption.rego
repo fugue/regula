@@ -21,7 +21,11 @@ __rego__metadoc__ := {
 	"title": "Virtual Machines data disks (non-boot volumes) should be encrypted",
 	"description": "Encrypting the IaaS VM's Data disks ensures that its entire content is fully unrecoverable without a key and thus protects the volume from unwarranted reads.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_7.2"
+			]
+		},
 		"severity": "High"
 	}
 }

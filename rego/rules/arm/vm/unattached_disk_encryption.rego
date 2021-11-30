@@ -21,7 +21,11 @@ __rego__metadoc__ := {
 	"title": "Virtual Machines unattached disks should be encrypted",
 	"description": "Encrypting the IaaS VM's disks ensures that its entire content is fully unrecoverable without a key and thus protects the volume from unwarranted reads.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_7.3"
+			]
+		},
 		"severity": "High"
 	}
 }

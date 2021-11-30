@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "PostgreSQL Database configuration 'connection_throttling' should be on",
 	"description": "Enabling connection_throttling helps the PostgreSQL Database to Set the verbosity of logged messages which in turn generates query and error logs with respect to concurrent connections, that could lead to a successful Denial of Service (DoS) attack by exhausting connection resources.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_4.17"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_4.3.6"
+			]
+		},
 		"severity": "Medium"
 	}
 }

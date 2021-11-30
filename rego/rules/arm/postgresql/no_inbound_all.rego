@@ -21,7 +21,11 @@ __rego__metadoc__ := {
 	"title": "PostgreSQL Database server firewall rules should not permit start and end IP addresses to be 0.0.0.0",
 	"description": "Adding a rule with range 0.0.0.0 to 0.0.0.0 is the same as enabling the \"Allow access to Azure services\" setting, which allows all connections from Azure, including from other subscriptions. Disabling this setting helps prevent malicious Azure users from connecting to your database and accessing sensitive data.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_4.3.8"
+			]
+		},
 		"severity": "High"
 	}
 }

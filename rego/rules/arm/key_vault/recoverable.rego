@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "Key Vault 'Enable Soft Delete' and 'Enable Purge Protection' should be enabled",
 	"description": "Enabling soft deletion ensures that even if the key vault is deleted, the key vault and its objects remain recoverable for next 90 days. In this span of 90 days, the key vault and its objects can be recovered or purged (permanent deletion). Enabling purge protection ensures that the key vault and its objects cannot be purged during the 90 day retention period.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_8.4"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_8.4"
+			]
+		},
 		"severity": "Medium"
 	}
 }

@@ -21,7 +21,11 @@ __rego__metadoc__ := {
 	"title": "Storage Accounts should have 'Trusted Microsoft Services' enabled",
 	"description": "Some Microsoft services that interact with storage accounts operate from networks that can't be granted access through network rules. Enabling \"Trusted Microsoft Services\" allows Azure Backup, Azure Site Recovery, Azure Networking, Azure Monitor, and other Azure services to access your storage account and bypass any firewall rules.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_3.7"
+			]
+		},
 		"severity": "Medium"
 	}
 }

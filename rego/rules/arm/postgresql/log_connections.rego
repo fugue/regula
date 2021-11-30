@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "PostgreSQL Database configuration 'log_connections' should be on",
 	"description": "Enabling log_connections helps PostgreSQL Database to log attempted connection to the server, as well as successful completion of client authentication. Log data can be used to identify, troubleshoot, and repair configuration errors and suboptimal performance.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_4.14"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_4.3.4"
+			]
+		},
 		"severity": "Medium"
 	}
 }

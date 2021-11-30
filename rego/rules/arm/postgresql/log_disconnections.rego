@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "PostgreSQL Database configuration 'log_disconnections' should be on",
 	"description": "Enabling log_disconnections helps PostgreSQL Database to Logs end of a session, including duration, which in turn generates query and error logs. Query and error logs can be used to identify, troubleshoot, and repair configuration errors and sub-optimal performance.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_4.15"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_4.3.5"
+			]
+		},
 		"severity": "Medium"
 	}
 }

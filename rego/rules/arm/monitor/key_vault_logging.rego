@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "Key Vault logging should be enabled",
 	"description": "Enable AuditEvent logging for key vault instances to ensure interactions with key vaults are logged and available.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_5.1.7"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_5.1.5"
+			]
+		},
 		"severity": "Medium"
 	}
 }

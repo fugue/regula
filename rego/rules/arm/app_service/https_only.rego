@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "App Service web apps should have 'HTTPS only' enabled",
 	"description": "Azure Web Apps allows sites to run under both HTTP and HTTPS by default. Web apps can be accessed by anyone using non-secure HTTP links by default. Non-secure HTTP requests can be restricted and all HTTP requests redirected to the secure HTTPS port. It is recommended to enforce HTTPS-only traffic.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_9.2"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_9.2"
+			]
+		},
 		"severity": "High"
 	}
 }

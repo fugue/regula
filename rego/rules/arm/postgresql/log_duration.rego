@@ -21,7 +21,11 @@ __rego__metadoc__ := {
 	"title": "PostgreSQL Database configuration 'log_duration' should be on",
 	"description": "Enabling log_duration helps the PostgreSQL Database to Logs the duration of each completed SQL statement which in turn generates query and error logs. Query and error logs can be used to identify, troubleshoot, and repair configuration errors and sub-optimal performance.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_4.16"
+			]
+		},
 		"severity": "Medium"
 	}
 }

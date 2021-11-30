@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "Azure Kubernetes Service instances should have RBAC enabled",
 	"description": "Azure Kubernetes Services has the capability to integrate Azure Active Directory users and groups into Kubernetes RBAC controls within the AKS Kubernetes API Server. This should be utilized to enable granular access to Kubernetes resources within the AKS clusters supporting RBAC controls not just of the overarching AKS instance but also the individual resources managed within Kubernetes.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_8.5"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_8.5"
+			]
+		},
 		"severity": "Medium"
 	}
 }

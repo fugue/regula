@@ -21,7 +21,11 @@ __rego__metadoc__ := {
 	"title": "Monitor log profile should have activity logs for global services and all regions",
 	"description": "Configure the log profile to export activities from all Azure supported regions/locations including global. This rule is evaluated against all resource locations that Fugue has permission to scan.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_5.1.4"
+			],
+		},
 		"severity": "Medium"
 	}
 }

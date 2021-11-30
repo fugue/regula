@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "Active Directory custom subscription owner roles should not be created",
 	"description": "Subscription ownership should not include permission to create custom owner roles. The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_1.23"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_1.21"
+			]
+		},
 		"severity": "Medium"
 	}
 }

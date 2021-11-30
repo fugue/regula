@@ -21,7 +21,11 @@ __rego__metadoc__ := {
 	"title": "Monitor audit profile should log all activities",
 	"description": "The log profile should be configured to export all activities from the control/management plane. A log profile controls how the activity log is exported. Configuring the log profile to collect logs for the categories \"write\", \"delete\" and \"action\" ensures that all the control/management plane activities performed on the subscription are exported.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_5.1.3"
+			]
+		},
 		"severity": "Medium"
 	}
 }

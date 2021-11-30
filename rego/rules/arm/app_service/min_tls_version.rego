@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "App Service web apps should have 'Minimum TLS Version' set to '1.2'",
 	"description": "The TLS (Transport Layer Security) protocol secures transmission of data over the internet using standard encryption technology. Encryption should be set with the latest version of TLS. App service allows TLS 1.2 by default, which is the recommended TLS level by industry standards.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_9.3"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_9.3"
+			]
+		},
 		"severity": "Medium"
 	}
 }

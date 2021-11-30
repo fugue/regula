@@ -21,7 +21,14 @@ __rego__metadoc__ := {
 	"title": "PostgreSQL Database configuration 'log_retention days' should be greater than 3",
 	"description": "Enabling log_retention_days helps PostgreSQL Database to Sets number of days a log file is retained which in turn generates query and error logs. Query and error logs can be used to identify, troubleshoot, and repair configuration errors and sub-optimal performance.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+				"CIS-Azure_v1.1.0_4.18"
+			],
+			"CIS-Azure_v1.3.0": [
+				"CIS-Azure_v1.3.0_4.3.7"
+			]
+		},
 		"severity": "Medium"
 	}
 }

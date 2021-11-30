@@ -17,11 +17,11 @@ package rules.arm_storage_account_secure_transfer
 import data.tests.arm.vm.inputs.account_secure_transfer_infra_json as infra
 
 test_valid {
-	resources = inputs.mock_resources
+	resources = infra.mock_resources
 	not deny with input as resources.valid
 }
 
 test_invalid {
-	resources = inputs.mock_resources
+	resources = infra.mock_resources
 	deny with input as resources.invalid
 }

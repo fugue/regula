@@ -61,6 +61,19 @@ make_typed_name(type, name) = ret {
   ret = concat("/", [service, t0, n0, t1, n1, t2, n2, t3, n3, t4, n4, t5, n5])
 }
 
+# Retrieve the parent name of a typed name, or null.
+# E.g.
+#
+#     Microsoft.Network/virtualNetworks/VNet1/subnets/Subnet1
+#     -> Microsoft.Network/virtualNetworks/VNet1
+parent_typed_name(typed_name) = ret {
+    parts := split(typed_name, "/")
+    count(parts) > 3
+    ret := concat("/", array.slice(parts, 0, count(parts) - 2))
+} else = ret {
+    ret := null
+}
+
 # Extract all children resources (including the parent itself) from a resource.
 extract_resources(top_level_resource) = ret {
   ret := {id: resource |
@@ -80,6 +93,7 @@ extract_resources(top_level_resource) = ret {
       {"op": "add", "path": ["id"], "value": typed_name},
       {"op": "add", "path": ["_type"], "value": type},
       {"op": "add", "path": ["_provider"], "value": "arm"},
+      {"op": "add", "path": ["_parent_id"], "value": parent_typed_name(typed_name)},
     ])
   }
 }

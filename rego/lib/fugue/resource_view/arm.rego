@@ -16,7 +16,6 @@ package fugue.resource_view.arm
 # Returns a list of all parent resources of the resource at the given path,
 # ending with the resource itself.
 parent_resources(top_level_resource, path) = ret {
-  trace(json.marshal(path))
   indices := numbers.range(1, floor(count(path) / 2))
   ret := array.concat([top_level_resource], [resource |
     i := indices[_] * 2

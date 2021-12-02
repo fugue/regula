@@ -14,18 +14,10 @@
 
 package rules.arm_app_service_https_only
 
-import data.tests.arm.vm.inputs.https_only_infra_json as infra
+import data.tests.rules.arm.app_service.inputs.https_only_infra_json as infra
 
-test_valid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+test_https_only {
+	allow with input as infra.mock_resources["Microsoft.Web/sites/enabled"]
+	not allow with input as infra.mock_resources["Microsoft.Web/sites/disabled"]
+	not allow with input as infra.mock_resources["Microsoft.Web/sites/default"]
 }

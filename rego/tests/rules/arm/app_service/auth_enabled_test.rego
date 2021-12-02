@@ -14,18 +14,12 @@
 
 package rules.arm_app_service_auth_enabled
 
-import data.tests.arm.vm.inputs.auth_enabled_infra_json as infra
+import data.tests.rules.arm.app_service.inputs.auth_enabled_infra_json as infra
 
-test_valid {
+test_auth_enabled {
 	pol = policy with input as infra.mock_input
 	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+	by_resource_id["Microsoft.Web/sites/withAuth"] == true
+	by_resource_id["Microsoft.Web/sites/withAuthV2"] == true
+	by_resource_id["Microsoft.Web/sites/withoutAuth"] == false
 }

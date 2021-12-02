@@ -37,20 +37,34 @@ input_type = "arm"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Microsoft.Web/sites")
+sites := fugue.resources("Microsoft.Web/sites")
+configs := fugue.resources("Microsoft.Web/sites/config")
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+is_valid_authsettings(c) {
+	c.name == "authsettings"
+	c.properties.enabled == true
+}
+
+is_valid_authsettings(c) {
+	c.name == "authsettingsv2"
+	c.properties.platform.enabled == true
+}
+
+valid_sites := {id |
+	c := configs[_]
+	is_valid_authsettings(c)
+	id := c._parent_id
+	sites[id]
 }
 
 policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
+	s := sites[id]
+	not valid_sites[id]
+	p = fugue.deny_resource(s)
 }
 
 policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+	s := sites[id]
+	valid_sites[id]
+	p = fugue.allow_resource(s)
 }

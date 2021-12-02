@@ -35,22 +35,10 @@ __rego__metadoc__ := {
 
 input_type = "arm"
 
-resource_type = "MULTIPLE"
+resource_type = "Microsoft.Web/sites"
 
-resources = fugue.resources("Microsoft.Web/sites")
+default allow = false
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
-}
-
-policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
-}
-
-policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+allow {
+	input.properties.clientCertEnabled == true
 }

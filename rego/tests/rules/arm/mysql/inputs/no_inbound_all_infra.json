@@ -4,26 +4,89 @@
   "parameters": {},
   "resources": [
     {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-04-01",
-      "name": "valid",
-      "location": "West US",
-      "sku": {
-        "name": "Standard_LRS"
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2018-10-01",
+      "name": "VNet1",
+      "location": "switzerlandnorth",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        }
       },
-      "kind": "Storage",
-      "properties": {}
+      "resources": [
+        {
+          "type": "subnets",
+          "apiVersion": "2018-10-01",
+          "name": "Subnet1",
+          "dependsOn": [
+            "VNet1"
+          ],
+          "properties": {
+            "addressPrefix": "10.0.0.0/24"
+          }
+        }
+      ]
     },
     {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-04-01",
-      "name": "invalid",
-      "location": "West US",
-      "sku": {
-        "name": "Standard_LRS"
+      "apiVersion": "2017-12-01",
+      "type": "Microsoft.DBforMySQL/servers",
+      "name": "Server1",
+      "location": "switzerlandnorth",
+      "properties": {
+        "version": "5.7",
+        "administratorLogin": "admin",
+        "administratorLoginPassword": "hunter2",
+        "storageProfile": {
+          "storageMB": "5120",
+          "backupRetentionDays": "7",
+          "geoRedundantBackup": "Disabled"
+        }
       },
-      "kind": "Storage",
-      "properties": {}
+      "sku": {
+        "name": "B_Gen4_1",
+        "tier": "Basic",
+        "capacity": "2",
+        "family": "Gen5"
+      },
+      "resources": [
+        {
+          "name": "Subnet1",
+          "type": "virtualNetworkRules",
+          "apiVersion": "2017-12-01",
+          "properties": {
+            "virtualNetworkSubnetId": "Microsoft.Network/virtualNetworks/VNet1/subnets/Subnet1"
+          },
+          "dependsOn": [
+            "Microsoft.DBforMySQL/servers/Server1"
+          ]
+        },
+        {
+          "apiVersion": "2017-12-01",
+          "name": "Rule1",
+          "type": "firewallRules",
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          },
+          "dependsOn": [
+            "Microsoft.DBforMySQL/servers/Server1"
+          ]
+        },
+        {
+          "apiVersion": "2017-12-01",
+          "name": "Rule2",
+          "type": "firewallRules",
+          "properties": {
+            "startIpAddress": "10.0.0.0",
+            "endIpAddress": "10.0.255.0"
+          },
+          "dependsOn": [
+            "Microsoft.DBforMySQL/servers/Server1"
+          ]
+        }
+      ]
     }
   ]
 }

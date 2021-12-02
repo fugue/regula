@@ -17,6 +17,6 @@ package rules.arm_mysql_no_inbound_all
 import data.tests.rules.arm.mysql.inputs.no_inbound_all_infra_json as infra
 
 test_rule {
-    deny with input as infra.mock_resources["Microsoft.DBforMySQL/servers/Server1/firewallRules/Rule1"]
-    not deny with input as infra.mock_resources["Microsoft.DBforMySQL/servers/Server1/firewallRules/Rule2"]
+    deny with input as infra.mock_resources["Microsoft.DBforMySQL/servers/RegulaServer1/firewallRules/Rule1"]
+    not deny with input as infra.mock_resources["Microsoft.DBforMySQL/servers/RegulaServer1/firewallRules/Rule2"]
 }

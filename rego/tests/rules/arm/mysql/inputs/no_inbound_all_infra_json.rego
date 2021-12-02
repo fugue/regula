@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rego.tests.rules.arm.mysql.inputs.no_inbound_all_infra_json
+package tests.rules.arm.mysql.inputs.no_inbound_all_infra_json
 
 import data.fugue.resource_view.resource_view_input
 
@@ -25,38 +25,12 @@ mock_config := {
   "parameters": {},
   "resources": [
     {
-      "apiVersion": "2018-10-01",
-      "location": "switzerlandnorth",
-      "name": "VNet1",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "10.0.0.0/16"
-          ]
-        }
-      },
-      "resources": [
-        {
-          "apiVersion": "2018-10-01",
-          "dependsOn": [
-            "VNet1"
-          ],
-          "name": "Subnet1",
-          "properties": {
-            "addressPrefix": "10.0.0.0/24"
-          },
-          "type": "subnets"
-        }
-      ],
-      "type": "Microsoft.Network/virtualNetworks"
-    },
-    {
       "apiVersion": "2017-12-01",
       "location": "switzerlandnorth",
-      "name": "Server1",
+      "name": "RegulaServer1",
       "properties": {
-        "administratorLogin": "admin",
-        "administratorLoginPassword": "hunter2",
+        "administratorLogin": "foo",
+        "administratorLoginPassword": "abcd1234!",
         "storageProfile": {
           "backupRetentionDays": "7",
           "geoRedundantBackup": "Disabled",
@@ -68,18 +42,7 @@ mock_config := {
         {
           "apiVersion": "2017-12-01",
           "dependsOn": [
-            "Microsoft.DBforMySQL/servers/Server1"
-          ],
-          "name": "Subnet1",
-          "properties": {
-            "virtualNetworkSubnetId": "Microsoft.Network/virtualNetworks/VNet1/subnets/Subnet1"
-          },
-          "type": "virtualNetworkRules"
-        },
-        {
-          "apiVersion": "2017-12-01",
-          "dependsOn": [
-            "Microsoft.DBforMySQL/servers/Server1"
+            "Microsoft.DBforMySQL/servers/RegulaServer1"
           ],
           "name": "Rule1",
           "properties": {
@@ -91,7 +54,7 @@ mock_config := {
         {
           "apiVersion": "2017-12-01",
           "dependsOn": [
-            "Microsoft.DBforMySQL/servers/Server1"
+            "Microsoft.DBforMySQL/servers/RegulaServer1"
           ],
           "name": "Rule2",
           "properties": {
@@ -104,7 +67,7 @@ mock_config := {
       "sku": {
         "capacity": "2",
         "family": "Gen5",
-        "name": "B_Gen4_1",
+        "name": "B_Gen5_2",
         "tier": "Basic"
       },
       "type": "Microsoft.DBforMySQL/servers"

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rego.tests.rules.arm.sql.inputs.no_inbound_all_infra_json
+package tests.rules.arm.sql.inputs.no_inbound_all_infra_json
 
 import data.fugue.resource_view.resource_view_input
 

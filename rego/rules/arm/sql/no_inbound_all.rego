@@ -14,8 +14,6 @@
 
 package rules.arm_sql_no_inbound_all
 
-import data.fugue
-
 __rego__metadoc__ := {
 	"id": "FG_R00221",
 	"title": "SQL Server firewall rules should not permit start and end IP addresses to be 0.0.0.0",
@@ -28,22 +26,10 @@ __rego__metadoc__ := {
 
 input_type = "arm"
 
-resource_type = "MULTIPLE"
+resource_type = "Microsoft.Sql/servers/firewallRules"
 
-resources = fugue.resources("Microsoft.Sql/servers/firewallRules")
-
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
-}
-
-policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
-}
-
-policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+default deny = false
+deny {
+	input.properties.startIpAddress == "0.0.0.0"
+	input.properties.endIpAddress == "0.0.0.0"
 }

@@ -15,6 +15,7 @@
 package rules.arm_authorization_custom_owner_role
 
 import data.fugue
+import data.fugue.utils
 
 __rego__metadoc__ := {
 	"id": "FG_R00288",
@@ -35,22 +36,35 @@ __rego__metadoc__ := {
 
 input_type = "arm"
 
-resource_type = "MULTIPLE"
+resource_type = "Microsoft.Authorization/roledefinitions"
 
-resources = fugue.resources("Microsoft.Authorization/roleDefinitions")
-
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+is_subscription_scope(scope) {
+	scope == "/"
 }
 
-policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
+# Examples:
+# * "/subscriptions/479a226b-4153-48f7-8943-3e8e388a93cb"
+# * "/subscriptions/479a226b-4153-48f7-8943-3e8e388a93cb/"
+is_subscription_scope(scope) {
+	re_match(`^/subscriptions/[^/]+/?$`, lower(scope))
 }
 
-policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+# Examples:
+# * "[concat('/subscriptions/', subscription().subscriptionId)]"
+# * "[concat('/subscriptions/', '479a226b-4153-48f7-8943-3e8e388a93cb')]"
+# * "[concat('/subscriptions/', parameters('subscriptionId'))]"
+is_subscription_scope(scope) {
+	re_match(`^\[concat\('/subscriptions/',[^,]+\]$`, replace(lower(scope), " ", ""))
+}
+
+is_subscription_scope(scope) {
+	replace(lower(scope), " ", "") == "[subscription().id]"
+}
+
+default deny = false
+
+deny {
+	actions := utils.as_array(input.properties.permissions[_].actions)
+	actions[_] == "*"
+	is_subscription_scope(input.properties.assignableScopes[_])
 }

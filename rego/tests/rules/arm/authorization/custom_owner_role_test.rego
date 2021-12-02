@@ -14,18 +14,27 @@
 
 package rules.arm_authorization_custom_owner_role
 
-import data.tests.arm.vm.inputs.custom_owner_role_infra_json as infra
+import data.tests.rules.arm.authorization.inputs.custom_owner_role_infra_json as infra
 
-test_valid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
+test_is_subscription_scope {
+	is_subscription_scope("/")
+	is_subscription_scope("/subscriptions/479a226b-4153-48f7-8943-3e8e388a93cb")
+	is_subscription_scope("/subscriptions/479a226b-4153-48f7-8943-3e8e388a93cb/")
+	is_subscription_scope("[concat('/subscriptions/', subscription().subscriptionId)]")
+	is_subscription_scope("[concat('/subscriptions/', '479a226b-4153-48f7-8943-3e8e388a93cb')]")
+	is_subscription_scope("[concat('/subscriptions/', parameters('subscriptionId'))]")
+	is_subscription_scope("[subscription().id]")
+
+	not is_subscription_scope("/subscriptions/479a226b-4153-48f7-8943-3e8e388a93cb/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635")
+	not is_subscription_scope("[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]")
 }
 
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+test_custom_owner_role {
+	deny with input as infra.mock_resources["Microsoft.Authorization/roleDefinitions/invalidTopLevel"]
+	deny with input as infra.mock_resources["Microsoft.Authorization/roleDefinitions/invalidActionsArr"]
+	deny with input as infra.mock_resources["Microsoft.Authorization/roleDefinitions/invalidHardcodedId"]
+	deny with input as infra.mock_resources["Microsoft.Authorization/roleDefinitions/invalidConcat"]
+	deny with input as infra.mock_resources["Microsoft.Authorization/roleDefinitions/invalidSubscriptionId"]
+	not deny with input as infra.mock_resources["Microsoft.Authorization/roleDefinitions/validAction"]
+	not deny with input as infra.mock_resources["Microsoft.Authorization/roleDefinitions/validScope"]
 }

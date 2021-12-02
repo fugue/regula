@@ -17,6 +17,6 @@ package rules.arm_postgresql_no_inbound_all
 import data.tests.rules.arm.postgresql.inputs.no_inbound_all_infra_json as infra
 
 test_rule {
-	deny with input as infra.mock_resources["Microsoft.DBforPostgreSQL/servers/Server1/firewallRules/Rule1"]
-	not deny with input as infra.mock_resources["Microsoft.DBforPostgreSQL/servers/Server1/firewallRules/Rule2"]
+	deny with input as infra.mock_resources["Microsoft.DBforPostgreSQL/servers/RegulaServer1/firewallRules/Rule1"]
+	not deny with input as infra.mock_resources["Microsoft.DBforPostgreSQL/servers/RegulaServer1/firewallRules/Rule2"]
 }

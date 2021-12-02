@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rego.tests.rules.arm.postgresql.inputs.no_inbound_all_infra_json
+package tests.rules.arm.postgresql.inputs.no_inbound_all_infra_json
 
 import data.fugue.resource_view.resource_view_input
 
@@ -27,16 +27,16 @@ mock_config := {
     {
       "apiVersion": "2017-12-01",
       "location": "switzerlandnorth",
-      "name": "Server1",
+      "name": "RegulaServer1",
       "properties": {
-        "administratorLogin": "admin",
-        "administratorLoginPassword": "hunter2"
+        "administratorLogin": "foo",
+        "administratorLoginPassword": "abcd1234!"
       },
       "resources": [
         {
           "apiVersion": "2017-12-01",
           "dependsOn": [
-            "Microsoft.DBforPostgreSQL/servers/Server1"
+            "Microsoft.DBforPostgreSQL/servers/RegulaServer1"
           ],
           "name": "Rule1",
           "properties": {
@@ -48,7 +48,7 @@ mock_config := {
         {
           "apiVersion": "2017-12-01",
           "dependsOn": [
-            "Microsoft.DBforPostgreSQL/servers/Server1"
+            "Microsoft.DBforPostgreSQL/servers/RegulaServer1"
           ],
           "name": "Rule2",
           "properties": {

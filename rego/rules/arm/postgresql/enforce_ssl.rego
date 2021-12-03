@@ -35,7 +35,7 @@ __rego__metadoc__ := {
 
 input_type = "arm"
 
-resource_type = "Microsoft.DBforMySQL/servers"
+resource_type = "Microsoft.DBforPostgreSQL/servers"
 
 default allow = false
 allow {

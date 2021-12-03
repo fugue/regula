@@ -14,18 +14,15 @@
 
 package rules.arm_network_security_group_no_inbound_22
 
-import data.tests.arm.vm.inputs.security_group_no_inbound_22_infra_json as infra
+import data.tests.rules.arm.network.inputs.security_group_no_inbound_22_infra_json as infra
 
-test_valid {
+test_rule {
 	pol = policy with input as infra.mock_input
 	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+	by_resource_id["Microsoft.Network/networkSecurityGroups/RegulaSG1"] == false
+	by_resource_id["Microsoft.Network/networkSecurityGroups/RegulaSG1/securityRules/Rule2"] == true
+	by_resource_id["Microsoft.Network/networkSecurityGroups/RegulaSG1/securityRules/Rule3"] == false
+	by_resource_id["Microsoft.Network/networkSecurityGroups/RegulaSG1/securityRules/Rule4"] == false
+	by_resource_id["Microsoft.Network/networkSecurityGroups/RegulaSG1/securityRules/Rule5"] == true
+	by_resource_id["Microsoft.Network/networkSecurityGroups/RegulaSG1/securityRules/Rule6"] == true
 }

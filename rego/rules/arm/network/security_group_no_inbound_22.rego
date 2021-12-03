@@ -31,26 +31,4 @@ input_type = "arm"
 
 resource_type = "MULTIPLE"
 
-security_groups = fugue.resources("Microsoft.Network/networkSecurityGroups")
-
-policy[p] {
-  security_group = security_groups[_]
-  lib.group_allows_anywhere_to_port(security_group, 22)
-  p = fugue.deny_resource(security_group)
-} {
-  security_group = security_groups[_]
-  not lib.group_allows_anywhere_to_port(security_group, 22)
-  p = fugue.allow_resource(security_group)
-}
-
-security_rules = fugue.resources("Microsoft.Network/networkSecurityGroups/securityRules")
-
-policy[p] {
-  security_rule = security_rules[_]
-  lib.rule_allows_anywhere_to_port(security_rule, 22)
-  p = fugue.deny_resource(security_rule)
-} {
-  security_rule = security_rules[_]
-  not lib.rule_allows_anywhere_to_port(security_rule, 22)
-  p = fugue.allow_resource(security_rule)
-}
+policy = lib.no_inbound_anywhere_to_port_policy(22)

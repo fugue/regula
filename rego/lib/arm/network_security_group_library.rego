@@ -17,26 +17,53 @@
 # through a simple conversion (`rule_to_tf`).
 package fugue.arm.network_security_group_library
 
+import data.fugue
 import data.fugue.azure.network_security_group as tf
 
 rule_to_tf(arm_rule) = ret {
-  # We only pass in the attributes we actually use.
-  props = arm_rule.properties
-  ret := {
-    "access": props.access,
-    "direction": props.direction,
-    "destination_port_range": object.get(props, "destinationPortRange", null),
-    "destination_port_ranges": object.get(props, "destinationPortRanges", []),
-    "source_address_prefix": object.get(props, "sourceAddressPrefix", null),
-    "source_address_prefixes": object.get(props, "sourceAddressPrefixes", null),
-  }
+	# We only pass in the attributes we actually use.
+	props = arm_rule.properties
+	ret := {
+		"access": props.access,
+		"direction": props.direction,
+		"destination_port_range": object.get(props, "destinationPortRange", null),
+		"destination_port_ranges": object.get(props, "destinationPortRanges", []),
+		"source_address_prefix": object.get(props, "sourceAddressPrefix", null),
+		"source_address_prefixes": object.get(props, "sourceAddressPrefixes", null),
+	}
 }
 
 rule_allows_anywhere_to_port(rule, bad_port) {
-  tf.rule_allows_anywhere_to_port(rule_to_tf(rule), bad_port)
+	tf.rule_allows_anywhere_to_port(rule_to_tf(rule), bad_port)
 }
 
 group_allows_anywhere_to_port(group, bad_port) {
-  rule = group.properties.securityRules[_]
-  tf.rule_allows_anywhere_to_port(rule_to_tf(rule), bad_port)
+	rule = group.properties.securityRules[_]
+	tf.rule_allows_anywhere_to_port(rule_to_tf(rule), bad_port)
+}
+
+no_inbound_anywhere_to_port_policy(port) = ret {
+	security_groups := fugue.resources("Microsoft.Network/networkSecurityGroups")
+	security_groups_policy = {p |
+		security_group := security_groups[_]
+		group_allows_anywhere_to_port(security_group, port)
+		p := fugue.deny_resource(security_group)
+	} | {p |
+		security_group := security_groups[_]
+		not group_allows_anywhere_to_port(security_group, port)
+		p := fugue.allow_resource(security_group)
+	}
+
+	security_rules := fugue.resources("Microsoft.Network/networkSecurityGroups/securityRules")
+	security_rules_policy = {p |
+		security_rule := security_rules[_]
+		rule_allows_anywhere_to_port(security_rule, port)
+		p := fugue.deny_resource(security_rule)
+	} | {p |
+		security_rule := security_rules[_]
+		not rule_allows_anywhere_to_port(security_rule, port)
+		p := fugue.allow_resource(security_rule)
+	}
+
+	ret := security_groups_policy | security_rules_policy
 }

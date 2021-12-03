@@ -14,8 +14,6 @@
 
 package rules.arm_mysql_enforce_ssl
 
-import data.fugue
-
 __rego__metadoc__ := {
 	"id": "FG_R00225",
 	"title": "MySQL Database server 'enforce SSL connection' should be enabled",
@@ -35,22 +33,9 @@ __rego__metadoc__ := {
 
 input_type = "arm"
 
-resource_type = "MULTIPLE"
+resource_type = "Microsoft.DBforMySQL/servers"
 
-resources = fugue.resources("Microsoft.DBforMySQL/servers")
-
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
-}
-
-policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
-}
-
-policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+default allow = false
+allow {
+	lower(input.properties.sslEnforcement) == "enabled"
 }

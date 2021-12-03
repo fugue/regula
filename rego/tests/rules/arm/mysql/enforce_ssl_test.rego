@@ -14,18 +14,9 @@
 
 package rules.arm_mysql_enforce_ssl
 
-import data.tests.arm.vm.inputs.enforce_ssl_infra_json as infra
+import data.tests.rules.arm.mysql.inputs.enforce_ssl_infra_json as infra
 
-test_valid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+test_rule {
+    not allow with input as infra.mock_resources["Microsoft.DBforMySQL/servers/RegulaServer1"]
+    allow with input as infra.mock_resources["Microsoft.DBforMySQL/servers/RegulaServer2"]
 }

@@ -14,7 +14,6 @@
 
 package rules.arm_network_security_group_no_inbound_22
 
-import data.fugue
 import data.fugue.arm.network_security_group_library as lib
 
 __rego__metadoc__ := {

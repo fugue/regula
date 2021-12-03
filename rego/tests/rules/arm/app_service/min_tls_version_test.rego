@@ -14,18 +14,14 @@
 
 package rules.arm_app_service_min_tls_version
 
-import data.tests.arm.vm.inputs.min_tls_version_infra_json as infra
+import data.tests.rules.arm.app_service.inputs.min_tls_version_infra_json as infra
 
-test_valid {
+test_min_tls_version {
 	pol = policy with input as infra.mock_input
 	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+	by_resource_id["Microsoft.Web/sites/validViaProperty"] == true
+	by_resource_id["Microsoft.Web/sites/validViaConfig"] == true
+	by_resource_id["Microsoft.Web/sites/invalidViaConfig"] == false
+	by_resource_id["Microsoft.Web/sites/invalidViaProperty"] == false
+	by_resource_id["Microsoft.Web/sites/invalidUnset"] == false
 }

@@ -37,20 +37,40 @@ input_type = "arm"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Microsoft.Web/sites")
+sites := fugue.resources("Microsoft.Web/sites")
+configs := fugue.resources("Microsoft.Web/sites/config")
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+min_tls_version := parse_version("1.2")
+
+parse_version(str) = ret {
+  ret := [to_number(p) | p = regex.find_n(`[0-9]+`, str, -1)[_]]
+}
+
+valid_via_config := {id |
+	c := configs[_]
+	c.name == "web"
+	parsed := parse_version(c.properties.minTlsVersion)
+	parsed >= min_tls_version
+	id := c._parent_id
+	sites[id]
+}
+
+valid_via_property := {id |
+	s := sites[id]
+	parsed := parse_version(s.properties.siteConfig.minTlsVersion)
+	parsed >= min_tls_version
+}
+
+valid_sites := valid_via_config | valid_via_property
+
+policy[p] {
+	s := sites[id]
+	valid_sites[id]
+	p = fugue.allow_resource(s)
 }
 
 policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
-}
-
-policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+	s := sites[id]
+	not valid_sites[id]
+	p = fugue.deny_resource(s)
 }

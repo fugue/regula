@@ -4,26 +4,78 @@
   "parameters": {},
   "resources": [
     {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-04-01",
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2021-10-01",
       "name": "valid",
-      "location": "West US",
-      "sku": {
-        "name": "Standard_LRS"
+      "location": "[resourceGroup().location]",
+      "identity": {
+        "type": "SystemAssigned"
       },
-      "kind": "Storage",
-      "properties": {}
+      "properties": {
+        "enableRBAC": true,
+        "dnsPrefix": "valid",
+        "agentPoolProfiles": [
+          {
+            "name": "agentpool",
+            "osDiskSizeGB": 0,
+            "count": 1,
+            "vmSize": "Standard_D2s_v3",
+            "osType": "Linux",
+            "storageProfile": "ManagedDisks",
+            "type": "VirtualMachineScaleSets",
+            "mode": "System"
+          }
+        ]
+      }
     },
     {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-04-01",
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2021-10-01",
       "name": "invalid",
-      "location": "West US",
-      "sku": {
-        "name": "Standard_LRS"
+      "location": "[resourceGroup().location]",
+      "identity": {
+        "type": "SystemAssigned"
       },
-      "kind": "Storage",
-      "properties": {}
+      "properties": {
+        "dnsPrefix": "invalid",
+        "enableRBAC": false,
+        "agentPoolProfiles": [
+          {
+            "name": "agentpool",
+            "osDiskSizeGB": 0,
+            "count": 1,
+            "vmSize": "Standard_D2s_v3",
+            "osType": "Linux",
+            "storageProfile": "ManagedDisks",
+            "type": "VirtualMachineScaleSets",
+            "mode": "System"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2021-10-01",
+      "name": "invalidUnset",
+      "location": "[resourceGroup().location]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "dnsPrefix": "invalid-unset",
+        "agentPoolProfiles": [
+          {
+            "name": "agentpool",
+            "osDiskSizeGB": 0,
+            "count": 1,
+            "vmSize": "Standard_D2s_v3",
+            "osType": "Linux",
+            "storageProfile": "ManagedDisks",
+            "type": "VirtualMachineScaleSets",
+            "mode": "System"
+          }
+        ]
+      }
     }
   ]
 }

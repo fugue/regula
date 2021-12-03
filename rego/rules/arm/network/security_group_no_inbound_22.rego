@@ -15,6 +15,7 @@
 package rules.arm_network_security_group_no_inbound_22
 
 import data.fugue
+import data.fugue.arm.network_security_group_library as lib
 
 __rego__metadoc__ := {
 	"id": "FG_R00191",
@@ -30,20 +31,26 @@ input_type = "arm"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Microsoft.Network/networkSecurityGroups")
-
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
-}
+security_groups = fugue.resources("Microsoft.Network/networkSecurityGroups")
 
 policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
+  security_group = security_groups[_]
+  lib.group_allows_anywhere_to_port(security_group, 22)
+  p = fugue.deny_resource(security_group)
+} {
+  security_group = security_groups[_]
+  not lib.group_allows_anywhere_to_port(security_group, 22)
+  p = fugue.allow_resource(security_group)
 }
 
+security_rules = fugue.resources("Microsoft.Network/networkSecurityGroups/securityRules")
+
 policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+  security_rule = security_rules[_]
+  lib.rule_allows_anywhere_to_port(security_rule, 22)
+  p = fugue.deny_resource(security_rule)
+} {
+  security_rule = security_rules[_]
+  not lib.rule_allows_anywhere_to_port(security_rule, 22)
+  p = fugue.allow_resource(security_rule)
 }

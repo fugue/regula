@@ -14,18 +14,10 @@
 
 package rules.arm_kubernetes_cluster_instances_rbac
 
-import data.tests.arm.vm.inputs.cluster_instances_rbac_infra_json as infra
+import data.tests.rules.arm.kubernetes.inputs.cluster_instances_rbac_infra_json as infra
 
-test_valid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+test_cluster_instances_rbac {
+	allow with input as infra.mock_resources["Microsoft.ContainerService/managedClusters/valid"]
+	not allow with input as infra.mock_resources["Microsoft.ContainerService/managedClusters/invalid"]
+	not allow with input as infra.mock_resources["Microsoft.ContainerService/managedClusters/invalidUnset"]
 }

@@ -40,19 +40,25 @@ resource_type = "MULTIPLE"
 sites := fugue.resources("Microsoft.Web/sites")
 configs := fugue.resources("Microsoft.Web/sites/config")
 
-min_tls_version := "1.2"
+min_tls_version := parse_version("1.2")
+
+parse_version(str) = ret {
+  ret := [to_number(p) | p = regex.find_n(`[0-9]+`, str, -1)[_]]
+}
 
 valid_via_config := {id |
 	c := configs[_]
 	c.name == "web"
-	c.properties.minTlsVersion >= min_tls_version
+	parsed := parse_version(c.properties.minTlsVersion)
+	parsed >= min_tls_version
 	id := c._parent_id
 	sites[id]
 }
 
 valid_via_property := {id |
 	s := sites[id]
-	s.properties.siteConfig.minTlsVersion >= min_tls_version
+	parsed := parse_version(s.properties.siteConfig.minTlsVersion)
+	parsed >= min_tls_version
 }
 
 valid_sites := valid_via_config | valid_via_property

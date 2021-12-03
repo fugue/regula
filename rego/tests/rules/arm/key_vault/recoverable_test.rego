@@ -14,18 +14,11 @@
 
 package rules.arm_key_vault_recoverable
 
-import data.tests.arm.vm.inputs.recoverable_infra_json as infra
+import data.tests.rules.arm.key_vault.inputs.recoverable_infra_json as infra
 
-test_valid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+test_key_vault_recoverable {
+	allow with input as infra.mock_resources["Microsoft.KeyVault/vaults/valid"]
+	not allow with input as infra.mock_resources["Microsoft.KeyVault/vaults/invalidUnset"]
+	not allow with input as infra.mock_resources["Microsoft.KeyVault/vaults/invalidEnablePurgeProtection"]
+	not allow with input as infra.mock_resources["Microsoft.KeyVault/vaults/invalidEnableSoftDelete"]
 }

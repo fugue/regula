@@ -28,22 +28,13 @@ __rego__metadoc__ := {
 
 input_type = "arm"
 
-resource_type = "MULTIPLE"
+resource_type = "Microsoft.Network/applicationGateways"
 
-resources = fugue.resources("Microsoft.Network/applicationGateways")
+default allow = false
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+allow {
+	waf_sku_tiers[input.properties.sku.tier]
+	input.properties.webApplicationFirewallConfiguration.enabled == true
 }
 
-policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
-}
-
-policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
-}
+waf_sku_tiers = {"WAF", "WAF_v2"}

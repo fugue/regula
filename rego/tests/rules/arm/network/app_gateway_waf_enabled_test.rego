@@ -14,18 +14,9 @@
 
 package rules.arm_network_app_gateway_waf_enabled
 
-import data.tests.arm.vm.inputs.app_gateway_waf_enabled_infra_json as infra
+import data.tests.rules.arm.network.inputs.app_gateway_waf_enabled_infra_json as infra
 
-test_valid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+test_rule {
+	not allow with input as infra.mock_resources["Microsoft.Network/applicationGateways/RegulaAG1"]
+	allow with input as infra.mock_resources["Microsoft.Network/applicationGateways/RegulaAG2"]
 }

@@ -4,26 +4,76 @@
   "parameters": {},
   "resources": [
     {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-04-01",
-      "name": "valid",
-      "location": "West US",
-      "sku": {
-        "name": "Standard_LRS"
-      },
-      "kind": "Storage",
-      "properties": {}
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-03-01",
+      "name": "RegulaNSG1",
+      "location": "switzerlandnorth"
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-03-01",
+      "name": "RegulaNSG2",
+      "location": "switzerlandnorth"
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-03-01",
+      "name": "RegulaNSG3",
+      "location": "switzerlandnorth"
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
-      "name": "invalid",
-      "location": "West US",
+      "name": "regulasa01",
+      "location": "switzerlandnorth",
       "sku": {
         "name": "Standard_LRS"
       },
-      "kind": "Storage",
-      "properties": {}
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Network/networkWatchers",
+      "apiVersion": "2021-04-01",
+      "name": "RegulaWatcher1",
+      "location": "switzerlandnorth",
+      "resources": [
+        {
+          "type": "flowLogs",
+          "apiVersion": "2021-04-01",
+          "name": "FL1",
+          "location": "switzerlandnorth",
+          "properties": {
+            "targetResourceId": "[resourceId('Microsoft.Network/networkSecurityGroups', 'RegulaNSG1')]",
+            "storageId": "[resourceId('Microsoft.Network/storageAccounts', 'regulasa01')]",
+            "retentionPolicy": {
+              "days": 90,
+              "enabled": true
+            }
+          },
+          "dependsOn": [
+            "Microsoft.Network/networkWatchers/RegulaWatcher1",
+            "Microsoft.Storage/storageAccounts/regulasa01"
+          ]
+        },
+        {
+          "type": "flowLogs",
+          "apiVersion": "2021-04-01",
+          "name": "FL2",
+          "location": "switzerlandnorth",
+          "properties": {
+            "targetResourceId": "[resourceId('Microsoft.Network/networkSecurityGroups', 'RegulaNSG2')]",
+            "storageId": "[resourceId('Microsoft.Network/storageAccounts', 'regulasa01')]",
+            "retentionPolicy": {
+              "days": 70,
+              "enabled": true
+            }
+          },
+          "dependsOn": [
+            "Microsoft.Network/networkWatchers/RegulaWatcher1",
+            "Microsoft.Storage/storageAccounts/regulasa01"
+          ]
+        }
+      ]
     }
   ]
 }

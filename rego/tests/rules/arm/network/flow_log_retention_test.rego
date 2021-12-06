@@ -14,18 +14,13 @@
 
 package rules.arm_network_flow_log_retention
 
-import data.tests.arm.vm.inputs.flow_log_retention_infra_json as infra
+import data.tests.rules.arm.network.inputs.flow_log_retention_infra_json as infra
 
-test_valid {
+test_rule {
 	pol = policy with input as infra.mock_input
 	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+	count(by_resource_id) == 3
+	by_resource_id["Microsoft.Network/networkSecurityGroups/RegulaNSG1"] == true
+	by_resource_id["Microsoft.Network/networkSecurityGroups/RegulaNSG2"] == false
+	by_resource_id["Microsoft.Network/networkSecurityGroups/RegulaNSG3"] == false
 }

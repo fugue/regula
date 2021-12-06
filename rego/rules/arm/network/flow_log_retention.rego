@@ -30,20 +30,40 @@ input_type = "arm"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Microsoft.Network/networkWatchers/flowLogs")
+network_security_groups = fugue.resources("Microsoft.Network/networkSecurityGroups")
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+flow_logs = fugue.resources("Microsoft.Network/networkWatchers/flowLogs")
+
+nsg_id_to_flow_logs := {nsg_id: nsg_flow_logs |
+	_ := network_security_groups[nsg_id]
+	nsg_flow_logs := [flow_log |
+		flow_log := flow_logs[_]
+		nsg_id == flow_log.properties.targetResourceId
+	]
+}
+
+flow_log_has_retention(flow_log) {
+	flow_log.properties.retentionPolicy.enabled == true
+	flow_log.properties.retentionPolicy.days >= 90
+}
+
+bad_nsg(nsg) = msg {
+	count(nsg_id_to_flow_logs[nsg.id]) < 1
+	msg := "No associated flow logs found"
+} else = msg {
+	flow_log := nsg_id_to_flow_logs[nsg.id][_]
+	not flow_log_has_retention(flow_log)
+	msg := "Retention policy needs to be set to 90 days or more"
 }
 
 policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
+	nsg := network_security_groups[_]
+	msg := bad_nsg(nsg)
+	p := fugue.deny({"resource": nsg, "message": msg})
 }
 
 policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+	nsg := network_security_groups[_]
+	not bad_nsg(nsg)
+	p := fugue.allow({"resource": nsg})
 }

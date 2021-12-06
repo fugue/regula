@@ -44,7 +44,7 @@
           "location": "switzerlandnorth",
           "properties": {
             "targetResourceId": "[resourceId('Microsoft.Network/networkSecurityGroups', 'RegulaNSG1')]",
-            "storageId": "[resourceId('Microsoft.Network/storageAccounts', 'regulasa01')]",
+            "storageId": "[resourceId('Microsoft.Storage/storageAccounts', 'regulasa01')]",
             "retentionPolicy": {
               "days": 90,
               "enabled": true
@@ -62,7 +62,7 @@
           "location": "switzerlandnorth",
           "properties": {
             "targetResourceId": "[resourceId('Microsoft.Network/networkSecurityGroups', 'RegulaNSG2')]",
-            "storageId": "[resourceId('Microsoft.Network/storageAccounts', 'regulasa01')]",
+            "storageId": "[resourceId('Microsoft.Storage/storageAccounts', 'regulasa01')]",
             "retentionPolicy": {
               "days": 70,
               "enabled": true

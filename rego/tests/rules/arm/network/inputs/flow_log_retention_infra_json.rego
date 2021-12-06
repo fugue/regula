@@ -70,7 +70,7 @@ mock_config := {
               "days": 90,
               "enabled": true
             },
-            "storageId": "[resourceId('Microsoft.Network/storageAccounts', 'regulasa01')]",
+            "storageId": "[resourceId('Microsoft.Storage/storageAccounts', 'regulasa01')]",
             "targetResourceId": "[resourceId('Microsoft.Network/networkSecurityGroups', 'RegulaNSG1')]"
           },
           "type": "flowLogs"
@@ -88,7 +88,7 @@ mock_config := {
               "days": 70,
               "enabled": true
             },
-            "storageId": "[resourceId('Microsoft.Network/storageAccounts', 'regulasa01')]",
+            "storageId": "[resourceId('Microsoft.Storage/storageAccounts', 'regulasa01')]",
             "targetResourceId": "[resourceId('Microsoft.Network/networkSecurityGroups', 'RegulaNSG2')]"
           },
           "type": "flowLogs"

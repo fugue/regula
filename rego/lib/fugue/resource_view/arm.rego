@@ -96,7 +96,42 @@ extract_resources(top_level_resource) = ret {
 	}
 }
 
-resource_view := {id: resource |
-	top_level_resource := input.resources[_]
-	resource := extract_resources(top_level_resource)[id]
+resource_view := ret {
+	# First pass on resources.
+	resources_0 := {id: resource |
+		top_level_resource := input.resources[_]
+		resource := extract_resources(top_level_resource)[id]
+	}
+
+	# Rewrite references.
+	resources_1 := {id: resource |
+		resource_0 := resources_0[id]
+		patches := [patch |
+			[path, val] := walk(resource_0)
+			is_string(val)
+			rewrite := rewrite_string_reference(val, resources_0)
+			patch := {"op": "add", "path": path, "value": rewrite}
+		]
+
+		resource := json.patch(resource_0, patches)
+	}
+
+	ret := resources_1
+}
+
+# Rewrite resource IDs and other references.
+rewrite_string_reference(string, resources) = ret {
+	startswith(string, "[")
+	tokens := [p | p := regex.split(`[\[\]()',[:space:]]+`, string)[_]; p != ""]
+	ret = rewrite_token_reference(tokens, resources)
+}
+
+# Matches patterns that can be used to refer to resources.
+rewrite_token_reference(tokens, resources) = ret {
+	tokens[0] == "resourceId"
+	type := tokens[1]
+	names := array.slice(tokens, 2, count(tokens))
+	typed_name := make_typed_name(type, concat("/", names))
+	_ := resources[typed_name]
+	ret := typed_name
 }

@@ -14,18 +14,13 @@
 
 package rules.arm_sql_auditing
 
-import data.tests.arm.vm.inputs.auditing_infra_json as infra
+import data.tests.rules.arm.sql.inputs.auditing_infra_json as infra
 
-test_valid {
+test_rule {
 	pol = policy with input as infra.mock_input
 	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+	count(by_resource_id) == 3
+	by_resource_id["Microsoft.Sql/servers/regulaserver1"] == true
+	by_resource_id["Microsoft.Sql/servers/regulaserver2"] == false
+	by_resource_id["Microsoft.Sql/servers/regulaserver3"] == true
 }

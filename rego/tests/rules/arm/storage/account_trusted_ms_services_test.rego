@@ -14,18 +14,12 @@
 
 package rules.arm_storage_account_trusted_ms_services
 
-import data.tests.arm.vm.inputs.account_trusted_ms_services_infra_json as infra
+import data.tests.rules.arm.storage.inputs.account_trusted_ms_services_infra_json as infra
 
-test_valid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+test_storage_account_trusted_ms_services {
+	allow with input as infra.mock_resources["Microsoft.Storage/storageAccounts/valid"]
+	allow with input as infra.mock_resources["Microsoft.Storage/storageAccounts/validmulti"]
+	allow with input as infra.mock_resources["Microsoft.Storage/storageAccounts/validmulti2"]
+	not allow with input as infra.mock_resources["Microsoft.Storage/storageAccounts/invalid"]
+	not allow with input as infra.mock_resources["Microsoft.Storage/storageAccounts/invalidunset"]
 }

@@ -21,29 +21,26 @@ __rego__metadoc__ := {
 	"title": "Blob Storage containers should have public access disabled",
 	"description": "Anonymous, public read access to a container and its blobs can be enabled in Azure Blob storage. It grants read-only access to these resources without sharing the account key, and without requiring a shared access signature. It is recommended not to provide anonymous access to blob containers until, and unless, it is strongly desired. A shared access signature token should be used for providing controlled and timed access to blob containers.",
 	"custom": {
-		"controls": {},
+		"controls": {
+			"CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_3.6"
+      ],
+			"CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.1.0_3.5"
+      ]
+		},
 		"severity": "Critical"
 	}
 }
 
 input_type = "arm"
 
-resource_type = "MULTIPLE"
+resource_type = "Microsoft.Storage/storageAccounts/blobServices/containers"
 
-resources = fugue.resources("Microsoft.Storage/storageAccounts/blobServices/containers")
+public_options := {"blob", "container"}
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
-}
+default deny = false
 
-policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
-}
-
-policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+deny {
+	public_options[lower(input.properties.publicAccess)]
 }

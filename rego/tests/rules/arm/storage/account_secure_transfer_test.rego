@@ -14,14 +14,12 @@
 
 package rules.arm_storage_account_secure_transfer
 
-import data.tests.arm.vm.inputs.account_secure_transfer_infra_json as infra
+import data.tests.rules.arm.storage.inputs.account_secure_transfer_infra_json as infra
 
-test_valid {
-	resources = infra.mock_resources
-	not deny with input as resources.valid
-}
-
-test_invalid {
-	resources = infra.mock_resources
-	deny with input as resources.invalid
+test_storage_account_secure_transfer {
+	deny with input as infra.mock_resources["Microsoft.Storage/storageAccounts/invalid"]
+	deny with input as infra.mock_resources["Microsoft.Storage/storageAccounts/invaliddefault"]
+	not deny with input as infra.mock_resources["Microsoft.Storage/storageAccounts/valid"]
+	not deny with input as infra.mock_resources["Microsoft.Storage/storageAccounts/validdefault"]
+	not deny with input as infra.mock_resources["Microsoft.Storage/storageAccounts/validolder"]
 }

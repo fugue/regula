@@ -32,22 +32,10 @@ __rego__metadoc__ := {
 
 input_type = "arm"
 
-resource_type = "MULTIPLE"
+resource_type = "Microsoft.Storage/storageAccounts"
 
-resources = fugue.resources("Microsoft.Storage/storageAccounts")
+default allow = false
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
-}
-
-policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
-}
-
-policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+allow {
+	lower(input.properties.networkAcls.defaultAction) == "deny"
 }

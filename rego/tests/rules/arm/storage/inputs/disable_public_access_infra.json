@@ -6,24 +6,48 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
-      "name": "valid",
-      "location": "West US",
+      "name": "storage",
+      "location": "[resourceGroup().location]",
       "sku": {
         "name": "Standard_LRS"
       },
-      "kind": "Storage",
-      "properties": {}
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-04-01",
-      "name": "invalid",
-      "location": "West US",
-      "sku": {
-        "name": "Standard_LRS"
+      "kind": "StorageV2",
+      "properties": {
+        "accessTier": "Hot"
       },
-      "kind": "Storage",
-      "properties": {}
+      "resources": [
+        {
+          "type": "blobServices/containers",
+          "apiVersion": "2021-04-01",
+          "name": "default/valid",
+          "dependsOn": [
+            "storage"
+          ],
+          "properties": {
+            "publicAccess": "None"
+          }
+        },
+        {
+          "type": "blobServices/containers",
+          "apiVersion": "2021-04-01",
+          "name": "default/validUnset",
+          "dependsOn": [
+            "storage"
+          ],
+          "properties": {}
+        },
+        {
+          "type": "blobServices/containers",
+          "apiVersion": "2021-04-01",
+          "name": "default/invalid",
+          "dependsOn": [
+            "storage"
+          ],
+          "properties": {
+            "publicAccess": "Blob"
+          }
+        }
+      ]
     }
   ]
 }

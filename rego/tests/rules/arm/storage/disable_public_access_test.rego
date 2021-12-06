@@ -14,18 +14,10 @@
 
 package rules.arm_storage_disable_public_access
 
-import data.tests.arm.vm.inputs.disable_public_access_infra_json as infra
+import data.tests.rules.arm.storage.inputs.disable_public_access_infra_json as infra
 
-test_valid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+test_disable_public_access {
+	not deny with input as infra.mock_resources["Microsoft.Storage/storageAccounts/storage/blobServices/default/containers/valid"]
+	not deny with input as infra.mock_resources["Microsoft.Storage/storageAccounts/storage/blobServices/default/containers/validUnset"]
+	deny with input as infra.mock_resources["Microsoft.Storage/storageAccounts/storage/blobServices/default/containers/invalid"]
 }

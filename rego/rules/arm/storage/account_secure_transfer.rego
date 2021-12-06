@@ -38,5 +38,11 @@ resource_type = "Microsoft.Storage/storageAccounts"
 default deny = false
 
 deny {
-	input.TODO == "TODO" # FIXME
+	# supportsHttpsTrafficOnly defaults to true starting with api version 2019-04-01
+	input.apiVersion < "2019-04-01"
+	not input.properties.supportsHttpsTrafficOnly
+}
+
+deny {
+	input.properties.supportsHttpsTrafficOnly == false
 }

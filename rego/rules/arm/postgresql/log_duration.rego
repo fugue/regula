@@ -15,6 +15,7 @@
 package rules.arm_postgresql_log_duration
 
 import data.fugue
+import data.fugue.arm.postgresql_configuration_library as lib
 
 __rego__metadoc__ := {
 	"id": "FG_R00333",
@@ -34,20 +35,18 @@ input_type = "arm"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Microsoft.DBforPostgreSQL/servers/configurations")
-
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+is_valid(server) {
+    lower(lib.configuration_value(server, "log_duration")) == "on"
 }
 
 policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
+	server = lib.servers[_]
+	is_valid(server)
+	p = fugue.allow_resource(server)
 }
 
 policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+	server = lib.servers[_]
+	not is_valid(server)
+	p = fugue.deny_resource(server)
 }

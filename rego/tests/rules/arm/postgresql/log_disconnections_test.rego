@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 package rules.arm_postgresql_log_disconnections
 
 import data.tests.rules.arm.postgresql.inputs.configuration_infra_json as infra

@@ -14,18 +14,13 @@
 
 package rules.arm_postgresql_log_connections
 
-import data.tests.arm.vm.inputs.log_connections_infra_json as infra
+import data.tests.rules.arm.postgresql.inputs.configuration_infra_json as infra
 
-test_valid {
+test_rule {
 	pol = policy with input as infra.mock_input
 	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+	count(by_resource_id) == 3
+	by_resource_id["Microsoft.DBforPostgreSQL/servers/RegulaServerConfigValid"] == true
+	by_resource_id["Microsoft.DBforPostgreSQL/servers/RegulaServerConfigInvalid"] == false
+	by_resource_id["Microsoft.DBforPostgreSQL/servers/RegulaServerConfigDefault"] == true
 }

@@ -4,26 +4,86 @@
   "parameters": {},
   "resources": [
     {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-04-01",
-      "name": "valid",
-      "location": "West US",
-      "sku": {
-        "name": "Standard_LRS"
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2021-06-01-preview",
+      "name": "regulavault1",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "enabledForDiskEncryption": true,
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[subscription().subscriptionId]",
+            "permissions": {
+              "keys": [
+                "Get",
+                "WrapKey",
+                "UnwrapKey"
+              ],
+              "secrets": [],
+              "certificates": []
+            }
+          }
+        ],
+        "sku": {
+          "family": "A",
+          "name": "Standard"
+        },
+        "tenantId": "[subscription().tenantId]"
       },
-      "kind": "Storage",
-      "properties": {}
+      "resources": [
+        {
+          "type": "keys",
+          "apiVersion": "2021-06-01-preview",
+          "name": "key1",
+          "properties": {
+            "kty": "RSA",
+            "keySize": 4096
+          },
+          "dependsOn": [
+            "Microsoft.KeyVault/vaults/regulavault1"
+          ]
+        },
+        {
+          "type": "secrets",
+          "apiVersion": "2021-06-01-preview",
+          "name": "secret1",
+          "properties": {
+            "value": "hunter2"
+          },
+          "dependsOn": [
+            "Microsoft.KeyVault/vaults/regulavault1"
+          ]
+        }
+      ]
     },
     {
-      "type": "Microsoft.Storage/storageAccounts",
+      "type": "Microsoft.Compute/disks",
       "apiVersion": "2021-04-01",
-      "name": "invalid",
-      "location": "West US",
-      "sku": {
-        "name": "Standard_LRS"
+      "name": "reguladisk1",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "creationData": {
+          "createOption": "Empty"
+        },
+        "diskSizeGB": 2,
+        "encryptionSettingsCollection": {
+          "enabled": true,
+          "encryptionSettings": [
+            {
+              "diskEncryptionKey": {
+                "secretUrl": "[reference(resourceId('Microsoft.KeyVault/vaults/secrets', 'regulavault1', 'secret1'), '2021-06-01-preview', 'Full').properties.secretUriWithVersion]",
+                "sourceVault": {
+                  "id": "[resourceId('Microsoft.KeyVault/vaults', 'regulavault1')]"
+                }
+              }
+            }
+          ]
+        }
       },
-      "kind": "Storage",
-      "properties": {}
+      "dependsOn": [
+        "Microsoft.KeyVault/vaults/regulavault1/secrets/secret1"
+      ]
     }
   ]
 }

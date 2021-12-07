@@ -9,6 +9,7 @@
       "name": "regulavault1",
       "location": "[resourceGroup().location]",
       "properties": {
+        "enablePurgeProtection": true,
         "enabledForDiskEncryption": true,
         "accessPolicies": [
           {
@@ -58,6 +59,52 @@
       ]
     },
     {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "apiVersion": "2021-06-01-preview",
+      "name": "regulavault1/add",
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.Compute/diskEncryptionSets', 'regulades1'), '2021-04-01', 'Full').identity.PrincipalId]",
+            "permissions": {
+              "keys": [
+                "Get",
+                "WrapKey",
+                "UnwrapKey"
+              ],
+              "secrets": [],
+              "certificates": []
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "Microsoft.Compute/diskEncryptionSets/regulades1",
+        "Microsoft.KeyVault/vaults/regulavault1"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/diskEncryptionSets",
+      "apiVersion": "2021-04-01",
+      "name": "regulades1",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "activeKey": {
+          "keyUrl": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', 'regulavault1', 'key1'), '2021-06-01-preview', 'Full').properties.keyUriWithVersion]",
+          "sourceVault": {
+            "id": "[resourceId('Microsoft.KeyVault/vaults', 'regulavault1')]"
+          }
+        }
+      },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "dependsOn": [
+        "Microsoft.KeyVault/vaults/regulavault1/keys/key1"
+      ]
+    },
+    {
       "type": "Microsoft.Compute/disks",
       "apiVersion": "2021-04-01",
       "name": "reguladisk1",
@@ -83,6 +130,25 @@
       },
       "dependsOn": [
         "Microsoft.KeyVault/vaults/regulavault1/secrets/secret1"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2021-04-01",
+      "name": "reguladisk2",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "creationData": {
+          "createOption": "Empty"
+        },
+        "diskSizeGB": 2,
+        "encryption": {
+          "diskEncryptionSetId": "[resourceId('Microsoft.Compute/diskEncryptionSets', 'regulades1')]"
+        }
+      },
+      "dependsOn": [
+        "Microsoft.Compute/diskEncryptionSets/regulades1",
+        "Microsoft.KeyVault/vaults/regulavault1/accessPolicies/add"
       ]
     }
   ]

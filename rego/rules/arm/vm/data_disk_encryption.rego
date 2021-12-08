@@ -15,6 +15,7 @@
 package rules.arm_vm_data_disk_encryption
 
 import data.fugue
+import data.fugue.arm.disk_encryption_library as lib
 
 __rego__metadoc__ := {
 	"id": "FG_R00196",
@@ -34,20 +35,38 @@ input_type = "arm"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Microsoft.Compute/disks")
-
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+disks[id] = disk {
+	disk := lib.disks[id]
+	lib.data_disk_ids[id]
 }
 
 policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
+	disk := disks[_]
+	not lib.disk_encrypted(disk)
+	p := fugue.deny_resource(disk)
 }
 
 policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+	disk := disks[_]
+	lib.disk_encrypted(disk)
+	p := fugue.allow_resource(disk)
+}
+
+
+# Data disks inlined in virtual machine definitions do not have encryption
+# settings, so mark these as invalid.
+
+managed_disk(disk) {
+	_ := disk.managedDisk.id
+}
+
+has_unmanaged_disk(virtual_machine) {
+	disk := virtual_machine.properties.storageProfile.dataDisks[_]
+	not managed_disk(disk)
+}
+
+policy[p] {
+	virtual_machine := lib.virtual_machines[_]
+	has_unmanaged_disk(virtual_machine)
+	p := fugue.deny_resource(virtual_machine)
 }

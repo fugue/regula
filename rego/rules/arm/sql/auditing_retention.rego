@@ -42,7 +42,6 @@ auditing_settings = fugue.resources("Microsoft.Sql/servers/auditingSettings")
 
 valid_server_ids[id] {
 	settings := auditing_settings[_]
-	lower(settings.properties.state) == "enabled"
 	settings.properties.retentionDays >= 90
 	id := settings._parent_id
 }

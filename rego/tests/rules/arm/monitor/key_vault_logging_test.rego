@@ -14,18 +14,12 @@
 
 package rules.arm_monitor_key_vault_logging
 
-import data.tests.arm.vm.inputs.key_vault_logging_infra_json as infra
+import data.tests.rules.arm.monitor.inputs.key_vault_logging_infra_json as infra
 
-test_valid {
+test_key_vault_logging {
 	pol = policy with input as infra.mock_input
 	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+	by_resource_id["Microsoft.KeyVault/vaults/valid"] == true
+	by_resource_id["Microsoft.KeyVault/vaults/invalidNoRetention"] == false
+	by_resource_id["Microsoft.KeyVault/vaults/invalidNoDiagnostics"] == false
 }

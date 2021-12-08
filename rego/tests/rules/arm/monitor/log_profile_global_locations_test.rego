@@ -14,18 +14,12 @@
 
 package rules.arm_monitor_log_profile_global_locations
 
-import data.tests.arm.vm.inputs.log_profile_global_locations_infra_json as infra
+import data.tests.rules.arm.monitor.inputs.log_profile_global_locations_infra_json as infra
 
-test_valid {
+test_log_profile_global_locations {
 	pol = policy with input as infra.mock_input
 	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+	by_resource_id["Microsoft.Insights/logprofiles/valid"] == true
+	by_resource_id["Microsoft.Insights/logprofiles/invalidEmpty"] == false
+	by_resource_id["Microsoft.Insights/logprofiles/invalidMissing"] == false
 }

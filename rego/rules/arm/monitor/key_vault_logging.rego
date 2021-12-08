@@ -37,20 +37,42 @@ input_type = "arm"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Microsoft.Insights/diagnosticSettings")
+key_vaults := fugue.resources("Microsoft.KeyVault/vaults")
+diagnostic_settings := fugue.resources("Microsoft.Insights/diagnosticSettings")
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+retention_is_valid(retention) {
+	retention.enabled == true
+	retention.days >= 180
+}
+
+retention_is_valid(retention) {
+	retention.enabled == true
+	retention.days == 0
+}
+
+valid_key_vault_diagnostics := {id: ds |
+	ds := diagnostic_settings[id]
+	contains(lower(ds.scope), "microsoft.keyvault/vaults")
+	log = ds.properties.logs[_]
+	lower(log.category) == "auditevent"
+	log.enabled == true
+	retention_is_valid(log.retentionPolicy)
+}
+
+valid_key_vaults := {id |
+	kv := key_vaults[id]
+	ds := valid_key_vault_diagnostics[_]
+	contains(lower(ds.scope), lower(kv.name))
 }
 
 policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
+	kv := key_vaults[id]
+	valid_key_vaults[id]
+	p := fugue.allow_resource(kv)
 }
 
 policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+	kv := key_vaults[id]
+	not valid_key_vaults[id]
+	p := fugue.deny_resource(kv)
 }

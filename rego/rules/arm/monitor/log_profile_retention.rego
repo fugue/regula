@@ -32,22 +32,17 @@ __rego__metadoc__ := {
 
 input_type = "arm"
 
-resource_type = "MULTIPLE"
+resource_type = "Microsoft.Insights/logprofiles"
 
-resources = fugue.resources("Microsoft.Insights/logprofiles")
+default allow = false
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+allow {
+	input.properties.retentionPolicy.enabled == true
+	input.properties.retentionPolicy.days >= 365
 }
 
-policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
-}
-
-policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+allow {
+	input.properties.retentionPolicy.enabled == true
+	# A value of 0 will retain the events indefinitely.
+	input.properties.retentionPolicy.days == 0
 }

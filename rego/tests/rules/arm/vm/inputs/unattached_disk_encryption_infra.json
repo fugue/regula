@@ -258,6 +258,28 @@
       ]
     },
     {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-03-01",
+      "name": "regulanic3",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'regulanet1', 'subnet1')]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "Microsoft.Network/virtualNetworks/regulanet1"
+      ]
+    },
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2021-07-01",
       "name": "regulavm1",
@@ -350,6 +372,50 @@
       "dependsOn": [
         "Microsoft.Network/networkInterfaces/regulanic2",
         "Microsoft.Compute/disks/reguladisk3"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-07-01",
+      "name": "regulavm3",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "storageProfile": {
+          "dataDisks": [
+            {
+              "createOption": "Empty",
+              "diskSizeGB": 2,
+              "lun": 0
+            }
+          ],
+          "imageReference": {
+            "publisher": "canonical",
+            "offer": "0001-com-ubuntu-server-focal",
+            "sku": "20_04-lts-gen2",
+            "version": "latest"
+          }
+        },
+        "osProfile": {
+          "computerName": "vm",
+          "adminUsername": "azureuser",
+          "adminPassword": "abcd1234!"
+        },
+        "hardwareProfile": {
+          "vmSize": "Standard_B1s"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'regulanic3')]",
+              "properties": {
+                "deleteOption": "Detach"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "Microsoft.Network/networkInterfaces/regulanic3"
       ]
     }
   ]

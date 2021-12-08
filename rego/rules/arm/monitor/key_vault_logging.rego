@@ -40,6 +40,10 @@ resource_type = "MULTIPLE"
 key_vaults := fugue.resources("Microsoft.KeyVault/vaults")
 diagnostic_settings := fugue.resources("Microsoft.Insights/diagnosticSettings")
 
+tokenize(str) = ret {
+	ret = [p | p := regex.split(`[\[\]()',[:space:]]+`, str)[_]; p != ""]
+}
+
 retention_is_valid(retention) {
 	retention.enabled == true
 	retention.days >= 180
@@ -62,7 +66,7 @@ valid_key_vault_diagnostics := {id: ds |
 valid_key_vaults := {id |
 	kv := key_vaults[id]
 	ds := valid_key_vault_diagnostics[_]
-	contains(lower(ds.scope), lower(kv.name))
+	tokenize(lower(ds.scope))[_] == lower(kv.name)
 }
 
 policy[p] {

@@ -37,20 +37,23 @@ input_type = "arm"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Microsoft.Sql/servers/auditingPolicies")
+servers = fugue.resources("Microsoft.Sql/servers")
+auditing_settings = fugue.resources("Microsoft.Sql/servers/auditingSettings")
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+valid_server_ids[id] {
+	settings := auditing_settings[_]
+	settings.properties.retentionDays >= 90
+	id := settings._parent_id
 }
 
 policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
+	server := servers[_]
+	not valid_server_ids[server.id]
+	p := fugue.deny_resource(server)
 }
 
 policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+	server := servers[_]
+	valid_server_ids[server.id]
+	p := fugue.allow_resource(server)
 }

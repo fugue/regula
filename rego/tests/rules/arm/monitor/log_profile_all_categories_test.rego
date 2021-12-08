@@ -14,18 +14,10 @@
 
 package rules.arm_monitor_log_profile_all_categories
 
-import data.tests.arm.vm.inputs.log_profile_all_categories_infra_json as infra
+import data.tests.rules.arm.monitor.inputs.log_profile_all_categories_infra_json as infra
 
-test_valid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+test_log_profile_all_categories {
+	allow with input as infra.mock_resources["Microsoft.Insights/logprofiles/valid"]
+	not allow with input as infra.mock_resources["Microsoft.Insights/logprofiles/invalid1"]
+	not allow with input as infra.mock_resources["Microsoft.Insights/logprofiles/invalid2"]
 }

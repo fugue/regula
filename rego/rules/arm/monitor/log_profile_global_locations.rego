@@ -34,20 +34,35 @@ input_type = "arm"
 
 resource_type = "MULTIPLE"
 
-resources = fugue.resources("Microsoft.Insights/logprofiles")
+log_profiles = fugue.resources("Microsoft.Insights/logprofiles")
 
-is_invalid(resource) {
-	resource.TODO == "TODO" # FIXME
+used_locations := {lower(l) |
+	fugue.resource_types_v0[ty]
+	r := fugue.resources(ty)
+	l := r[_].location
+}
+
+required_locations := used_locations | {"global"}
+
+invalid_profiles := {id: msg |
+	profile := log_profiles[id]
+	locs := {lower(l) | l = profile.properties.locations[_]}
+	missing := required_locations - locs
+	count(missing) > 0
+	msg := sprintf(
+		"The log profile is missing the following locations: %s",
+		[concat(", ", missing)]
+	)
 }
 
 policy[p] {
-	resource = resources[_]
-	reason = is_invalid(resource)
-	p = fugue.deny_resource(resource)
+	profile := log_profiles[id]
+	not invalid_profiles[id]
+	p := fugue.allow({"resource": profile})
 }
 
 policy[p] {
-	resource = resources[_]
-	not is_invalid(resource)
-	p = fugue.allow_resource(resource)
+	profile := log_profiles[id]
+	msg := invalid_profiles[id]
+	p := fugue.deny({"resource": profile, "message": msg})
 }

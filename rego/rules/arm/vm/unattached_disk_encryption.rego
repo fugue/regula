@@ -36,8 +36,8 @@ input_type = "arm"
 resource_type = "MULTIPLE"
 
 disks[id] = disk {
-  disk := lib.disks[id]
-  lib.unattached_disk_ids[id]
+	disk := lib.disks[id]
+	lib.unattached_disk_ids[id]
 }
 
 policy[p] {

@@ -14,18 +14,13 @@
 
 package rules.arm_vm_data_disk_encryption
 
-import data.tests.arm.vm.inputs.data_disk_encryption_infra_json as infra
+import data.tests.rules.arm.vm.inputs.disk_encryption_infra_json as infra
 
-test_valid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.valid == true
-}
-
-test_invalid {
-	pol = policy with input as infra.mock_input
-	by_resource_id = {p.id: p.valid | pol[p]}
-	count(by_resource_id) == 2
-	by_resource_id.invalid == false
+test_rule {
+	pol := policy with input as infra.mock_input
+	by_resource_id := {p.id: p.valid | pol[p]}
+	count(by_resource_id) == 3
+	by_resource_id["Microsoft.Compute/disks/reguladisk2"] == true
+	by_resource_id["Microsoft.Compute/disks/reguladisk4"] == false
+	by_resource_id["Microsoft.Compute/virtualMachines/regulavm3"] == false
 }

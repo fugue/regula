@@ -20,27 +20,30 @@ package fugue.arm.disk_encryption_library
 import data.fugue
 
 disks := fugue.resources("Microsoft.Compute/disks")
+
 virtual_machines := fugue.resources("Microsoft.Compute/virtualMachines")
 
 data_disk_ids := {id |
-  disk := virtual_machines[_].properties.storageProfile.dataDisks[_]
-  id := disk.managedDisk.id
+	disk := virtual_machines[_].properties.storageProfile.dataDisks[_]
+	id := disk.managedDisk.id
 }
 
 os_disk_ids := {id |
-  id := virtual_machines[_].properties.storageProfile.osDisk.managedDisk.id
+	id := virtual_machines[_].properties.storageProfile.osDisk.managedDisk.id
 }
 
 unattached_disk_ids := {id |
-  _ := disks[id]
-  not data_disk_ids[id]
-  not os_disk_ids[id]
+	_ := disks[id]
+	not data_disk_ids[id]
+	not os_disk_ids[id]
 }
 
 disk_encrypted(disk) {
-  disk.properties.encryptionSettingsCollection.enabled == true
-} {
-  des_id := disk.properties.encryption.diskEncryptionSetId
-  is_string(des_id)
-  des_id != ""
+	disk.properties.encryptionSettingsCollection.enabled == true
+}
+
+disk_encrypted(disk) {
+	des_id := disk.properties.encryption.diskEncryptionSetId
+	is_string(des_id)
+	des_id != ""
 }

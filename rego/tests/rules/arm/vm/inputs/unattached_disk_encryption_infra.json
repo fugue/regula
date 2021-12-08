@@ -104,11 +104,11 @@
         "Microsoft.KeyVault/vaults/regulavault3/keys/key1"
       ]
     },
-
     {
       "type": "Microsoft.Compute/disks",
       "apiVersion": "2021-04-01",
       "name": "reguladisk1",
+      "comments": "Encrypted inline, unattached",
       "location": "[resourceGroup().location]",
       "properties": {
         "creationData": {
@@ -137,6 +137,7 @@
       "type": "Microsoft.Compute/disks",
       "apiVersion": "2021-04-01",
       "name": "reguladisk2",
+      "comments": "Encrypted using DES, attached as data disk",
       "location": "[resourceGroup().location]",
       "properties": {
         "creationData": {
@@ -152,7 +153,45 @@
         "Microsoft.KeyVault/vaults/regulavault3/accessPolicies/add"
       ]
     },
-
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2021-04-01",
+      "name": "reguladisk3",
+      "comments": "Unencrypted, attached as OS disk",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "creationData": {
+          "createOption": "Empty"
+        },
+        "diskSizeGB": 2
+      }
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2021-04-01",
+      "name": "reguladisk4",
+      "comments": "Unencrypted, attached as data disk",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "creationData": {
+          "createOption": "Empty"
+        },
+        "diskSizeGB": 2
+      }
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2021-04-01",
+      "name": "reguladisk5",
+      "comments": "Unencrypted, unattached",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "creationData": {
+          "createOption": "Empty"
+        },
+        "diskSizeGB": 2
+      }
+    },
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2018-10-01",
@@ -197,6 +236,28 @@
       ]
     },
     {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-03-01",
+      "name": "regulanic2",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'regulanet1', 'subnet1')]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "Microsoft.Network/virtualNetworks/regulanet1"
+      ]
+    },
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2021-07-01",
       "name": "regulavm1",
@@ -212,6 +273,13 @@
                 "diskEncryptionSet": {
                   "id": "[resourceId('Microsoft.Compute/diskEncryptionSets', 'regulades1')]"
                 }
+              }
+            },
+            {
+              "createOption": "Attach",
+              "lun": 1,
+              "managedDisk": {
+                "id": "[resourceId('Microsoft.Compute/disks', 'reguladisk4')]"
               }
             }
           ],
@@ -244,8 +312,44 @@
       "dependsOn": [
         "Microsoft.Network/networkInterfaces/regulanic1",
         "Microsoft.Compute/disks/reguladisk2",
+        "Microsoft.Compute/disks/reguladisk4",
         "Microsoft.Compute/diskEncryptionSets/regulades1",
         "Microsoft.KeyVault/vaults/regulavault3/accessPolicies/add"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-07-01",
+      "name": "regulavm2",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "storageProfile": {
+          "dataDisks": [],
+          "osDisk": {
+            "createOption": "Attach",
+            "osType": "Linux",
+            "managedDisk": {
+              "id": "[resourceId('Microsoft.Compute/disks', 'reguladisk3')]"
+            }
+          }
+        },
+        "hardwareProfile": {
+          "vmSize": "Standard_B1s"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'regulanic2')]",
+              "properties": {
+                "deleteOption": "Detach"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "Microsoft.Network/networkInterfaces/regulanic2",
+        "Microsoft.Compute/disks/reguladisk3"
       ]
     }
   ]

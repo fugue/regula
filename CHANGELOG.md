@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.2.0 (2021-12-09)
+
+### Added
+* Azure Resource Manager (ARM) template support with 38 rules. This feature is currently in preview.
+
 ## v2.1.0 (2021-11-18)
 
 ### Added

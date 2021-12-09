@@ -29,9 +29,9 @@ __rego__metadoc__ := {
     },
     "severity": "Medium"
   },
-  "description": "SQL Server auditing retention should be greater than 90 days. Audit Logs can be used to check for anomalies and give insight into suspected breaches or misuse of information and access.",
+  "description": "Audit Logs can be used to check for anomalies and give insight into suspected breaches or misuse of information and access.",
   "id": "FG_R00283",
-  "title": "SQL Server auditing retention should be greater than 90 days"
+  "title": "SQL Server auditing retention should be 90 days or greater"
 }
 
 servers = fugue.resources("azurerm_sql_server")

@@ -1,0 +1,26 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Security/securityContacts",
+            "apiVersion": "2017-08-01-preview",
+            "name": "valid",
+            "properties": {
+                "alertNotifications": "On",
+                "alertsToAdmins": "Off",
+                "email": "regula.valid@example.com"
+            }
+        },
+        {
+            "type": "Microsoft.Security/securityContacts",
+            "apiVersion": "2017-08-01-preview",
+            "name": "invalid",
+            "properties": {
+                "alertNotifications": "Off",
+                "alertsToAdmins": "Off",
+                "email": "regula.invalid@example.com"
+            }
+        }
+    ]
+}

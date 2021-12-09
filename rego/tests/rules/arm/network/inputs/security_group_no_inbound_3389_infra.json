@@ -1,0 +1,125 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-03-01",
+      "name": "RegulaSG1",
+      "location": "switzerlandnorth",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "Rule1",
+            "properties": {
+              "priority": 110,
+              "access": "Allow",
+              "direction": "Inbound",
+              "destinationPortRange": "*",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "protocol": "*"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2021-03-01",
+      "name": "RegulaSG1/Rule2",
+      "location": "switzerlandnorth",
+      "properties": {
+        "priority": 120,
+        "access": "Deny",
+        "direction": "Inbound",
+        "destinationPortRange": "*",
+        "sourcePortRange": "*",
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "*",
+        "protocol": "*"
+      },
+      "dependsOn": [
+        "RegulaSG1"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2021-03-01",
+      "name": "RegulaSG1/Rule3",
+      "location": "switzerlandnorth",
+      "properties": {
+        "priority": 130,
+        "access": "Allow",
+        "direction": "Inbound",
+        "destinationPortRange": "3389",
+        "sourcePortRange": "*",
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "*",
+        "protocol": "*"
+      },
+      "dependsOn": [
+        "RegulaSG1"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2021-03-01",
+      "name": "RegulaSG1/Rule4",
+      "location": "switzerlandnorth",
+      "properties": {
+        "priority": 140,
+        "access": "Allow",
+        "direction": "Inbound",
+        "destinationPortRanges": ["9-10", "3388-3390"],
+        "sourcePortRange": "*",
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "*",
+        "protocol": "*"
+      },
+      "dependsOn": [
+        "RegulaSG1"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2021-03-01",
+      "name": "RegulaSG1/Rule5",
+      "location": "switzerlandnorth",
+      "properties": {
+        "priority": 150,
+        "access": "Allow",
+        "direction": "Inbound",
+        "destinationPortRanges": ["9-10", "3390-3395"],
+        "sourcePortRange": "*",
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "*",
+        "protocol": "*"
+      },
+      "dependsOn": [
+        "RegulaSG1"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+      "apiVersion": "2021-03-01",
+      "name": "RegulaSG1/Rule6",
+      "location": "switzerlandnorth",
+      "properties": {
+        "priority": 160,
+        "access": "Allow",
+        "direction": "Inbound",
+        "destinationPortRanges": ["9-10", "3388-3389"],
+        "sourcePortRange": "*",
+        "sourceAddressPrefix": "10.0.0.0/24",
+        "destinationAddressPrefix": "*",
+        "protocol": "*"
+      },
+      "dependsOn": [
+        "RegulaSG1"
+      ]
+    }
+  ]
+}

@@ -16,8 +16,8 @@ package rules.arm_security_contact_notifications_enabled
 
 __rego__metadoc__ := {
 	"id": "FG_R00468",
-	"title": "Security Center setting 'Notify about alerts with the following severity' should be set to 'High'",
-	"description": "Security Center setting 'Notify about alerts with the following severity' should be set to 'High'. Security Center alerts ensure that the appropriate individuals in an organization are notified via email when issues occur, speeding up time to remediation. Specifying a severity level - in this case, \"high\" or greater - ensures that individuals are notified of serious issues, without unnecessary noise.",
+	"title": "Security Center 'Send email notification for high severity alerts' should be enabled",
+	"description": "Security Center email notifications ensure that the appropriate individuals in an organization are notified when issues occur, speeding up time to remediation. If using the Azure CLI or API, notifications are sent for \"high\" or greater severity alerts. If using the Azure Portal, users have the additional option of configuring the severity level.",
 	"custom": {
 		"controls": {
 			"CIS-Azure_v1.3.0": [

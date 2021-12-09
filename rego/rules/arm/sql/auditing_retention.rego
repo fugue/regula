@@ -18,7 +18,7 @@ import data.fugue
 
 __rego__metadoc__ := {
 	"id": "FG_R00283",
-	"title": "SQL Server auditing retention should be greater than 90 days",
+	"title": "SQL Server auditing retention should be 90 days or greater",
 	"description": "Audit Logs can be used to check for anomalies and give insight into suspected breaches or misuse of information and access.",
 	"custom": {
 		"controls": {

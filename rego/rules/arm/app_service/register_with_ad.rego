@@ -16,8 +16,8 @@ package rules.arm_app_service_register_with_ad
 
 __rego__metadoc__ := {
 	"id": "FG_R00452",
-	"title": "App Service web app 'Register with Azure Active Directory' should be enabled",
-	"description": "App Service web app 'Register with Azure Active Directory' should be enabled. Registering an App Service web app with Azure Active Directory enables the app to connect to other Azure services securely without the need for usernames and passwords. Eliminating credentials from the app is a more secure approach.",
+	"title": "App Service web apps should use a system-assigned managed service identity",
+	"description": "A system-assigned managed service entity from Azure Active Directory enables the app to connect to other Azure services securely without the need for usernames and passwords. Eliminating credentials from the app is a more secure approach.",
 	"custom": {
 		"controls": {
 			"CIS-Azure_v1.3.0": [

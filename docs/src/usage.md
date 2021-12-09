@@ -66,7 +66,7 @@ Global Flags:
 
 ### Input
 
-`regula run [input...]` supports passing in CloudFormation templates, Kubernetes manifests, Terraform HCL files, and Terraform plan JSON files.
+`regula run [input...]` supports passing in CloudFormation templates, Kubernetes manifests, Terraform HCL files, Terraform plan JSON files, and Azure ARM templates _(preview)_.
 
 - **When run without any paths,** Regula will recursively search for IaC configurations within the working directory. Example:
 
@@ -136,6 +136,13 @@ Regula operates on CloudFormation templates formatted as JSON or YAML, including
 
 Regula operates on YAML Kubernetes manifests containing single resource definitions or multiple definitions separated by the `---` operator.
 
+#### Azure Resource Manager input _(preview)_
+
+!!! note
+    ARM support is currently in preview. Please [create an issue](https://github.com/fugue/regula/issues) if you find a bug!
+
+Regula operates on ARM templates formatted as JSON.
+
 ### Flag values
 
 `-f, --format FORMAT` values:
@@ -155,6 +162,7 @@ Regula operates on YAML Kubernetes manifests containing single resource definiti
 - `cfn` -- CloudFormation template in YAML or JSON format
 - `tf` -- Terraform directory or file
 - `k8s` -- Kubernetes manifest YAML
+- `arm` -- Azure Resource Manager JSON _(preview)_
 
 `-s, --severity SEVERITY` values:
 
@@ -1008,6 +1016,7 @@ Example output, and comparison to original file:
 - `cfn` -- CloudFormation template in YAML or JSON format
 - `tf` -- Terraform directory or file
 - `k8s` -- Kubernetes manifest YAML
+- `arm` -- Azure Resource Manager JSON _(preview)_
 
 ## test
 
@@ -1100,6 +1109,7 @@ The input is saved as `<iac filename without extension>_<extension>.rego` in the
 - `cfn` -- CloudFormation template in YAML or JSON format
 - `tf` -- Terraform directory or file
 - `k8s` -- Kubernetes manifest YAML
+- `arm` -- Azure Resource Manager JSON _(preview)_
 
 ### Examples
 

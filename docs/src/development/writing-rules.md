@@ -179,6 +179,7 @@ Regula supports the following metadata properties:
 - `description`: Longer description of the rule
 - `controls`: An object where the key is the compliance family name and the value is an array of controls
 - `severity`: One of `Critical`, `High`, `Medium`, `Low`, `Informational`
+- `rule_remediation_doc`: A URL with instructions for remediating the rule
 
 Here's an example rule result to show how this metadata looks in the report:
 
@@ -197,6 +198,7 @@ Here's an example rule result to show how this metadata looks in the report:
       "rule_message": "",
       "rule_name": "long_description",
       "rule_raw_result": false,
+      "rule_remediation_doc": "https://example.com",
       "rule_result": "FAIL",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",
@@ -210,7 +212,7 @@ Here's an example rule result to show how this metadata looks in the report:
     }
 ```
 
-## CloudFormation vs. Terraform vs. Kubernetes rules
+## CloudFormation vs. Terraform vs. Kubernetes vs. ARM rules
 
 CloudFormation rules are written the same way Terraform rules are, but require the line `input_type := "cfn"`, as shown in the simple rule below:
 
@@ -250,6 +252,28 @@ deny {
 }
 ```
 
+ARM rules (_in preview_) require the line `input_type := "arm"`, as shown in the simple rule below:
+
+```ruby hl_lines="9"
+package rules.arm_postgresql_tags
+
+__rego__metadoc__ := {
+	"id": "ARM_POSTGRESQL_001",
+	"custom": {"severity": "Low"},
+	"title": "Azure PostgreSQL servers should be tagged 'application:db'",
+}
+
+input_type := "arm"
+
+resource_type = "Microsoft.DBforPostgreSQL/servers"
+
+default allow = false
+
+allow {
+    input.tags.application == "db"
+}
+```
+
 Terraform rules do not require `input_type` to be explicitly set.
 
 Additionally, the `resource_type` is specified differently depending on the input type:
@@ -257,3 +281,4 @@ Additionally, the `resource_type` is specified differently depending on the inpu
 - [CloudFormation resource types](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) (e.g., `AWS::EC2::Instance`)
 - Terraform [AWS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs), [Azure](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs), [Google Cloud](https://registry.terraform.io/providers/hashicorp/google/latest/docs) resource types (e.g., `aws_instance`)
 - [Kubernetes resource types](https://kubernetes.io/docs/reference/kubectl/overview/#resource-types) (see the `KIND` column) (e.g., `Job`)
+- [ARM templates](https://docs.microsoft.com/en-us/azure/templates/) (_in preview_) (e.g., `Microsoft.Network/virtualNetworks`)

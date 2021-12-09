@@ -7,6 +7,7 @@
   - [Homebrew](#homebrew-macos--linux)
   - [Prebuilt binary (all platforms)](#prebuilt-binary-all-platforms)
   - [Docker (all platforms)](#docker-all-platforms)
+  - [From source](#from-source)
 - [Usage](#usage)
 - [For more information](#for-more-information)
 
@@ -20,8 +21,9 @@ Regula supports the following file types:
 - Terraform HCL code
 - Terraform JSON plans
 - Kubernetes YAML manifests
+- Azure Resource Manager (ARM) JSON templates _(in preview)_
 
-Regula includes a library of rules written in Rego, the policy language used by the [Open Policy Agent](https://www.openpolicyagent.org/) (OPA) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS, Azure, and Google Cloud Foundations Benchmarks so you can assess compliance posture. Regula is maintained by engineers at [Fugue](https://fugue.co).
+Regula includes a library of rules written in Rego, the policy language used by the [Open Policy Agent](https://www.openpolicyagent.org/) (OPA) project. Regula works with your favorite CI/CD tools such as Jenkins, Circle CI, and AWS CodePipeline; we’ve included a [GitHub Actions example](https://github.com/fugue/regula-action) so you can get started quickly. Where relevant, we’ve mapped Regula policies to the CIS AWS, Azure, Google Cloud, and Kubernetes Foundations Benchmarks so you can assess compliance posture. Regula is maintained by engineers at [Fugue](https://fugue.co).
 
 Regula is also available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
 
@@ -88,6 +90,26 @@ brew upgrade regula
 Regula is available as a Docker image on DockerHub [here](https://hub.docker.com/r/fugue/regula).
 
 For usage, see [Running Regula with Docker](https://regula.dev/usage.html#running-regula-with-docker).
+
+### From source
+
+_macOS, Linux, and [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) only_
+
+1. [Install Go (v1.16+)](https://go.dev/doc/install)
+
+2. Build binary and move to `/usr/local/bin/regula`:
+
+    ```bash
+    make # this builds ./bin/regula
+    make install # this builds ./bin/regula and installs it to /usr/local/bin/regula
+    ```
+
+Once you've built the binary, execute the following to run tests:
+
+```
+git submodule update --init --recursive
+make test
+```
 
 ## Usage
 

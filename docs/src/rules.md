@@ -140,7 +140,7 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443                                        |aws_security_group         |Medium  |FG_R00377|
 |Lambda permissions with a service principal should apply to only one resource and AWS account                                         |MULTIPLE                   |Medium  |FG_R00499|
 
-## Azure
+## Azure (Terraform)
 |                                                   Summary                                                    |      Resource Types       |Severity| Rule ID |
 |--------------------------------------------------------------------------------------------------------------|---------------------------|--------|---------|
 |Storage Accounts 'Secure transfer required' should be enabled                                                 |azurerm_storage_account    |Medium  |FG_R00152|
@@ -178,6 +178,48 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |App Service web apps should have 'HTTPS only' enabled                                                         |azurerm_app_service        |High    |FG_R00346|
 |App Service web apps should have 'Minimum TLS Version' set to '1.2'                                           |azurerm_app_service        |Medium  |FG_R00347|
 |App Service web apps should have 'Incoming client certificates' enabled                                       |azurerm_app_service        |Medium  |FG_R00348|
+
+## Azure (ARM)
+|                                               Summary                                               |                               Resource Types                               |Severity| Rule ID |
+|-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|--------|---------|
+|Storage Accounts 'Secure transfer required' should be enabled                                        |Microsoft.Storage/storageAccounts                                           |Medium  |FG_R00152|
+|Storage Account default network access rules should deny all traffic                                 |Microsoft.Storage/storageAccounts                                           |High    |FG_R00154|
+|Virtual Network security groups should not permit ingress from '0.0.0.0/0' to TCP/UDP port 3389 (RDP)|MULTIPLE                                                                    |High    |FG_R00190|
+|Virtual Network security groups should not permit ingress from '0.0.0.0/0' to TCP/UDP port 22 (SSH)  |MULTIPLE                                                                    |High    |FG_R00191|
+|Virtual Machines data disks (non-boot volumes) should be encrypted                                   |MULTIPLE                                                                    |High    |FG_R00196|
+|Virtual Machines unattached disks should be encrypted                                                |MULTIPLE                                                                    |High    |FG_R00197|
+|Blob Storage containers should have public access disabled                                           |Microsoft.Storage/storageAccounts/blobServices/containers                   |Critical|FG_R00207|
+|Storage Accounts should have 'Trusted Microsoft Services' enabled                                    |Microsoft.Storage/storageAccounts                                           |Medium  |FG_R00208|
+|SQL Server firewall rules should not permit start and end IP addresses to be 0.0.0.0                 |Microsoft.Sql/servers/firewallRules                                         |High    |FG_R00221|
+|MySQL Database server firewall rules should not permit start and end IP addresses to be 0.0.0.0      |Microsoft.DBforMySQL/servers/firewallRules                                  |High    |FG_R00222|
+|PostgreSQL Database server firewall rules should not permit start and end IP addresses to be 0.0.0.0 |Microsoft.DBforPostgreSQL/servers/firewallRules                             |High    |FG_R00223|
+|Ensure Azure Application Gateway Web application firewall (WAF) is enabled                           |Microsoft.Network/applicationGateways                                       |Medium  |FG_R00224|
+|MySQL Database server 'enforce SSL connection' should be enabled                                     |Microsoft.DBforMySQL/servers                                                |Medium  |FG_R00225|
+|PostgreSQL Database server 'enforce SSL connection' should be enabled                                |Microsoft.DBforPostgreSQL/servers                                           |Medium  |FG_R00226|
+|Key Vault 'Enable Soft Delete' and 'Enable Purge Protection' should be enabled                       |Microsoft.KeyVault/vaults                                                   |Medium  |FG_R00227|
+|SQL Server auditing should be enabled                                                                |MULTIPLE                                                                    |Medium  |FG_R00282|
+|SQL Server auditing retention should be 90 days or greater                                           |MULTIPLE                                                                    |Medium  |FG_R00283|
+|Virtual Network security group flow log retention period should be set to 90 days or greater         |MULTIPLE                                                                    |Medium  |FG_R00286|
+|Active Directory custom subscription owner roles should not be created                               |Microsoft.Authorization/roledefinitions                                     |Medium  |FG_R00288|
+|PostgreSQL Database configuration 'log_checkpoints' should be on                                     |MULTIPLE                                                                    |Medium  |FG_R00317|
+|PostgreSQL Database configuration 'log_connections' should be on                                     |MULTIPLE                                                                    |Medium  |FG_R00318|
+|Azure Kubernetes Service instances should have RBAC enabled                                          |Microsoft.ContainerService/managedClusters                                  |Medium  |FG_R00329|
+|PostgreSQL Database configuration 'log_disconnections' should be on                                  |MULTIPLE                                                                    |Medium  |FG_R00331|
+|PostgreSQL Database configuration 'log_duration' should be on                                        |MULTIPLE                                                                    |Medium  |FG_R00333|
+|PostgreSQL Database configuration 'connection_throttling' should be on                               |MULTIPLE                                                                    |Medium  |FG_R00335|
+|PostgreSQL Database configuration 'log_retention days' should be greater than 3                      |MULTIPLE                                                                    |Medium  |FG_R00337|
+|Monitor 'Activity Log Retention' should be 365 days or greater                                       |Microsoft.Insights/logprofiles                                              |Medium  |FG_R00340|
+|Monitor audit profile should log all activities                                                      |Microsoft.Insights/logprofiles                                              |Medium  |FG_R00341|
+|Monitor log profile should have activity logs for global services and all regions                    |MULTIPLE                                                                    |Medium  |FG_R00342|
+|Key Vault logging should be enabled                                                                  |MULTIPLE                                                                    |Medium  |FG_R00344|
+|App Service web app authentication should be enabled                                                 |MULTIPLE                                                                    |Medium  |FG_R00345|
+|App Service web apps should have 'HTTPS only' enabled                                                |Microsoft.Web/sites                                                         |High    |FG_R00346|
+|App Service web apps should have 'Minimum TLS Version' set to '1.2'                                  |MULTIPLE                                                                    |Medium  |FG_R00347|
+|App Service web apps should have 'Incoming client certificates' enabled                              |Microsoft.Web/sites                                                         |Medium  |FG_R00348|
+|Storage Queue logging should be enabled for read, write, and delete requests                         |Microsoft.Storage/storageAccounts/queueServices/providers/diagnosticsettings|Medium  |FG_R00440|
+|Key Vault secrets should have an expiration date set                                                 |Microsoft.KeyVault/vaults/secrets                                           |Medium  |FG_R00451|
+|App Service web apps should use a system-assigned managed service identity                           |Microsoft.Web/sites                                                         |Low     |FG_R00452|
+|Security Center 'Send email notification for high severity alerts' should be enabled                 |Microsoft.Security/securityContacts                                         |Medium  |FG_R00468|
 
 ## Google
 |                                                Summary                                                 |       Resource Types       |Severity| Rule ID |

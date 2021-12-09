@@ -79,6 +79,27 @@ Regula is available as a Docker image on DockerHub [here](https://hub.docker.com
 
 For usage, see [Running Regula with Docker](usage.md#running-regula-with-docker).
 
+### From source
+
+!!! note
+    macOS, Linux, and [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) only
+
+1. [Install Go (v1.16+)](https://go.dev/doc/install)
+
+2. Build binary and move to `/usr/local/bin/regula`:
+
+    ```bash
+    make # this builds ./bin/regula
+    make install # this builds ./bin/regula and installs it to /usr/local/bin/regula
+    ```
+
+Once you've built the binary, execute the following to run tests:
+
+```
+git submodule update --init --recursive
+make test
+```
+
 ## Tutorial: Run Regula locally on Terraform IaC
 
 !!! tip

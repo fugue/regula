@@ -130,9 +130,9 @@ The `summary` block contains a breakdown of the `filepaths` (CloudFormation temp
 Each rule result in the JSON report lists the following attributes:
 
 - `controls`: Compliance controls mapped to the rule
-- `filepath`: Filepath of the evaluated Terraform HCL file, Terraform JSON plan, or CloudFormation template
-- `input_type`: `tf` (Terraform HCL), `tf_plan` (Terraform JSON plan), `cfn` (CloudFormation), `k8s` (Kubernetes)
-- `provider`: `aws`, `azurerm`, `google`, `kubernetes`
+- `filepath`: Filepath of the evaluated Terraform HCL file, Terraform JSON plan, CloudFormation template, Kubernetes manifest, or ARM template (_in preview_)
+- `input_type`: `tf` (Terraform HCL), `tf_plan` (Terraform JSON plan), `cfn` (CloudFormation), `k8s` (Kubernetes), `arm` (Azure Resource Manager JSON; _in preview_)
+- `provider`: `aws`, `azurerm`, `google`, `kubernetes`, `arm`
 - `resource_id`: ID of the evaluated resource
 - `resource_type`: Type of the evaluated resource
 - `rule_description`: A detailed description of the rule
@@ -140,7 +140,7 @@ Each rule result in the JSON report lists the following attributes:
 - `rule_message`: Optional error message associated with the rule; see how to create custom error messages in [simple](development/writing-rules.md#custom-error-messages-and-attributes-simple-rules) and [advanced](development/writing-rules.md#custom-error-messages-advanced-rules) custom rules
 - `rule_name`: Name of the rule (filepath minus extension)
 - `rule_raw_result`: `true` if the rule result was `PASS` before any waivers were applied, `false` if it was `FAIL`
-- `rule_remediation_doc`: A URL with instructions for remediating the rule (built-in rules only)
+- `rule_remediation_doc`: A URL with instructions for remediating the rule
 - `rule_result`: `PASS`, `FAIL`, or `WAIVED`
 - `rule_severity`: `Critical`, `High`, `Medium`, `Low`, `Informational`, or `Unknown`
 - `rule_summary`: A short summary of the rule

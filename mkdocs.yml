@@ -11,6 +11,7 @@ nav:
       - "integrations/conftest.md"
       - "integrations/gh-actions.md"
       - "integrations/travis.md"
+      - "integrations/scalr.md"
       - "integrations/pre-commit.md"
   - Custom Rule Development:
       - "development/writing-rules.md"

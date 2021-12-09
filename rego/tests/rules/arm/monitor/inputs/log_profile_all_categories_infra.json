@@ -1,0 +1,66 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountId": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Insights/logprofiles",
+      "apiVersion": "2016-03-01",
+      "name": "valid",
+      "properties": {
+        "categories": [
+          "Action",
+          "Delete",
+          "Write"
+        ],
+        "locations": [
+          "global"
+        ],
+        "retentionPolicy": {
+          "enabled": false
+        },
+        "storageAccountId": "[parameters('storageAccountId')]"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/logprofiles",
+      "apiVersion": "2016-03-01",
+      "name": "invalid1",
+      "properties": {
+        "categories": [
+          "Delete",
+          "Write"
+        ],
+        "locations": [
+          "global"
+        ],
+        "retentionPolicy": {
+          "enabled": false
+        },
+        "storageAccountId": "[parameters('storageAccountId')]"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/logprofiles",
+      "apiVersion": "2016-03-01",
+      "name": "invalid2",
+      "properties": {
+        "categories": [
+          "Action",
+          "Delete"
+        ],
+        "locations": [
+          "global"
+        ],
+        "retentionPolicy": {
+          "enabled": false
+        },
+        "storageAccountId": "[parameters('storageAccountId')]"
+      }
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountId": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Insights/logprofiles",
+      "apiVersion": "2016-03-01",
+      "name": "validYear",
+      "properties": {
+        "categories": [
+          "Action",
+          "Delete",
+          "Write"
+        ],
+        "locations": [
+          "global"
+        ],
+        "retentionPolicy": {
+          "enabled": true,
+          "days": 365
+        },
+        "storageAccountId": "[parameters('storageAccountId')]"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/logprofiles",
+      "apiVersion": "2016-03-01",
+      "name": "validIndefinite",
+      "properties": {
+        "categories": [
+          "Action",
+          "Delete",
+          "Write"
+        ],
+        "locations": [
+          "global"
+        ],
+        "retentionPolicy": {
+          "enabled": true,
+          "days": 0
+        },
+        "storageAccountId": "[parameters('storageAccountId')]"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/logprofiles",
+      "apiVersion": "2016-03-01",
+      "name": "invalidDisabled",
+      "properties": {
+        "categories": [
+          "Action",
+          "Delete",
+          "Write"
+        ],
+        "locations": [
+          "global"
+        ],
+        "retentionPolicy": {
+          "enabled": false,
+          "days": 0
+        },
+        "storageAccountId": "[parameters('storageAccountId')]"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/logprofiles",
+      "apiVersion": "2016-03-01",
+      "name": "invalidShortRetention",
+      "properties": {
+        "categories": [
+          "Action",
+          "Delete",
+          "Write"
+        ],
+        "locations": [
+          "global"
+        ],
+        "retentionPolicy": {
+          "enabled": true,
+          "days": 90
+        },
+        "storageAccountId": "[parameters('storageAccountId')]"
+      }
+    }
+  ]
+}

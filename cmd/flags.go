@@ -52,7 +52,7 @@ Input types:
     cfn         CloudFormation template in YAML or JSON format
     tf          Terraform directory or file
     k8s         Kubernetes manifest in YAML format
-	arm         Azure Resource Manager (ARM) JSON templates (feature in preview)
+    arm         Azure Resource Manager (ARM) JSON templates (feature in preview)
 `
 const formatDescriptions = `
 Output formats:

@@ -237,7 +237,7 @@ func (v *Evaluation) evaluate() error {
 		val, diags := expr.Value(&ctx)
 		if diags.HasErrors() {
 			logrus.Debugf("evaluate: error: %s", diags)
-			val = cty.NilVal
+			val = cty.NullVal(val.Type())
 		}
 
 		singleton := SingletonValTree(name.Local, val)

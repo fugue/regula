@@ -13,7 +13,7 @@ func TestValTree(t *testing.T) {
 	assert.Equal(t,
 		cty.ObjectVal(map[string]cty.Value{
 			"menu": cty.TupleVal([]cty.Value{
-				cty.NilVal,
+				cty.NullVal(cty.DynamicPseudoType),
 				cty.ObjectVal(map[string]cty.Value{
 					"name":  cty.StringVal("pizza"),
 					"price": cty.NumberIntVal(10),
@@ -42,7 +42,7 @@ func TestValTree(t *testing.T) {
 	assert.Equal(t,
 		cty.ObjectVal(map[string]cty.Value{
 			"menu": cty.TupleVal([]cty.Value{
-				cty.NilVal,
+				cty.NullVal(cty.DynamicPseudoType),
 				cty.ObjectVal(map[string]cty.Value{
 					"price": cty.NumberIntVal(10),
 				}),

@@ -226,7 +226,7 @@ func walkModule(v Visitor, moduleName ModuleName, module *configs.Module) {
 	name := EmptyFullName(moduleName)
 
 	for _, variable := range module.Variables {
-		if variable.Default != cty.NilVal {
+		if !variable.Default.IsNull() {
 			expr := hclsyntax.LiteralValueExpr{
 				Val:      variable.Default,
 				SrcRange: variable.DeclRange,

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.2.1 (2021-12-13)
+
+### Fixed
+* Panic in Terraform loader (#279)
+
 ## v2.2.0 (2021-12-09)
 
 ### Added

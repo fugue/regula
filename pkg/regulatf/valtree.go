@@ -145,7 +145,7 @@ func ValTreeToValue(tree ValTree) cty.Value {
 			if v, ok := t[i]; ok {
 				arr[i] = ValTreeToValue(v)
 			} else {
-				arr[i] = cty.NilVal
+				arr[i] = cty.NullVal(cty.DynamicPseudoType)
 			}
 		}
 		return cty.TupleVal(arr)

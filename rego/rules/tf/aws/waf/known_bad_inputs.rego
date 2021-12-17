@@ -21,9 +21,9 @@ __rego__metadoc__ := {
     "controls": {},
     "severity": "Critical"
   },
-  "description": "Utilize the AWS WAF AWSManagedRulesKnownBadInputsRuleSetmanaged rule to protect against malicious input. Utilize the AWS WAF AWSManagedRulesKnownBadInputsRuleSetmanaged rule to protect against malicious input.",
+  "description": "WAFv2 web ACLs should include the \u2018AWSManagedRulesKnownBadInputsRuleSet\u2019 managed rule group. The \u201cKnown bad inputs\u201d (AWSManagedRulesKnownBadInputsRuleSet) managed rule group contains rules that block request patterns that are invalid or known to be associated with vulnerabilities, such as Log4j. Please note that the \u201cLog4JRCE\u201d WAF rule (and many others) only inspects the first 8 KB of the request body, so you may additionally want to ensure that the \u201cCore rule set\u201d (AWSManagedRulesCommonRuleSet) is also included, as the \u201cSizeRestrictions_BODY\u201d rule in that managed rule group verifies that the request body size is at most 8 KB.",
   "id": "FG_R00500",
-  "title": "Utilize the AWS WAF AWSManagedRulesKnownBadInputsRuleSetmanaged rule to protect against malicious input"
+  "title": "WAFv2 web ACLs should include the \u2018AWSManagedRulesKnownBadInputsRuleSet\u2019 managed rule group"
 }
 
 wafsv2 = fugue.resources("aws_wafv2_web_acl")
@@ -32,18 +32,24 @@ resource_type = "MULTIPLE"
 
 valid_rule_names = {"AWSManagedRulesKnownBadInputsRuleSet"}
 valid_vendor_names = {"AWS"}
+invalid_exclusions = {"Log4JRCE", "Log4JRCE_ALL_HEADER"}
 
 is_valid_waf(waf) {
-  managed_statement = waf.rule[_].statement[_].managed_rule_group_statement[_]
+  rule = waf.rule[_]
+  not rule_overridden(rule)
 
+  managed_statement = waf.rule[_].statement[_].managed_rule_group_statement[_]
   valid_vendor_names[managed_statement.vendor_name]
   valid_rule_names[managed_statement.name]
+  not excludes_log4jrce(managed_statement)
 }
 
-policy[j] {
-  fugue.input_type == "tf_runtime"
-  count(wafsv2) == 0
-  j = fugue.missing_resource("aws_wafv2_web_acl")
+rule_overridden(rule) {
+  count(rule.override_action[_].count) == 1
+}
+
+excludes_log4jrce(managed_statement) {
+  invalid_exclusions[managed_statement.excluded_rule[_].name]
 }
 
 policy[j] {

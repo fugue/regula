@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.3.0 (2021-12-17)
+
+### Added
+* Rule `FG_R00500` that enforces AWS WAF configuration that mitigates the recently-publicized Log4J vulnerabilities
+
 ## v2.2.1 (2021-12-13)
 
 ### Fixed

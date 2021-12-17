@@ -5,18 +5,16 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 !!! tip
     Click on a column to sort alphabetically by that category, and click it again to reverse the sort order.
 
-## AWS
+## AWS (Terraform)
 |                                                               Summary                                                                |      Resource Types       |Severity| Rule ID |
 |--------------------------------------------------------------------------------------------------------------------------------------|---------------------------|--------|---------|
 |IAM password policies should prevent reuse of previously used passwords                                                               |MULTIPLE                   |Medium  |FG_R00002|
 |IAM password policies should expire passwords within 90 days                                                                          |MULTIPLE                   |Medium  |FG_R00003|
-|IAM policies should not be attached to users                                                                                          |MULTIPLE                   |Low     |FG_R00007|
 |IAM policies should not be attached directly to users                                                                                 |MULTIPLE                   |Low     |FG_R00007|
 |CloudFront distribution origin should be set to S3 or origin protocol policy should be set to https-only                              |MULTIPLE                   |Medium  |FG_R00010|
 |CloudFront viewer protocol policy should be set to https-only or redirect-to-https                                                    |aws_cloudfront_distribution|Medium  |FG_R00011|
 |ELBv1 listener protocol should not be set to http                                                                                     |MULTIPLE                   |High    |FG_R00013|
 |Auto Scaling groups should span two or more availability zones                                                                        |MULTIPLE                   |Medium  |FG_R00014|
-|EBS volume encryption should be enabled                                                                                               |AWS::EC2::Volume           |High    |FG_R00016|
 |EBS volume encryption should be enabled                                                                                               |aws_ebs_volume             |High    |FG_R00016|
 |CloudFront distributions should have geo-restrictions specified                                                                       |MULTIPLE                   |Medium  |FG_R00018|
 |IAM password policies should require at least one uppercase character                                                                 |MULTIPLE                   |Medium  |FG_R00021|
@@ -24,17 +22,11 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |IAM password policies should require at least one symbol                                                                              |MULTIPLE                   |Medium  |FG_R00023|
 |IAM password policies should require at least one number                                                                              |MULTIPLE                   |Medium  |FG_R00024|
 |IAM password policies should require a minimum length of 14                                                                           |MULTIPLE                   |Medium  |FG_R00025|
-|CloudTrail log file validation should be enabled                                                                                      |AWS::CloudTrail::Trail     |Medium  |FG_R00027|
 |CloudTrail log file validation should be enabled                                                                                      |aws_cloudtrail             |Medium  |FG_R00027|
 |S3 bucket ACLs should not have public access on S3 buckets that store CloudTrail log files                                            |MULTIPLE                   |Critical|FG_R00028|
-|S3 bucket ACLs should not have public access on S3 buckets that store CloudTrail log files                                            |MULTIPLE                   |Critical|FG_R00028|
-|CloudTrail trails should have CloudWatch log integration enabled                                                                      |AWS::CloudTrail::Trail     |Medium  |FG_R00029|
 |CloudTrail trails should have CloudWatch log integration enabled                                                                      |MULTIPLE                   |Medium  |FG_R00029|
 |S3 bucket access logging should be enabled on S3 buckets that store CloudTrail log files                                              |MULTIPLE                   |Medium  |FG_R00031|
-|S3 bucket access logging should be enabled on S3 buckets that store CloudTrail log files                                              |MULTIPLE                   |Medium  |FG_R00031|
-|CloudTrail log files should be encrypted using KMS CMKs                                                                               |AWS::CloudTrail::Trail     |High    |FG_R00035|
 |CloudTrail log files should be encrypted using KMS CMKs                                                                               |MULTIPLE                   |High    |FG_R00035|
-|KMS CMK rotation should be enabled                                                                                                    |AWS::KMS::Key              |Medium  |FG_R00036|
 |KMS CMK rotation should be enabled                                                                                                    |aws_kms_key                |Medium  |FG_R00036|
 |VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 5900 (Virtual Network Computing)                  |MULTIPLE                   |High    |FG_R00037|
 |VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 5800 (Virtual Network Computing), unless from ELBs|MULTIPLE                   |High    |FG_R00038|
@@ -44,31 +36,24 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |ELBv1 load balancer cross zone load balancing should be enabled                                                                       |MULTIPLE                   |Medium  |FG_R00043|
 |VPC security group inbound rules should not permit ingress from a public address to all ports and protocols                           |aws_security_group         |High    |FG_R00044|
 |VPC security group inbound rules should not permit ingress from '0.0.0.0/0' to all ports and protocols                                |MULTIPLE                   |High    |FG_R00045|
-|SQS access policies should not have global "*.*" access                                                                               |MULTIPLE                   |Critical|FG_R00049|
+|SQS access policies should not have global \"*.*\" access                                                                             |MULTIPLE                   |Critical|FG_R00049|
 |SNS subscriptions should deny access via HTTP                                                                                         |MULTIPLE                   |Medium  |FG_R00052|
-|VPC flow logging should be enabled                                                                                                    |MULTIPLE                   |Medium  |FG_R00054|
 |VPC flow logging should be enabled                                                                                                    |MULTIPLE                   |Medium  |FG_R00054|
 |Load balancer access logging should be enabled                                                                                        |MULTIPLE                   |Medium  |FG_R00066|
 |CloudFront access logging should be enabled                                                                                           |MULTIPLE                   |Medium  |FG_R00067|
 |CloudWatch log groups should be encrypted with KMS CMKs                                                                               |MULTIPLE                   |Medium  |FG_R00068|
 |DynamoDB tables should be encrypted with AWS or customer managed KMS CMKs                                                             |MULTIPLE                   |Medium  |FG_R00069|
 |SQS queue server-side encryption should be enabled (AWS-managed keys)                                                                 |MULTIPLE                   |High    |FG_R00070|
-|CloudFront distributions should be protected by WAFs                                                                                  |MULTIPLE                   |Medium  |FG_R00073|
-|VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 22 (SSH)                                          |MULTIPLE                   |High    |FG_R00085|
+|CloudFront distributions should be protected by WAFs                                                                                  |aws_cloudfront_distribution|Medium  |FG_R00073|
 |VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)                                                  |aws_security_group         |High    |FG_R00085|
 |IAM password policies should have a minimum length of 7 and include both alphabetic and numeric characters                            |MULTIPLE                   |Medium  |FG_R00086|
-|VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)                            |MULTIPLE                   |High    |FG_R00087|
 |VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)                            |aws_security_group         |High    |FG_R00087|
 |IAM password policies should prevent reuse of the four previously used passwords                                                      |MULTIPLE                   |Medium  |FG_R00088|
 |VPC default security group should restrict all traffic                                                                                |MULTIPLE                   |Medium  |FG_R00089|
-|VPC default security group should restrict all traffic                                                                                |MULTIPLE                   |Medium  |FG_R00089|
-|IAM policies should not have full "*:*" administrative privileges                                                                     |MULTIPLE                   |High    |FG_R00092|
-|IAM policies should not have full "*:*" administrative privileges                                                                     |MULTIPLE                   |High    |FG_R00092|
+|IAM policies should not have full \"*:*\" administrative privileges                                                                   |MULTIPLE                   |High    |FG_R00092|
 |RDS instances should be encrypted (AWS-managed or customer-managed KMS CMKs)                                                          |MULTIPLE                   |High    |FG_R00093|
 |RDS instances should have FedRAMP approved database engines                                                                           |MULTIPLE                   |Low     |FG_R00094|
-|S3 bucket server side encryption should be enabled                                                                                    |AWS::S3::Bucket            |High    |FG_R00099|
 |S3 bucket server side encryption should be enabled                                                                                    |aws_s3_bucket              |High    |FG_R00099|
-|S3 bucket policies should only allow requests that use HTTPS                                                                          |MULTIPLE                   |Medium  |FG_R00100|
 |S3 bucket policies should only allow requests that use HTTPS                                                                          |MULTIPLE                   |Medium  |FG_R00100|
 |S3 bucket versioning and lifecycle policies should be enabled                                                                         |aws_s3_bucket              |Medium  |FG_R00101|
 |ELB listener security groups should not be set to TCP all                                                                             |MULTIPLE                   |High    |FG_R00102|
@@ -89,7 +74,6 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |IAM policies should not allow broad list actions on S3 buckets                                                                        |MULTIPLE                   |Medium  |FG_R00218|
 |IAM role trust policies should not allow all principals to assume the role                                                            |MULTIPLE                   |Medium  |FG_R00219|
 |IAM roles attached to instance profiles should not allow broad list actions on S3 buckets                                             |MULTIPLE                   |Medium  |FG_R00220|
-|S3 buckets should have all `block public access` options enabled                                                                      |AWS::S3::Bucket            |High    |FG_R00229|
 |S3 buckets should have all `block public access` options enabled                                                                      |MULTIPLE                   |High    |FG_R00229|
 |VPC security groups attached to EC2 instances should not permit ingress from '0.0.0.0/0' to TCP/UDP port 389 (LDAP)                   |MULTIPLE                   |High    |FG_R00234|
 |CloudTrail trails should be configured to log management events                                                                       |aws_cloudtrail             |Medium  |FG_R00237|
@@ -125,20 +109,43 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |S3 bucket access logging should be enabled                                                                                            |aws_s3_bucket              |Medium  |FG_R00274|
 |S3 bucket replication (cross-region or same-region) should be enabled                                                                 |aws_s3_bucket              |Medium  |FG_R00275|
 |Lambda function policies should not allow global access                                                                               |MULTIPLE                   |High    |FG_R00276|
-|Lambda function policies should not allow global access                                                                               |MULTIPLE                   |High    |FG_R00276|
 |S3 buckets should not be publicly readable                                                                                            |MULTIPLE                   |Critical|FG_R00277|
 |RDS instance 'Publicly Accessible' should not be enabled                                                                              |aws_db_instance            |High    |FG_R00278|
 |S3 bucket policies and ACLs should not be configured for public read access                                                           |MULTIPLE                   |High    |FG_R00279|
 |RDS instance 'Deletion Protection' should be enabled                                                                                  |aws_db_instance            |Medium  |FG_R00280|
 |VPC security group inbound rules should not permit ingress from any address to all ports and protocols                                |aws_security_group         |Medium  |FG_R00350|
-|S3 bucket object-level logging for write events should be enabled                                                                     |MULTIPLE                   |Low     |FG_R00354|
-|S3 bucket object-level logging for read events should be enabled                                                                      |MULTIPLE                   |Low     |FG_R00355|
-|VPC network ACLs should not allow ingress from 0.0.0.0/0 to port 22                                                                   |MULTIPLE                   |High    |FG_R00357|
-|VPC network ACLs should not allow ingress from 0.0.0.0/0 to port 3389                                                                 |MULTIPLE                   |High    |FG_R00359|
-|API Gateway classic custom domains should use secure TLS protocol versions (1.2 and above)                                            |MULTIPLE                   |Medium  |FG_R00375|
-|API Gateway v2 custom domains should use secure TLS protocol versions (1.2 and above)                                                 |MULTIPLE                   |Medium  |FG_R00376|
 |VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443                                        |aws_security_group         |Medium  |FG_R00377|
 |Lambda permissions with a service principal should apply to only one resource and AWS account                                         |MULTIPLE                   |Medium  |FG_R00499|
+|WAFv2 web ACLs should include the 'AWSManagedRulesKnownBadInputsRuleSet' managed rule group                                           |MULTIPLE                   |Critical|FG_R00500|
+
+
+## AWS (CloudFormation)
+|                                                 Summary                                                  |    Resource Types    |Severity| Rule ID |
+|----------------------------------------------------------------------------------------------------------|----------------------|--------|---------|
+|IAM policies should not be attached to users                                                              |MULTIPLE              |Low     |FG_R00007|
+|EBS volume encryption should be enabled                                                                   |AWS::EC2::Volume      |High    |FG_R00016|
+|CloudTrail log file validation should be enabled                                                          |AWS::CloudTrail::Trail|Medium  |FG_R00027|
+|S3 bucket ACLs should not have public access on S3 buckets that store CloudTrail log files                |MULTIPLE              |Critical|FG_R00028|
+|CloudTrail trails should have CloudWatch log integration enabled                                          |AWS::CloudTrail::Trail|Medium  |FG_R00029|
+|S3 bucket access logging should be enabled on S3 buckets that store CloudTrail log files                  |MULTIPLE              |Medium  |FG_R00031|
+|CloudTrail log files should be encrypted using KMS CMKs                                                   |AWS::CloudTrail::Trail|High    |FG_R00035|
+|KMS CMK rotation should be enabled                                                                        |AWS::KMS::Key         |Medium  |FG_R00036|
+|VPC flow logging should be enabled                                                                        |MULTIPLE              |Medium  |FG_R00054|
+|VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 22 (SSH)              |MULTIPLE              |High    |FG_R00085|
+|VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)|MULTIPLE              |High    |FG_R00087|
+|VPC default security group should restrict all traffic                                                    |MULTIPLE              |Medium  |FG_R00089|
+|IAM policies should not have full \"*:*\" administrative privileges                                       |MULTIPLE              |High    |FG_R00092|
+|S3 bucket server side encryption should be enabled                                                        |AWS::S3::Bucket       |High    |FG_R00099|
+|S3 bucket policies should only allow requests that use HTTPS                                              |MULTIPLE              |Medium  |FG_R00100|
+|S3 buckets should have all `block public access` options enabled                                          |AWS::S3::Bucket       |High    |FG_R00229|
+|Lambda function policies should not allow global access                                                   |MULTIPLE              |High    |FG_R00276|
+|S3 bucket object-level logging for write events should be enabled                                         |MULTIPLE              |Low     |FG_R00354|
+|S3 bucket object-level logging for read events should be enabled                                          |MULTIPLE              |Low     |FG_R00355|
+|VPC network ACLs should not allow ingress from 0.0.0.0/0 to port 22                                       |MULTIPLE              |High    |FG_R00357|
+|VPC network ACLs should not allow ingress from 0.0.0.0/0 to port 3389                                     |MULTIPLE              |High    |FG_R00359|
+|API Gateway classic custom domains should use secure TLS protocol versions (1.2 and above)                |MULTIPLE              |Medium  |FG_R00375|
+|API Gateway v2 custom domains should use secure TLS protocol versions (1.2 and above)                     |MULTIPLE              |Medium  |FG_R00376|
+
 
 ## Azure (Terraform)
 |                                                   Summary                                                    |      Resource Types       |Severity| Rule ID |
@@ -160,7 +167,7 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |PostgreSQL Database server 'enforce SSL connection' should be enabled                                         |azurerm_postgresql_server  |Medium  |FG_R00226|
 |Key Vault 'Enable Soft Delete' and 'Enable Purge Protection' should be enabled                                |azurerm_key_vault          |Medium  |FG_R00227|
 |SQL Server auditing should be enabled                                                                         |MULTIPLE                   |Medium  |FG_R00282|
-|SQL Server auditing retention should be greater than 90 days                                                  |MULTIPLE                   |Medium  |FG_R00283|
+|SQL Server auditing retention should be 90 days or greater                                                    |MULTIPLE                   |Medium  |FG_R00283|
 |Virtual Network security group flow log retention period should be set to 90 days or greater                  |MULTIPLE                   |Medium  |FG_R00286|
 |Active Directory custom subscription owner roles should not be created                                        |azurerm_role_definition    |Medium  |FG_R00288|
 |PostgreSQL Database configuration 'log_checkpoints' should be on                                              |MULTIPLE                   |Medium  |FG_R00317|
@@ -179,7 +186,8 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |App Service web apps should have 'Minimum TLS Version' set to '1.2'                                           |azurerm_app_service        |Medium  |FG_R00347|
 |App Service web apps should have 'Incoming client certificates' enabled                                       |azurerm_app_service        |Medium  |FG_R00348|
 
-## Azure (ARM)
+
+## Azure (Azure Resource Manager)
 |                                               Summary                                               |                               Resource Types                               |Severity| Rule ID |
 |-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|--------|---------|
 |Storage Accounts 'Secure transfer required' should be enabled                                        |Microsoft.Storage/storageAccounts                                           |Medium  |FG_R00152|
@@ -220,6 +228,7 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |Key Vault secrets should have an expiration date set                                                 |Microsoft.KeyVault/vaults/secrets                                           |Medium  |FG_R00451|
 |App Service web apps should use a system-assigned managed service identity                           |Microsoft.Web/sites                                                         |Low     |FG_R00452|
 |Security Center 'Send email notification for high severity alerts' should be enabled                 |Microsoft.Security/securityContacts                                         |Medium  |FG_R00468|
+
 
 ## Google
 |                                                Summary                                                 |       Resource Types       |Severity| Rule ID |
@@ -271,23 +280,23 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 ## Kubernetes
 |                                         Summary                                          |Resource Types|Severity| Rule ID |
 |------------------------------------------------------------------------------------------|--------------|--------|---------|
-|The 'cluster-admin' role should not be used                                               | MULTIPLE     |High    |FG_R00479|
-|Roles and cluster roles should not grant 'get', 'list', or 'watch' permissions for secrets| MULTIPLE     |Medium  |FG_R00480|
-|Roles and cluster roles should not use wildcards for resource, verb, or apiGroup entries  | MULTIPLE     |High    |FG_R00481|
-|Roles and cluster roles should not grant 'create' permissions for pods                    | MULTIPLE     |Medium  |FG_R00482|
-|Default service account 'automountServiceAccountToken' should be set to 'false'           | MULTIPLE     |Medium  |FG_R00483|
-|Service account 'automountServiceAccountToken' should be set to 'false'                   | MULTIPLE     |Medium  |FG_R00484|
-|Pods should not run privileged containers                                                 | MULTIPLE     |High    |FG_R00485|
-|Pods should not run containers wishing to share the host process ID namespace             | MULTIPLE     |Medium  |FG_R00486|
-|Pods should not run containers wishing to share the host IPC namespace                    | MULTIPLE     |Medium  |FG_R00487|
-|Pods should not run containers wishing to share the host network namespace                | MULTIPLE     |Medium  |FG_R00488|
-|Pods should not run containers with allowPrivilegeEscalation                              | MULTIPLE     |Medium  |FG_R00489|
-|Pods should not run containers as the root user                                           | MULTIPLE     |Medium  |FG_R00490|
-|Pods should not run containers with the NET_RAW capability                                | MULTIPLE     |Medium  |FG_R00491|
-|Pods should not run containers with added capabilities                                    | MULTIPLE     |Medium  |FG_R00492|
-|Pods should not run containers with default capabilities assigned                         | MULTIPLE     |Medium  |FG_R00493|
-|Pods should not use secrets stored in environment variables                               | MULTIPLE     |Medium  |FG_R00494|
-|Pod seccomp profile should be set to 'docker/default'                                     | MULTIPLE     |Medium  |FG_R00495|
-|Pods and containers should apply a security context                                       | MULTIPLE     |Medium  |FG_R00496|
-|The default namespace should not be used                                                  | MULTIPLE     |Low     |FG_R00497|
-|Roles and cluster roles should not be bound to the default service account                | MULTIPLE     |Medium  |FG_R00498|
+|The 'cluster-admin' role should not be used                                               |MULTIPLE      |High    |FG_R00479|
+|Roles and cluster roles should not grant 'get', 'list', or 'watch' permissions for secrets|MULTIPLE      |Medium  |FG_R00480|
+|Roles and cluster roles should not use wildcards for resource, verb, or apiGroup entries  |MULTIPLE      |High    |FG_R00481|
+|Roles and cluster roles should not grant 'create' permissions for pods                    |MULTIPLE      |Medium  |FG_R00482|
+|Default service account 'automountServiceAccountToken' should be set to 'false'           |MULTIPLE      |Medium  |FG_R00483|
+|Service account 'automountServiceAccountToken' should be set to 'false'                   |MULTIPLE      |Medium  |FG_R00484|
+|Pods should not run privileged containers                                                 |MULTIPLE      |High    |FG_R00485|
+|Pods should not run containers wishing to share the host process ID namespace             |MULTIPLE      |Medium  |FG_R00486|
+|Pods should not run containers wishing to share the host IPC namespace                    |MULTIPLE      |Medium  |FG_R00487|
+|Pods should not run containers wishing to share the host network namespace                |MULTIPLE      |Medium  |FG_R00488|
+|Pods should not run containers with allowPrivilegeEscalation                              |MULTIPLE      |Medium  |FG_R00489|
+|Pods should not run containers as the root user                                           |MULTIPLE      |Medium  |FG_R00490|
+|Pods should not run containers with the NET_RAW capability                                |MULTIPLE      |Medium  |FG_R00491|
+|Pods should not run containers with added capabilities                                    |MULTIPLE      |Medium  |FG_R00492|
+|Pods should not run containers with default capabilities assigned                         |MULTIPLE      |Medium  |FG_R00493|
+|Pods should not use secrets stored in environment variables                               |MULTIPLE      |Medium  |FG_R00494|
+|Pod seccomp profile should be set to 'docker/default'                                     |MULTIPLE      |Medium  |FG_R00495|
+|Pods and containers should apply a security context                                       |MULTIPLE      |Medium  |FG_R00496|
+|The default namespace should not be used                                                  |MULTIPLE      |Low     |FG_R00497|
+|Roles and cluster roles should not be bound to the default service account                |MULTIPLE      |Medium  |FG_R00498|

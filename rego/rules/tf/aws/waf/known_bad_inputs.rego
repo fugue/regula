@@ -21,7 +21,7 @@ __rego__metadoc__ := {
     "controls": {},
     "severity": "Critical"
   },
-  "description": "The 'Known bad inputs' (AWSManagedRulesKnownBadInputsRuleSet) managed rule group contains rules that block request patterns that are invalid or known to be associated with vulnerabilities, such as Log4j. Please note that the 'Log4JRCE' WAFv2 rule (and many others) only inspects the first 8 KB of the request body, so you may additionally want to ensure that the 'Core rule set' (AWSManagedRulesCommonRuleSet) is also included, as the 'SizeRestrictions_BODY' rule in that managed rule group verifies that the request body size is at most 8 KB.",
+  "description": "WAFv2 web ACLs should include the 'AWSManagedRulesKnownBadInputsRuleSet' managed rule group. The 'Known bad inputs' (AWSManagedRulesKnownBadInputsRuleSet) managed rule group contains rules that block request patterns that are invalid or known to be associated with vulnerabilities, such as Log4j. Please note that the 'Log4JRCE' WAFv2 rule (and many others) only inspects the first 8 KB of the request body, so you may additionally want to ensure that the 'Core rule set' (AWSManagedRulesCommonRuleSet) is also included, as the 'SizeRestrictions_BODY' rule in that managed rule group verifies that the request body size is at most 8 KB.",
   "id": "FG_R00500",
   "title": "WAFv2 web ACLs should include the 'AWSManagedRulesKnownBadInputsRuleSet' managed rule group"
 }

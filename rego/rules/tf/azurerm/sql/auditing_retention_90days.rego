@@ -29,7 +29,7 @@ __rego__metadoc__ := {
     },
     "severity": "Medium"
   },
-  "description": "Audit Logs can be used to check for anomalies and give insight into suspected breaches or misuse of information and access.",
+  "description": "SQL Server auditing retention should be 90 days or greater. Audit Logs can be used to check for anomalies and give insight into suspected breaches or misuse of information and access.",
   "id": "FG_R00283",
   "title": "SQL Server auditing retention should be 90 days or greater"
 }

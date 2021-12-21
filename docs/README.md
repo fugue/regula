@@ -68,3 +68,19 @@ mkdocs build
 ```
 
 MkDocs generates the site in the `site` directory.
+
+## Generating the rules table
+
+1. If you're not already in the virtual environment, activate it:
+
+```
+. venv/bin/activate
+```
+
+2. From the root of the `regula` repo, run the `rules_table` script with the `--provider` argument. Example:
+
+```
+python docs/scripts/rules_tables.py --provider k8s
+```
+
+Providers: `aws`, `azurerm`, `google`, `cfn`, `arm`, `k8s`, `all` (default)

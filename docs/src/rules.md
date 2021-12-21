@@ -118,7 +118,6 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |Lambda permissions with a service principal should apply to only one resource and AWS account                                         |MULTIPLE                   |Medium  |FG_R00499|
 |WAFv2 web ACLs should include the 'AWSManagedRulesKnownBadInputsRuleSet' managed rule group                                           |MULTIPLE                   |Critical|FG_R00500|
 
-
 ## AWS (CloudFormation)
 |                                                 Summary                                                  |    Resource Types    |Severity| Rule ID |
 |----------------------------------------------------------------------------------------------------------|----------------------|--------|---------|
@@ -145,7 +144,6 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |VPC network ACLs should not allow ingress from 0.0.0.0/0 to port 3389                                     |MULTIPLE              |High    |FG_R00359|
 |API Gateway classic custom domains should use secure TLS protocol versions (1.2 and above)                |MULTIPLE              |Medium  |FG_R00375|
 |API Gateway v2 custom domains should use secure TLS protocol versions (1.2 and above)                     |MULTIPLE              |Medium  |FG_R00376|
-
 
 ## Azure (Terraform)
 |                                                   Summary                                                    |      Resource Types       |Severity| Rule ID |
@@ -185,7 +183,6 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |App Service web apps should have 'HTTPS only' enabled                                                         |azurerm_app_service        |High    |FG_R00346|
 |App Service web apps should have 'Minimum TLS Version' set to '1.2'                                           |azurerm_app_service        |Medium  |FG_R00347|
 |App Service web apps should have 'Incoming client certificates' enabled                                       |azurerm_app_service        |Medium  |FG_R00348|
-
 
 ## Azure (Azure Resource Manager)
 |                                               Summary                                               |                               Resource Types                               |Severity| Rule ID |
@@ -228,7 +225,6 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |Key Vault secrets should have an expiration date set                                                 |Microsoft.KeyVault/vaults/secrets                                           |Medium  |FG_R00451|
 |App Service web apps should use a system-assigned managed service identity                           |Microsoft.Web/sites                                                         |Low     |FG_R00452|
 |Security Center 'Send email notification for high severity alerts' should be enabled                 |Microsoft.Security/securityContacts                                         |Medium  |FG_R00468|
-
 
 ## Google
 |                                                Summary                                                 |       Resource Types       |Severity| Rule ID |
@@ -276,7 +272,6 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |BigQuery datasets should not be anonymously or publicly accessible                                      |google_bigquery_dataset     |Critical|FG_R00437|
 |VPC subnet 'Private Google Access' should be enabled                                                    |google_compute_subnetwork   |Low     |FG_R00438|
 
-
 ## Kubernetes
 |                                         Summary                                          |Resource Types|Severity| Rule ID |
 |------------------------------------------------------------------------------------------|--------------|--------|---------|
@@ -300,3 +295,4 @@ To view the Rego code for the rules below, see our [GitHub repo](https://github.
 |Pods and containers should apply a security context                                       |MULTIPLE      |Medium  |FG_R00496|
 |The default namespace should not be used                                                  |MULTIPLE      |Low     |FG_R00497|
 |Roles and cluster roles should not be bound to the default service account                |MULTIPLE      |Medium  |FG_R00498|
+

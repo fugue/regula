@@ -57,6 +57,9 @@ func (c *runConfig) Validate() error {
 		if !c.sync {
 			return fmt.Errorf("--sync is required when --upload is specified")
 		}
+		if c.environmentId == "" {
+			return fmt.Errorf("--environment_id is required when --upload is specified")
+		}
 	}
 
 	return nil

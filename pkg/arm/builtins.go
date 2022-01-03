@@ -151,59 +151,185 @@ func NewBuiltIn(name string, implementations ...*Implementation) Function {
 	}
 }
 
-// func Array(args []cty.Value) (cty.Value, error) {
-// 	t := val.Type()
-// 	if !t.Equals(cty.Number) || !t.Equals(cty.String) || !t.IsCollectionType() {
-// 		return cty.NilVal, fmt.Errorf("Unsupported type in array(): %v", t.FriendlyName())
-// 	}
+var ArrayType = cty.Tuple([]cty.Type{cty.DynamicPseudoType})
+var ObjectType = cty.Map(cty.DynamicPseudoType)
 
-// 	return cty.TupleVal([]cty.Value{val}), nil
-// }
+var Array = NewBuiltIn("array",
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			return cty.TupleVal([]cty.Value{args[0]}), nil
+		},
+		NewArgument(false, cty.Number, cty.String, ArrayType, ObjectType),
+	),
+)
+var Concat = NewBuiltIn("concat",
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			combined := []cty.Value{}
+			for _, a := range args {
+				combined = append(combined, a.AsValueSlice()...)
+			}
+			return cty.TupleVal(combined), nil
+		},
+		NewArgument(true, ArrayType),
+	),
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			s := make([]string, len(args))
+			for idx, v := range args {
+				s[idx] = v.AsString()
+			}
+			return cty.StringVal(strings.Join(s, "")), nil
+		},
+		NewArgument(true, cty.String),
+	),
+)
+var Contains = NewBuiltIn("contains",
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			for _, v := range args[0].AsValueSlice() {
+				if v.Equals(args[1]) == cty.True {
+					return cty.True, nil
+				}
+			}
+			return cty.False, nil
+		},
+		NewArgument(false, ArrayType),
+		NewArgument(false, cty.String, cty.Number),
+	),
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			if strings.Contains(args[0].AsString(), args[1].AsString()) {
+				return cty.True, nil
+			}
+			return cty.False, nil
+		},
+		NewArgument(false, cty.String),
+		NewArgument(false, cty.String),
+	),
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			f := strings.ToLower(args[1].AsString())
+			containerMap := args[0].AsValueMap()
+			for k, _ := range containerMap {
+				if f == strings.ToLower(k) {
+					return cty.True, nil
+				}
+			}
+			return cty.False, nil
+		},
+		NewArgument(false, ObjectType),
+		NewArgument(false, cty.String),
+	),
+)
+var CreateArray = NewBuiltIn("createArray",
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			if len(args) < 1 {
+				return cty.EmptyTupleVal, nil
+			}
+
+			return cty.TupleVal(args), nil
+		},
+		NewArgument(true, cty.String, cty.Number, ArrayType, ObjectType),
+	),
+)
+var Empty = NewBuiltIn("empty",
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			if len(args[0].AsValueSlice()) == 0 {
+				return cty.True, nil
+			}
+			return cty.False, nil
+		},
+		NewArgument(false, ArrayType),
+	),
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			if len(args[0].AsValueMap()) == 0 {
+				return cty.True, nil
+			}
+			return cty.False, nil
+		},
+		NewArgument(false, ObjectType),
+	),
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			if len(args[0].AsString()) == 0 {
+				return cty.True, nil
+			}
+			return cty.False, nil
+		},
+		NewArgument(false, cty.String),
+	),
+)
+var First = NewBuiltIn("first",
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			asSlice := args[0].AsValueSlice()
+			if len(asSlice) < 1 {
+				return cty.NullVal(cty.DynamicPseudoType), nil
+			}
+			return asSlice[0], nil
+		},
+		NewArgument(false, ArrayType),
+	),
+	NewImplementation(
+		func(args []cty.Value) (cty.Value, error) {
+			runes := []rune(args[0].AsString())
+			if len(runes) < 1 {
+				return cty.StringVal(""), nil
+			}
+			return cty.StringVal(string(runes[0:1])), nil
+		},
+		NewArgument(false, cty.String),
+	),
+)
 
 // Array functions
-func Array(args []cty.Value) (cty.Value, error) {
-	return cty.TupleVal([]cty.Value{args[0]}), nil
-}
+// func Array(args []cty.Value) (cty.Value, error) {
+// 	return cty.TupleVal([]cty.Value{args[0]}), nil
+// }
 
-func ConcatArray(args []cty.Value) (cty.Value, error) {
-	combined := []cty.Value{}
-	for _, a := range args {
-		combined = append(combined, a.AsValueSlice()...)
-	}
-	return cty.TupleVal(combined), nil
-}
+// func ConcatArray(args []cty.Value) (cty.Value, error) {
+// 	combined := []cty.Value{}
+// 	for _, a := range args {
+// 		combined = append(combined, a.AsValueSlice()...)
+// 	}
+// 	return cty.TupleVal(combined), nil
+// }
 
-func ContainsArray(args []cty.Value) (cty.Value, error) {
-	for _, v := range args[0].AsValueSlice() {
-		if v.Equals(args[1]) == cty.True {
-			return cty.True, nil
-		}
-	}
-	return cty.False, nil
-}
+// func ContainsArray(args []cty.Value) (cty.Value, error) {
+// 	for _, v := range args[0].AsValueSlice() {
+// 		if v.Equals(args[1]) == cty.True {
+// 			return cty.True, nil
+// 		}
+// 	}
+// 	return cty.False, nil
+// }
 
-func CreateArray(args []cty.Value) (cty.Value, error) {
-	if len(args) < 1 {
-		return cty.EmptyTupleVal, nil
-	}
+// func CreateArray(args []cty.Value) (cty.Value, error) {
+// 	if len(args) < 1 {
+// 		return cty.EmptyTupleVal, nil
+// 	}
 
-	return cty.TupleVal(args), nil
-}
+// 	return cty.TupleVal(args), nil
+// }
 
-func EmptyArray(args []cty.Value) (cty.Value, error) {
-	if len(args[0].AsValueSlice()) == 0 {
-		return cty.True, nil
-	}
-	return cty.False, nil
-}
+// func EmptyArray(args []cty.Value) (cty.Value, error) {
+// 	if len(args[0].AsValueSlice()) == 0 {
+// 		return cty.True, nil
+// 	}
+// 	return cty.False, nil
+// }
 
-func FirstArray(args []cty.Value) (cty.Value, error) {
-	asSlice := args[0].AsValueSlice()
-	if len(asSlice) < 1 {
-		return cty.NullVal(cty.DynamicPseudoType), nil
-	}
-	return asSlice[0], nil
-}
+// func FirstArray(args []cty.Value) (cty.Value, error) {
+// 	asSlice := args[0].AsValueSlice()
+// 	if len(asSlice) < 1 {
+// 		return cty.NullVal(cty.DynamicPseudoType), nil
+// 	}
+// 	return asSlice[0], nil
+// }
 
 func IntersectionArray(args []cty.Value) (cty.Value, error) {
 	currSet := args[0].AsValueSet()
@@ -369,35 +495,35 @@ func UTCNow(args []cty.Value) (cty.Value, error) {
 }
 
 // String functions
-func ConcatString(args []cty.Value) (cty.Value, error) {
-	s := make([]string, len(args))
-	for idx, v := range args {
-		s[idx] = v.AsString()
-	}
-	return cty.StringVal(strings.Join(s, "")), nil
-}
+// func ConcatString(args []cty.Value) (cty.Value, error) {
+// 	s := make([]string, len(args))
+// 	for idx, v := range args {
+// 		s[idx] = v.AsString()
+// 	}
+// 	return cty.StringVal(strings.Join(s, "")), nil
+// }
 
-func ContainsString(args []cty.Value) (cty.Value, error) {
-	if strings.Contains(args[0].AsString(), args[1].AsString()) {
-		return cty.True, nil
-	}
-	return cty.False, nil
-}
+// func ContainsString(args []cty.Value) (cty.Value, error) {
+// 	if strings.Contains(args[0].AsString(), args[1].AsString()) {
+// 		return cty.True, nil
+// 	}
+// 	return cty.False, nil
+// }
 
-func EmptyString(args []cty.Value) (cty.Value, error) {
-	if len(args[0].AsValueMap()) == 0 {
-		return cty.True, nil
-	}
-	return cty.False, nil
-}
+// func EmptyString(args []cty.Value) (cty.Value, error) {
+// 	if len(args[0].AsValueMap()) == 0 {
+// 		return cty.True, nil
+// 	}
+// 	return cty.False, nil
+// }
 
-func FirstString(args []cty.Value) (cty.Value, error) {
-	runes := []rune(args[0].AsString())
-	if len(runes) < 1 {
-		return cty.StringVal(""), nil
-	}
-	return cty.StringVal(string(runes[0:1])), nil
-}
+// func FirstString(args []cty.Value) (cty.Value, error) {
+// 	runes := []rune(args[0].AsString())
+// 	if len(runes) < 1 {
+// 		return cty.StringVal(""), nil
+// 	}
+// 	return cty.StringVal(string(runes[0:1])), nil
+// }
 
 func LastString(args []cty.Value) (cty.Value, error) {
 	runes := []rune(args[0].AsString())
@@ -438,29 +564,24 @@ func TakeString(args []cty.Value) (cty.Value, error) {
 	return cty.StringVal(string(r[:take])), nil
 }
 
-// func LengthString(args []cty.Value) (cty.Value, error) {
-// 	l := len(args[0].AsString())
-// 	return cty.NumberIntVal(int64(l)), nil
+// Object functions
+// func ContainsObject(args []cty.Value) (cty.Value, error) {
+// 	f := strings.ToLower(args[1].AsString())
+// 	containerMap := args[0].AsValueMap()
+// 	for k, _ := range containerMap {
+// 		if f == strings.ToLower(k) {
+// 			return cty.True, nil
+// 		}
+// 	}
+// 	return cty.False, nil
 // }
 
-// Object functions
-func ContainsObject(args []cty.Value) (cty.Value, error) {
-	f := strings.ToLower(args[1].AsString())
-	containerMap := args[0].AsValueMap()
-	for k, _ := range containerMap {
-		if f == strings.ToLower(k) {
-			return cty.True, nil
-		}
-	}
-	return cty.False, nil
-}
-
-func EmptyObject(args []cty.Value) (cty.Value, error) {
-	if len(args[0].AsValueMap()) == 0 {
-		return cty.True, nil
-	}
-	return cty.False, nil
-}
+// func EmptyObject(args []cty.Value) (cty.Value, error) {
+// 	if len(args[0].AsValueMap()) == 0 {
+// 		return cty.True, nil
+// 	}
+// 	return cty.False, nil
+// }
 
 func IntersectionObject(args []cty.Value) (cty.Value, error) {
 	currObj := args[0].AsValueMap()

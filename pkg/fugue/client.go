@@ -15,6 +15,7 @@
 package fugue
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -23,9 +24,12 @@ import (
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/fugue/regula/pkg/swagger/client"
 	apiclient "github.com/fugue/regula/pkg/swagger/client"
+	"github.com/fugue/regula/pkg/swagger/client/rule_bundles"
+	"github.com/fugue/regula/pkg/version"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -53,6 +57,7 @@ func getEnvWithDefault(name, defaultValue string) string {
 }
 
 type FugueClient interface {
+	RuleBundleProvider() rego.RegoProvider
 	CustomRulesProvider() rego.RegoProvider
 	CustomRuleProvider(ruleID string) rego.RegoProvider
 	UploadScan(ctx context.Context, environmentId string, scanView reporter.ScanView) error
@@ -79,10 +84,32 @@ func NewFugueClient() (FugueClient, error) {
 	transport := httptransport.New(host, base, []string{"https"})
 	client := apiclient.New(transport, strfmt.Default)
 
+	// Explicitly set this for downloading the rules bundle.
+	transport.Consumers["application/gzip"] = runtime.ByteStreamConsumer()
+
 	auth := httptransport.BasicAuth(clientID, clientSecret)
 
 	return &fugueClient{
 		client: client,
 		auth:   auth,
 	}, nil
+}
+
+func (c *fugueClient) RuleBundleProvider() rego.RegoProvider {
+	return func(ctx context.Context, p rego.RegoProcessor) error {
+		getLatestRuleBundleParams := rule_bundles.GetLatestRuleBundleParams{
+			RegulaVersion: version.PlainVersion(),
+			Context:       ctx,
+		}
+
+		var buffer bytes.Buffer
+		logrus.Infof("Requesting rule bundle for version %s", getLatestRuleBundleParams.RegulaVersion)
+		_, err := c.client.RuleBundles.GetLatestRuleBundle(&getLatestRuleBundleParams, c.auth, &buffer)
+		ruleBundle := buffer.Bytes()
+		if err != nil {
+			return err
+		}
+
+		return rego.TarGzProvider(bytes.NewReader(ruleBundle))(ctx, p)
+	}
 }

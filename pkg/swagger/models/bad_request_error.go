@@ -26,7 +26,7 @@ type BadRequestError struct {
 	Message string `json:"message,omitempty"`
 
 	// Type of bad request.
-	// Enum: [BadRequest AlreadyAttachedToDifferentTenantError AlreadyAttachedToTenantError AlreadyInvitedError DomainAttachedToSsoTenantError InvalidCredential InvalidJSON InvalidParameterValue MissingParameter RoleNotAssumable WorkAlreadyStartedException]
+	// Enum: [BadRequest AlreadyAttachedToTenantError AlreadyInvitedError DomainAttachedToSsoTenantError InvalidCredential InvalidJSON InvalidParameterValue MissingParameter RoleNotAssumable WorkAlreadyStartedException]
 	Type string `json:"type,omitempty"`
 }
 
@@ -48,7 +48,7 @@ var badRequestErrorTypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BadRequest","AlreadyAttachedToDifferentTenantError","AlreadyAttachedToTenantError","AlreadyInvitedError","DomainAttachedToSsoTenantError","InvalidCredential","InvalidJSON","InvalidParameterValue","MissingParameter","RoleNotAssumable","WorkAlreadyStartedException"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BadRequest","AlreadyAttachedToTenantError","AlreadyInvitedError","DomainAttachedToSsoTenantError","InvalidCredential","InvalidJSON","InvalidParameterValue","MissingParameter","RoleNotAssumable","WorkAlreadyStartedException"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -60,9 +60,6 @@ const (
 
 	// BadRequestErrorTypeBadRequest captures enum value "BadRequest"
 	BadRequestErrorTypeBadRequest string = "BadRequest"
-
-	// BadRequestErrorTypeAlreadyAttachedToDifferentTenantError captures enum value "AlreadyAttachedToDifferentTenantError"
-	BadRequestErrorTypeAlreadyAttachedToDifferentTenantError string = "AlreadyAttachedToDifferentTenantError"
 
 	// BadRequestErrorTypeAlreadyAttachedToTenantError captures enum value "AlreadyAttachedToTenantError"
 	BadRequestErrorTypeAlreadyAttachedToTenantError string = "AlreadyAttachedToTenantError"

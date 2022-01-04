@@ -25,8 +25,8 @@ type CreateEnvironmentInput struct {
 	// Name of the environment.
 	Name string `json:"name,omitempty"`
 
-	// Name of the cloud service provider for the environment.
-	// Enum: [aws aws_govcloud azure google]
+	// Name of the service provider for the environment.
+	// Enum: [aws aws_govcloud azure google repository]
 	Provider string `json:"provider,omitempty"`
 
 	// A dictionary of options for the provider.
@@ -72,7 +72,7 @@ var createEnvironmentInputTypeProviderPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["aws","aws_govcloud","azure","google"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["aws","aws_govcloud","azure","google","repository"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -93,6 +93,9 @@ const (
 
 	// CreateEnvironmentInputProviderGoogle captures enum value "google"
 	CreateEnvironmentInputProviderGoogle string = "google"
+
+	// CreateEnvironmentInputProviderRepository captures enum value "repository"
+	CreateEnvironmentInputProviderRepository string = "repository"
 )
 
 // prop value enum

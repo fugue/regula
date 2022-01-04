@@ -27,6 +27,9 @@ type ProviderOptionsUpdateInput struct {
 
 	// google
 	Google *ProviderOptionsGoogleUpdateInput `json:"google,omitempty"`
+
+	// repository
+	Repository *ProviderOptionsRepositoryUpdateInput `json:"repository,omitempty"`
 }
 
 // Validate validates this provider options update input
@@ -46,6 +49,10 @@ func (m *ProviderOptionsUpdateInput) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateGoogle(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRepository(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -119,6 +126,24 @@ func (m *ProviderOptionsUpdateInput) validateGoogle(formats strfmt.Registry) err
 		if err := m.Google.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("google")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ProviderOptionsUpdateInput) validateRepository(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Repository) { // not required
+		return nil
+	}
+
+	if m.Repository != nil {
+		if err := m.Repository.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("repository")
 			}
 			return err
 		}

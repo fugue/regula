@@ -19,6 +19,7 @@ import (
 	"github.com/fugue/regula/pkg/swagger/client/invites"
 	"github.com/fugue/regula/pkg/swagger/client/metadata"
 	"github.com/fugue/regula/pkg/swagger/client/notifications"
+	"github.com/fugue/regula/pkg/swagger/client/rule_bundles"
 	"github.com/fugue/regula/pkg/swagger/client/rule_waivers"
 	"github.com/fugue/regula/pkg/swagger/client/scans"
 	"github.com/fugue/regula/pkg/swagger/client/users"
@@ -75,6 +76,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Fugue {
 	cli.Invites = invites.New(transport, formats)
 	cli.Metadata = metadata.New(transport, formats)
 	cli.Notifications = notifications.New(transport, formats)
+	cli.RuleBundles = rule_bundles.New(transport, formats)
 	cli.RuleWaivers = rule_waivers.New(transport, formats)
 	cli.Scans = scans.New(transport, formats)
 	cli.Users = users.New(transport, formats)
@@ -140,6 +142,8 @@ type Fugue struct {
 
 	Notifications notifications.ClientService
 
+	RuleBundles rule_bundles.ClientService
+
 	RuleWaivers rule_waivers.ClientService
 
 	Scans scans.ClientService
@@ -161,6 +165,7 @@ func (c *Fugue) SetTransport(transport runtime.ClientTransport) {
 	c.Invites.SetTransport(transport)
 	c.Metadata.SetTransport(transport)
 	c.Notifications.SetTransport(transport)
+	c.RuleBundles.SetTransport(transport)
 	c.RuleWaivers.SetTransport(transport)
 	c.Scans.SetTransport(transport)
 	c.Users.SetTransport(transport)

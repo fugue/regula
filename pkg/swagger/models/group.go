@@ -15,6 +15,9 @@ import (
 // swagger:model Group
 type Group struct {
 
+	// Map from api_client_id to name.
+	APIClients map[string]string `json:"api_clients,omitempty"`
+
 	// Map from environment id to name.
 	Environments map[string]string `json:"environments,omitempty"`
 
@@ -27,7 +30,7 @@ type Group struct {
 	// policy
 	Policy string `json:"policy,omitempty"`
 
-	// Map from user id to name.
+	// Map from user_id to name.
 	Users map[string]string `json:"users,omitempty"`
 }
 

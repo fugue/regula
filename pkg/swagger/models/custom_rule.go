@@ -7,6 +7,7 @@ package models
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -43,9 +44,12 @@ type CustomRule struct {
 	// Human readable name of the custom rule.
 	Name string `json:"name,omitempty"`
 
-	// Provider of the custom rule.
+	// Provider of the custom rule. Deprecated: please use "providers" instead.
 	// Enum: [AWS AWS_GOVCLOUD AZURE GOOGLE]
 	Provider string `json:"provider,omitempty"`
+
+	// Providers for the custom rule.
+	Providers []string `json:"providers"`
 
 	// Resource type to which the custom rule applies.
 	ResourceType string `json:"resource_type,omitempty"`
@@ -83,6 +87,10 @@ func (m *CustomRule) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateProvider(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateProviders(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -148,6 +156,43 @@ func (m *CustomRule) validateProvider(formats strfmt.Registry) error {
 	// value enum
 	if err := m.validateProviderEnum("provider", "body", m.Provider); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+var customRuleProvidersItemsEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AWS","AWS_GOVCLOUD","AZURE","GOOGLE","REPOSITORY"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		customRuleProvidersItemsEnum = append(customRuleProvidersItemsEnum, v)
+	}
+}
+
+func (m *CustomRule) validateProvidersItemsEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, customRuleProvidersItemsEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *CustomRule) validateProviders(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Providers) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Providers); i++ {
+
+		// value enum
+		if err := m.validateProvidersItemsEnum("providers"+"."+strconv.Itoa(i), "body", m.Providers[i]); err != nil {
+			return err
+		}
+
 	}
 
 	return nil

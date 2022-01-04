@@ -33,6 +33,8 @@ type ClientService interface {
 
 	GetEnvironment(params *GetEnvironmentParams, authInfo runtime.ClientAuthInfoWriter) (*GetEnvironmentOK, error)
 
+	GetEnvironmentRules(params *GetEnvironmentRulesParams, authInfo runtime.ClientAuthInfoWriter) (*GetEnvironmentRulesOK, error)
+
 	ListEnvironments(params *ListEnvironmentsParams, authInfo runtime.ClientAuthInfoWriter) (*ListEnvironmentsOK, error)
 
 	UpdateEnvironment(params *UpdateEnvironmentParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateEnvironmentOK, error)
@@ -148,6 +150,43 @@ func (a *Client) GetEnvironment(params *GetEnvironmentParams, authInfo runtime.C
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for getEnvironment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  GetEnvironmentRules retrieves active rules for an environment
+
+  Returns the rules that would be applied to this environment according to its current environment settings.
+*/
+func (a *Client) GetEnvironmentRules(params *GetEnvironmentRulesParams, authInfo runtime.ClientAuthInfoWriter) (*GetEnvironmentRulesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetEnvironmentRulesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getEnvironmentRules",
+		Method:             "GET",
+		PathPattern:        "/environments/{environment_id}/rules",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetEnvironmentRulesReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetEnvironmentRulesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for getEnvironmentRules: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

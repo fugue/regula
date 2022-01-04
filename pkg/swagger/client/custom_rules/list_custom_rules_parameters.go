@@ -91,6 +91,11 @@ type ListCustomRulesParams struct {
 
 	*/
 	Offset *int64
+	/*Query
+	  A stringified JSON array of search parameters.
+
+	*/
+	Query *string
 	/*Status
 	  Filter on rule status.
 
@@ -157,6 +162,17 @@ func (o *ListCustomRulesParams) SetOffset(offset *int64) {
 	o.Offset = offset
 }
 
+// WithQuery adds the query to the list custom rules params
+func (o *ListCustomRulesParams) WithQuery(query *string) *ListCustomRulesParams {
+	o.SetQuery(query)
+	return o
+}
+
+// SetQuery adds the query to the list custom rules params
+func (o *ListCustomRulesParams) SetQuery(query *string) {
+	o.Query = query
+}
+
 // WithStatus adds the status to the list custom rules params
 func (o *ListCustomRulesParams) WithStatus(status *string) *ListCustomRulesParams {
 	o.SetStatus(status)
@@ -202,6 +218,22 @@ func (o *ListCustomRulesParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		qOffset := swag.FormatInt64(qrOffset)
 		if qOffset != "" {
 			if err := r.SetQueryParam("offset", qOffset); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.Query != nil {
+
+		// query param query
+		var qrQuery string
+		if o.Query != nil {
+			qrQuery = *o.Query
+		}
+		qQuery := qrQuery
+		if qQuery != "" {
+			if err := r.SetQueryParam("query", qQuery); err != nil {
 				return err
 			}
 		}

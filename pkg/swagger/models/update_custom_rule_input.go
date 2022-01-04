@@ -7,6 +7,7 @@ package models
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -28,6 +29,9 @@ type UpdateCustomRuleInput struct {
 	// Human readable name of the custom rule
 	Name string `json:"name,omitempty"`
 
+	// Providers for the custom rule.
+	Providers []string `json:"providers"`
+
 	// Resource type to which the custom rule applies
 	ResourceType string `json:"resource_type,omitempty"`
 
@@ -47,6 +51,10 @@ type UpdateCustomRuleInput struct {
 func (m *UpdateCustomRuleInput) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateProviders(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSeverity(formats); err != nil {
 		res = append(res, err)
 	}
@@ -58,6 +66,43 @@ func (m *UpdateCustomRuleInput) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var updateCustomRuleInputProvidersItemsEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AWS","AWS_GOVCLOUD","AZURE","GOOGLE","REPOSITORY"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		updateCustomRuleInputProvidersItemsEnum = append(updateCustomRuleInputProvidersItemsEnum, v)
+	}
+}
+
+func (m *UpdateCustomRuleInput) validateProvidersItemsEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, updateCustomRuleInputProvidersItemsEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *UpdateCustomRuleInput) validateProviders(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Providers) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Providers); i++ {
+
+		// value enum
+		if err := m.validateProvidersItemsEnum("providers"+"."+strconv.Itoa(i), "body", m.Providers[i]); err != nil {
+			return err
+		}
+
+	}
+
 	return nil
 }
 

@@ -11,6 +11,7 @@ nav:
       - "integrations/conftest.md"
       - "integrations/gh-actions.md"
       - "integrations/travis.md"
+      - "integrations/scalr.md"
       - "integrations/pre-commit.md"
   - Custom Rule Development:
       - "development/writing-rules.md"
@@ -57,7 +58,7 @@ markdown_extensions:
 site_url: https://regula.dev
 edit_uri: blob/master/docs/
 extra:
-  version: v2.1.0
+  version: v2.3.0
   social:
     - icon: fontawesome/solid/globe
       link: https://www.fugue.co

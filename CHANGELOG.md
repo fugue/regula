@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v2.3.0 (2021-12-17)
+
+### Added
+* Rule `FG_R00500` that enforces AWS WAF configuration that mitigates the recently-publicized Log4J vulnerabilities
+
+## v2.2.1 (2021-12-13)
+
+### Fixed
+* Panic in Terraform loader (#279)
+
+## v2.2.0 (2021-12-09)
+
+### Added
+* Azure Resource Manager (ARM) template support with 38 rules. This feature is currently in preview.
+
 ## v2.1.0 (2021-11-18)
 
 ### Added

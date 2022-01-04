@@ -1,0 +1,22 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_s3_bucket.bar": {
+        "_filepath": "tf_test/ternary-mismatch/main.tf",
+        "_provider": "aws",
+        "_type": "aws_s3_bucket",
+        "bucket": null,
+        "id": "aws_s3_bucket.bar"
+      },
+      "aws_s3_bucket.foo": {
+        "_filepath": "tf_test/ternary-mismatch/main.tf",
+        "_provider": "aws",
+        "_type": "aws_s3_bucket",
+        "bucket": null,
+        "id": "aws_s3_bucket.foo"
+      }
+    }
+  },
+  "filepath": "tf_test/ternary-mismatch"
+}

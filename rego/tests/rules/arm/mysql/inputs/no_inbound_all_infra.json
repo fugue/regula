@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "resources": [
+    {
+      "apiVersion": "2017-12-01",
+      "type": "Microsoft.DBforMySQL/servers",
+      "name": "RegulaServer1",
+      "location": "switzerlandnorth",
+      "properties": {
+        "version": "5.7",
+        "administratorLogin": "foo",
+        "administratorLoginPassword": "abcd1234!",
+        "storageProfile": {
+          "storageMB": "5120",
+          "backupRetentionDays": "7",
+          "geoRedundantBackup": "Disabled"
+        }
+      },
+      "sku": {
+        "name": "B_Gen5_2",
+        "tier": "Basic",
+        "capacity": "2",
+        "family": "Gen5"
+      },
+      "resources": [
+        {
+          "apiVersion": "2017-12-01",
+          "name": "Rule1",
+          "type": "firewallRules",
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          },
+          "dependsOn": [
+            "Microsoft.DBforMySQL/servers/RegulaServer1"
+          ]
+        },
+        {
+          "apiVersion": "2017-12-01",
+          "name": "Rule2",
+          "type": "firewallRules",
+          "properties": {
+            "startIpAddress": "10.0.0.0",
+            "endIpAddress": "10.0.255.0"
+          },
+          "dependsOn": [
+            "Microsoft.DBforMySQL/servers/RegulaServer1"
+          ]
+        }
+      ]
+    }
+  ]
+}

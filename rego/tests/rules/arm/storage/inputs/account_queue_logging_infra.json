@@ -1,0 +1,125 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-04-01",
+      "name": "regulalogstorage1",
+      "location": "switzerlandnorth",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-04-01",
+      "name": "regulastorage1",
+      "location": "switzerlandnorth",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "setting1",
+      "properties": {
+        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', 'regulalogstorage1')]"
+      },
+      "scope": "Microsoft.Storage/storageAccounts/regulastorage1",
+      "dependsOn": [
+        "Microsoft.Storage/storageAccounts/regulalogstorage1",
+        "Microsoft.Storage/storageAccounts/regulastorage1"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "regulastorage1/default/Microsoft.Insights/setting1",
+      "properties": {
+        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', 'regulalogstorage1')]",
+        "logs": [
+          {
+            "category": "StorageRead",
+            "enabled": true
+          },
+          {
+            "category": "StorageWrite",
+            "enabled": true
+          },
+          {
+            "category": "StorageDelete",
+            "enabled": false
+          }
+        ]
+      },
+      "dependsOn": [
+        "Microsoft.Storage/storageAccounts/regulalogstorage1",
+        "Microsoft.Storage/storageAccounts/regulastorage1"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-04-01",
+      "name": "regulalogstorage2",
+      "location": "switzerlandnorth",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-04-01",
+      "name": "regulastorage2",
+      "location": "switzerlandnorth",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "setting2",
+      "properties": {
+        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', 'regulalogstorage2')]"
+      },
+      "scope": "Microsoft.Storage/storageAccounts/regulastorage2",
+      "dependsOn": [
+        "Microsoft.Storage/storageAccounts/regulalogstorage2",
+        "Microsoft.Storage/storageAccounts/regulastorage2"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "regulastorage2/default/Microsoft.Insights/setting2",
+      "properties": {
+        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', 'regulalogstorage2')]",
+        "logs": [
+          {
+            "category": "StorageRead",
+            "enabled": true
+          },
+          {
+            "category": "StorageWrite",
+            "enabled": true
+          },
+          {
+            "category": "StorageDelete",
+            "enabled": true
+          }
+        ]
+      },
+      "dependsOn": [
+        "Microsoft.Storage/storageAccounts/regulalogstorage2",
+        "Microsoft.Storage/storageAccounts/regulastorage2"
+      ]
+    }
+  ]
+}

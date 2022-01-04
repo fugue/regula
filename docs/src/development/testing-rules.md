@@ -2,7 +2,7 @@
 
 You can run rule tests using [`regula test`](../usage.md#test) or evaluate them interactively using [`regula repl`](../usage.md#repl). For each rule to be tested, you'll need three files:
 
-- The test Terraform or CloudFormation IaC file (aka test input)
+- The test IaC file (aka test input)
 - The Rego rule file
 - The Rego tests file, where each test is prepended with `test_`
 

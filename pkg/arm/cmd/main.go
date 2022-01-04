@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alecthomas/participle/v2"
 	"github.com/alecthomas/repr"
@@ -28,7 +29,12 @@ func main() {
 		}
 
 		line := scanner.Text()
-
+		if !strings.HasPrefix(line, "[") {
+			line = "[" + line
+		}
+		if !strings.HasSuffix(line, "]") {
+			line = line + "]"
+		}
 		expr := &arm.ArmProgram{}
 		if err := parser.ParseString("", line, expr); err != nil {
 			panic(err)

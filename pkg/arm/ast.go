@@ -21,9 +21,19 @@ type ArmProgram struct {
 type ArmExpression struct {
 	Pos lexer.Position
 
-	Call          *ArmCall       `( @@`
-	Value         *ArmValue      `| @@`
-	Subexpression *ArmExpression `| "(" @@ ")" )`
+	ParamAccess    *ArmParamAccess    `( @@`
+	VariableAccess *ArmVariableAccess `| @@`
+	Call           *ArmCall           `| @@`
+	Value          *ArmValue          `| @@`
+	Subexpression  *ArmExpression     `| "(" @@ ")" )`
+}
+
+type ArmParamAccess struct {
+	Args []*ArmExpression `"parameters(" ( @@ ( ","  @@ )* )? ")"`
+}
+
+type ArmVariableAccess struct {
+	Args []*ArmExpression `"variables(" ( @@ ( ","  @@ )* )? ")"`
 }
 
 type ArmCall struct {

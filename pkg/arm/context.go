@@ -2,9 +2,43 @@ package arm
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/zclconf/go-cty/cty"
 )
+
+type Parameter struct {
+	Name         string
+	Type         cty.Type
+	DefaultValue cty.Value
+	// AllowedValues []cty.Value
+	// MinLength     int
+	// MaxLength     int
+	// MinValue      int
+	// MaxValue      int
+}
+
+// func ParseParemeter(name string, raw map[string]interface{}) (*Parameter, error) {
+// 	t, ok := raw["type"]
+// 	if !ok {
+// 		return nil, fmt.Errorf("Invalid parameter '%s': missing type property")
+// 	}
+// 	pType, ok := t.(string)
+// 	if !ok {
+// 		return nil, fmt.Errorf("Invalid parameter '%s': invalid type property")
+// 	}
+// 	d, hasDefault := raw["defaultValue"]
+// 	switch pType {
+// 	case "array":
+
+// 	case "bool":
+// 	case "int":
+// 	case "object", "secureObject":
+// 	case "string", "secureString":
+// 	}
+
+// 	}
+// }
 
 type EvalContext struct {
 	parameters map[string]cty.Value
@@ -34,7 +68,7 @@ func (c *EvalContext) evalCall(call ArmCall) (cty.Value, error) {
 		}
 		args[idx] = evaluated
 	}
-	f, ok := c.builtins[call.Name]
+	f, ok := c.builtins[strings.ToLower(call.Name)]
 	if !ok {
 		return cty.NilVal, fmt.Errorf("Unknown function %s", call.Name)
 	}
@@ -61,36 +95,44 @@ func (c *EvalContext) Eval(p ArmProgram) (cty.Value, error) {
 func NewEvalContext() *EvalContext {
 	return &EvalContext{
 		builtins: map[string]Function{
-			"array": NewBuiltIn(
-				"array",
-				NewImplementation(
-					Array,
-					NewArgument(
-						false,
-						cty.Number,
-						cty.String,
-						cty.Tuple([]cty.Type{cty.DynamicPseudoType}),
-						cty.Map(cty.DynamicPseudoType),
-					),
-				),
-			),
-			"concat": NewBuiltIn(
-				"concat",
-				NewImplementation(
-					ConcatArray,
-					NewArgument(
-						true,
-						cty.Tuple([]cty.Type{cty.DynamicPseudoType}),
-					),
-				),
-				NewImplementation(
-					ConcatString,
-					NewArgument(
-						true,
-						cty.String,
-					),
-				),
-			),
+			"add":             NewBuiltIn("add", Add),
+			"array":           NewBuiltIn("array", Array),
+			"base64":          NewBuiltIn("base64", Base64),
+			"base64tojson":    NewBuiltIn("base64ToJson", Base64ToJson),
+			"base64tostring":  NewBuiltIn("base64ToString", Base64ToString),
+			"coalesce":        NewBuiltIn("coalesce", Coalesce),
+			"concat":          NewBuiltIn("concat", ConcatArray, ConcatString),
+			"contains":        NewBuiltIn("contains", ContainsArray, ContainsObject, ContainsString),
+			"createarray":     NewBuiltIn("createArray", CreateArray),
+			"createobject":    NewBuiltIn("createObject", CreateObject),
+			"datetimeadd":     NewBuiltIn("dateTimeAdd", DateAdd),
+			"div":             NewBuiltIn("div", Div),
+			"empty":           NewBuiltIn("empty", Empty),
+			"endswith":        NewBuiltIn("endsWith", EndsWith),
+			"equals":          NewBuiltIn("equals", Equals),
+			"first":           NewBuiltIn("first", FirstArray, FirstString),
+			"float":           NewBuiltIn("float", FloatFromInt, FloatFromString),
+			"format":          NewBuiltIn("format", Format),
+			"greater":         NewBuiltIn("greater", Greater),
+			"greaterorequals": NewBuiltIn("greaterOrEquals", GreaterOrEquals),
+			"int":             NewBuiltIn("int", IntFromInt, IntFromString),
+			"intersection":    NewBuiltIn("intersection", IntersectionArray, IntersectionObject),
+			"json":            NewBuiltIn("json", JSON),
+			"last":            NewBuiltIn("last", LastArray),
+			"length":          NewBuiltIn("length", Length),
+			"less":            NewBuiltIn("less", Less),
+			"lessorequals":    NewBuiltIn("lessOrEquals", LessOrEquals),
+			"max":             NewBuiltIn("max", MaxArray, MaxNumeric),
+			"min":             NewBuiltIn("min", MinArray, MinNumeric),
+			"mod":             NewBuiltIn("mod", Mod),
+			"mul":             NewBuiltIn("mul", Mul),
+			"null":            NewBuiltIn("null", Null),
+			"range":           NewBuiltIn("range", Range),
+			"skip":            NewBuiltIn("skip", SkipArray),
+			"sub":             NewBuiltIn("sub", Sub),
+			"take":            NewBuiltIn("take", TakeArray),
+			"union":           NewBuiltIn("union", UnionArray, UnionObject),
+			"utcnow":          NewBuiltIn("utcNow", UTCNow),
 		},
 	}
 }

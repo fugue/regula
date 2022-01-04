@@ -30,8 +30,8 @@ func (o *GetLatestRuleBundleReader) ReadResponse(response runtime.ClientResponse
 			return nil, err
 		}
 		return result, nil
-	case 307:
-		result := NewGetLatestRuleBundleTemporaryRedirect()
+	case 304:
+		result := NewGetLatestRuleBundleNotModified()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -105,27 +105,33 @@ func (o *GetLatestRuleBundleOK) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-// NewGetLatestRuleBundleTemporaryRedirect creates a GetLatestRuleBundleTemporaryRedirect with default headers values
-func NewGetLatestRuleBundleTemporaryRedirect() *GetLatestRuleBundleTemporaryRedirect {
-	return &GetLatestRuleBundleTemporaryRedirect{}
+// NewGetLatestRuleBundleNotModified creates a GetLatestRuleBundleNotModified with default headers values
+func NewGetLatestRuleBundleNotModified() *GetLatestRuleBundleNotModified {
+	return &GetLatestRuleBundleNotModified{}
 }
 
-/*GetLatestRuleBundleTemporaryRedirect handles this case with default header values.
+/*GetLatestRuleBundleNotModified handles this case with default header values.
 
-Rule bundle.
+NotModified
 */
-type GetLatestRuleBundleTemporaryRedirect struct {
-	Location string
+type GetLatestRuleBundleNotModified struct {
+	Payload string
 }
 
-func (o *GetLatestRuleBundleTemporaryRedirect) Error() string {
-	return fmt.Sprintf("[GET /rule_bundles/latest][%d] getLatestRuleBundleTemporaryRedirect ", 307)
+func (o *GetLatestRuleBundleNotModified) Error() string {
+	return fmt.Sprintf("[GET /rule_bundles/latest][%d] getLatestRuleBundleNotModified  %+v", 304, o.Payload)
 }
 
-func (o *GetLatestRuleBundleTemporaryRedirect) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *GetLatestRuleBundleNotModified) GetPayload() string {
+	return o.Payload
+}
 
-	// response header Location
-	o.Location = response.GetHeader("Location")
+func (o *GetLatestRuleBundleNotModified) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }

@@ -48,7 +48,7 @@ func (a *Client) GetLatestRuleBundle(params *GetLatestRuleBundleParams, authInfo
 		ID:                 "getLatestRuleBundle",
 		Method:             "GET",
 		PathPattern:        "/rule_bundles/latest",
-		ProducesMediaTypes: []string{"application/gzip"},
+		ProducesMediaTypes: []string{"application/gzip", "text/plain"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,

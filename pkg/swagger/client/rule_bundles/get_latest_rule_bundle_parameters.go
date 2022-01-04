@@ -60,6 +60,11 @@ for the get latest rule bundle operation typically these are written to a http.R
 */
 type GetLatestRuleBundleParams struct {
 
+	/*IfNoneMatch
+	  SHA1 of the currently downloaded rule bundle.
+
+	*/
+	IfNoneMatch *string
 	/*RegulaVersion
 	  Client regula version.
 
@@ -104,6 +109,17 @@ func (o *GetLatestRuleBundleParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithIfNoneMatch adds the ifNoneMatch to the get latest rule bundle params
+func (o *GetLatestRuleBundleParams) WithIfNoneMatch(ifNoneMatch *string) *GetLatestRuleBundleParams {
+	o.SetIfNoneMatch(ifNoneMatch)
+	return o
+}
+
+// SetIfNoneMatch adds the ifNoneMatch to the get latest rule bundle params
+func (o *GetLatestRuleBundleParams) SetIfNoneMatch(ifNoneMatch *string) {
+	o.IfNoneMatch = ifNoneMatch
+}
+
 // WithRegulaVersion adds the regulaVersion to the get latest rule bundle params
 func (o *GetLatestRuleBundleParams) WithRegulaVersion(regulaVersion string) *GetLatestRuleBundleParams {
 	o.SetRegulaVersion(regulaVersion)
@@ -122,6 +138,15 @@ func (o *GetLatestRuleBundleParams) WriteToRequest(r runtime.ClientRequest, reg 
 		return err
 	}
 	var res []error
+
+	if o.IfNoneMatch != nil {
+
+		// header param If-None-Match
+		if err := r.SetHeaderParam("If-None-Match", *o.IfNoneMatch); err != nil {
+			return err
+		}
+
+	}
 
 	// query param regula_version
 	qrRegulaVersion := o.RegulaVersion

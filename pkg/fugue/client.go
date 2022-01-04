@@ -17,8 +17,12 @@ package fugue
 import (
 	"bytes"
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
@@ -57,7 +61,7 @@ func getEnvWithDefault(name, defaultValue string) string {
 }
 
 type FugueClient interface {
-	RuleBundleProvider() rego.RegoProvider
+	RuleBundleProvider(rootDir string) rego.RegoProvider
 	CustomRulesProvider() rego.RegoProvider
 	CustomRuleProvider(ruleID string) rego.RegoProvider
 	UploadScan(ctx context.Context, environmentId string, scanView reporter.ScanView) error
@@ -95,19 +99,53 @@ func NewFugueClient() (FugueClient, error) {
 	}, nil
 }
 
-func (c *fugueClient) RuleBundleProvider() rego.RegoProvider {
+func (c *fugueClient) RuleBundleProvider(rootDir string) rego.RegoProvider {
+	cacheDir := filepath.Join(rootDir, ".regula/cache")
+	bundlePath := filepath.Join(cacheDir, "bundle.tar.gz")
+
 	return func(ctx context.Context, p rego.RegoProcessor) error {
+		// Read the old bundle and store its hash.
+		var etag *string
+		oldBundle, err := os.ReadFile(bundlePath)
+		if err == nil {
+			hasher := sha1.New()
+			hasher.Write(oldBundle)
+			str := "\"" + hex.EncodeToString(hasher.Sum(nil)) + "\""
+			etag = &str
+			logrus.Infof("Found old bundle at %s with sha1 %s", bundlePath, str)
+		} else if errors.Is(err, os.ErrNotExist) {
+			logrus.Infof("No old bundle at %s", bundlePath)
+		} else {
+			return err
+		}
+
+		// Retrieve latest rule bundle
+		var buffer bytes.Buffer
+		var ruleBundle []byte
 		getLatestRuleBundleParams := rule_bundles.GetLatestRuleBundleParams{
 			RegulaVersion: version.PlainVersion(),
 			Context:       ctx,
+			IfNoneMatch:   etag,
 		}
-
-		var buffer bytes.Buffer
 		logrus.Infof("Requesting rule bundle for version %s", getLatestRuleBundleParams.RegulaVersion)
-		_, err := c.client.RuleBundles.GetLatestRuleBundle(&getLatestRuleBundleParams, c.auth, &buffer)
-		ruleBundle := buffer.Bytes()
-		if err != nil {
-			return err
+		_, err = c.client.RuleBundles.GetLatestRuleBundle(&getLatestRuleBundleParams, c.auth, &buffer)
+		if err == nil {
+			ruleBundle = buffer.Bytes()
+
+			// Write to filesystem.
+			if err = os.MkdirAll(cacheDir, 0755); err != nil {
+				return err
+			}
+			if err = os.WriteFile(bundlePath, ruleBundle, 0644); err != nil {
+				return err
+			}
+		} else {
+			if _, ok := err.(*rule_bundles.GetLatestRuleBundleNotModified); ok {
+				logrus.Infof("Rule bundle not modified, using %s", bundlePath)
+				ruleBundle = oldBundle
+			} else {
+				return err
+			}
 		}
 
 		return rego.TarGzProvider(bytes.NewReader(ruleBundle))(ctx, p)

@@ -115,14 +115,14 @@ func NewGetLatestRuleBundleNotModified() *GetLatestRuleBundleNotModified {
 NotModified
 */
 type GetLatestRuleBundleNotModified struct {
-	Payload string
+	Payload models.NotModifiedResponse
 }
 
 func (o *GetLatestRuleBundleNotModified) Error() string {
 	return fmt.Sprintf("[GET /rule_bundles/latest][%d] getLatestRuleBundleNotModified  %+v", 304, o.Payload)
 }
 
-func (o *GetLatestRuleBundleNotModified) GetPayload() string {
+func (o *GetLatestRuleBundleNotModified) GetPayload() models.NotModifiedResponse {
 	return o.Payload
 }
 

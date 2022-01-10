@@ -1,6 +1,9 @@
 package arm
 
-import "github.com/alecthomas/participle/v2/lexer"
+import (
+	"github.com/alecthomas/participle/v2"
+	"github.com/alecthomas/participle/v2/lexer"
+)
 
 var ArmLexer = lexer.MustSimple([]lexer.Rule{
 	// {Name: "Comment", Pattern: `(?i)rem[^\n]*`},
@@ -49,4 +52,28 @@ type ArmValue struct {
 	Integer  *float64 `  @Number`
 	Variable *string  `| @Ident`
 	String   *string  `| @String`
+}
+
+type ArmParser struct {
+	parser *participle.Parser
+}
+
+func (p *ArmParser) Parse(s string) (*ArmProgram, error) {
+	program := &ArmProgram{}
+	if err := p.parser.ParseString("", s, program); err != nil {
+		return nil, err
+	}
+	return program, nil
+}
+
+func NewParser() (*ArmParser, error) {
+	parser, err := participle.Build(
+		&ArmProgram{},
+		participle.Lexer(ArmLexer),
+		participle.Unquote("String"),
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &ArmParser{parser}, nil
 }

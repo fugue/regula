@@ -128,7 +128,7 @@ configuration_modules_module(path, val) = ret {
   ret := [[], val]
 } else = ret {
   is_object(val)
-  # count(path) % 3 == 2
+  count(path) % 3 == 0
   module := val.module
   all([b | path[i] = k; i % 3 == 1; b := (k == "module_calls")])
   module_path := [k | path[i] = k; i % 3 == 2]
@@ -142,9 +142,9 @@ configuration_modules[module_path] = ret {
 
   # Calculate input variables used in this module.
   vars := {k: ref |
-     filter_refs(val.expressions[k].references) = refs
+     refs := filter_refs(val.expressions[k].references)
      count(refs) == 1
-     ref = refs[0]
+     ref := refs[0]
   }
 
   ret := [vars, module]

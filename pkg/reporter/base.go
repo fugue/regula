@@ -307,6 +307,7 @@ func (o RegulaReport) FailuresByRule() ResultsByRule {
 
 type RuleResult struct {
 	Controls           []string `json:"controls"`
+	Families           []string `json:"families"`
 	Filepath           string   `json:"filepath"`
 	InputType          string   `json:"input_type"`
 	Provider           string   `json:"provider"`

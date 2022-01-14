@@ -137,6 +137,7 @@ rule_resource_result(rule, judgement) = ret {
     "rule_description": rule.metadata.description,
     "rule_severity": rule.metadata.severity,
     "controls": rule.metadata.controls,
+    "families": rule.metadata.families,
     "filepath": judgement.filepath,
     "input_type": input_type_internal.input_type,
     "rule_remediation_doc": rule.metadata.rule_remediation_doc,
@@ -181,6 +182,18 @@ controls(custom) = ret {
   ret = set()
 }
 
+families_from_controls(custom) = ret {
+  ret = { f | custom["controls"][f] }
+} else = ret {
+  ret = set()
+}
+
+families_from_families(custom) = ret {
+  ret = { f | f = custom["families"][_] }
+} else = ret {
+  ret = set()
+}
+
 # Transforms high -> High. Assumes input is a single word.
 title_case(str) = ret {
   ret = concat("", [
@@ -199,6 +212,7 @@ rule_metadata(pkg) = ret {
     "summary": object.get(metadoc, "title", ""),
     "severity": title_case(object.get(custom, "severity", "Unknown")),
     "controls": controls(custom),
+    "families": families_from_controls(custom) | families_from_families(custom),
     "rule_remediation_doc": object.get(custom, "rule_remediation_doc", "")
   }
 }

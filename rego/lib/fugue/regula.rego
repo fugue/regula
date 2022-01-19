@@ -178,20 +178,14 @@ evaluate_rule(rule) = ret {
 # Extract controls from custom block in rule metadoc
 controls(custom) = ret {
   ret = { c | c = custom["controls"][_][_] }
-} else = ret {
-  ret = set()
 }
 
 families_from_controls(custom) = ret {
   ret = { f | custom["controls"][f] }
-} else = ret {
-  ret = set()
 }
 
 families_from_families(custom) = ret {
   ret = { f | f = custom["families"][_] }
-} else = ret {
-  ret = set()
 }
 
 # Transforms high -> High. Assumes input is a single word.

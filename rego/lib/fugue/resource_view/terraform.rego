@@ -116,30 +116,38 @@ planned_values_resources = {id: ret |
   ])
 }
 
+# Paths to the child modules here will have the following shape:
+#
+#     [..., "module_calls", CHILD_NAME, "module"]
+#
+# Just as in `planned_values_module_resources_walk_path`, there are probably
+# some more constraints that we can enforce below.
+configuration_modules_module(path, val) = ret {
+  is_object(val)
+  path == ["root_module"]
+  ret := [[], val]
+} else = ret {
+  is_object(val)
+  count(path) % 3 == 0
+  module := val.module
+  all([b | path[i] = k; i % 3 == 1; b := (k == "module_calls")])
+  module_path := [k | path[i] = k; i % 3 == 2]
+  ret := [module_path, module]
+}
+
 # Grab all modules inside the `configuration` section.
 configuration_modules[module_path] = ret {
   walk(input.configuration, [path, val])
-  # Paths to the child modules here will have the following shape:
-  #
-  #     [..., "module_calls", CHILD_NAME, "module"]
-  #
-  # Just as in `planned_values_module_resources_walk_path`, there are probably
-  # some more constraints that we can enforce below.
-  is_object(val)
-  module = val[module_name]
-  is_object(module)
-  _ = module.resources
-  all([b | path[i] = k; i % 3 == 1; b := (k == "module_calls")])
-  module_path = [k | path[i] = k; i % 3 == 2]
+  [module_path, module] = configuration_modules_module(path, val)
 
   # Calculate input variables used in this module.
-  vars = {k: ref |
-     filter_refs(val.expressions[k].references) = refs
+  vars := {k: ref |
+     refs := filter_refs(val.expressions[k].references)
      count(refs) == 1
-     ref = refs[0]
+     ref := refs[0]
   }
 
-  ret = [vars, module]
+  ret := [vars, module]
 }
 
 # Calculate outputs into a globally qualified map.

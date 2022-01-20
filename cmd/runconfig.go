@@ -72,9 +72,9 @@ func (c *runConfig) Providers() ([]rego.RegoProvider, error) {
 			return nil, err
 		}
 		return []rego.RegoProvider{
-			rego.OverrideRegoProvider(client.RuleBundleProvider(c.rootDir), rego.RegulaLibProvider()),
-			// rego.RegulaRulesProvider(),
-			// client.CustomRulesProvider(),
+			rego.RegulaLibProvider(),
+			client.RuleBundleProvider(c.rootDir),
+			client.CustomRulesProvider(),
 		}, nil
 	}
 

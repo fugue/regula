@@ -144,8 +144,8 @@ func (c *fugueClient) RuleBundleProvider(rootDir string) rego.RegoProvider {
 				logrus.Infof("Rule bundle not modified, using %s", bundlePath)
 				ruleBundle = oldBundle
 			} else if _, ok := err.(*rule_bundles.GetLatestRuleBundleForbidden); ok {
-				logrus.Infof("Unauthorized, skipping rule bundle")
-				return nil
+				logrus.Infof("Unauthorized, using builtin rule bundle")
+				return rego.RegulaRulesProvider()(ctx, p)
 			} else {
 				return err
 			}

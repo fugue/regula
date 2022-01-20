@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
@@ -30,6 +31,7 @@ import (
 	apiclient "github.com/fugue/regula/pkg/swagger/client"
 	"github.com/fugue/regula/pkg/swagger/client/rule_bundles"
 	"github.com/fugue/regula/pkg/version"
+	"github.com/fugue/regula/pkg/swagger/client/environments"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
@@ -64,6 +66,7 @@ type FugueClient interface {
 	RuleBundleProvider(rootDir string) rego.RegoProvider
 	CustomRulesProvider() rego.RegoProvider
 	CustomRuleProvider(ruleID string) rego.RegoProvider
+	EnvironmentRegulaConfigProvider(environmentID string) rego.RegoProvider
 	UploadScan(ctx context.Context, environmentId string, scanView reporter.ScanView) error
 }
 
@@ -153,4 +156,40 @@ func (c *fugueClient) RuleBundleProvider(rootDir string) rego.RegoProvider {
 
 		return rego.TarGzProvider(bytes.NewReader(ruleBundle))(ctx, p)
 	}
+}
+
+func (c *fugueClient) EnvironmentRegulaConfigProvider(environmentID string) rego.RegoProvider {
+	provider := func(ctx context.Context, p rego.RegoProcessor) error {
+		getEnvironmentRulesParams := &environments.GetEnvironmentRulesParams{
+			EnvironmentID: environmentID,
+			Context:       ctx,
+		}
+		result, err := c.client.Environments.GetEnvironmentRules(getEnvironmentRulesParams, c.auth)
+		if err != nil {
+			return err
+		}
+
+		numFugueRules := 0
+		numCustomRules := 0
+		rules := []string{}
+		for _, item := range result.Payload.Items {
+			if item.ID != nil {
+				ruleID := *item.ID
+				if strings.HasPrefix(ruleID, "FG_") {
+					numFugueRules += 1
+				} else {
+					numCustomRules += 1
+				}
+				rules = append(rules, ruleID)
+			}
+		}
+		logrus.Infof(
+			"Selected %d Fugue rules and %d custom rules for environment %s",
+			numFugueRules,
+			numCustomRules,
+			environmentID,
+		)
+		return rego.RegulaConfigProvider([]string{}, rules)(ctx, p)
+	}
+	return provider
 }

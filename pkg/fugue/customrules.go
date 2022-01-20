@@ -46,6 +46,7 @@ func processCustomRule(rule *models.CustomRule) (rego.RegoFile, error) {
 	regometa.Controls = map[string][]string{
 		"Custom": {"custom/" + rule.Name},
 	}
+	regometa.Families = rule.Families
 
 	// Only set resource_type if not set explicitly.
 	if regometa.ResourceType == "" {

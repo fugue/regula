@@ -113,6 +113,9 @@ expected_scan_view = {
         "controls": {
           "MOCK_1.2.3"
         },
+        "families": {
+          "MOCK"
+        },
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",
@@ -132,6 +135,9 @@ expected_scan_view = {
         "controls": {
           "MOCK_1.2.3"
         },
+        "families": {
+          "MOCK"
+        },
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",
@@ -150,6 +156,9 @@ expected_scan_view = {
       {
         "controls": {
           "MOCK_1.2.3"
+        },
+        "families": {
+          "MOCK"
         },
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
@@ -168,6 +177,7 @@ expected_scan_view = {
       },
       {
         "controls": set(),
+        "families": set(),
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",
@@ -185,6 +195,7 @@ expected_scan_view = {
       },
       {
         "controls": set(),
+        "families": set(),
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",
@@ -202,6 +213,7 @@ expected_scan_view = {
       },
       {
         "controls": set(),
+        "families": set(),
         "filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
         "input_type": "tf",
         "provider": "aws",

@@ -79,6 +79,7 @@ expected_report = {
       "rule_severity": "High",
       "rule_remediation_doc": "https://example.com",
       "controls": {"MOCK_1.2.3"},
+      "families": {"MOCK"},
       "filepath": "",
       "rule_raw_result": true
     },
@@ -96,6 +97,7 @@ expected_report = {
       "rule_severity": "High",
       "rule_remediation_doc": "https://example.com",
       "controls": {"MOCK_1.2.3"},
+      "families": {"MOCK"},
       "filepath": "",
       "rule_raw_result": true
     },
@@ -113,6 +115,7 @@ expected_report = {
       "rule_severity": "High",
       "rule_remediation_doc": "https://example.com",
       "controls": {"MOCK_1.2.3"},
+      "families": {"MOCK"},
       "filepath": "",
       "rule_raw_result": true
     },
@@ -130,6 +133,7 @@ expected_report = {
       "rule_severity": "Unknown",
       "rule_remediation_doc": "",
       "controls": set(),
+      "families": set(),
       "filepath": "",
       "rule_raw_result": false
     },
@@ -147,6 +151,7 @@ expected_report = {
       "rule_severity": "Unknown",
       "rule_remediation_doc": "",
       "controls": set(),
+      "families": set(),
       "filepath": "",
       "rule_raw_result": false
     },
@@ -164,6 +169,7 @@ expected_report = {
       "rule_severity": "Unknown",
       "rule_remediation_doc": "",
       "controls": set(),
+      "families": set(),
       "filepath": "",
       "rule_raw_result": false
     }

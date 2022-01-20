@@ -1,0 +1,5137 @@
+swagger: "2.0"
+host: api.riskmanager.fugue.co
+basePath: /v0
+info:
+  title: Fugue API
+  version: 0.0.1
+tags:
+- name: environments
+- name: scans
+- name: events
+- name: metadata
+- name: rule_bundles
+securityDefinitions:
+  CustomerApiAuthorizer:
+    type: apiKey
+    in: header
+    name: Authorization
+    x-amazon-apigateway-authtype: custom
+    x-amazon-apigateway-authorizer:
+      type: request
+      authorizerUri:
+        Fn::Sub:
+        - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${Arn}/invocations
+        - Region:
+            Ref: AWS::Region
+          Arn:
+            Fn::ImportValue: customer-api-auth:CustomerApiAuthorizerFunction
+      authorizerCredentials:
+        Fn::Sub: ${ApiGatewayAccountRole.Arn}
+      authorizerResultTtlInSeconds: 300
+      identitySource: method.request.header.Authorization
+schemes:
+- https
+consumes:
+- application/json
+produces:
+- application/json
+x-amazon-apigateway-gateway-responses:
+  DEFAULT_4XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+      gatewayresponse.header.Access-Control-Allow-Methods: '''*'''
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+    responseTemplates:
+      application/json: '{"type": "BadRequest", "code": 400, "message": "Unable to
+        process request" }'
+  UNAUTHORIZED:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+      gatewayresponse.header.Access-Control-Allow-Methods: '''*'''
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+    responseTemplates:
+      application/json: '{"type": "AuthenticationError", "code": 401, "message": "Invalid
+        or missing authentication token"}'
+  ACCESS_DENIED:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+      gatewayresponse.header.Access-Control-Allow-Methods: '''*'''
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+    responseTemplates:
+      application/json: '{"type": "AuthenticationError", "code": 401, "message": "Invalid
+        or missing authentication token"}'
+  DEFAULT_5XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+      gatewayresponse.header.Access-Control-Allow-Methods: '''*'''
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+    responseTemplates:
+      application/json: '{"type": "InternalServerError", "code": 500, "message": "Error
+        while processing request" }'
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+  paramsOnly:
+    validateRequestBody: false
+    validateRequestParameters: true
+x-amazon-apigateway-request-validator: paramsOnly
+paths:
+  /swagger:
+    get:
+      summary: Returns the OpenAPI 2.0 specification for this API.
+      description: Returns the OpenAPI 2.0 specification for this API.
+      operationId: getSwagger
+      produces:
+      - application/json
+      - application/yaml
+      tags:
+      - metadata
+      responses:
+        "200":
+          description: OpenAPI 2.0 specification.
+          schema:
+            type: object
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/swagger
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /swagger/ui:
+    get:
+      operationId: getSwaggerUI
+      summary: Returns a friendly user interface for the OpenAPI 2.0 specification
+        for this API.
+      description: Returns a friendly user interface for the OpenAPI 2.0 specification
+        for this API.
+      security: []
+      produces:
+      - text/html
+      tags:
+      - metadata
+      responses:
+        "200":
+          description: The Swagger UI
+          headers:
+            Access-Control-Allow-Headers:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Origin:
+              type: string
+            Content-Type:
+              type: string
+      x-amazon-apigateway-integration:
+        credentials:
+          Fn::Sub: ${CustomerApiGatewayS3Role.Arn}
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Content-Type: '''text/html'''
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:s3:path/fugue-risk-manager-${AWS::Region}-${AWS::AccountId}/swagger/customer_api_swagger_ui.html
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: aws
+  /environments:
+    get:
+      summary: Lists details for all environments.
+      description: Lists details for all environments.
+      operationId: listEnvironments
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - environments
+      parameters:
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+      - name: order_by
+        in: query
+        required: false
+        description: Field to sort the items by.
+        type: string
+        enum:
+        - created_at
+        - name
+        - last_scan_at
+        default: created_at
+      - name: order_direction
+        in: query
+        required: false
+        description: Direction to sort the items in.
+        type: string
+        enum:
+        - asc
+        - desc
+        default: desc
+      - name: query
+        in: query
+        required: false
+        description: A stringified JSON array of search parameters.
+        type: string
+        minLength: 2
+        maxLength: 1800
+      responses:
+        "200":
+          description: List of environments and details.
+          schema:
+            $ref: '#/definitions/Environments'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/environments
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    post:
+      summary: Creates a new environment.
+      description: Creates a new environment.
+      operationId: createEnvironment
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - environments
+      parameters:
+      - in: body
+        name: environment
+        required: true
+        description: Configuration options for the new environment.
+        schema:
+          $ref: '#/definitions/CreateEnvironmentInput'
+      responses:
+        "201":
+          description: New environment details.
+          schema:
+            $ref: '#/definitions/Environment'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/environments
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+  /environments/{environment_id}:
+    get:
+      summary: Retrieves details and resource summary for an environment.
+      description: Retrieves details and resource summary for an environment.
+      operationId: getEnvironment
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - environments
+      parameters:
+      - name: environment_id
+        in: path
+        required: true
+        description: Environment ID.
+        type: string
+      responses:
+        "200":
+          description: Environment details.
+          schema:
+            $ref: '#/definitions/EnvironmentWithSummary'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.environment_id: method.request.path.environment_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/environments/{environment_id}
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    patch:
+      summary: Updates an environment.
+      description: Updates an environment.
+      operationId: updateEnvironment
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - environments
+      parameters:
+      - name: environment_id
+        in: path
+        required: true
+        description: Environment ID.
+        type: string
+      - in: body
+        name: environment
+        description: Environment details to update.
+        schema:
+          $ref: '#/definitions/UpdateEnvironmentInput'
+      responses:
+        "200":
+          description: Updated environment details.
+          schema:
+            $ref: '#/definitions/Environment'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.environment_id: method.request.path.environment_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/environments/{environment_id}
+        passthroughBehavior: when_no_match
+        httpMethod: PATCH
+        type: http_proxy
+    delete:
+      summary: Deletes an environment.
+      description: Deletes an environment.
+      operationId: deleteEnvironment
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - environments
+      parameters:
+      - name: environment_id
+        in: path
+        required: true
+        description: Environment ID.
+        type: string
+      responses:
+        "204":
+          description: Environment deleted.
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.environment_id: method.request.path.environment_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/environments/{environment_id}
+        passthroughBehavior: when_no_match
+        httpMethod: DELETE
+        type: http_proxy
+  /environments/{environment_id}/rules:
+    get:
+      summary: Retrieves active rules for an environment.
+      description: Returns the rules that would be applied to this environment according
+        to its current environment settings.
+      operationId: getEnvironmentRules
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - environments
+      parameters:
+      - name: environment_id
+        in: path
+        required: true
+        description: Environment ID.
+        type: string
+      responses:
+        "200":
+          description: Environment rules.
+          schema:
+            $ref: '#/definitions/EnvironmentRules'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.environment_id: method.request.path.environment_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/environments/{environment_id}/rules
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /metadata/{provider}/permissions:
+    post:
+      summary: Returns the permissions required to survey and remediate resources.
+      description: Returns the permissions required to survey and remediate resources.
+      operationId: createPolicy
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - metadata
+      parameters:
+      - name: provider
+        in: path
+        required: true
+        description: Name of the cloud provider.
+        type: string
+        enum:
+        - aws
+        - aws_govcloud
+      - name: input
+        in: body
+        required: true
+        description: List of resource types to be able to survey and remediate.
+        schema:
+          $ref: '#/definitions/CreatePolicyInput'
+      responses:
+        "201":
+          description: Permissions for surveying and remediating the specified resource
+            types.
+          schema:
+            $ref: '#/definitions/Permissions'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.provider: method.request.path.provider
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/metadata/{provider}/permissions
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+  /metadata/{provider}/resource_types:
+    get:
+      summary: Lists the resource types supported by Fugue.
+      description: Lists the resource types supported by Fugue.
+      operationId: getResourceTypes
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - metadata
+      parameters:
+      - name: provider
+        in: path
+        required: true
+        description: Name of the cloud provider.
+        type: string
+        enum:
+        - aws
+        - aws_govcloud
+        - azure
+        - google
+      - name: region
+        in: query
+        required: false
+        description: The AWS region for which to return resource types.  Required
+          if provider is aws or aws_govcloud.
+        type: string
+      - name: beta_resources
+        in: query
+        required: false
+        description: Indicates whether resource types in beta will be returned.
+        type: boolean
+      responses:
+        "200":
+          description: List of supported resource types.
+          schema:
+            $ref: '#/definitions/ResourceTypeMetadata'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.path.provider: method.request.path.provider
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/metadata/{provider}/resource_types
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /scans:
+    get:
+      summary: Lists scans for an environment.
+      description: Lists scans for an environment.
+      operationId: listScans
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - scans
+      parameters:
+      - name: environment_id
+        in: query
+        required: true
+        description: ID of the environment to retrieve scans for.
+        type: string
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+      - name: order_by
+        in: query
+        required: false
+        description: Field to sort the items by.
+        type: string
+        enum:
+        - created_at
+        - finished_at
+        - updated_at
+        default: created_at
+      - name: order_direction
+        in: query
+        required: false
+        description: Direction to sort the items in.
+        type: string
+        enum:
+        - asc
+        - desc
+        default: desc
+      - name: status
+        in: query
+        required: false
+        collectionFormat: multi
+        description: Status to filter by. When not specified, all statuses will be
+          returned.
+        type: array
+        items:
+          type: string
+          enum:
+          - CREATED
+          - QUEUED
+          - IN_PROGRESS
+          - ERROR
+          - SUCCESS
+          - CANCELED
+      - name: range_from
+        in: query
+        required: false
+        description: Earliest created_at time to return scans from.
+        type: integer
+        minimum: 0
+      - name: range_to
+        in: query
+        required: false
+        description: Latest created_at time to return scans from.
+        type: integer
+        minimum: 0
+      responses:
+        "200":
+          description: List of scans.
+          schema:
+            $ref: '#/definitions/Scans'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/scans
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    post:
+      summary: Creates and triggers a new environment scan.
+      description: Creates and triggers a new environment scan.
+      operationId: createScan
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - scans
+      parameters:
+      - name: environment_id
+        in: query
+        required: true
+        description: ID of the environment to scan.
+        type: string
+      responses:
+        "201":
+          description: Scan details.
+          schema:
+            $ref: '#/definitions/Scan'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/scans
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+  /scans/{scan_id}:
+    get:
+      summary: Retrieves details for a scan.
+      description: Retrieves details for a scan.
+      operationId: getScan
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - scans
+      parameters:
+      - name: scan_id
+        in: path
+        required: true
+        description: Scan ID.
+        type: string
+      responses:
+        "200":
+          description: Scan details.
+          schema:
+            $ref: '#/definitions/ScanWithSummary'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.scan_id: method.request.path.scan_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/scans/{scan_id}
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /scans/{scan_id}/compliance_by_rules:
+    get:
+      summary: Lists compliance results by rule for a scan.
+      description: Lists compliance results by rule for a scan.
+      operationId: getComplianceByRules
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - scans
+      parameters:
+      - name: scan_id
+        in: path
+        required: true
+        description: Scan ID.
+        type: string
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+      - name: family
+        in: query
+        required: false
+        collectionFormat: multi
+        description: Compliance family to filter by. When not specified, all compliance
+          families will be returned.
+        type: array
+        items:
+          type: string
+      - name: result
+        in: query
+        required: false
+        collectionFormat: multi
+        description: Rule result to filter by. When not specified, all results will
+          be returned.
+        type: array
+        items:
+          type: string
+          enum:
+          - PASS
+          - FAIL
+          - UNKNOWN
+      responses:
+        "200":
+          description: List of compliance results from a scan grouped by rule.
+          schema:
+            $ref: '#/definitions/ComplianceByRules'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.scan_id: method.request.path.scan_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/scans/{scan_id}/compliance_by_rules
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /scans/{scan_id}/compliance_by_resource_types:
+    get:
+      summary: Lists compliance results by resource type for a scan.
+      description: Lists compliance results by resource type for a scan.
+      operationId: getComplianceByResourceTypes
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - scans
+      parameters:
+      - name: scan_id
+        in: path
+        required: true
+        description: Scan ID.
+        type: string
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+      - name: resource_type
+        in: query
+        required: false
+        collectionFormat: multi
+        description: Resource types to filter by. When not specified, all resource
+          types will be returned.
+        type: array
+        items:
+          type: string
+      - name: family
+        in: query
+        required: false
+        collectionFormat: multi
+        description: Compliance family to filter by. When not specified, all compliance
+          families will be returned.
+        type: array
+        items:
+          type: string
+      responses:
+        "200":
+          description: List of compliance results from a scan grouped by resource
+            type.
+          schema:
+            $ref: '#/definitions/ComplianceByResourceTypeOutput'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.scan_id: method.request.path.scan_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/scans/{scan_id}/compliance_by_resource_types
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /events:
+    get:
+      summary: Lists drift, remediation, and compliance events for an environment.
+      description: Lists drift, remediation, and compliance events for an environment.
+      operationId: listEvents
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - events
+      parameters:
+      - name: environment_id
+        in: query
+        required: true
+        description: Environment ID.
+        type: string
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+      - name: range_from
+        in: query
+        required: false
+        description: Earliest created_at time to return events from.
+        type: integer
+      - name: range_to
+        in: query
+        required: false
+        description: Latest created_at time to return events from.
+        type: integer
+      - name: event_type
+        description: Event type to filter by. When not specified, all event types
+          will be returned.
+        in: query
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+          enum:
+          - DRIFT
+          - REMEDIATION
+          - COMPLIANCE
+      - name: change
+        description: Type of change made in the event to filter by. When not specified,
+          all change types will be returned.
+        in: query
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+          enum:
+          - ADDED
+          - MODIFIED
+          - REMOVED
+      - name: remediated
+        description: Filter remediation results for an event by success or failure.
+          When not specified, all remediation results will be returned.
+        in: query
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+          enum:
+          - SUCCESS
+          - FAIL
+      - name: resource_type
+        description: Resource types in the event to filter by. When not specified,
+          all resource types will be returned.
+        in: query
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+      responses:
+        "200":
+          description: List of drift, remediation, and compliance events.
+          schema:
+            $ref: '#/definitions/Events'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/events
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /notifications:
+    get:
+      summary: Lists details for all notifications.
+      description: Lists details for all notifications.
+      operationId: listNotifications
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - notifications
+      parameters:
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+      responses:
+        "200":
+          description: List of notification details.
+          schema:
+            $ref: '#/definitions/Notifications'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/notifications
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    post:
+      summary: Creates a new notification.
+      description: Creates a new notification.
+      operationId: createNotification
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - notifications
+      parameters:
+      - in: body
+        name: notification
+        required: true
+        description: Configuration options for the new notification.
+        schema:
+          $ref: '#/definitions/CreateNotificationInput'
+      responses:
+        "201":
+          description: New notification details.
+          schema:
+            $ref: '#/definitions/Notification'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/notifications
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+  /notifications/{notification_id}:
+    put:
+      summary: Updates an existing notification.
+      description: Updates an existing notification.
+      operationId: updateNotification
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - notifications
+      parameters:
+      - name: notification_id
+        in: path
+        required: true
+        description: Notification ID.
+        type: string
+      - in: body
+        name: notification
+        required: true
+        description: New configuration options for the notification.
+        schema:
+          $ref: '#/definitions/UpdateNotificationInput'
+      responses:
+        "200":
+          description: New notification details.
+          schema:
+            $ref: '#/definitions/Notification'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.notification_id: method.request.path.notification_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/notifications/{notification_id}
+        passthroughBehavior: when_no_match
+        httpMethod: PUT
+        type: http_proxy
+    delete:
+      summary: Deletes a notification.
+      description: Deletes a notification.
+      operationId: deleteNotification
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - notifications
+      parameters:
+      - name: notification_id
+        in: path
+        required: true
+        description: Notification ID.
+        type: string
+      responses:
+        "204":
+          description: Notification deleted.
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.notification_id: method.request.path.notification_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/notifications/{notification_id}
+        passthroughBehavior: when_no_match
+        httpMethod: DELETE
+        type: http_proxy
+  /rules:
+    post:
+      operationId: createCustomRule
+      summary: Create a new custom rule.
+      description: |
+        Create a new custom rule.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - in: body
+        name: rule
+        required: true
+        description: Configuration options for the new custom rule.
+        schema:
+          $ref: '#/definitions/CreateCustomRuleInput'
+      tags:
+      - customRules
+      responses:
+        "201":
+          description: New custom rule details.
+          schema:
+            $ref: '#/definitions/CustomRuleWithErrors'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rules
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+    get:
+      operationId: listCustomRules
+      summary: List custom rules.
+      description: |
+        Return a list of custom rules.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+      - name: status
+        in: query
+        required: false
+        description: Filter on rule status.
+        type: string
+        enum:
+        - ENABLED
+        - DISABLED
+        - INVALID
+      - name: query
+        in: query
+        required: false
+        description: A stringified JSON array of search parameters.
+        type: string
+        minLength: 2
+        maxLength: 1800
+      tags:
+      - customRules
+      responses:
+        "200":
+          description: List of custom rules.
+          schema:
+            $ref: '#/definitions/CustomRules'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rules
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /rules/{rule_id}:
+    get:
+      operationId: getCustomRule
+      summary: Get details on a single custom rule.
+      description: |
+        Get details on a single custom rule.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: rule_id
+        in: path
+        required: true
+        description: The ID of the Rule to get.
+        type: string
+      tags:
+      - customRules
+      responses:
+        "200":
+          description: Custom rule details.
+          schema:
+            $ref: '#/definitions/CustomRule'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.rule_id: method.request.path.rule_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rules/{rule_id}
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    patch:
+      operationId: updateCustomRule
+      summary: Update custom rule.
+      description: |
+        Update configuration of a custom rule.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: rule_id
+        in: path
+        required: true
+        description: The id of the rule to update.
+        type: string
+      - in: body
+        name: rule
+        required: true
+        description: New configuration options for the custom rule.
+        schema:
+          $ref: '#/definitions/UpdateCustomRuleInput'
+      tags:
+      - customRules
+      responses:
+        "200":
+          description: New custom rule details.
+          schema:
+            $ref: '#/definitions/CustomRuleWithErrors'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.rule_id: method.request.path.rule_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rules/{rule_id}
+        passthroughBehavior: when_no_match
+        httpMethod: PATCH
+        type: http_proxy
+    delete:
+      operationId: deleteCustomRule
+      summary: Delete a custom rule.
+      description: |
+        Delete a specified custom rule.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: rule_id
+        in: path
+        required: true
+        description: The id of the rule to delete.
+        type: string
+      tags:
+      - customRules
+      responses:
+        "204":
+          description: Custom rule deleted.
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.rule_id: method.request.path.rule_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rules/{rule_id}
+        passthroughBehavior: when_no_match
+        httpMethod: DELETE
+        type: http_proxy
+  /rules/test:
+    post:
+      operationId: testCustomRule
+      summary: Test a custom rule.
+      description: |
+        Test a custom rule using state from an scan.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: via_download
+        in: query
+        required: false
+        description: Force output to be downloadable.
+        type: boolean
+      - in: body
+        name: rule
+        required: true
+        description: Information about custom rule to be tested.
+        schema:
+          $ref: '#/definitions/TestCustomRuleInput'
+      tags:
+      - customRules
+      responses:
+        "200":
+          description: Validation results for the custom rule.
+          schema:
+            $ref: '#/definitions/TestCustomRuleOutput'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rules/test
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+  /rules/test/input:
+    get:
+      operationId: testCustomRuleInput
+      summary: Get the input for a custom rule test.
+      description: |
+        Get the input against which a custom rule would be tested.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: via_download
+        in: query
+        required: false
+        description: Force output to be downloadable.
+        type: boolean
+      - in: query
+        name: scan_id
+        required: true
+        description: Scan of which we should get the custom rule test input.
+        type: string
+      tags:
+      - customRules
+      responses:
+        "200":
+          description: Input used for the custom rule.
+          schema:
+            $ref: '#/definitions/TestCustomRuleInputScan'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: VpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rules/test/input
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /families:
+    post:
+      operationId: createFamily
+      summary: Create a new custom compliance family.
+      description: |
+        Create a new custom compliance family.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - in: body
+        name: family
+        required: true
+        description: Configuration options for the new custom compliance family.
+        schema:
+          $ref: '#/definitions/CreateFamilyInput'
+      tags:
+      - families
+      responses:
+        "201":
+          description: The newly-created custom compliance family.
+          schema:
+            $ref: '#/definitions/FamilyWithRules'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Email: context.authorizer.email
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/families
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+    get:
+      operationId: listFamilies
+      summary: List compliance families.
+      description: |
+        Return a list of compliance families.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+      - name: order_by
+        in: query
+        required: false
+        description: Attribute to order families by
+        type: string
+        enum:
+        - name
+        - policy
+        default: name
+      - name: order_direction
+        in: query
+        required: false
+        description: Order families in an ascending or descending fashion
+        type: string
+        enum:
+        - asc
+        - desc
+        default: asc
+      - name: query
+        in: query
+        required: false
+        description: A stringified JSON array of search parameters.
+        type: string
+        minLength: 2
+        maxLength: 1800
+      tags:
+      - families
+      responses:
+        "200":
+          description: List of compliance families.
+          schema:
+            $ref: '#/definitions/Families'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Email: context.authorizer.email
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/families_no_plan_filter
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /families/{family_id}:
+    get:
+      operationId: getFamily
+      summary: Look up Family.
+      description: Return a specific Family.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: family_id
+        in: path
+        required: true
+        description: The id of the Family to look up.
+        type: string
+      tags:
+      - families
+      responses:
+        "200":
+          description: The desired Family.
+          schema:
+            $ref: '#/definitions/FamilyWithRules'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Email: context.authorizer.email
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.family_id: method.request.path.family_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/families/{family_id}
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    delete:
+      operationId: deleteFamily
+      summary: Delete a Family.
+      description: |
+        Delete a Family.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: family_id
+        in: path
+        required: true
+        description: The id of the Family to delete.
+        type: string
+      tags:
+      - families
+      responses:
+        "204":
+          description: Family deleted.
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Email: context.authorizer.email
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.family_id: method.request.path.family_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/families/{family_id}
+        passthroughBehavior: when_no_match
+        httpMethod: DELETE
+        type: http_proxy
+    patch:
+      operationId: updateFamily
+      summary: Edit an existing user Family.
+      description: |
+        Edit an existing user Family.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: family_id
+        in: path
+        required: true
+        description: The id of the Family to update.
+        type: string
+      - in: body
+        name: family
+        required: true
+        description: New configuration options for the Family.
+        schema:
+          $ref: '#/definitions/UpdateFamilyInput'
+      tags:
+      - families
+      responses:
+        "200":
+          description: The updated Family.
+          schema:
+            $ref: '#/definitions/FamilyWithRules'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Email: context.authorizer.email
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.family_id: method.request.path.family_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/families/{family_id}
+        passthroughBehavior: when_no_match
+        httpMethod: PATCH
+        type: http_proxy
+  /invites:
+    get:
+      summary: List details for all invites.
+      description: List details for all invites.
+      operationId: listInvites
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - invites
+      parameters:
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+      - name: order_direction
+        in: query
+        required: false
+        description: Direction to sort the items in.
+        type: string
+        enum:
+        - asc
+        - desc
+        default: desc
+      - in: query
+        name: email
+        type: string
+        required: false
+        description: Used to filter list to a single invite by email.
+      responses:
+        "200":
+          description: Invite details.
+          schema:
+            $ref: '#/definitions/Invites'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/invites
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    post:
+      summary: Creates a new invite.
+      description: Creates a new invite.
+      operationId: createInvite
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - invites
+      parameters:
+      - in: body
+        name: invite
+        required: true
+        description: Configuration options for the new invite.
+        schema:
+          $ref: '#/definitions/CreateInviteInput'
+      responses:
+        "201":
+          description: New invite details.
+          schema:
+            $ref: '#/definitions/Invite'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/invites
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+  /invites/{invite_id}:
+    get:
+      summary: Fetch an invite by id.
+      description: Fetch an invite by id.
+      operationId: getInviteById
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - invites
+      parameters:
+      - in: path
+        name: invite_id
+        type: string
+        required: true
+        description: id of the invite
+      responses:
+        "200":
+          description: Invite details.
+          schema:
+            $ref: '#/definitions/Invite'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.invite_id: method.request.path.invite_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/invites/{invite_id}
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /groups:
+    get:
+      operationId: listGroups
+      summary: List groups.
+      description: |
+        Return a list of groups.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+      - name: order_by
+        in: query
+        required: false
+        description: Attribute to order groups by
+        type: string
+        enum:
+        - name
+        - policy
+        default: name
+      - name: order_direction
+        in: query
+        required: false
+        description: Order groups in an ascending or descending fashion
+        type: string
+        enum:
+        - asc
+        - desc
+        default: asc
+      tags:
+      - groups
+      responses:
+        "200":
+          description: List of Groups.
+          schema:
+            $ref: '#/definitions/Groups'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/groups
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    post:
+      summary: Creates a new group.
+      description: Creates a new group.
+      operationId: createGroup
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - groups
+      parameters:
+      - in: body
+        name: group
+        required: true
+        description: Configuration options for the new group.
+        schema:
+          $ref: '#/definitions/CreateGroupInput'
+      responses:
+        "201":
+          description: New group details.
+          schema:
+            $ref: '#/definitions/Group'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/groups
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+  /users:
+    get:
+      summary: List details for all users.
+      description: List details for all users.
+      operationId: listUsers
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - users
+      parameters:
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+      - name: order_direction
+        in: query
+        required: false
+        description: Direction to sort the items in.
+        type: string
+        enum:
+        - asc
+        - desc
+        default: desc
+      - in: query
+        name: email
+        type: string
+        required: false
+        description: Used to filter list to a single invite by email.
+      responses:
+        "200":
+          description: User details.
+          schema:
+            $ref: '#/definitions/Users'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/users
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    patch:
+      operationId: editUsersGroupAssignments
+      summary: Edit a list of Users' Group assignments.
+      description: |
+        Edit a list of Users' Group assignment.
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - in: body
+        name: editGroupAssignments
+        required: true
+        description: User and Group IDs to be associated.
+        schema:
+          $ref: '#/definitions/EditUsersGroupAssignmentsInput'
+      tags:
+      - groups
+      responses:
+        "200":
+          description: User Group assignment updated.
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/users
+        passthroughBehavior: when_no_match
+        httpMethod: PATCH
+        type: http_proxy
+  /users/{user_id}:
+    get:
+      summary: Fetch a user by id.
+      description: Fetch a user by id.
+      operationId: getUserById
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - users
+      parameters:
+      - in: path
+        name: user_id
+        type: string
+        required: true
+        description: id of the user
+      responses:
+        "200":
+          description: User details.
+          schema:
+            $ref: '#/definitions/User'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.user_id: method.request.path.user_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/users/{user_id}
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /rule_waivers:
+    get:
+      summary: Lists details for all rule waivers.
+      description: Lists details for all rule waivers.
+      operationId: listRuleWaivers
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: offset
+        in: query
+        required: false
+        description: Number of items to skip before returning. This parameter is used
+          when the number of items spans multiple pages.
+        type: integer
+        default: 0
+        minimum: 0
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 100
+      - name: order_by
+        in: query
+        required: false
+        description: Field to sort the items by.
+        type: string
+        enum:
+        - name
+        default: name
+      - name: order_direction
+        in: query
+        required: false
+        description: Direction to sort the items in.
+        type: string
+        enum:
+        - asc
+        - desc
+        default: asc
+      - name: query
+        in: query
+        required: false
+        description: A stringified JSON array of search parameters.
+        type: string
+        minLength: 2
+        maxLength: 1800
+      tags:
+      - rule_waivers
+      responses:
+        "200":
+          description: List of rule waivers
+          schema:
+            $ref: '#/definitions/RuleWaivers'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rule_waivers
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    post:
+      summary: Creates a new rule waiver.
+      description: Creates a new rule waiver.
+      operationId: createRuleWaiver
+      produces:
+      - application/json
+      x-amazon-apigateway-request-validator: all
+      security:
+      - CustomerApiAuthorizer: []
+      parameters:
+      - name: input
+        in: body
+        required: true
+        description: Rule waiver parameters
+        schema:
+          $ref: '#/definitions/CreateRuleWaiverInput'
+      tags:
+      - rule_waivers
+      responses:
+        "201":
+          description: New rule waiver details.
+          schema:
+            $ref: '#/definitions/RuleWaiver'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rule_waivers
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+  /rule_waivers/{rule_waiver_id}:
+    get:
+      summary: Retrieves details and rule metadata for a rule waiver.
+      description: Retrieves details and rule metadata for a rule waiver.
+      operationId: getRuleWaiver
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - rule_waivers
+      parameters:
+      - name: rule_waiver_id
+        in: path
+        required: true
+        description: The ID of rule waiver to update
+        type: string
+      responses:
+        "200":
+          description: Rule waiver details.
+          schema:
+            $ref: '#/definitions/RuleWaiver'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.rule_waiver_id: method.request.path.rule_waiver_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rule_waivers/{rule_waiver_id}
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+    patch:
+      summary: Updates a rule waiver.
+      description: Updates a rule waiver.
+      operationId: updateRuleWaiver
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - rule_waivers
+      parameters:
+      - name: rule_waiver_id
+        in: path
+        required: true
+        description: The ID of rule waiver to update
+        type: string
+      - name: input
+        in: body
+        required: true
+        description: Rule waiver update parameters
+        schema:
+          $ref: '#/definitions/UpdateRuleWaiverInput'
+      responses:
+        "200":
+          description: Rule waiver details
+          schema:
+            $ref: '#/definitions/RuleWaiver'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.rule_waiver_id: method.request.path.rule_waiver_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rule_waivers/{rule_waiver_id}
+        passthroughBehavior: when_no_match
+        httpMethod: PATCH
+        type: http_proxy
+    delete:
+      summary: Deletes a rule waiver.
+      description: Deletes a rule waiver.
+      operationId: deleteRuleWaiver
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - rule_waivers
+      parameters:
+      - name: rule_waiver_id
+        in: path
+        required: true
+        description: The ID of rule waiver to delete
+        type: string
+      responses:
+        "204":
+          description: Rule waiver deleted.
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.rule_waiver_id: method.request.path.rule_waiver_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rule_waivers/{rule_waiver_id}
+        passthroughBehavior: when_no_match
+        httpMethod: DELETE
+        type: http_proxy
+  /audit_log/events:
+    get:
+      summary: Lists audit log events.
+      description: Lists audit log events.
+      operationId: listAuditLogEvents
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - audit_log
+      parameters:
+      - name: max_items
+        in: query
+        required: false
+        description: Maximum number of items to return.
+        type: integer
+        default: 100
+        minimum: 25
+        maximum: 999
+      - name: order_direction
+        in: query
+        required: false
+        description: Direction to sort the items in.
+        type: string
+        enum:
+        - asc
+        - desc
+        default: desc
+      - name: subject_kind
+        in: query
+        type: string
+        required: false
+        description: The kind or type of entity to filter on.
+      - name: range_from
+        in: query
+        type: string
+        format: date-time
+        required: false
+        description: 'Earliest timestamp to include in results. format: ISO 8601'
+      - name: range_to
+        in: query
+        format: date-time
+        required: false
+        description: 'Latest timestamp to include in results. format: ISO 8601'
+        type: string
+      - name: next_token
+        in: query
+        required: false
+        description: If set can be used to retrieve the next page of records.
+        type: string
+      responses:
+        "200":
+          description: List of audit log events.
+          schema:
+            $ref: '#/definitions/AuditLogEvents'
+        "400":
+          description: Bad request error.
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: Authentication error.
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: Authorization error.
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "500":
+          description: Internal server error.
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/audit_log/events
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+  /scans/{scan_id}/upload_regula_scan_view:
+    post:
+      summary: Uploads a regula-produced scan view for an environment and scan.
+      description: Uploads a regula-produced scan view for an environment and scan.
+      operationId: uploadRegulaScanView
+      produces:
+      - application/json
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - scans
+      parameters:
+      - name: scan_id
+        in: path
+        required: true
+        description: The ID of the started scan
+        type: string
+      responses:
+        "200":
+          description: A location to upload the regula scan view.
+          schema:
+            $ref: '#/definitions/UploadRegulaScanViewOutput'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+          integration.request.path.scan_id: method.request.path.scan_id
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/scans/{scan_id}/upload_regula_scan_view
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: http_proxy
+  /rule_bundles/latest:
+    get:
+      summary: Retrieves IaC rule bundles.
+      description: Retrieves IaC rule bundles, ready to be used by Regula.
+      operationId: getLatestRuleBundle
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - rule_bundles
+      parameters:
+      - name: If-None-Match
+        in: header
+        type: string
+        required: false
+        description: SHA1 of the currently downloaded rule bundle.
+      - name: regula_version
+        in: query
+        required: true
+        description: Client regula version.
+        type: string
+      produces:
+      - application/gzip
+      - text/plain
+      responses:
+        "200":
+          description: Rule bundle.
+          schema:
+            $ref: '#/definitions/RuleBundleResponse'
+        "304":
+          description: NotModified
+          schema:
+            $ref: '#/definitions/NotModifiedResponse'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rule_bundles/latest
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
+definitions:
+  ComplianceByRule:
+    description: Compliance rule and result.
+    type: object
+    properties:
+      family:
+        description: Name of the compliance family.
+        type: string
+      rule:
+        description: Name of the compliance rule.
+        type: string
+      result:
+        description: Result of the rule.
+        type: string
+        enum:
+        - PASS
+        - FAIL
+        - UNKNOWN
+      unsurveyed_resource_types:
+        description: List of resource types that were not surveyed and caused the
+          result to be unknown.
+        type: array
+        items:
+          type: string
+      failed_resource_types:
+        description: List of resource types that failed to satisfy the rule due to
+          a required resource being omitted and associated error messages.
+        type: array
+        items:
+          description: Resource type that failed to satisfy the rule due to a required
+            resource being omitted and associated error messages.
+          type: object
+          properties:
+            resource_type:
+              description: Resource type that failed to satisfy the rule.
+              type: string
+            messages:
+              description: Messages why the rule failed.
+              type: array
+              items:
+                type: string
+      failed_resources:
+        description: List of resources that failed to satisfy the rule due to a misconfiguration
+          in the resource and associated error messages.
+        type: array
+        items:
+          description: Resource that failed to satisfy the rule due to a misconfiguration
+            in the resource and associated error messages.
+          type: object
+          properties:
+            resource:
+              $ref: '#/definitions/Resource'
+            messages:
+              description: Messages why the rule failed.
+              type: array
+              items:
+                type: string
+  ComplianceByRules:
+    description: Paginated list of compliance rules and results for a scan.
+    type: object
+    properties:
+      items:
+        description: Paginated list of compliance rules and results for a scan.
+        type: array
+        items:
+          $ref: '#/definitions/ComplianceByRule'
+      is_truncated:
+        description: Indicates whether there are more items at the next offset.
+        type: boolean
+      next_offset:
+        description: Next offset to use to get the next page of items.
+        type: integer
+      count:
+        description: Total number of items.
+        type: integer
+  CreateEnvironmentInput:
+    description: Structure of the body for creating a new environment.
+    type: object
+    properties:
+      name:
+        description: Name of the environment.
+        type: string
+      provider:
+        description: Name of the service provider for the environment.
+        type: string
+        enum:
+        - aws
+        - aws_govcloud
+        - azure
+        - google
+        - repository
+      provider_options:
+        description: A dictionary of options for the provider.
+        $ref: '#/definitions/ProviderOptions'
+      compliance_families:
+        description: List of compliance families validated against the environment.
+        type: array
+        items:
+          type: string
+      survey_resource_types:
+        description: List of resource types to be surveyed.
+        type: array
+        items:
+          type: string
+      remediate_resource_types:
+        description: List of resource types to be remediated if remediation is enabled.
+        type: array
+        items:
+          type: string
+      scan_schedule_enabled:
+        description: Indicates if the new environment should have scans run on a schedule
+          upon creation.
+        type: boolean
+      scan_interval:
+        description: Time in seconds between the end of one scan to the start of the
+          next. Must also set scan_schedule_enabled to true.
+        type: integer
+        minimum: 300
+  Environment:
+    description: A managed environment.
+    type: object
+    properties:
+      id:
+        description: ID of the environment.
+        type: string
+      tenant_id:
+        description: ID of the tenant that owns the environment.
+        type: string
+      name:
+        description: Name of the environment.
+        type: string
+      provider:
+        description: Name of the service provider for the environment.
+        type: string
+        enum:
+        - aws
+        - aws_govcloud
+        - azure
+        - google
+        - repository
+      provider_options:
+        $ref: '#/definitions/ProviderOptions'
+      compliance_families:
+        description: List of compliance families validated against the environment.
+        type: array
+        items:
+          type: string
+      baseline_id:
+        description: Scan ID of the baseline if baseline is enabled.
+        type: string
+      drift:
+        description: Indicates whether drift detection is enabled for the environment.
+        type: boolean
+      remediation:
+        description: Indicates whether remediation is enabled for the environment.
+        type: boolean
+      scan_status:
+        description: Status of the current or most recently completed scan for the
+          environment.
+        type: string
+        enum:
+        - CREATED
+        - QUEUED
+        - IN_PROGRESS
+        - ERROR
+        - SUCCESS
+        - CANCELED
+      scan_interval:
+        description: Time in seconds between the end of one scan to the start of the
+          next.
+        type: integer
+      last_scan_at:
+        description: Time the current or most recently completed scan for the environment
+          started.
+        type: integer
+      next_scan_at:
+        description: Time the next scan will start.
+        type: integer
+      survey_resource_types:
+        description: List of resource types surveyed for the environment.
+        type: array
+        items:
+          type: string
+      remediate_resource_types:
+        description: List of resource types remediated for the environment if remediation
+          is enabled.
+        type: array
+        items:
+          type: string
+      scan_schedule_enabled:
+        description: Indicates whether the environment should have scans run on a
+          schedule.
+        type: boolean
+  EnvironmentWithSummary:
+    description: A managed environment with its latest scan summary.
+    allOf:
+    - $ref: '#/definitions/Environment'
+    - type: object
+      properties:
+        resource_summary:
+          $ref: '#/definitions/ResourceSummary'
+  Environments:
+    description: Paginated list of environments.
+    type: object
+    properties:
+      items:
+        description: Paginated list of environments.
+        type: array
+        items:
+          $ref: '#/definitions/Environment'
+      is_truncated:
+        description: Indicates whether there are more items at the next offset.
+        type: boolean
+      next_offset:
+        description: Next offset to use to get the next page of items.
+        type: integer
+      count:
+        description: Total number of items.
+        type: integer
+  ProviderOptions:
+    description: Provider options.
+    type: object
+    properties:
+      aws:
+        $ref: '#/definitions/ProviderOptionsAws'
+      aws_govcloud:
+        $ref: '#/definitions/ProviderOptionsAws'
+      azure:
+        $ref: '#/definitions/ProviderOptionsAzure'
+      google:
+        $ref: '#/definitions/ProviderOptionsGoogle'
+      repository:
+        $ref: '#/definitions/ProviderOptionsRepository'
+  ProviderOptionsAws:
+    description: Provider options for AWS.
+    type: object
+    properties:
+      region:
+        description: The AWS region to scan and remediate infrastructure in.
+        type: string
+      regions:
+        description: The AWS regions to scan and remediate infrastructure in.
+        type: array
+        items:
+          type: string
+      role_arn:
+        description: AWS IAM Role ARN that will be assumed to scan and remediate infrastructure.
+        type: string
+  ProviderOptionsAzure:
+    description: Provider options for Azure.
+    type: object
+    properties:
+      tenant_id:
+        description: The tenant ID of the Azure subscription to be used
+        type: string
+      subscription_id:
+        description: The subscription ID of the Azure subscription to be used
+        type: string
+      application_id:
+        description: The application ID/client ID of the service principal to be used
+        type: string
+      client_secret:
+        description: The client secret of the service principal to be used
+        type: string
+      survey_resource_groups:
+        description: The resource groups to be surveyed
+        type: array
+        items:
+          type: string
+      remediate_resource_groups:
+        description: The resource groups to be remediated
+        type: array
+        items:
+          type: string
+  ProviderOptionsGoogle:
+    description: Provider options for Google.
+    type: object
+    properties:
+      service_account_email:
+        type: string
+      project_id:
+        type: string
+  ProviderOptionsRepository:
+    description: Provider options for repository environments.
+    type: object
+    properties:
+      url:
+        description: The URL of the repository (e.g. 'https://github.com/fugue/regula.git')
+        type: string
+      branch:
+        description: The branch associated with this environment (e.g. 'main')
+        type: string
+  ProviderOptionsUpdateInput:
+    description: Mutable provider options.
+    type: object
+    properties:
+      aws:
+        $ref: '#/definitions/ProviderOptionsAwsUpdateInput'
+      aws_govcloud:
+        $ref: '#/definitions/ProviderOptionsAwsUpdateInput'
+      azure:
+        $ref: '#/definitions/ProviderOptionsAzureUpdateInput'
+      google:
+        $ref: '#/definitions/ProviderOptionsGoogleUpdateInput'
+      repository:
+        $ref: '#/definitions/ProviderOptionsRepositoryUpdateInput'
+  ProviderOptionsAwsUpdateInput:
+    description: Mutable provider options for AWS.
+    type: object
+    properties:
+      role_arn:
+        description: AWS IAM Role ARN that will be assumed to scan and remediate infrastructure.
+        type: string
+      regions:
+        description: The AWS regions to scan and remediate infrastructure in.
+        type: array
+        items:
+          type: string
+  ProviderOptionsAzureUpdateInput:
+    description: Mutable provider options for Azure.
+    type: object
+    properties:
+      application_id:
+        description: The application ID/client ID of the service principal to be used
+        type: string
+      client_secret:
+        description: The client secret of the service principal to be used
+        type: string
+      survey_resource_groups:
+        description: The resource groups to be surveyed
+        type: array
+        items:
+          type: string
+      remediate_resource_groups:
+        description: The resource groups to be remediated
+        type: array
+        items:
+          type: string
+  ProviderOptionsGoogleUpdateInput:
+    description: Mutable provider options for Google.
+    type: object
+    properties:
+      service_account_email:
+        description: The service account email that will be used to scan infrastructure.
+        type: string
+  ProviderOptionsRepositoryUpdateInput:
+    description: Mutable provider options for repository environments.
+    type: object
+    properties:
+      url:
+        description: The URL of the repository (e.g. 'https://github.com/fugue/regula.git')
+        type: string
+      branch:
+        description: The branch associated with this environment (e.g. 'main')
+        type: string
+  Resource:
+    description: A resource.
+    type: object
+    properties:
+      resource_id:
+        description: Resource ID.
+        type: string
+      resource_type:
+        description: Resource type.
+        type: string
+  ResourceSummary:
+    description: Summary of resources for a scan.
+    type: object
+    properties:
+      total:
+        description: Total number of resources in the scan.
+        type: integer
+      compliant:
+        description: Number of compliant resources.
+        type: integer
+      noncompliant:
+        description: Number of noncompliant resources.
+        type: integer
+      rules_passed:
+        description: Number of compliance rules passed.
+        type: integer
+      rules_failed:
+        description: Number of compliance rules failed.
+        type: integer
+      resource_types:
+        description: Number of resource types in the scan.
+        type: integer
+      families:
+        description: Compliance summary for the compliance families run against resources
+          for the scan.
+        type: array
+        items:
+          description: Compliance summary for the compliance family run against resources
+            for the scan.
+          type: object
+          properties:
+            family:
+              description: Name of the compliance family.
+              type: string
+            compliant:
+              description: Number of compliant resources in this family.
+              type: integer
+            noncompliant:
+              description: Number of noncompliant resources in this family.
+              type: integer
+            rules_passed:
+              description: Number of compliance rules passed in this family.
+              type: integer
+            rules_failed:
+              description: Number of compliance rules failed in this family.
+              type: integer
+  Permissions:
+    description: Permissions for surveying and remediating the specified resource
+      types.
+    type: object
+    properties:
+      aws:
+        $ref: '#/definitions/PermissionsAws'
+  PermissionsAws:
+    description: IAM policy required for surveying and remediating the desired resource
+      types.
+    type: object
+    properties:
+      policy:
+        description: JSON policy for surveying and remediating the desired resource
+          types.
+        type: object
+      trust_relationship:
+        description: JSON trust relationship for IAM role
+        type: object
+  Scan:
+    description: A scan belonging to an environment.
+    type: object
+    properties:
+      id:
+        description: ID of the scan.
+        type: string
+      environment_id:
+        description: ID of the environment the scan belongs to.
+        type: string
+      created_at:
+        description: Time the scan was created.
+        type: integer
+      updated_at:
+        description: Time the scan was last updated.
+        type: integer
+      finished_at:
+        description: Time the scan was finished.
+        type: integer
+      status:
+        description: Status of the scan.
+        type: string
+        enum:
+        - CREATED
+        - QUEUED
+        - IN_PROGRESS
+        - ERROR
+        - SUCCESS
+        - CANCELED
+      message:
+        description: Message related to the scan.
+        type: string
+      remediation_error:
+        description: Indicates whether there were any remediation errors on the scan.
+        type: boolean
+  ScanWithSummary:
+    description: A scan belonging to an environment.
+    allOf:
+    - $ref: '#/definitions/Scan'
+    - type: object
+      properties:
+        resource_summary:
+          $ref: '#/definitions/ResourceSummary'
+        resource_type_errors:
+          type: array
+          items:
+            type: object
+            properties:
+              resource_type:
+                type: string
+              error_message:
+                type: string
+            required:
+            - resource_type
+            - error_message
+  Scans:
+    description: Paginated list of scans.
+    type: object
+    properties:
+      items:
+        description: Paginated list of scans.
+        type: array
+        items:
+          $ref: '#/definitions/Scan'
+      is_truncated:
+        description: Indicates whether there are more items at the next offset.
+        type: boolean
+      next_offset:
+        description: Next offset to use to get the next page of items.
+        type: integer
+      count:
+        description: Total number of items.
+        type: integer
+  ResourceTypeMetadata:
+    description: List of resource types supported by Fugue.
+    type: object
+    properties:
+      resource_types:
+        description: List of resource types supported by Fugue.
+        type: array
+        items:
+          type: string
+      recommended_types:
+        description: List of Fugue recommended resource types.
+        type: array
+        items:
+          type: string
+  Event:
+    description: A drift, remediation or compliance event.
+    type: object
+    properties:
+      id:
+        type: string
+        description: ID of event
+      event_type:
+        type: string
+        description: Type of event - drift, remediation, or compliance.
+        enum:
+        - DRIFT
+        - REMEDIATION
+        - COMPLIANCE
+      created_at:
+        type: integer
+        description: Time the event occurred.
+      error:
+        type: string
+        description: Error message.
+      resource_diff:
+        type: object
+        description: Difference between the old and new state of the resource.
+        $ref: '#/definitions/ResourceDiff'
+      compliance_diff:
+        type: object
+        description: Difference between the old and new compliance state of the resource.
+        $ref: '#/definitions/ComplianceDiff'
+  ResourceDiff:
+    description: Difference between the old and new state of a resource after an event.
+    type: object
+    properties:
+      resource_id:
+        type: string
+        description: ID of the resource given by the provider.
+      resource_type:
+        type: string
+        description: Resource type.
+      change:
+        type: string
+        description: Type of change which occurred.
+        enum:
+        - ADDED
+        - MODIFIED
+        - REMOVED
+      attributes:
+        type: array
+        description: Description of the changes to the resource's attributes.
+        items:
+          $ref: '#/definitions/Attribute'
+  ComplianceDiff:
+    description: Difference between the old and new compliance state of a resource
+      after an event.
+    type: object
+    properties:
+      rules:
+        description: List of rule evaluations that changed state after an event.
+        type: array
+        items:
+          type: object
+          properties:
+            summary:
+              description: Summary of the rule a resource was evaluated against.
+              type: string
+            old_state:
+              description: The rule's evaluation state before an event.
+              type: string
+            new_state:
+              description: The rule's evaluation state after an event.
+              type: string
+            old_waived:
+              description: The rule's waived status before an event.
+              type: boolean
+            new_waived:
+              description: The rule's waived status after an event.
+              type: boolean
+            old_message:
+              description: The rule's error message before an event.
+              type: string
+            new_message:
+              description: The rule's error message after an event.
+              type: string
+            compliance_families:
+              description: The compliance families that a rule is evaluated for.
+              type: array
+              items:
+                type: string
+            controls:
+              description: The compliance controls that a rule is evaluated for.
+              type: array
+              items:
+                type: string
+      old_state:
+        type: string
+        description: The resource's compliance state before an event.
+      new_state:
+        type: string
+        description: The resource's compliance state after an event.
+      resource_id:
+        type: string
+        description: ID of the resource given by the provider.
+      resource_type:
+        type: string
+        description: Resource type.
+  Attribute:
+    description: Description of a change to a resource attribute.
+    type: object
+    properties:
+      name:
+        type: string
+        description: Name of the attribute.
+      attr_type:
+        type: string
+        description: Indicates whether the attribute type is input or output.
+      old:
+        type: string
+        description: Value of the attribute before the event.
+      new:
+        type: string
+        description: Value of the attribute as a result of the event.
+      removed:
+        type: boolean
+        description: Indicates whether the attribute was removed.
+      requires_new:
+        type: boolean
+        description: Indicates whether the attribute needed to be deleted and recreated.
+      sensitive:
+        type: boolean
+        description: Indicates whether the attribute contains sensitive data.
+  Events:
+    description: Paginated list of drift, remediation, and compliance events.
+    type: object
+    properties:
+      items:
+        description: Paginated list of events.
+        type: array
+        items:
+          $ref: '#/definitions/Event'
+      is_truncated:
+        description: Indicates whether there are more items at the next offset.
+        type: boolean
+      next_offset:
+        description: Next offset to use to get the next page of items.
+        type: integer
+      count:
+        description: 'Total number of items. DEPRECATED: This property no longer returns
+          accurate counts when filters are applied and will be removed in future API
+          versions'
+        type: integer
+  CreatePolicyInput:
+    description: List of resource types to be able to survey and remediate.
+    type: object
+    properties:
+      survey_resource_types:
+        description: List of resource types to be able to survey.
+        type: array
+        items:
+          type: string
+      remediate_resource_types:
+        description: List of resource types to be able to remediate.
+        type: array
+        items:
+          type: string
+  AuthenticationError:
+    description: Error returned when the API is unable to authenticate the request.
+    type: object
+    properties:
+      type:
+        description: Type of authentication error.
+        type: string
+        enum:
+        - AuthenticationError
+        - InvalidOrMissingToken
+      message:
+        description: Detailed human-readable message about the authentication error.
+        type: string
+      code:
+        description: HTTP status code for the error.
+        type: integer
+  AuthorizationError:
+    description: Error returned when the API is unable to authorize the request.
+    type: object
+    properties:
+      type:
+        description: Type of authorization error.
+        type: string
+        enum:
+        - AuthorizationError
+        - EnvironmentAccessDenied
+      message:
+        description: Detailed human-readable message about the authorization error.
+        type: string
+      code:
+        description: HTTP status code for the error.
+        type: integer
+  BadRequestError:
+    description: Error returned when the API is presented with a bad request.
+    type: object
+    properties:
+      type:
+        description: Type of bad request.
+        type: string
+        enum:
+        - BadRequest
+        - AlreadyAttachedToTenantError
+        - AlreadyInvitedError
+        - DomainAttachedToSsoTenantError
+        - InvalidCredential
+        - InvalidJSON
+        - InvalidParameterValue
+        - MissingParameter
+        - RoleNotAssumable
+        - WorkAlreadyStartedException
+      message:
+        description: Detailed human-readable message about the bad request.
+        type: string
+      code:
+        description: HTTP status code for the error.
+        type: integer
+  InternalServerError:
+    description: Error returned when the API request results in an internal server
+      error.
+    type: object
+    properties:
+      type:
+        description: Type of internal server error.
+        type: string
+        enum:
+        - InternalServerError
+        - DatabaseError
+      message:
+        description: Detailed human-readable message about the internal server error.
+        type: string
+      code:
+        description: HTTP status code for the error.
+        type: integer
+  NotFoundError:
+    description: Error returned when the API request references a non-existent resource.
+    type: object
+    properties:
+      type:
+        description: Type of not found error.
+        type: string
+        enum:
+        - NotFound
+      message:
+        description: Detailed human-readable message about the not found error.
+        type: string
+      code:
+        description: HTTP status code for the error.
+        type: integer
+  NotModifiedResponse:
+    description: Empty string returned when requested content is not modified.
+    type: string
+  UpdateEnvironmentInput:
+    description: A managed environment.
+    type: object
+    properties:
+      name:
+        description: Name of the environment.
+        type: string
+      provider:
+        description: Name of the service provider for the environment.
+        type: string
+        enum:
+        - aws
+        - aws_govcloud
+        - azure
+        - google
+        - repository
+      provider_options:
+        $ref: '#/definitions/ProviderOptionsUpdateInput'
+      compliance_families:
+        description: List of compliance families validated against the environment.
+        type: array
+        items:
+          type: string
+      baseline_id:
+        description: Scan ID of the baseline if baseline is enabled.
+        type: string
+      remediation:
+        description: Indicates whether remediation is enabled for the environment.
+        type: boolean
+      survey_resource_types:
+        description: List of resource types surveyed for the environment.
+        type: array
+        items:
+          type: string
+      remediate_resource_types:
+        description: List of resource types remediated for the environment if remediation
+          is enabled.
+        type: array
+        items:
+          type: string
+      scan_schedule_enabled:
+        description: Indicates whether an environment is scanned on a schedule.
+        type: boolean
+      scan_interval:
+        description: Time in seconds between the end of one scan to the start of the
+          next. Must also set scan_schedule_enabled to true.
+        type: integer
+        minimum: 300
+  ComplianceByResourceTypeOutput:
+    description: Paginated list of compliance results grouped by resource type.
+    type: object
+    properties:
+      items:
+        description: Paginated list of compliance results grouped by resource type.
+        type: array
+        items:
+          $ref: '#/definitions/ComplianceByResourceType'
+      is_truncated:
+        description: Indicates whether there are more items at the next offset.
+        type: boolean
+      next_offset:
+        description: Next offset to use to get the next page of items.
+        type: integer
+      count:
+        description: Total number of items.
+        type: integer
+  ComplianceByResourceType:
+    description: Compliance results for a resource type.
+    type: object
+    properties:
+      resource_type:
+        description: Name of the resource type.
+        type: string
+      total:
+        description: Count of all resources evaluated for this resource type.
+        type: integer
+      compliant:
+        description: Count of resources found to be fully compliant with all rules
+          it has been evaulated against.
+        type: integer
+      noncompliant:
+        description: List of non-compliant resources and the rules they have violated.
+        type: array
+        items:
+          $ref: '#/definitions/NonCompliantResource'
+  NonCompliantResource:
+    description: Describes the rules violated by a resource.
+    type: object
+    properties:
+      resource_id:
+        description: ID of the failing resource.
+        type: string
+      failed_rules:
+        description: List of rules and messages the resource violates.
+        type: array
+        items:
+          type: object
+          properties:
+            family:
+              description: Compliance family the violated rule belongs to.
+              type: string
+            rule:
+              description: ID of the violated rule.
+              type: string
+            messages:
+              description: Reasons the resource was found in violation of a rule.
+              type: array
+              items:
+                type: string
+  Notification:
+    description: Describes configuration of a notification.
+    type: object
+    properties:
+      notification_id:
+        description: ID of the notification.
+        type: string
+      name:
+        description: Human readable name of the notification.
+        type: string
+      events:
+        description: List of events the notification is triggered on.
+        type: array
+        items:
+          type: string
+      environments:
+        description: List of maps from environment id to name the notification is
+          attached to.
+        type: array
+        items:
+          type: object
+          additionalProperties:
+            type: string
+      emails:
+        description: List of email address the notification is delivered to.
+        type: array
+        items:
+          type: string
+      topic_arn:
+        description: AWS SNS topic arn the notification is delivered to.
+        type: string
+      last_error:
+        description: Last error recorded while processing notification. If the last
+          notification processed had no error this field will be empty.
+        type: string
+      created_by:
+        description: Principal the created the notification.
+        type: string
+      created_at:
+        description: The date and time the notification was created.
+        type: integer
+      updated_by:
+        description: Principal that last updated the notification.
+        type: string
+      updated_at:
+        description: AWS The date and time the notification was last updated.
+        type: integer
+  Notifications:
+    description: Paginiated result of notification lists.
+    type: object
+    properties:
+      count:
+        description: Count of all found notifications.
+        type: integer
+      next_offset:
+        description: Next offset to use to get the next page of items.
+        type: integer
+      is_truncated:
+        description: Indicates whether there are more items at the next offset.
+        type: boolean
+      items:
+        description: List of notification configurations.
+        type: array
+        items:
+          $ref: '#/definitions/Notification'
+  CreateNotificationInput:
+    description: Request for creating a new notification.
+    type: object
+    properties:
+      name:
+        description: Human readable name of the notification.
+        type: string
+      events:
+        description: List of events the notification is triggered on.
+        type: array
+        items:
+          type: string
+      environments:
+        description: List of environment ids the notification is attached to.
+        type: array
+        items:
+          type: string
+      emails:
+        description: List of email address the notification is delivered to.
+        type: array
+        items:
+          type: string
+      topic_arn:
+        description: AWS SNS topic arn the notification is delivered to.
+        type: string
+  UpdateNotificationInput:
+    description: Request for updating an existing notification.
+    type: object
+    properties:
+      name:
+        description: Human readable name of the notification.
+        type: string
+      events:
+        description: List of events the notification is triggered on.
+        type: array
+        items:
+          type: string
+      environments:
+        description: List of environment ids the notification is attached to.
+        type: array
+        items:
+          type: string
+      emails:
+        description: List of email address the notification is delivered to.
+        type: array
+        items:
+          type: string
+      topic_arn:
+        description: AWS SNS topic arn the notification is delivered to.
+        type: string
+  CreateCustomRuleInput:
+    description: Input request for creating a custom rule.
+    type: object
+    properties:
+      name:
+        description: Human readable name of the custom rule
+        type: string
+      source:
+        description: The origin of this rule
+        type: string
+        enum:
+        - FUGUE
+        - CUSTOM
+      description:
+        description: Description of the custom rule
+        type: string
+      provider:
+        description: 'Provider of the custom rule. Deprecated: please use "providers"
+          instead.'
+        type: string
+        enum:
+        - AWS
+        - AWS_GOVCLOUD
+        - AZURE
+        - GOOGLE
+      providers:
+        description: Providers for the custom rule.
+        type: array
+        items:
+          type: string
+          enum:
+          - AWS
+          - AWS_GOVCLOUD
+          - AZURE
+          - GOOGLE
+          - REPOSITORY
+      severity:
+        description: Severity level of the custom rule.
+        type: string
+        enum:
+        - Informational
+        - Low
+        - Medium
+        - High
+        - Critical
+      resource_type:
+        description: Resource type to which the custom rule applies
+        type: string
+      rule_text:
+        description: The rego source code for the rule
+        type: string
+  UpdateCustomRuleInput:
+    description: Input request for updating a custom rule
+    type: object
+    properties:
+      name:
+        description: Human readable name of the custom rule
+        type: string
+      description:
+        description: Description of the custom rule
+        type: string
+      providers:
+        description: Providers for the custom rule.
+        type: array
+        items:
+          type: string
+          enum:
+          - AWS
+          - AWS_GOVCLOUD
+          - AZURE
+          - GOOGLE
+          - REPOSITORY
+      status:
+        description: Status of the custom rule
+        type: string
+        enum:
+        - ENABLED
+        - DISABLED
+      resource_type:
+        description: Resource type to which the custom rule applies
+        type: string
+      rule_text:
+        description: Rego code used by the rule
+        type: string
+      severity:
+        description: Severity level of the custom rule.
+        type: string
+        enum:
+        - Informational
+        - Low
+        - Medium
+        - High
+        - Critical
+      families:
+        description: Families to which the custom rule belongs
+        type: array
+        items:
+          type: string
+  CustomRule:
+    description: A custom rule
+    type: object
+    properties:
+      id:
+        description: ID of the custom rule.
+        type: string
+      name:
+        description: Human readable name of the custom rule.
+        type: string
+      source:
+        description: The origin of this rule.
+        type: string
+        enum:
+        - CUSTOM
+      description:
+        description: Description of the custom rule.
+        type: string
+      provider:
+        description: 'Provider of the custom rule. Deprecated: please use "providers"
+          instead.'
+        type: string
+        enum:
+        - AWS
+        - AWS_GOVCLOUD
+        - AZURE
+        - GOOGLE
+      providers:
+        description: Providers for the custom rule.
+        type: array
+        items:
+          type: string
+          enum:
+          - AWS
+          - AWS_GOVCLOUD
+          - AZURE
+          - GOOGLE
+          - REPOSITORY
+      resource_type:
+        description: Resource type to which the custom rule applies.
+        type: string
+      tf_resource_type:
+        description: Terraform resource type corresponding to resource_type.
+        type: string
+      severity:
+        description: Severity level of the custom rule.
+        type: string
+        enum:
+        - Informational
+        - Low
+        - Medium
+        - High
+        - Critical
+      compliance_controls:
+        description: Compliance controls to which the custom rule belongs.
+        type: array
+        items:
+          type: string
+      families:
+        description: Families to which the custom rule belongs.
+        type: array
+        items:
+          type: string
+      status:
+        description: The current status of the rule.
+        type: string
+        enum:
+        - ENABLED
+        - DISABLED
+        - INVALID
+      rule_text:
+        description: The rego source code for the rule.
+        type: string
+      created_by:
+        description: Principal that created the rule.
+        type: string
+      created_by_display_name:
+        description: Display name of the user that created the rule
+        type: string
+      created_at:
+        description: The date and time the rule was created.
+        type: integer
+      updated_by:
+        description: Principal that last updated the rule.
+        type: string
+      updated_by_display_name:
+        description: Display name of the user that last updated the rule
+        type: string
+      updated_at:
+        description: The date and time the rule was last updated.
+        type: integer
+  CustomRuleWithErrors:
+    description: A custom rule and any associated syntax errors.
+    allOf:
+    - $ref: '#/definitions/CustomRule'
+    - type: object
+      properties:
+        errors:
+          description: Syntax errors in the rego source code.
+          type: array
+          items:
+            $ref: '#/definitions/CustomRuleError'
+  CustomRules:
+    description: Paginated list of custom rules
+    type: object
+    properties:
+      count:
+        description: Total number of custom rules
+        type: integer
+      next_offset:
+        description: Next offset to use to get the next page of items
+        type: integer
+      is_truncated:
+        description: Indicates whether there are more items at the next offset
+        type: boolean
+      items:
+        description: List of custom rules
+        type: array
+        items:
+          $ref: '#/definitions/CustomRule'
+  CustomRuleError:
+    description: An error for a custom rule
+    properties:
+      severity:
+        description: Severity of the error.
+        enum:
+        - error
+        - warning
+        type: string
+      text:
+        description: Text describing the error
+        type: string
+  TestCustomRuleInput:
+    description: Input request for testing a custom rule.
+    type: object
+    required:
+    - rule_text
+    - scan_id
+    properties:
+      resource_type:
+        description: Resource type to which the custom rule applies
+        type: string
+      rule_text:
+        description: The rego source code for the rule
+        type: string
+      scan_id:
+        description: Scan to test the custom rule with
+        type: string
+  TestCustomRuleOutput:
+    description: Results from testing a custom rule.
+    type: object
+    properties:
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/CustomRuleError'
+      result:
+        type: string
+        enum:
+        - PASS
+        - FAIL
+        - UNKNOWN
+      resources:
+        type: array
+        items:
+          $ref: '#/definitions/TestCustomRuleOutputResource'
+      links:
+        type: object
+        additionalProperties:
+          type: string
+  TestCustomRuleOutputResource:
+    description: Test results from testing a custom rule on a single resource.
+    type: object
+    properties:
+      id:
+        description: ID of the resource.
+        type: string
+      result:
+        description: Whether or not this single resource is compliant.
+        type: string
+        enum:
+        - PASS
+        - FAIL
+        - UNKNOWN
+      type:
+        description: Type of the resource.
+        type: string
+  TestCustomRuleInputScan:
+    description: Scan used as input to a custom rule.
+    type: object
+    properties:
+      resources:
+        type: object
+      links:
+        type: object
+        additionalProperties:
+          type: string
+  EnvironmentRules:
+    description: List of rules active for an environment.
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/EnvironmentRulesRule'
+    required:
+    - items
+  EnvironmentRulesRule:
+    type: object
+    properties:
+      id:
+        type: string
+    required:
+    - id
+  CreateInviteInput:
+    type: object
+    properties:
+      email:
+        type: string
+      group_ids:
+        type: array
+        items:
+          type: string
+      expires:
+        type: boolean
+        default: true
+    required:
+    - email
+    - group_ids
+  Invite:
+    type: object
+    required:
+    - id
+    - email
+    - status
+    - created_at
+    - expires_at
+    properties:
+      id:
+        type: string
+      resource_type:
+        type: string
+      email:
+        type: string
+      status:
+        type: string
+      created_at:
+        type: integer
+      updated_at:
+        type: integer
+      expires_at:
+        type: integer
+      groups:
+        description: Map from group id to name.
+        type: object
+        additionalProperties:
+          type: string
+  Invites:
+    description: Paginated list of invites.
+    type: object
+    properties:
+      items:
+        description: Paginated list of invites.
+        type: array
+        items:
+          $ref: '#/definitions/Invite'
+      is_truncated:
+        description: Indicates whether there are more items at the next offset.
+        type: boolean
+      next_offset:
+        description: Next offset to use to get the next page of items.
+        type: integer
+      count:
+        description: Total number of items.
+        type: integer
+  Groups:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Group'
+      count:
+        type: integer
+      is_truncated:
+        type: boolean
+      next_offset:
+        type: integer
+  CreateGroupInput:
+    type: object
+    properties:
+      name:
+        type: string
+      policy:
+        type: string
+        enum:
+        - fugue:READONLY
+        - fugue:AUDITOR
+        - fugue:EDITOR
+        - fugue:CONTRIBUTOR
+        - fugue:MANAGER
+        - fugue:ORGANIZATION_REPORT_VIEWER
+        - fugue:IAC_SCANNER
+      environment_ids:
+        type: array
+        items:
+          type: string
+  Group:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      environments:
+        description: Map from environment id to name.
+        type: object
+        additionalProperties:
+          type: string
+      policy:
+        type: string
+      users:
+        description: Map from user_id to name.
+        type: object
+        additionalProperties:
+          type: string
+      api_clients:
+        description: Map from api_client_id to name.
+        type: object
+        additionalProperties:
+          type: string
+  User:
+    type: object
+    required:
+    - id
+    - email
+    - status
+    properties:
+      id:
+        type: string
+      resource_type:
+        type: string
+      email:
+        type: string
+      owner:
+        type: boolean
+      first_name:
+        type: string
+      last_name:
+        type: string
+      status:
+        type: string
+      groups:
+        description: Map from group id to name.
+        type: object
+        additionalProperties:
+          type: string
+  Users:
+    description: Paginated list of users.
+    type: object
+    properties:
+      items:
+        description: Paginated list of users.
+        type: array
+        items:
+          $ref: '#/definitions/User'
+      is_truncated:
+        description: Indicates whether there are more items at the next offset.
+        type: boolean
+      next_offset:
+        description: Next offset to use to get the next page of items.
+        type: integer
+      count:
+        description: Total number of items.
+        type: integer
+  EditUsersGroupAssignmentsInput:
+    type: object
+    properties:
+      user_ids:
+        type: array
+        items:
+          type: string
+      group_ids:
+        type: array
+        items:
+          type: string
+  CreateRuleWaiverInput:
+    description: Parameters for rule waiver creation.
+    type: object
+    required:
+    - environment_id
+    - resource_provider
+    - resource_type
+    - resource_id
+    - rule_id
+    - name
+    properties:
+      environment_id:
+        type: string
+      resource_provider:
+        type: string
+      resource_type:
+        type: string
+      resource_id:
+        type: string
+      resource_tag:
+        type: string
+      rule_id:
+        type: string
+      name:
+        type: string
+      comment:
+        type: string
+  RuleWaiver:
+    description: Rule waiver
+    type: object
+    required:
+    - id
+    - environment_id
+    - resource_provider
+    - resource_type
+    - resource_id
+    - rule_id
+    - name
+    properties:
+      id:
+        type: string
+      environment_id:
+        type: string
+      environment_name:
+        type: string
+      resource_provider:
+        type: string
+      resource_type:
+        type: string
+      resource_id:
+        type: string
+      resource_tag:
+        type: string
+      rule_id:
+        type: string
+      name:
+        type: string
+      comment:
+        type: string
+      created_by:
+        description: Principal that created the rule waiver.
+        type: string
+      created_by_display_name:
+        description: Display name of the user that created the rule waiver.
+        type: string
+      created_at:
+        description: The date and time when the rule waiver was created.
+        type: integer
+      updated_by:
+        description: Principal that last updated the rule waiver.
+        type: string
+      updated_by_display_name:
+        description: Display name of the user that last updated the rule waiver.
+        type: string
+      updated_at:
+        description: The date and time when the rule waiver was last updated.
+        type: integer
+      rule_description:
+        description: Description of the rule.
+        type: string
+      rule_compliance_mapping:
+        description: Mapping of this rule in compliance families and their controls
+          which are enabled in a given environment.
+        type: object
+        additionalProperties: true
+  UpdateRuleWaiverInput:
+    description: Used to update properties of a rule waiver
+    type: object
+    properties:
+      name:
+        type: string
+      comment:
+        type: string
+  RuleWaivers:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/RuleWaiver'
+      count:
+        type: integer
+      is_truncated:
+        type: boolean
+      next_offset:
+        type: integer
+  AuditLogEventRequestContext:
+    type: object
+    properties:
+      trace_id:
+        type: string
+      source_ip:
+        type: string
+      user_agent:
+        type: string
+      protocol:
+        type: string
+      domain:
+        type: string
+      path:
+        type: string
+      method:
+        type: string
+  AuditLogEventIdentity:
+    type: object
+    properties:
+      principal_kind:
+        type: string
+      principal_id:
+        type: string
+      name:
+        type: string
+      email:
+        type: string
+  AuditLogEvent:
+    type: object
+    properties:
+      id:
+        type: string
+      timestamp:
+        type: string
+      principal:
+        type: string
+      event_source:
+        type: string
+      request_context:
+        $ref: '#/definitions/AuditLogEventRequestContext'
+      identity:
+        $ref: '#/definitions/AuditLogEventIdentity'
+      action_type:
+        type: string
+      action:
+        type: string
+      subject_kind:
+        type: string
+      subject_id:
+        type: string
+      subject_name:
+        type: string
+      parameters:
+        type: object
+        additionalProperties:
+          type: string
+      response_code:
+        type: integer
+      response_message:
+        type: string
+      error:
+        type: boolean
+      results:
+        type: array
+        items:
+          type: object
+          properties:
+            entity_kind:
+              type: string
+            entity_id:
+              type: string
+            entity_name:
+              type: string
+            action:
+              type: string
+  AuditLogEvents:
+    description: Paginated list of audit log events
+    type: object
+    properties:
+      items:
+        description: List of audit log events
+        type: array
+        items:
+          $ref: '#/definitions/AuditLogEvent'
+      next_token:
+        description: If set can be used to retrieve the next page of records.
+        type: string
+  UploadRegulaScanViewOutput:
+    description: Options for uploading regula scan view
+    type: object
+    properties:
+      url:
+        description: Presigned S3 URL to upload a scan view
+        type: string
+  FamilyWithRules:
+    description: A family with rule IDs
+    type: object
+    properties:
+      id:
+        description: ID of the family
+        type: string
+      tenant_id:
+        description: ID of the tenant
+        type: string
+      name:
+        description: Human readable name of the family
+        type: string
+      source:
+        description: The origin of this family
+        type: string
+        enum:
+        - FUGUE
+        - CUSTOM
+      description:
+        description: Description of the family
+        type: string
+      providers:
+        description: Provider the families applies to
+        type: array
+        items:
+          type: string
+      recommended:
+        description: If the family is recommended for all new environments
+        type: boolean
+      always_enabled:
+        description: If the family will automatically be enabled on all environments
+          within the tenant
+        type: boolean
+      rule_ids:
+        type: array
+        description: List of rule ids associated with family
+        items:
+          type: string
+      created_by:
+        description: Principal that created the rule.
+        type: string
+      created_by_display_name:
+        description: Display name of the user that created the rule
+        type: string
+      created_at:
+        description: The date and time the rule was created.
+        type: integer
+      updated_by:
+        description: Principal that last updated the rule.
+        type: string
+      updated_by_display_name:
+        description: Display name of the user that last updated the rule
+        type: string
+      updated_at:
+        description: The date and time the rule was last updated.
+        type: integer
+  Family:
+    description: A family
+    type: object
+    properties:
+      id:
+        description: ID of the family
+        type: string
+      tenant_id:
+        description: ID of the tenant
+        type: string
+      name:
+        description: Human readable name of the family
+        type: string
+      source:
+        description: The origin of this family
+        type: string
+        enum:
+        - FUGUE
+        - CUSTOM
+      description:
+        description: Description of the family
+        type: string
+      providers:
+        description: Provider the families applies to
+        type: array
+        items:
+          type: string
+      recommended:
+        description: If the family is recommended for all new environments
+        type: boolean
+      always_enabled:
+        description: If the family will automatically be enabled on all environments
+          within the tenant
+        type: boolean
+      created_by:
+        description: Principal that created the rule.
+        type: string
+      created_by_display_name:
+        description: Display name of the user that created the rule
+        type: string
+      created_at:
+        description: The date and time the rule was created.
+        type: integer
+      updated_by:
+        description: Principal that last updated the rule.
+        type: string
+      updated_by_display_name:
+        description: Display name of the user that last updated the rule
+        type: string
+      updated_at:
+        description: The date and time the rule was last updated.
+        type: integer
+  Families:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Family'
+      count:
+        type: integer
+      is_truncated:
+        type: boolean
+      next_offset:
+        type: integer
+  CreateFamilyInput:
+    description: Input request for creating a family.
+    type: object
+    properties:
+      name:
+        description: Human readable name of the family
+        type: string
+      description:
+        description: Description of the family
+        type: string
+      recommended:
+        description: If the family is recommended for all new environments
+        type: boolean
+      always_enabled:
+        description: If the family will automatically be enabled on all environments
+          within the tenant
+        type: boolean
+      rule_ids:
+        type: array
+        description: List of rule ids to associate with family
+        items:
+          type: string
+  UpdateFamilyInput:
+    description: Input request for updating a family
+    type: object
+    properties:
+      name:
+        description: Human readable name of the family
+        type: string
+      description:
+        description: Description of the family
+        type: string
+      recommended:
+        description: If the family is recommended for all new environments
+        type: boolean
+      always_enabled:
+        description: If the family will automatically be enabled on all environments
+          within the tenant
+        type: boolean
+      rule_ids:
+        type: array
+        description: List of rule ids to associate with family
+        items:
+          type: string
+  RuleBundleResponse:
+    description: A rule bundle.
+    type: string
+    format: binary
+externalDocs:
+  description: Additional Fugue API Documentation
+  url: https://docs.fugue.co/api.html

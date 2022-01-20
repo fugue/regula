@@ -176,17 +176,6 @@ func TarGzProvider(reader io.Reader) RegoProvider {
 	}
 }
 
-func RegulaBundleProvider() RegoProvider {
-	return func(ctx context.Context, p RegoProcessor) error {
-		f, err := os.Open("/home/jasper/Luminal/risk-manager/src/iac_rules/build/rego.tar.gz")
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		return TarGzProvider(f)(ctx, p)
-	}
-}
-
 func RegulaLibProvider() RegoProvider {
 	return FSProvider(embedded.RegulaLib, "lib")
 }

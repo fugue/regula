@@ -27,6 +27,9 @@ type ProviderOptions struct {
 
 	// google
 	Google *ProviderOptionsGoogle `json:"google,omitempty"`
+
+	// repository
+	Repository *ProviderOptionsRepository `json:"repository,omitempty"`
 }
 
 // Validate validates this provider options
@@ -46,6 +49,10 @@ func (m *ProviderOptions) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateGoogle(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRepository(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -119,6 +126,24 @@ func (m *ProviderOptions) validateGoogle(formats strfmt.Registry) error {
 		if err := m.Google.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("google")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ProviderOptions) validateRepository(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Repository) { // not required
+		return nil
+	}
+
+	if m.Repository != nil {
+		if err := m.Repository.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("repository")
 			}
 			return err
 		}

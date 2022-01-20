@@ -50,6 +50,10 @@ func (c *runConfig) Validate() error {
 		logrus.Warn("--sync takes precedence over options that modify the rule set (--excludes, --includes, --only, --no-built-ins). Those options will be ignored.")
 	}
 
+	if c.sync && c.environmentId == "" {
+		return fmt.Errorf("--sync requires an environment-id to be set.")
+	}
+
 	if c.upload {
 		if c.rootDir == "" {
 			return fmt.Errorf("--upload requires a configuration file. The location of the configuration file is used to produce consistent relative filepaths in rule results.")
@@ -75,6 +79,7 @@ func (c *runConfig) Providers() ([]rego.RegoProvider, error) {
 			rego.RegulaLibProvider(),
 			rego.RegulaRulesProvider(),
 			client.CustomRulesProvider(),
+			client.EnvironmentRegulaConfigProvider(c.environmentId),
 		}, nil
 	}
 

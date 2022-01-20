@@ -15,15 +15,22 @@
 package fugue
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/fugue/regula/pkg/swagger/client"
 	apiclient "github.com/fugue/regula/pkg/swagger/client"
+	"github.com/fugue/regula/pkg/swagger/client/rule_bundles"
+	"github.com/fugue/regula/pkg/version"
 	"github.com/fugue/regula/pkg/swagger/client/environments"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
@@ -56,6 +63,7 @@ func getEnvWithDefault(name, defaultValue string) string {
 }
 
 type FugueClient interface {
+	RuleBundleProvider(rootDir string) rego.RegoProvider
 	CustomRulesProvider() rego.RegoProvider
 	CustomRuleProvider(ruleID string) rego.RegoProvider
 	EnvironmentRegulaConfigProvider(environmentID string) rego.RegoProvider
@@ -83,12 +91,71 @@ func NewFugueClient() (FugueClient, error) {
 	transport := httptransport.New(host, base, []string{"https"})
 	client := apiclient.New(transport, strfmt.Default)
 
+	// Explicitly set this for downloading the rules bundle.
+	transport.Consumers["application/gzip"] = runtime.ByteStreamConsumer()
+
 	auth := httptransport.BasicAuth(clientID, clientSecret)
 
 	return &fugueClient{
 		client: client,
 		auth:   auth,
 	}, nil
+}
+
+func (c *fugueClient) RuleBundleProvider(rootDir string) rego.RegoProvider {
+	cacheDir := filepath.Join(rootDir, ".regula/cache")
+	bundlePath := filepath.Join(cacheDir, "bundle.tar.gz")
+
+	return func(ctx context.Context, p rego.RegoProcessor) error {
+		// Read the old bundle and store its hash.
+		var etag *string
+		oldBundle, err := os.ReadFile(bundlePath)
+		if err == nil {
+			hasher := sha1.New()
+			hasher.Write(oldBundle)
+			str := "\"" + hex.EncodeToString(hasher.Sum(nil)) + "\""
+			etag = &str
+			logrus.Infof("Found old bundle at %s with sha1 %s", bundlePath, str)
+		} else if errors.Is(err, os.ErrNotExist) {
+			logrus.Infof("No old bundle at %s", bundlePath)
+		} else {
+			return err
+		}
+
+		// Retrieve latest rule bundle
+		var buffer bytes.Buffer
+		var ruleBundle []byte
+		getLatestRuleBundleParams := rule_bundles.GetLatestRuleBundleParams{
+			RegulaVersion: version.PlainVersion(),
+			Context:       ctx,
+			IfNoneMatch:   etag,
+		}
+		logrus.Infof("Requesting rule bundle for version %s", getLatestRuleBundleParams.RegulaVersion)
+		_, err = c.client.RuleBundles.GetLatestRuleBundle(&getLatestRuleBundleParams, c.auth, &buffer)
+		if err == nil {
+			ruleBundle = buffer.Bytes()
+
+			// Write to filesystem.
+			if err = os.MkdirAll(cacheDir, 0755); err != nil {
+				return err
+			}
+			if err = os.WriteFile(bundlePath, ruleBundle, 0644); err != nil {
+				return err
+			}
+		} else {
+			if _, ok := err.(*rule_bundles.GetLatestRuleBundleNotModified); ok {
+				logrus.Infof("Rule bundle not modified, using %s", bundlePath)
+				ruleBundle = oldBundle
+			} else if _, ok := err.(*rule_bundles.GetLatestRuleBundleForbidden); ok {
+				logrus.Infof("Unauthorized, using builtin rule bundle")
+				return rego.RegulaRulesProvider()(ctx, p)
+			} else {
+				return err
+			}
+		}
+
+		return rego.TarGzProvider(bytes.NewReader(ruleBundle))(ctx, p)
+	}
 }
 
 func (c *fugueClient) EnvironmentRegulaConfigProvider(environmentID string) rego.RegoProvider {

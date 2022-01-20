@@ -26,7 +26,7 @@ type CreateGroupInput struct {
 	Name string `json:"name,omitempty"`
 
 	// policy
-	// Enum: [fugue:READONLY fugue:AUDITOR fugue:EDITOR fugue:CONTRIBUTOR fugue:MANAGER fugue:ORGANIZATION_REPORT_VIEWER]
+	// Enum: [fugue:READONLY fugue:AUDITOR fugue:EDITOR fugue:CONTRIBUTOR fugue:MANAGER fugue:ORGANIZATION_REPORT_VIEWER fugue:IAC_SCANNER]
 	Policy string `json:"policy,omitempty"`
 }
 
@@ -48,7 +48,7 @@ var createGroupInputTypePolicyPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["fugue:READONLY","fugue:AUDITOR","fugue:EDITOR","fugue:CONTRIBUTOR","fugue:MANAGER","fugue:ORGANIZATION_REPORT_VIEWER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["fugue:READONLY","fugue:AUDITOR","fugue:EDITOR","fugue:CONTRIBUTOR","fugue:MANAGER","fugue:ORGANIZATION_REPORT_VIEWER","fugue:IAC_SCANNER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -75,6 +75,9 @@ const (
 
 	// CreateGroupInputPolicyFugueORGANIZATIONREPORTVIEWER captures enum value "fugue:ORGANIZATION_REPORT_VIEWER"
 	CreateGroupInputPolicyFugueORGANIZATIONREPORTVIEWER string = "fugue:ORGANIZATION_REPORT_VIEWER"
+
+	// CreateGroupInputPolicyFugueIACSCANNER captures enum value "fugue:IAC_SCANNER"
+	CreateGroupInputPolicyFugueIACSCANNER string = "fugue:IAC_SCANNER"
 )
 
 // prop value enum

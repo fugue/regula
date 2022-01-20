@@ -9,6 +9,7 @@ tags:
 - name: scans
 - name: events
 - name: metadata
+- name: rule_bundles
 securityDefinitions:
   CustomerApiAuthorizer:
     type: apiKey
@@ -3212,6 +3213,75 @@ paths:
         passthroughBehavior: when_no_match
         httpMethod: POST
         type: http_proxy
+  /rule_bundles/latest:
+    get:
+      summary: Retrieves IaC rule bundles.
+      description: Retrieves IaC rule bundles, ready to be used by Regula.
+      operationId: getLatestRuleBundle
+      security:
+      - CustomerApiAuthorizer: []
+      tags:
+      - rule_bundles
+      parameters:
+      - name: If-None-Match
+        in: header
+        type: string
+        required: false
+        description: SHA1 of the currently downloaded rule bundle.
+      - name: regula_version
+        in: query
+        required: true
+        description: Client regula version.
+        type: string
+      produces:
+      - application/gzip
+      - text/plain
+      responses:
+        "200":
+          description: Rule bundle.
+          schema:
+            $ref: '#/definitions/RuleBundleResponse'
+        "304":
+          description: NotModified
+          schema:
+            $ref: '#/definitions/NotModifiedResponse'
+        "400":
+          description: BadRequestError
+          schema:
+            $ref: '#/definitions/BadRequestError'
+        "401":
+          description: AuthenticationError
+          schema:
+            $ref: '#/definitions/AuthenticationError'
+        "403":
+          description: AuthorizationError
+          schema:
+            $ref: '#/definitions/AuthorizationError'
+        "404":
+          description: NotFoundError
+          schema:
+            $ref: '#/definitions/NotFoundError'
+        "500":
+          description: InternalServerError
+          schema:
+            $ref: '#/definitions/InternalServerError'
+      x-amazon-apigateway-integration:
+        connectionType: VPC_LINK
+        connectionId:
+          Ref: DomainServiceVpcLink
+        responses:
+          default:
+            statusCode: "200"
+        requestParameters:
+          integration.request.header.X-Fugue-Principal-Name: context.authorizer.name
+          integration.request.header.X-Fugue-Principal-Id: context.authorizer.principalId
+          integration.request.header.X-Fugue-Tenant-Id: context.authorizer.tenantId
+          integration.request.header.X-Fugue-Request-Id: context.requestId
+        uri:
+          Fn::Sub: http://customer-api.fugueriskmanager.com:${ApiServicePort}/rule_bundles/latest
+        passthroughBehavior: when_no_match
+        httpMethod: GET
+        type: http_proxy
 definitions:
   ComplianceByRule:
     description: Compliance rule and result.
@@ -3980,6 +4050,9 @@ definitions:
       code:
         description: HTTP status code for the error.
         type: integer
+  NotModifiedResponse:
+    description: Empty string returned when requested content is not modified.
+    type: string
   UpdateEnvironmentInput:
     description: A managed environment.
     type: object
@@ -4604,6 +4677,7 @@ definitions:
         - fugue:CONTRIBUTOR
         - fugue:MANAGER
         - fugue:ORGANIZATION_REPORT_VIEWER
+        - fugue:IAC_SCANNER
       environment_ids:
         type: array
         items:
@@ -4623,7 +4697,12 @@ definitions:
       policy:
         type: string
       users:
-        description: Map from user id to name.
+        description: Map from user_id to name.
+        type: object
+        additionalProperties:
+          type: string
+      api_clients:
+        description: Map from api_client_id to name.
         type: object
         additionalProperties:
           type: string
@@ -5049,6 +5128,10 @@ definitions:
         description: List of rule ids to associate with family
         items:
           type: string
+  RuleBundleResponse:
+    description: A rule bundle.
+    type: string
+    format: binary
 externalDocs:
   description: Additional Fugue API Documentation
   url: https://docs.fugue.co/api.html

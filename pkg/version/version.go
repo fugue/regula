@@ -15,6 +15,8 @@
 package version
 
 import (
+	"strings"
+
 	"github.com/open-policy-agent/opa/version"
 )
 
@@ -27,3 +29,12 @@ var (
 
 // OPAVersion is the canonical version of OPA that is embedded in Regula
 var OPAVersion = version.Version
+
+// Plain version, e.g. "1.2.0" rather than "v1.2.0-dev"
+func PlainVersion() string {
+	plain := strings.TrimPrefix(Version, "v")
+	if idx := strings.Index(plain, "-"); idx >= 0 {
+		plain = plain[:idx]
+	}
+	return plain
+}

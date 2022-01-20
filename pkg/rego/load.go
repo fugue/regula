@@ -15,7 +15,12 @@
 package rego
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"context"
+	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -128,6 +133,43 @@ func LocalProvider(paths []string) RegoProvider {
 			}
 			if err := p(file); err != nil {
 				return err
+			}
+		}
+		return nil
+	}
+}
+
+func TarGzProvider(reader io.Reader) RegoProvider {
+	return func(ctx context.Context, p RegoProcessor) error {
+		gzf, err := gzip.NewReader(reader)
+		if err != nil {
+			return err
+		}
+
+		tarReader := tar.NewReader(gzf)
+		for true {
+			header, err := tarReader.Next()
+			if err == io.EOF {
+				break
+			} else if err != nil {
+				return err
+			}
+
+			path := header.Name
+
+			switch header.Typeflag {
+			case tar.TypeReg:
+				if ext := filepath.Ext(path); !opaExts[ext] {
+					continue
+				}
+				buffer := bytes.NewBuffer([]byte{})
+				if _, err := io.Copy(buffer, tarReader); err != nil {
+					return fmt.Errorf("Error reading file %s in tar: %s", path, err)
+				}
+				p(&regoFile{
+					path:     path,
+					contents: buffer.Bytes(),
+				})
 			}
 		}
 		return nil

@@ -77,7 +77,7 @@ func (c *runConfig) Providers() ([]rego.RegoProvider, error) {
 		}
 		return []rego.RegoProvider{
 			rego.RegulaLibProvider(),
-			rego.RegulaRulesProvider(),
+			client.RuleBundleProvider(c.rootDir),
 			client.CustomRulesProvider(),
 			client.EnvironmentRegulaConfigProvider(c.environmentId),
 		}, nil

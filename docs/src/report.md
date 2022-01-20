@@ -10,6 +10,10 @@ Here's a snippet of test results from a Regula JSON report:
         "CIS-Azure_v1.1.0_6.4",
         "CIS-Azure_v1.3.0_6.4"
       ],
+      "families": [
+        "CIS-Azure_v1.1.0",
+        "CIS-Azure_v1.3.0"
+      ],
       "filepath": "dev_network/main.tf",
       "input_type": "tf",
       "provider": "azurerm",
@@ -37,6 +41,10 @@ Here's a snippet of test results from a Regula JSON report:
         "CIS-Azure_v1.1.0_6.2",
         "CIS-Azure_v1.3.0_6.2"
       ],
+      "families": [
+        "CIS-Azure_v1.1.0",
+        "CIS-Azure_v1.3.0"
+      ],
       "filepath": "dev_network/main.tf",
       "input_type": "tf",
       "provider": "azurerm",
@@ -63,6 +71,10 @@ Here's a snippet of test results from a Regula JSON report:
       "controls": [
         "CIS-Azure_v1.1.0_3.1",
         "CIS-Azure_v1.3.0_3.1"
+      ],
+      "families": [
+        "CIS-Azure_v1.1.0",
+        "CIS-Azure_v1.3.0"
       ],
       "filepath": "dev_network/main.tf",
       "input_type": "tf",
@@ -130,6 +142,7 @@ The `summary` block contains a breakdown of the `filepaths` (CloudFormation temp
 Each rule result in the JSON report lists the following attributes:
 
 - `controls`: Compliance controls mapped to the rule
+- `families`: Compliance families associated with the rule
 - `filepath`: Filepath of the evaluated Terraform HCL file, Terraform JSON plan, CloudFormation template, Kubernetes manifest, or ARM template (_in preview_)
 - `input_type`: `tf` (Terraform HCL), `tf_plan` (Terraform JSON plan), `cfn` (CloudFormation), `k8s` (Kubernetes), `arm` (Azure Resource Manager JSON; _in preview_)
 - `provider`: `aws`, `azurerm`, `google`, `kubernetes`, `arm`

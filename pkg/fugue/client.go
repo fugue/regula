@@ -147,7 +147,7 @@ func (c *fugueClient) RuleBundleProvider(rootDir string) rego.RegoProvider {
 				logrus.Infof("Rule bundle not modified, using %s", bundlePath)
 				ruleBundle = oldBundle
 			} else if _, ok := err.(*rule_bundles.GetLatestRuleBundleForbidden); ok {
-				logrus.Infof("Unauthorized, using builtin rule bundle")
+				logrus.Infof("Regula will sync rules and metadata locally, as your Fugue tenant is on a Developer plan")
 				return rego.RegulaRulesProvider()(ctx, p)
 			} else {
 				return err

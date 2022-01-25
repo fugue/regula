@@ -90,7 +90,7 @@ extract_resources(top_level_resource) = ret {
 		resource := json.patch(value, [
 			{"op": "add", "path": ["id"], "value": typed_name},
 			{"op": "add", "path": ["_type"], "value": type},
-			{"op": "add", "path": ["_provider"], "value": "arm"},
+			{"op": "add", "path": ["_provider"], "value": "azurerm"},
 			{"op": "add", "path": ["_parent_id"], "value": parent_typed_name(typed_name)},
 		])
 	}

@@ -35,7 +35,7 @@ expected = {
 		"name": "VNet1",
 		"id": "Microsoft.Network/virtualNetworks/VNet1",
 		"type": "Microsoft.Network/virtualNetworks",
-		"_provider": "arm",
+		"_provider": "azurerm",
 		"properties": {"addressSpace": {"addressPrefixes": ["10.0.0.0/16"]}},
 	},
 	"Microsoft.Network/virtualNetworks/VNet1/subnets/Subnet2": {
@@ -46,7 +46,7 @@ expected = {
 		"name": "VNet1/Subnet2",
 		"id": "Microsoft.Network/virtualNetworks/VNet1/subnets/Subnet2",
 		"type": "Microsoft.Network/virtualNetworks/subnets",
-		"_provider": "arm",
+		"_provider": "azurerm",
 		"properties": {"addressPrefix": "10.0.1.0/24"},
 	},
 	"Microsoft.Network/virtualNetworks/VNet1/subnets/Subnet1": {
@@ -57,7 +57,7 @@ expected = {
 		"name": "Subnet1",
 		"id": "Microsoft.Network/virtualNetworks/VNet1/subnets/Subnet1",
 		"type": "subnets",
-		"_provider": "arm",
+		"_provider": "azurerm",
 		"properties": {"addressPrefix": "10.0.0.0/24"},
 	},
 }

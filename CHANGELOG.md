@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v2.4.0 (2022-01-25)
+
+### Added
+* Added support for retrieving rule bundles from Fugue
+* Add families to JSON output
+
+### Changed
+* Change ARM provider from "arm" to "azurerm"
+* On --sync, apply only rules from synced environment
+
+### Fixed
+* Fix issue around module detection
+* Better error for missing environment ID on --upload
+
 ## v2.3.0 (2021-12-17)
 
 ### Added

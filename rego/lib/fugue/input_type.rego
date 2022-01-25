@@ -43,6 +43,8 @@ input_type = "tf" {
   _ = input.k8s_resource_view_version
 } else = "arm" {
   _ = input.contentVersion
+} else = "tf_runtime" {
+  _ = input.resources
 } else = "unknown" {
   true
 }
@@ -51,6 +53,8 @@ terraform_input_type {
   input_type == "tf"
 } {
   input_type == "tf_plan"
+} {
+  input_type == "tf_runtime"
 }
 
 cloudformation_input_type {

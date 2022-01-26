@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # VPC subnet flow logging should be enabled.
-package rules.tf_google_compute_subnet_flow_log_enabled
+package rules.tf_google_compute_subnetwork_flow_logs
 
 __rego__metadoc__ := {
   "id": "FG_R00409",

@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_azurerm_storage_account_secure_transfer
+package rules.tf_azurerm_storage_secure_transfer
 
 import data.tests.rules.tf.azurerm.storage.inputs.account_secure_transfer_infra_json
 
-test_storage_account_secure_transfer {
+test_storage_secure_transfer {
   resources = account_secure_transfer_infra_json.mock_resources
   allow with input as resources["azurerm_storage_account.validstorageaccount1"]
   not allow with input as resources["azurerm_storage_account.invalidstorageaccount1"]

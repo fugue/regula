@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_azurerm_storage_account_secure_transfer
+package rules.tf_azurerm_storage_secure_transfer
 
 __rego__metadoc__ := {
   "id": "FG_R00152",

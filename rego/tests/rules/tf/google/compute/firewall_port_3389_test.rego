@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,12 +13,72 @@
 # limitations under the License.
 package rules.tf_google_compute_firewall_port_3389
 
-import data.tests.rules.tf.google.compute.inputs.firewall_no_ingress_3389_infra_json
+import data.tests.rules.tf.google.compute.inputs
 
-test_gcp_compute_firewall_port_3389 {
-  resources = firewall_no_ingress_3389_infra_json.mock_resources
-  not deny with input as resources["google_compute_firewall.valid-rule-1"]
-  not deny with input as resources["google_compute_firewall.valid-rule-2"]
-  deny with input as resources["google_compute_firewall.invalid-rule-1"]
-  deny with input as resources["google_compute_firewall.invalid-rule-2"]
+
+###################
+### VALID TESTS ###
+###################
+test_valid_firewall_allow_then_deny {
+  pol = policy with input as inputs.valid_firewall_allow_then_deny_tf.mock_input
+  count([p | p = pol[_]; p.valid]) == 2
+}
+
+test_valid_firewall_deny_all {
+  pol = policy with input as inputs.valid_firewall_deny_all_tf.mock_input
+  count([p | p = pol[_]; p.valid]) == 1
+}
+
+test_valid_firewall_restricted_allow {
+  pol = policy with input as inputs.valid_firewall_restricted_allow_tf.mock_input
+  count([p | p = pol[_]; p.valid]) == 1
+}
+
+test_valid_firewall_allow_port_range {
+  pol = policy with input as inputs.valid_firewall_allow_port_range_tf.mock_input
+  count([p | p = pol[_]; p.valid]) == 1
+}
+
+test_valid_firewall_equal_priorities {
+  pol = policy with input as inputs.valid_firewall_equal_priorities_tf.mock_input
+  count([p | p = pol[_]; p.valid]) == 2
+}
+
+test_valid_firewall_icmp {
+  pol = policy with input as inputs.valid_firewall_icmp_tf.mock_input
+  count([p | p = pol[_]; p.valid]) == 1
+}
+
+#####################
+### INVALID TESTS ###
+#####################
+test_invalid_firewall_allow_all {
+  pol = policy with input as inputs.invalid_firewall_allow_all_tf.mock_input
+  count([p | p = pol[_]; not p.valid]) == 1
+}
+
+test_invalid_firewall_allow_ports {
+  pol = policy with input as inputs.invalid_firewall_allow_ports_tf.mock_input
+  count([p | p = pol[_]; not p.valid]) == 1
+}
+
+test_invalid_firewall_deny_then_allow {
+  pol = policy with input as inputs.invalid_firewall_deny_then_allow_tf.mock_input
+  count([p | p = pol[_]; not p.valid]) == 1
+}
+
+test_invalid_firewall_allow_port_range {
+  pol = policy with input as inputs.invalid_firewall_allow_port_range_tf.mock_input
+  count([p | p = pol[_]; not p.valid]) == 1
+}
+
+test_invalid_firewall_multiple_networks {
+  pol = policy with input as inputs.invalid_firewall_multiple_networks_tf.mock_input
+  count([p | p = pol[_]; not p.valid]) == 1
+  count([p | p = pol[_]; p.valid]) == 1
+}
+
+test_invalid_firewall_equal_priorities {
+  pol = policy with input as inputs.invalid_firewall_equal_priorities_tf.mock_input
+  count([p | p = pol[_]; not p.valid]) == 1
 }

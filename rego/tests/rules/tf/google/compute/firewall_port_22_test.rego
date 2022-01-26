@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_google_compute_firewall_no_ingress_22
+package rules.tf_google_compute_firewall_port_22
 
 import data.tests.rules.tf.google.compute.inputs.firewall_no_ingress_22_infra_json
 
-test_gcp_compute_firewall_no_ingress_22 {
+test_gcp_compute_firewall_port_22 {
   resources = firewall_no_ingress_22_infra_json.mock_resources
   not deny with input as resources["google_compute_firewall.valid-rule-1"]
   not deny with input as resources["google_compute_firewall.valid-rule-2"]

@@ -13,23 +13,23 @@
 # limitations under the License.
 
 # VPC firewall rules should not permit unrestricted access from the internet
-# to port 22 (SSH). Removing unfettered connectivity to remote console services,
-# such as SSH, reduces a server's exposure to risk.
-package rules.tf_google_compute_firewall_no_ingress_22
+# to port 3389 (RDP). Removing unfettered connectivity to remote console services,
+# such as RDP, reduces a server's exposure to risk.
+package rules.tf_google_compute_firewall_port_3389
 
 import data.fugue.gcp.compute_firewall
 
 __rego__metadoc__ := {
-  "id": "FG_R00407",
-  "title": "Network firewall rules should not permit ingress from 0.0.0.0/0 to port 22 (SSH)",
-  "description": "If SSH is open to the internet, attackers can attempt to gain access to VM instances. Removing unfettered connectivity to remote console services, such as SSH, reduces a server's exposure to risk.",
+  "id": "FG_R00408",
+  "title": "Network firewall rules should not permit ingress from 0.0.0.0/0 to port 3389 (RDP)",
+  "description": "If RDP is open to the internet, attackers can attempt to gain access to VM instances. Removing unfettered connectivity to remote console services, such as RDP, reduces a server's exposure to risk.",
   "custom": {
     "controls": {
       "CIS-Google_v1.0.0": [
-        "CIS-Google_v1.0.0_3.6"
+        "CIS-Google_v1.0.0_3.7"
       ],
       "CIS-Google_v1.1.0": [
-        "CIS-Google_v1.1.0_3.6"
+        "CIS-Google_v1.1.0_3.7"
       ]
     },
     "severity": "High"
@@ -41,5 +41,5 @@ resource_type = "google_compute_firewall"
 default deny = false
 
 deny {
-  compute_firewall.includes_zero_cidr_to_port(input, 22)
+  compute_firewall.includes_zero_cidr_to_port(input, 3389)
 }

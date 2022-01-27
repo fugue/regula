@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_azurerm_storage_account_deny_access
+package rules.tf_azurerm_storage_network_access_deny
 
 __rego__metadoc__ := {
   "id": "FG_R00154",

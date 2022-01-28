@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_aws_vpc_flow_log
+package rules.tf_aws_vpc_vpc_flow_logging_enabled
 
 import data.fugue
 

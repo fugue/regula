@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_aws_vpc_flow_log
+package rules.tf_aws_vpc_vpc_flow_logging_enabled
 
 import data.tests.rules.tf.aws.vpc.inputs.flow_log_infra_json
 
-test_vpc_flow_log {
+test_vpc_vpc_flow_logging_enabled {
   pol = policy with input as flow_log_infra_json.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   by_resource_id["aws_vpc.valid_vpc"] == true

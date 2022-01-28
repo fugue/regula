@@ -9,6 +9,7 @@ import (
 
 	loader "github.com/fugue/regula/v2/pkg/loader"
 	gomock "github.com/golang/mock/gomock"
+	afero "github.com/spf13/afero"
 )
 
 // MockInputFile is a mock of InputFile interface.
@@ -76,6 +77,21 @@ func (m *MockInputFile) Ext() string {
 func (mr *MockInputFileMockRecorder) Ext() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ext", reflect.TypeOf((*MockInputFile)(nil).Ext))
+}
+
+// Fs mocks base method.
+func (m *MockInputFile) Fs() (afero.Fs, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Fs")
+	ret0, _ := ret[0].(afero.Fs)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Fs indicates an expected call of Fs.
+func (mr *MockInputFileMockRecorder) Fs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fs", reflect.TypeOf((*MockInputFile)(nil).Fs))
 }
 
 // IsDir mocks base method.

@@ -20,11 +20,13 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/fugue/regula/v2/pkg/filesystems"
 	"github.com/fugue/regula/v2/pkg/fugue"
 	"github.com/fugue/regula/v2/pkg/loader"
 	"github.com/fugue/regula/v2/pkg/rego"
 	"github.com/fugue/regula/v2/pkg/reporter"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 )
 
 type runConfig struct {
@@ -100,11 +102,16 @@ func (c *runConfig) ConfigurationLoader() (loader.ConfigurationLoader, error) {
 	if c.upload {
 		inputTypes = filterInputTypes(inputTypes)
 	}
+	afs := afero.NewOsFs()
+	if c.rootDir != "" {
+		afs = filesystems.NewBasePathFs(afs, c.rootDir)
+	}
 
 	return loader.LocalConfigurationLoader(loader.LoadPathsOptions{
 		Paths:       c.inputs,
 		InputTypes:  inputTypes,
 		NoGitIgnore: c.noIgnore,
+		Fs:          afs,
 	}), nil
 }
 

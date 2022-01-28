@@ -18,6 +18,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/fugue/regula/v2/pkg/filesystems"
+	"github.com/spf13/afero"
 )
 
 type Relation int
@@ -70,10 +73,10 @@ func (t *InputTreeNode) AddChild(splitPath []string) {
 	t.Children[splitPath[0]] = NewInputTreeNode(splitPath[1:])
 }
 
-func NewInputTree(paths []string) *InputTreeNode {
+func NewInputTree(afs afero.Fs, paths []string) *InputTreeNode {
 	rootNode := NewInputTreeNode(nil)
 	for _, path := range paths {
-		absPath, err := filepath.Abs(path)
+		absPath, err := filesystems.Abs(afs, path)
 		if err != nil {
 			// This case can happen for the stdin path "-"
 			absPath = path

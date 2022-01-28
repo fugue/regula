@@ -2,12 +2,17 @@
 package regulatf
 
 import (
+	"path/filepath"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
 
 	"github.com/fugue/regula/v2/pkg/terraform/lang"
 
+	"github.com/fugue/regula/v2/pkg/filesystems"
 	"github.com/fugue/regula/v2/pkg/topsort"
 )
 
@@ -16,6 +21,7 @@ type Analysis struct {
 	Resources   map[string]*ResourceMeta
 	Expressions map[string]hcl.Expression
 	Blocks      []FullName
+	Fs          afero.Fs
 }
 
 func AnalyzeModuleTree(mtree *ModuleTree) *Analysis {
@@ -24,6 +30,7 @@ func AnalyzeModuleTree(mtree *ModuleTree) *Analysis {
 		Resources:   map[string]*ResourceMeta{},
 		Expressions: map[string]hcl.Expression{},
 		Blocks:      []FullName{},
+		Fs:          mtree.fs,
 	}
 	mtree.Walk(analysis)
 	return analysis
@@ -229,8 +236,11 @@ func (v *Evaluation) evaluate() error {
 			SelfAddr: nil,
 			PureOnly: false,
 		}
+		// Override abspath function to account for non-cwd base path
+		funcs := scope.Functions()
+		funcs["abspath"] = NewAbsPathFunc(v.Analysis.Fs)
 		ctx := hcl.EvalContext{
-			Functions: scope.Functions(),
+			Functions: funcs,
 			Variables: ValTreeToVariables(vars),
 		}
 
@@ -301,4 +311,20 @@ func (v *Evaluation) Location(resourceKey string) []hcl.Range {
 		}
 	}
 	return ranges
+}
+
+func NewAbsPathFunc(afs afero.Fs) function.Function {
+	return function.New(&function.Spec{
+		Params: []function.Parameter{
+			{
+				Name: "path",
+				Type: cty.String,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			absPath, err := filesystems.Abs(afs, args[0].AsString())
+			return cty.StringVal(filepath.ToSlash(absPath)), err
+		},
+	})
 }

@@ -9,6 +9,7 @@ import (
 
 	loader "github.com/fugue/regula/v2/pkg/loader"
 	gomock "github.com/golang/mock/gomock"
+	afero "github.com/spf13/afero"
 )
 
 // MockInputPath is a mock of InputPath interface.
@@ -47,6 +48,21 @@ func (m *MockInputPath) DetectType(arg0 loader.ConfigurationDetector, arg1 loade
 func (mr *MockInputPathMockRecorder) DetectType(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DetectType", reflect.TypeOf((*MockInputPath)(nil).DetectType), arg0, arg1)
+}
+
+// Fs mocks base method.
+func (m *MockInputPath) Fs() (afero.Fs, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Fs")
+	ret0, _ := ret[0].(afero.Fs)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Fs indicates an expected call of Fs.
+func (mr *MockInputPathMockRecorder) Fs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fs", reflect.TypeOf((*MockInputPath)(nil).Fs))
 }
 
 // IsDir mocks base method.

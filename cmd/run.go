@@ -17,12 +17,10 @@ package cmd
 import (
 	"context"
 	_ "embed"
-	"fmt"
-	"os"
 	"path/filepath"
 
-	"github.com/fugue/regula/v2/pkg/rego"
 	"github.com/fugue/regula/v2/pkg/loader"
+	"github.com/fugue/regula/v2/pkg/rego"
 	"github.com/fugue/regula/v2/pkg/reporter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -129,15 +127,6 @@ func NewRunCommand() *cobra.Command {
 				return err
 			}
 			resultProcessor := config.ResultProcessor()
-			if config.rootDir != "" {
-				// Changing directories is the easiest and most robust way to
-				// get all paths relative to the config file.
-				if err := os.Chdir(config.rootDir); err != nil {
-					// Not sure whether this error is possible here since we were
-					// able to load the file. But, just in case.
-					return fmt.Errorf("Unable to change to config file directory: %s", err)
-				}
-			}
 
 			// Execution
 			ctx := context.Background()

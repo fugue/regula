@@ -22,19 +22,22 @@ import (
 	"testing"
 
 	"github.com/fugue/regula/v2/pkg/git"
+	"github.com/spf13/afero"
 
 	"github.com/stretchr/testify/assert"
 )
 
 // Utility for loading TF directories.
 func DefaultParseTfDirectory(dirPath string) (IACConfiguration, error) {
+	afs := afero.NewOsFs()
 	name := filepath.Base(dirPath)
-	repoFinder := git.NewRepoFinder([]string{})
+	repoFinder := git.NewRepoFinder(afs, []string{})
 	directoryOpts := directoryOptions{
 		Path:          dirPath,
 		Name:          name,
 		NoGitIgnore:   false,
 		GitRepoFinder: repoFinder,
+		Fs:            afs,
 	}
 	dir, err := newDirectory(directoryOpts)
 	if err != nil {
@@ -74,7 +77,7 @@ func TestTf(t *testing.T) {
 					t.Fatal(err)
 				}
 				if hcl == nil {
-    				t.Fatalf("No configuration found in %s", path)
+					t.Fatalf("No configuration found in %s", path)
 				}
 
 				actualBytes, err := json.MarshalIndent(hcl.RegulaInput(), "", "  ")
@@ -205,12 +208,12 @@ func TestTfResourceLocation(t *testing.T) {
 		{
 			path: []string{"module.child2.aws_vpc.child"},
 			expected: []Location{
-				Location{
+				{
 					Path: filepath.Join(dir, "child2", "main.tf"),
 					Line: 5,
 					Col:  1,
 				},
-				Location{
+				{
 					Path: filepath.Join(dir, "main.tf"),
 					Line: 14,
 					Col:  12,

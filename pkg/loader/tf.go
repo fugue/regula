@@ -19,7 +19,6 @@ import (
 	"path/filepath"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/afero"
 
 	"github.com/fugue/regula/v2/pkg/regulatf"
 )
@@ -36,13 +35,9 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 	}
 	dir := filepath.Dir(i.Path())
 
-	var inputFs afero.Fs
-	var err error
-	if i.Path() == stdIn {
-		inputFs, err = makeStdInFs(i)
-		if err != nil {
-			return nil, err
-		}
+	inputFs, err := i.Fs()
+	if err != nil {
+		return nil, err
 	}
 
 	moduleTree, err := regulatf.ParseFiles(nil, inputFs, false, dir, []string{i.Path()})
@@ -51,16 +46,6 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 	}
 
 	return newHclConfiguration(moduleTree)
-}
-
-func makeStdInFs(i InputFile) (afero.Fs, error) {
-	contents, err := i.Contents()
-	if err != nil {
-		return nil, err
-	}
-	inputFs := afero.NewMemMapFs()
-	afero.WriteFile(inputFs, i.Path(), contents, 0644)
-	return inputFs, nil
 }
 
 func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACConfiguration, error) {
@@ -78,8 +63,13 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 		return nil, nil
 	}
 
-	moduleRegister := regulatf.NewTerraformRegister(i.Path())
-	moduleTree, err := regulatf.ParseDirectory(moduleRegister, nil, i.Path())
+	inputFs, err := i.Fs()
+	if err != nil {
+		return nil, err
+	}
+
+	moduleRegister := regulatf.NewTerraformRegister(inputFs, i.Path())
+	moduleTree, err := regulatf.ParseDirectory(moduleRegister, inputFs, i.Path())
 	if err != nil {
 		return nil, err
 	}

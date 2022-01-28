@@ -9,6 +9,7 @@ import (
 
 	loader "github.com/fugue/regula/v2/pkg/loader"
 	gomock "github.com/golang/mock/gomock"
+	afero "github.com/spf13/afero"
 )
 
 // MockInputDirectory is a mock of InputDirectory interface.
@@ -61,6 +62,21 @@ func (m *MockInputDirectory) DetectType(arg0 loader.ConfigurationDetector, arg1 
 func (mr *MockInputDirectoryMockRecorder) DetectType(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DetectType", reflect.TypeOf((*MockInputDirectory)(nil).DetectType), arg0, arg1)
+}
+
+// Fs mocks base method.
+func (m *MockInputDirectory) Fs() (afero.Fs, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Fs")
+	ret0, _ := ret[0].(afero.Fs)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Fs indicates an expected call of Fs.
+func (mr *MockInputDirectoryMockRecorder) Fs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fs", reflect.TypeOf((*MockInputDirectory)(nil).Fs))
 }
 
 // IsDir mocks base method.

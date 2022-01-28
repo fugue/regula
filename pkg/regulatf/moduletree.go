@@ -38,6 +38,7 @@ type ModuleTree struct {
 	config   *hclsyntax.Body // Call to the module, nil if root.
 	module   *configs.Module
 	children map[string]*ModuleTree
+	fs       afero.Fs
 }
 
 func ParseDirectory(
@@ -132,7 +133,7 @@ func ParseFiles(
 		}
 	}
 
-	return &ModuleTree{meta, nil, module, children}, nil
+	return &ModuleTree{meta, nil, module, children, parserFs}, nil
 }
 
 func (mtree *ModuleTree) Warnings() []string {

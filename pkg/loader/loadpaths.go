@@ -16,12 +16,12 @@ package loader
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 
 	"github.com/fugue/regula/v2/pkg/git"
 )
@@ -31,6 +31,7 @@ type LoadPathsOptions struct {
 	InputTypes  []InputType
 	NoGitIgnore bool
 	IgnoreDirs  bool
+	Fs          afero.Fs
 }
 
 type NoLoadableConfigsError struct {
@@ -42,6 +43,11 @@ func (e *NoLoadableConfigsError) Error() string {
 }
 
 func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
+	// Default to OsFs for backwards compatibility
+	afs := options.Fs
+	if afs == nil {
+		afs = afero.NewOsFs()
+	}
 	return func() (LoadedConfigurations, error) {
 		configurations := newLoadedConfigurations()
 		detector, err := DetectorByInputTypes(options.InputTypes)
@@ -73,7 +79,7 @@ func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
 			}
 			return
 		}
-		gitRepoFinder := git.NewRepoFinder(options.Paths)
+		gitRepoFinder := git.NewRepoFinder(afs, options.Paths)
 		for _, path := range options.Paths {
 			if path == "-" {
 				path = stdIn
@@ -84,7 +90,7 @@ func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
 				continue
 			}
 			if path == stdIn {
-				i := newFile(stdIn, stdIn)
+				i := newStdInFile()
 				loader, err := i.DetectType(detector, DetectOptions{
 					IgnoreExt: true,
 				})
@@ -99,7 +105,7 @@ func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
 				continue
 			}
 			name := filepath.Base(path)
-			info, err := os.Stat(path)
+			info, err := afs.Stat(path)
 			if err != nil {
 				return nil, err
 			}
@@ -117,6 +123,7 @@ func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
 					Name:          name,
 					NoGitIgnore:   noIgnore,
 					GitRepoFinder: gitRepoFinder,
+					Fs:            afs,
 				})
 				if err != nil {
 					return nil, err
@@ -135,7 +142,7 @@ func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
 					return nil, err
 				}
 			} else {
-				i := newFile(path, name)
+				i := newFile(afs, path, name)
 				loader, err := i.DetectType(detector, DetectOptions{
 					IgnoreExt: ignoreFileExtension,
 				})

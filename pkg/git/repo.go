@@ -16,11 +16,14 @@ package git
 
 import (
 	"bufio"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/fugue/regula/v2/pkg/filesystems"
 	"github.com/go-git/go-git/v5/plumbing/format/gitignore"
+	"github.com/spf13/afero"
 )
 
 var defaultGitIgnorePatterns = []gitignore.Pattern{
@@ -35,10 +38,11 @@ type Repo interface {
 type repo struct {
 	path          string
 	ignoreMatcher gitignore.Matcher
+	fs            afero.Fs
 }
 
-func NewRepo(path string, inputTree *InputTreeNode) (Repo, error) {
-	patterns, err := ReadPatterns(NewSearchPath(path, nil), inputTree, nil, None)
+func NewRepo(afs afero.Fs, path string, inputTree *InputTreeNode) (Repo, error) {
+	patterns, err := ReadPatterns(afs, NewSearchPath(path, nil), inputTree, nil, None)
 	if err != nil {
 		return nil, err
 	}
@@ -46,11 +50,12 @@ func NewRepo(path string, inputTree *InputTreeNode) (Repo, error) {
 	return &repo{
 		path:          path,
 		ignoreMatcher: gitignore.NewMatcher(patterns),
+		fs:            afs,
 	}, nil
 }
 
 func (r *repo) IsPathIgnored(path string, isDir bool) bool {
-	absPath, err := filepath.Abs(path)
+	absPath, err := filesystems.Abs(r.fs, path)
 	if err != nil {
 		return false
 	}
@@ -66,14 +71,16 @@ func (r *repo) IsPathIgnored(path string, isDir bool) bool {
 type RepoFinder struct {
 	inputTree *InputTreeNode
 	cache     map[string]Repo
+	fs        afero.Fs
 }
 
 // NewRepoFinder returns a new RepoFinder instance
-func NewRepoFinder(inputPaths []string) *RepoFinder {
-	inputTree := NewInputTree(inputPaths)
+func NewRepoFinder(afs afero.Fs, inputPaths []string) *RepoFinder {
+	inputTree := NewInputTree(afs, inputPaths)
 	return &RepoFinder{
 		inputTree: inputTree,
 		cache:     map[string]Repo{},
+		fs:        afs,
 	}
 }
 
@@ -81,7 +88,7 @@ func NewRepoFinder(inputPaths []string) *RepoFinder {
 // It works by searching within the given directory, followed by searching in parent
 // directories until it either reaches the top-level directory or encounters an error.
 func (s *RepoFinder) FindRepo(path string) Repo {
-	absPath, err := filepath.Abs(path)
+	absPath, err := filesystems.Abs(s.fs, path)
 	if err != nil {
 		return nil
 	}
@@ -91,7 +98,7 @@ func (s *RepoFinder) FindRepo(path string) Repo {
 		if foundRepo, ok := s.cache[absPath]; ok {
 			return foundRepo
 		}
-		entries, err := os.ReadDir(absPath)
+		entries, err := afero.ReadDir(s.fs, absPath)
 		if err != nil {
 			// Store nil so that we don't retry this operation when child dirs are
 			// passed in.
@@ -100,7 +107,7 @@ func (s *RepoFinder) FindRepo(path string) Repo {
 		}
 		for _, e := range entries {
 			if e.Name() == ".git" {
-				r, err := NewRepo(absPath, s.inputTree)
+				r, err := NewRepo(s.fs, absPath, s.inputTree)
 				if err != nil {
 					s.cache[absPath] = nil
 					return nil
@@ -124,9 +131,9 @@ func (s *RepoFinder) FindRepo(path string) Repo {
 
 // Vendored from go-git so that we can fix their behavior
 // readIgnoreFile reads a specific git ignore file.
-func readIgnoreFile(searchPath SearchPath) (ps []gitignore.Pattern, err error) {
+func readIgnoreFile(afs afero.Fs, searchPath SearchPath) (ps []gitignore.Pattern, err error) {
 	ignoreFilePath := searchPath.WithAddedPath(".gitignore").Abs()
-	f, err := os.Open(ignoreFilePath)
+	f, err := afs.Open(ignoreFilePath)
 	if err == nil {
 		defer f.Close()
 
@@ -148,12 +155,12 @@ func readIgnoreFile(searchPath SearchPath) (ps []gitignore.Pattern, err error) {
 // structure. The result is in the ascending order of priority (last higher). This
 // function has been modified to respect gitignore patterns while it's traversing. This
 // has a big impact for larger repositories.
-func ReadPatterns(searchPath SearchPath, inputTree *InputTreeNode, accumulator []gitignore.Pattern, lastRelation Relation) ([]gitignore.Pattern, error) {
-	ps, _ := readIgnoreFile(searchPath)
+func ReadPatterns(afs afero.Fs, searchPath SearchPath, inputTree *InputTreeNode, accumulator []gitignore.Pattern, lastRelation Relation) ([]gitignore.Pattern, error) {
+	ps, _ := readIgnoreFile(afs, searchPath)
 	accumulator = append(accumulator, ps...)
 
-	var fis []os.DirEntry
-	fis, err := os.ReadDir(searchPath.Abs())
+	var fis []fs.FileInfo
+	fis, err := afero.ReadDir(afs, searchPath.Abs())
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +182,7 @@ func ReadPatterns(searchPath SearchPath, inputTree *InputTreeNode, accumulator [
 				continue
 			}
 			var subps []gitignore.Pattern
-			subps, err = ReadPatterns(subPath, inputTree, accumulator, lastRelation)
+			subps, err = ReadPatterns(afs, subPath, inputTree, accumulator, lastRelation)
 			if err != nil {
 				return nil, err
 			}

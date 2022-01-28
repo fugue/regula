@@ -20,12 +20,14 @@ import (
 	"path/filepath"
 
 	"github.com/fugue/regula/v2/pkg/git"
+	"github.com/spf13/afero"
 )
 
 type directory struct {
 	path     string
 	name     string
 	children []InputPath
+	fs       afero.Fs
 }
 
 func (d *directory) DetectType(c ConfigurationDetector, opts DetectOptions) (IACConfiguration, error) {
@@ -66,16 +68,21 @@ func (d *directory) Children() []InputPath {
 	return d.children
 }
 
+func (d *directory) Fs() (afero.Fs, error) {
+	return d.fs, nil
+}
+
 type directoryOptions struct {
 	Path          string
 	Name          string
 	NoGitIgnore   bool
 	GitRepoFinder *git.RepoFinder
+	Fs            afero.Fs
 }
 
 func newDirectory(opts directoryOptions) (InputDirectory, error) {
 	contents := []InputPath{}
-	entries, err := os.ReadDir(opts.Path)
+	entries, err := afero.ReadDir(opts.Fs, opts.Path)
 	if err != nil {
 		return nil, err
 	}
@@ -98,13 +105,14 @@ func newDirectory(opts directoryOptions) (InputDirectory, error) {
 				Name:          n,
 				NoGitIgnore:   opts.NoGitIgnore,
 				GitRepoFinder: opts.GitRepoFinder,
+				Fs:            opts.Fs,
 			})
 			if err != nil {
 				return nil, err
 			}
 
 		} else {
-			i = newFile(p, n)
+			i = newFile(opts.Fs, p, n)
 		}
 		contents = append(contents, i)
 	}
@@ -112,6 +120,7 @@ func newDirectory(opts directoryOptions) (InputDirectory, error) {
 		path:     opts.Path,
 		name:     opts.Name,
 		children: contents,
+		fs:       opts.Fs,
 	}, nil
 }
 
@@ -120,6 +129,7 @@ type file struct {
 	name           string
 	ext            string
 	cachedContents []byte
+	fs             afero.Fs
 }
 
 func (f *file) DetectType(d ConfigurationDetector, opts DetectOptions) (IACConfiguration, error) {
@@ -150,18 +160,7 @@ func (f *file) Contents() ([]byte, error) {
 	if f.cachedContents != nil {
 		return f.cachedContents, nil
 	}
-
-	if f.name == stdIn {
-		contents, err := io.ReadAll(os.Stdin)
-		if err != nil {
-			f.cachedContents = []byte{}
-			return nil, err
-		}
-		f.cachedContents = contents
-		return contents, nil
-	}
-
-	contents, err := os.ReadFile(f.path)
+	contents, err := afero.ReadFile(f.fs, f.path)
 	if err != nil {
 		f.cachedContents = []byte{}
 		return nil, err
@@ -170,11 +169,55 @@ func (f *file) Contents() ([]byte, error) {
 	return contents, nil
 }
 
-func newFile(path string, name string) InputFile {
+func (f *file) Fs() (afero.Fs, error) {
+	return f.fs, nil
+}
+
+func newFile(fs afero.Fs, path string, name string) InputFile {
 	ext := filepath.Ext(path)
 	return &file{
 		path: path,
 		name: name,
 		ext:  ext,
+		fs:   fs,
 	}
+}
+
+type stdInFile struct {
+	*file
+}
+
+func (f *stdInFile) Contents() ([]byte, error) {
+	if f.cachedContents != nil {
+		return f.cachedContents, nil
+	}
+	contents, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		f.cachedContents = []byte{}
+		return nil, err
+	}
+	f.cachedContents = contents
+	return contents, nil
+}
+
+func (f *stdInFile) Path() string {
+	return stdIn
+}
+
+func (f *stdInFile) Name() string {
+	return stdIn
+}
+
+func (f *stdInFile) Fs() (afero.Fs, error) {
+	contents, err := f.Contents()
+	if err != nil {
+		return nil, err
+	}
+	inputFs := afero.NewMemMapFs()
+	afero.WriteFile(inputFs, f.Path(), contents, 0644)
+	return inputFs, nil
+}
+
+func newStdInFile() InputFile {
+	return &stdInFile{}
 }

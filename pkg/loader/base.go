@@ -17,6 +17,8 @@ package loader
 import (
 	"fmt"
 	"strings"
+
+	"github.com/spf13/afero"
 )
 
 //go:generate mockgen -destination=../mocks/mock_iacconfiguration.go -package=mocks github.com/fugue/regula/v2/pkg/loader IACConfiguration
@@ -177,6 +179,7 @@ type InputPath interface {
 	IsDir() bool
 	Path() string
 	Name() string
+	Fs() (afero.Fs, error)
 }
 
 // WalkFunc is a callback that's invoked on each descendent of an InputDirectory. It

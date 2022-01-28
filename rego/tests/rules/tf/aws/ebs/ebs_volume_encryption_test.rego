@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_aws_ebs_volume_encrypted
+package rules.tf_aws_ebs_ebs_volume_encryption
 
 import data.tests.rules.tf.aws.ebs.inputs.volume_encrypted_infra_json
 
-test_ebs_volume_encrypted {
+test_ebs_ebs_volume_encryption {
   resources = volume_encrypted_infra_json.mock_resources
   allow with input as resources["aws_ebs_volume.good"]
   not allow with input as resources["aws_ebs_volume.missing"]

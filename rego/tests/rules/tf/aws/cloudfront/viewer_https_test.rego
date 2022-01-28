@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_aws_cloudfront_distribution_https
+package rules.tf_aws_cloudfront_viewer_https
 
 import data.tests.rules.tf.aws.cloudfront.inputs.distribution_https_infra_json
 
-test_cloudfront_distribution_https {
+test_cloudfront_viewer_https {
   resources = distribution_https_infra_json.mock_resources
   not allow with input as resources["aws_cloudfront_distribution.allow_all"]
   allow with input as resources["aws_cloudfront_distribution.redirect_to_https"]

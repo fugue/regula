@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_azurerm_network_security_group_no_inbound_22
+package rules.tf_azurerm_network_inbound_port_22
 
 import data.tests.rules.tf.azurerm.network.inputs.security_group_no_inbound_22_infra_json
 

@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_azurerm_network_security_group_no_inbound_3389
+package rules.tf_azurerm_network_inbound_port_3389
 
 import data.tests.rules.tf.azurerm.network.inputs.security_group_no_inbound_3389_infra_json
 
-test_network_security_group_no_inbound_3389 {
+test_network_inbound_port_3389 {
   pol = policy with input as security_group_no_inbound_3389_infra_json.mock_input
   by_resource_id = {p.id: p.valid | pol[p]}
   by_resource_id["azurerm_network_security_group.validnsg1"] == true

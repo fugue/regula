@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_aws_security_group_ingress_anywhere_ssh
+package rules.tf_aws_security_groups_ingress_22
 
 import data.tests.rules.tf.aws.security_group.inputs.ingress_anywhere_ssh_infra_json
 
-test_security_group_ingress_anywhere_ssh {
+test_security_groups_ingress_22 {
   resources = ingress_anywhere_ssh_infra_json.mock_resources
   not deny with input as resources["aws_security_group.valid_sg_1"]
   not deny with input as resources["aws_security_group.valid_sg_2"]

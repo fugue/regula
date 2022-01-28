@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-package rules.tf_aws_cloudtrail_log_file_validation
+package rules.tf_aws_cloudtrail_log_validation
 
 __rego__metadoc__ := {
   "id": "FG_R00027",

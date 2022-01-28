@@ -9,7 +9,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/gocty"
 
-	"github.com/fugue/regula/pkg/terraform/tfdiags"
+	"github.com/fugue/regula/v2/pkg/terraform/tfdiags"
 )
 
 // ModuleInstance is an address for a particular module instance within the

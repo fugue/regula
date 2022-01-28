@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/fugue/regula/cmd"
+	"github.com/fugue/regula/v2/cmd"
 )
 
 func main() {

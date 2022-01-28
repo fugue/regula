@@ -19,7 +19,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fugue/regula/pkg/git"
+	"github.com/fugue/regula/v2/pkg/git"
 )
 
 type directory struct {

@@ -6,9 +6,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/zclconf/go-cty/cty"
 
-	"github.com/fugue/regula/pkg/terraform/lang"
+	"github.com/fugue/regula/v2/pkg/terraform/lang"
 
-	"github.com/fugue/regula/pkg/topsort"
+	"github.com/fugue/regula/v2/pkg/topsort"
 )
 
 type Analysis struct {
@@ -157,7 +157,7 @@ func EvaluateAnalysis(analysis *Analysis) (*Evaluation, error) {
 		Modules:  map[string]ValTree{},
 	}
 
-	for moduleKey, _ := range analysis.Modules {
+	for moduleKey := range analysis.Modules {
 		eval.Modules[moduleKey] = EmptyObjectValTree()
 	}
 

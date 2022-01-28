@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 
-	"github.com/fugue/regula/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
 )
 
 // Resource represents a "resource" or "data" block in a module or file.

@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/fugue/regula/pkg/terraform/experiments"
-	"github.com/fugue/regula/pkg/terraform/version"
+	"github.com/fugue/regula/v2/pkg/terraform/experiments"
+	"github.com/fugue/regula/v2/pkg/terraform/version"
 	"github.com/zclconf/go-cty/cty"
 )
 

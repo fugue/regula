@@ -1,8 +1,8 @@
 package lang
 
 import (
-	"github.com/fugue/regula/pkg/terraform/addrs"
-	"github.com/fugue/regula/pkg/terraform/tfdiags"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/tfdiags"
 	"github.com/zclconf/go-cty/cty"
 )
 

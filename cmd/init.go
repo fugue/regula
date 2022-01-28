@@ -21,8 +21,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fugue/regula/pkg/loader"
-	"github.com/fugue/regula/pkg/reporter"
+	"github.com/fugue/regula/v2/pkg/loader"
+	"github.com/fugue/regula/v2/pkg/reporter"
 	"github.com/manifoldco/promptui"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

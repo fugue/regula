@@ -12,7 +12,7 @@ import (
 
 	version "github.com/hashicorp/go-version"
 
-	"github.com/fugue/regula/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
 )
 
 // Record represents some metadata about an installed module, as part

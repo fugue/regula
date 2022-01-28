@@ -17,7 +17,7 @@ package rego
 import (
 	"context"
 
-	"github.com/fugue/regula/pkg/loader"
+	"github.com/fugue/regula/v2/pkg/loader"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
 )

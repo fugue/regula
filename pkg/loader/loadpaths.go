@@ -23,7 +23,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/fugue/regula/pkg/git"
+	"github.com/fugue/regula/v2/pkg/git"
 )
 
 type LoadPathsOptions struct {

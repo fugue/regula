@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fugue/regula/pkg/terraform/tfdiags"
+	"github.com/fugue/regula/v2/pkg/terraform/tfdiags"
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/hashicorp/hcl/v2"

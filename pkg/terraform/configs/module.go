@@ -5,8 +5,8 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 
-	"github.com/fugue/regula/pkg/terraform/addrs"
-	"github.com/fugue/regula/pkg/terraform/experiments"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/experiments"
 )
 
 // Module is a container for a set of configuration constructs that are

@@ -10,8 +10,8 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 
-	"github.com/fugue/regula/pkg/terraform/addrs"
-	"github.com/fugue/regula/pkg/terraform/typeexpr"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/typeexpr"
 )
 
 // A consistent detail message for all "not a valid identifier" diagnostics.

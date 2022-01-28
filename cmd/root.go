@@ -19,7 +19,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/fugue/regula/pkg/rego"
+	"github.com/fugue/regula/v2/pkg/rego"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

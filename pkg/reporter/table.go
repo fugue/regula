@@ -65,14 +65,14 @@ func TableReporter(o *RegulaReport) (string, error) {
 	table := simpletable.New()
 	table.Header = &simpletable.Header{
 		Cells: []*simpletable.Cell{
+			{Align: simpletable.AlignCenter, Text: "Result"},
 			{Align: simpletable.AlignCenter, Text: "Resource"},
+			{Align: simpletable.AlignCenter, Text: "Severity"},
 			{Align: simpletable.AlignCenter, Text: "Type"},
 			{Align: simpletable.AlignCenter, Text: "Filepath"},
-			{Align: simpletable.AlignCenter, Text: "Severity"},
 			{Align: simpletable.AlignCenter, Text: "Rule ID"},
 			{Align: simpletable.AlignCenter, Text: "Rule Name"},
 			{Align: simpletable.AlignCenter, Text: "Message"},
-			{Align: simpletable.AlignCenter, Text: "Result"},
 		},
 	}
 	for _, row := range tableData {
@@ -80,14 +80,14 @@ func TableReporter(o *RegulaReport) (string, error) {
 	}
 	table.Footer = &simpletable.Footer{
 		Cells: []*simpletable.Cell{
-			{},
-			{},
-			{},
-			{},
-			{},
-			{},
-			{Align: simpletable.AlignRight, Text: "Overall"},
 			{Align: simpletable.AlignLeft, Text: colorizeResult(overall)},
+			{Align: simpletable.AlignLeft, Text: "Overall"},
+			{},
+			{},
+			{},
+			{},
+			{},
+			{},
 		},
 	}
 
@@ -108,14 +108,14 @@ type TableRow struct {
 
 func (r TableRow) toCell() []*simpletable.Cell {
 	return []*simpletable.Cell{
+		{Text: r.Result},
 		{Text: r.Resource},
+		{Text: r.Severity},
 		{Text: r.Type},
 		{Text: r.Filepath},
-		{Text: r.Severity},
 		{Text: r.RuleID},
 		{Text: r.RuleName},
 		{Text: r.Message},
-		{Text: r.Result},
 	}
 }
 

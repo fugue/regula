@@ -15,5 +15,11 @@ func Abs(f afero.Fs, path string) (string, error) {
 		return fs.RealPath(path), nil
 	}
 
-	return filepath.Abs(path)
+	// TODO: I would like to find a better way to determine that the filesystem is a
+	// real filesystem.
+	if f.Name() == "OsFs" {
+		return filepath.Abs(path)
+	}
+
+	return path, nil
 }

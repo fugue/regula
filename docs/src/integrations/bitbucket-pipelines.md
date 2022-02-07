@@ -1,0 +1,3 @@
+# Regula + Bitbucket Pipelines
+
+We've provided an example for integrating Regula and [Bitbucket Pipelines](https://bitbucket.org/product/features/pipelines). See the [fugue-bitbucket-pipelines-integration](https://github.com/fugue/fugue-bitbucket-pipelines-integration) repository for the integration, and see the [README](https://github.com/fugue/fugue-bitbucket-pipelines-integration/blob/main/README.md) for a walkthrough.

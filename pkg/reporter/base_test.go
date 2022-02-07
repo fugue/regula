@@ -71,7 +71,7 @@ func testOutput() RegulaReport {
 				"FAIL": 2,
 			},
 			Severities: map[string]int{
-				"High":   1,
+				"High":   2,
 				"Medium": 1,
 			},
 		},
@@ -164,4 +164,14 @@ func TestEnrichRuleResult(t *testing.T) {
 	rr.EnrichRuleResult(mockLoadedConfs)
 	assert.Equal(t, rr.SourceLocation, locations)
 	assert.Equal(t, rr.RuleRemediationDoc, "https://example.com")
+}
+
+func TestRecomputeSummary(t *testing.T) {
+    original := testOutput()
+    report := testOutput()
+    report.Summary.Filepaths = []string{}
+    report.Summary.RuleResults = map[string]int{}
+    report.Summary.Severities = map[string]int{}
+    report.RecomputeSummary()
+    assert.Equal(t, original, report)
 }

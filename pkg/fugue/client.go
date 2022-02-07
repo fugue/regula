@@ -28,6 +28,7 @@ import (
 
 	"github.com/fugue/regula/pkg/rego"
 	"github.com/fugue/regula/pkg/reporter"
+	"github.com/fugue/regula/pkg/rule_waivers"
 	"github.com/fugue/regula/pkg/swagger/client"
 	apiclient "github.com/fugue/regula/pkg/swagger/client"
 	"github.com/fugue/regula/pkg/swagger/client/environments"
@@ -201,7 +202,7 @@ func (c *fugueClient) EnvironmentRegulaConfigProvider(environmentID string) rego
 func (c *fugueClient) listRuleWaivers(
 	ctx context.Context,
 	environmentID string,
-) ([]*models.RuleWaiver, error) {
+) ([]rule_waivers.RuleWaiver, error) {
 	isTruncated := true
 	offset := int64(0)
 	ruleWaivers := []*models.RuleWaiver{}
@@ -233,7 +234,44 @@ func (c *fugueClient) listRuleWaivers(
 		offset = result.Payload.NextOffset
 	}
 
-	return ruleWaivers, nil
+	waivers := []rule_waivers.RuleWaiver{}
+	tagWaiversSkipped := 0
+	for _, ruleWaiver := range ruleWaivers {
+		waiver := ruleWaiverFromModel(ruleWaiver)
+		if waiver.ResourceTag != "" {
+			tagWaiversSkipped += 1
+		}
+		waivers = append(waivers, waiver)
+	}
+	if tagWaiversSkipped > 0 {
+		logrus.Infof("Skipped %d tag-based rule waivers...", tagWaiversSkipped)
+	}
+
+	return waivers, nil
+}
+
+func ruleWaiverFromModel(model *models.RuleWaiver) rule_waivers.RuleWaiver {
+	waiver := rule_waivers.RuleWaiver{
+		ResourceTag: model.ResourceTag,
+	}
+
+	if model.ResourceID != nil {
+		waiver.ResourceID = *model.ResourceID
+	}
+
+	if model.ResourceProvider != nil {
+		waiver.ResourceProvider = *model.ResourceProvider
+	}
+
+	if model.ResourceType != nil {
+		waiver.ResourceType = *model.ResourceType
+	}
+
+	if model.RuleID != nil {
+		waiver.RuleID = *model.RuleID
+	}
+
+	return waiver
 }
 
 func (c *fugueClient) PostProcessReport(
@@ -241,10 +279,12 @@ func (c *fugueClient) PostProcessReport(
 	environmentID string,
 	report *reporter.RegulaReport,
 ) error {
-	_, err := c.listRuleWaivers(ctx, environmentID)
+	waivers, err := c.listRuleWaivers(ctx, environmentID)
 	if err != nil {
 		return err
 	}
+
+	rule_waivers.ApplyRuleWaivers(report, waivers)
 
 	return nil
 }

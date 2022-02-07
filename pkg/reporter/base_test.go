@@ -67,12 +67,17 @@ func testOutput() RegulaReport {
 				"src/infra/network.yaml",
 			},
 			RuleResults: map[string]int{
-				"PASS": 1,
-				"FAIL": 2,
+				"PASS":   1,
+				"FAIL":   2,
+				"WAIVED": 0,
 			},
 			Severities: map[string]int{
-				"High":   2,
-				"Medium": 1,
+				"Critical":      0,
+				"High":          2,
+				"Informational": 0,
+				"Low":           0,
+				"Medium":        1,
+				"Unknown":       0,
 			},
 		},
 	}
@@ -167,11 +172,11 @@ func TestEnrichRuleResult(t *testing.T) {
 }
 
 func TestRecomputeSummary(t *testing.T) {
-    original := testOutput()
-    report := testOutput()
-    report.Summary.Filepaths = []string{}
-    report.Summary.RuleResults = map[string]int{}
-    report.Summary.Severities = map[string]int{}
-    report.RecomputeSummary()
-    assert.Equal(t, original, report)
+	original := testOutput()
+	report := testOutput()
+	report.Summary.Filepaths = []string{}
+	report.Summary.RuleResults = map[string]int{}
+	report.Summary.Severities = map[string]int{}
+	report.RecomputeSummary()
+	assert.Equal(t, original, report)
 }

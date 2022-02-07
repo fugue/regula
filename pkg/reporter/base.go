@@ -167,32 +167,35 @@ func (o RegulaReport) ExceedsSeverity(severity Severity) bool {
 }
 
 func (report *RegulaReport) RecomputeSummary() {
-	filepaths := map[string]int{}
+	filepathSet := map[string]struct{}{}
 	ruleResults := map[string]int{}
 	severities := map[string]int{}
 
-	increment := func(m map[string]int, key string) {
-		if n, ok := m[key]; ok {
-			m[key] = n + 1
-		} else {
-			m[key] = 1
-		}
+	for k := range regulaResults {
+		ruleResults[k] = 0
+	}
+	for k := range regulaSeverities {
+		severities[k] = 0
 	}
 
 	for _, result := range report.RuleResults {
-		increment(filepaths, result.Filepath)
-		increment(ruleResults, result.RuleResult)
-		increment(severities, result.RuleSeverity)
+		filepathSet[result.Filepath] = struct{}{}
+		if _, ok := ruleResults[result.RuleResult]; ok {
+			ruleResults[result.RuleResult] += 1
+		}
+		if _, ok := severities[result.RuleSeverity]; ok {
+			severities[result.RuleSeverity] += 1
+		}
 	}
 
-	filepathsArray := []string{}
-	for filepath := range filepaths {
-		filepathsArray = append(filepathsArray, filepath)
+	filepaths := []string{}
+	for filepath := range filepathSet {
+		filepaths = append(filepaths, filepath)
 	}
-	sort.Strings(filepathsArray)
+	sort.Strings(filepaths)
 
 	report.Summary = Summary{
-		Filepaths:   filepathsArray,
+		Filepaths:   filepaths,
 		RuleResults: ruleResults,
 		Severities:  severities,
 	}

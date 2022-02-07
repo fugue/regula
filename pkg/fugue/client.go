@@ -19,6 +19,7 @@ import (
 	"context"
 	"crypto/sha1"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -29,9 +30,11 @@ import (
 	"github.com/fugue/regula/pkg/reporter"
 	"github.com/fugue/regula/pkg/swagger/client"
 	apiclient "github.com/fugue/regula/pkg/swagger/client"
-	"github.com/fugue/regula/pkg/swagger/client/rule_bundles"
-	"github.com/fugue/regula/pkg/version"
 	"github.com/fugue/regula/pkg/swagger/client/environments"
+	"github.com/fugue/regula/pkg/swagger/client/rule_bundles"
+	waivers "github.com/fugue/regula/pkg/swagger/client/rule_waivers"
+	"github.com/fugue/regula/pkg/swagger/models"
+	"github.com/fugue/regula/pkg/version"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
@@ -67,6 +70,7 @@ type FugueClient interface {
 	CustomRulesProvider() rego.RegoProvider
 	CustomRuleProvider(ruleID string) rego.RegoProvider
 	EnvironmentRegulaConfigProvider(environmentID string) rego.RegoProvider
+	PostProcessReport(ctx context.Context, environmentID string, report *reporter.RegulaReport) error
 	UploadScan(ctx context.Context, environmentId string, scanView reporter.ScanView) error
 }
 
@@ -192,4 +196,55 @@ func (c *fugueClient) EnvironmentRegulaConfigProvider(environmentID string) rego
 		return rego.RegulaConfigProvider([]string{}, rules)(ctx, p)
 	}
 	return provider
+}
+
+func (c *fugueClient) listRuleWaivers(
+	ctx context.Context,
+	environmentID string,
+) ([]*models.RuleWaiver, error) {
+	isTruncated := true
+	offset := int64(0)
+	ruleWaivers := []*models.RuleWaiver{}
+
+	query := []string{
+		fmt.Sprintf("environment_id:%s", environmentID),
+	}
+	queryBytes, err := json.Marshal(query)
+	if err != nil {
+		return nil, err
+	}
+	queryString := string(queryBytes)
+
+	for isTruncated {
+		listWaiversParams := &waivers.ListRuleWaiversParams{
+			Offset:  &offset,
+			Context: ctx,
+			Query:   &queryString,
+		}
+
+		result, err := c.client.RuleWaivers.ListRuleWaivers(listWaiversParams, c.auth)
+		if err != nil {
+			return nil, err
+		}
+		logrus.Infof("Retrieved %d rule waivers...", len(result.Payload.Items))
+
+		ruleWaivers = append(ruleWaivers, result.Payload.Items...)
+		isTruncated = result.Payload.IsTruncated
+		offset = result.Payload.NextOffset
+	}
+
+	return ruleWaivers, nil
+}
+
+func (c *fugueClient) PostProcessReport(
+	ctx context.Context,
+	environmentID string,
+	report *reporter.RegulaReport,
+) error {
+	_, err := c.listRuleWaivers(ctx, environmentID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

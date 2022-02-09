@@ -40,6 +40,7 @@ func RunRules(ctx context.Context, options *RunRulesOptions) (RegoResult, error)
 	}
 	regoFuncs := []func(r *rego.Rego){
 		rego.Query(query),
+		rego.Runtime(RegulaRuntimeConfig()),
 	}
 	cb := func(r RegoFile) error {
 		regoFuncs = append(regoFuncs, rego.Module(r.Path(), r.String()))

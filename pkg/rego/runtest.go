@@ -56,6 +56,7 @@ func RunTest(ctx context.Context, options *RunTestOptions) error {
 	ch, err := tester.
 		NewRunner().
 		SetStore(inmem.New()).
+		SetRuntime(RegulaRuntimeConfig()).
 		EnableTracing(options.Trace).
 		Run(ctx, modules)
 	if err != nil {

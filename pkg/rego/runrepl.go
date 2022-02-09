@@ -64,6 +64,7 @@ func RunREPL(ctx context.Context, options *RunREPLOptions) error {
 		"pretty",
 		ast.CompileErrorLimitDefault,
 		getBanner())
+	r = r.WithRuntime(RegulaRuntimeConfig())
 	r.OneShot(ctx, "strict-builtin-errors")
 	r.Loop(ctx)
 	return nil

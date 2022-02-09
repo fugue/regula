@@ -2,17 +2,13 @@
 package regulatf
 
 import (
-	"path/filepath"
-
 	"github.com/hashicorp/hcl/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/zclconf/go-cty/cty"
-	"github.com/zclconf/go-cty/cty/function"
 
 	"github.com/fugue/regula/v2/pkg/terraform/lang"
 
-	"github.com/fugue/regula/v2/pkg/filesystems"
 	"github.com/fugue/regula/v2/pkg/topsort"
 )
 
@@ -239,6 +235,16 @@ func (v *Evaluation) evaluate() error {
 		// Override abspath function to account for non-cwd base path
 		funcs := scope.Functions()
 		funcs["abspath"] = NewAbsPathFunc(v.Analysis.Fs)
+		funcs["file"] = MakeFileFunc(v.Analysis.Fs, scope.BaseDir, false)
+		funcs["fileexists"] =       MakeFileExistsFunc(v.Analysis.Fs, scope.BaseDir)
+		funcs["fileset"] =          MakeFileSetFunc(v.Analysis.Fs, scope.BaseDir)
+		funcs["filebase64"] =       MakeFileFunc(v.Analysis.Fs, scope.BaseDir, true)
+		funcs["filebase64sha256"] = MakeFileBase64Sha256Func(v.Analysis.Fs, scope.BaseDir)
+		funcs["filebase64sha512"] = MakeFileBase64Sha512Func(v.Analysis.Fs, scope.BaseDir)
+		funcs["filemd5"] =          MakeFileMd5Func(v.Analysis.Fs, scope.BaseDir)
+		funcs["filesha1"] =         MakeFileSha1Func(v.Analysis.Fs, scope.BaseDir)
+		funcs["filesha256"] =       MakeFileSha256Func(v.Analysis.Fs, scope.BaseDir)
+		funcs["filesha512"] =       MakeFileSha512Func(v.Analysis.Fs, scope.BaseDir)
 		ctx := hcl.EvalContext{
 			Functions: funcs,
 			Variables: ValTreeToVariables(vars),
@@ -313,18 +319,18 @@ func (v *Evaluation) Location(resourceKey string) []hcl.Range {
 	return ranges
 }
 
-func NewAbsPathFunc(afs afero.Fs) function.Function {
-	return function.New(&function.Spec{
-		Params: []function.Parameter{
-			{
-				Name: "path",
-				Type: cty.String,
-			},
-		},
-		Type: function.StaticReturnType(cty.String),
-		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
-			absPath, err := filesystems.Abs(afs, args[0].AsString())
-			return cty.StringVal(filepath.ToSlash(absPath)), err
-		},
-	})
-}
+// func NewAbsPathFunc(afs afero.Fs) function.Function {
+// 	return function.New(&function.Spec{
+// 		Params: []function.Parameter{
+// 			{
+// 				Name: "path",
+// 				Type: cty.String,
+// 			},
+// 		},
+// 		Type: function.StaticReturnType(cty.String),
+// 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+// 			absPath, err := filesystems.Abs(afs, args[0].AsString())
+// 			return cty.StringVal(filepath.ToSlash(absPath)), err
+// 		},
+// 	})
+// }

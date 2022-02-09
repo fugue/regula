@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,22 +17,22 @@ package rules.arm_monitor_log_profile_retention
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00340",
-	"title": "Monitor 'Activity Log Retention' should be 365 days or greater",
-	"description": "A log profile controls how the activity log is exported and retained. Since the average time to detect a breach is 210 days, the activity log should be retained for 365 days or more in order to have time to respond to any incidents.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_5.1.2"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_5.1.2"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "A log profile controls how the activity log is exported and retained. Since the average time to detect a breach is 210 days, the activity log should be retained for 365 days or more in order to have time to respond to any incidents.",
+  "id": "FG_R00340",
+  "title": "Monitor 'Activity Log Retention' should be 365 days or greater"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.Insights/logprofiles"
+resource_type := "Microsoft.Insights/logprofiles"
 
 default allow = false
 

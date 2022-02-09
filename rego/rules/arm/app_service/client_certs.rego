@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,25 +17,25 @@ package rules.arm_app_service_client_certs
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00348",
-	"title": "App Service web apps should have 'Incoming client certificates' enabled",
-	"description": "Client certificates allow for the app to request a certificate for incoming requests. Only clients that have a valid certificate will be able to reach the app.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_9.4"
-			],
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_9.4"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_9.4"
+      ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_9.4"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Client certificates allow for the app to request a certificate for incoming requests. Only clients that have a valid certificate will be able to reach the app.",
+  "id": "FG_R00348",
+  "title": "App Service web apps should have 'Incoming client certificates' enabled"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.Web/sites"
+resource_type := "Microsoft.Web/sites"
 
 default allow = false
 

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_cloudfront_logging
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "CloudFront access logging should be enabled. CloudFront access logs record information about every user request that CloudFront receives. CloudFront distribution access logging should be enabled in order to track viewer requests for content, analyze statistics, and perform security audits.",
@@ -33,7 +31,7 @@ has_logging(cf) {
   cf.logging_config[_].bucket != ""
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   cf = cloudfronts[_]
@@ -44,4 +42,3 @@ policy[j] {
   not has_logging(cf)
   j = fugue.deny_resource(cf)
 }
-

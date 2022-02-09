@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00485",
-	"title": "Pods should not run privileged containers",
-	"description": "Pods should not run privileged containers. An attacker may be able to use a vulnerability in a privileged pod to directly attack the host. Therefore, running containers with full privileges should only be done in exceptional situations in which accessing resources and kernel capabilities of the host system is required.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.2.1"
-			]
-		},
-		"severity": "High"
-	}
+  "custom": {
+    "severity": "High"
+  },
+  "description": "Pods should not run privileged containers. An attacker may be able to use a vulnerability in a privileged pod to directly attack the host. Therefore, running containers with full privileges should only be done in exceptional situations in which accessing resources and kernel capabilities of the host system is required.",
+  "id": "FG_R00485",
+  "title": "Pods should not run privileged containers"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 any_invalid_containers(template) {
 	template.spec.containers[_].securityContext.privileged == true

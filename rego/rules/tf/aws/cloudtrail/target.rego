@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_aws_cloudtrail_target
 
 import data.fugue
 import data.aws.s3.s3_library as lib
-
 
 
 __rego__metadoc__ := {
@@ -53,7 +52,7 @@ bucket_public_acl(bucket) {
   bucket.acl == "public-read-write"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   buck = cloudtrail_buckets[_]
@@ -64,4 +63,3 @@ policy[j] {
   bucket_public_acl(buck)
   j = fugue.deny_resource(buck)
 }
-

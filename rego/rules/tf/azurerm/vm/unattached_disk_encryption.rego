@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ import data.azurerm.vm.disk_encryption_library as lib
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
     "controls": {
@@ -32,7 +31,7 @@ __rego__metadoc__ := {
   "title": "Virtual Machines unattached disks should be encrypted"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   md = lib.managed_disks[_]
@@ -45,4 +44,3 @@ policy[j] {
   not lib.encrypted_managed_disks[md.id]
   j = fugue.deny_resource(md)
 }
-

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@ import data.fugue
 import data.aws.iam.policy_document_library as lib
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "IAM role trust policies should not allow all principals to assume the role. Using a wildcard in the Principal element in a role's trust policy would allow any IAM user in any account to access the role. This is a significant security gap and can be used to gain access to sensitive data.",
@@ -72,7 +70,7 @@ action_is_assume_role(action) {
 }
 
 # Judge policies and wildcard policies.
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   pol = wildcard_policies[id]
@@ -85,4 +83,3 @@ policy[j] {
 
 # Utility: turns anything into an array, if it's not an array already.
 as_array(x) = [x] {not is_array(x)} else = x {true}
-

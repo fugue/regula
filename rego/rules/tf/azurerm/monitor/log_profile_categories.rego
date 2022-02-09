@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 package rules.tf_azurerm_monitor_log_profile_categories
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -28,7 +27,7 @@ __rego__metadoc__ := {
   "title": "Monitor audit profile should log all activities"
 }
 
-resource_type = "azurerm_monitor_log_profile"
+resource_type := "azurerm_monitor_log_profile"
 
 default allow = false
 
@@ -37,4 +36,3 @@ allow {
   lower(input.categories[_]) == "delete"
   lower(input.categories[_]) == "action"
 }
-

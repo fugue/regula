@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00481",
-	"title": "Roles and cluster roles should not use wildcards for resource, verb, or apiGroup entries",
-	"description": "Roles and cluster roles should not use wildcards for resource, verb, or apiGroup entries. A wildcard resource entry matches all resources. A wildcard verb entry matches all actions. This violates the principle of least privilege, since roles should only grant access to those resources and actions which are necessary for the workload to function.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.1.3"
-			]
-		},
-		"severity": "High"
-	}
+  "custom": {
+    "severity": "High"
+  },
+  "description": "Roles and cluster roles should not use wildcards for resource, verb, or apiGroup entries. A wildcard resource entry matches all resources. A wildcard verb entry matches all actions. This violates the principle of least privilege, since roles should only grant access to those resources and actions which are necessary for the workload to function.",
+  "id": "FG_R00481",
+  "title": "Roles and cluster roles should not use wildcards for resource, verb, or apiGroup entries"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 is_wildcard_rule(rule) {
 	rule.apiGroups[_] == "*"

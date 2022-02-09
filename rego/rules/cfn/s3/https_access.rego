@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 package rules.cfn_s3_https_access
 
 import data.fugue
-import data.fugue.cfn.s3
+import data.cfn.s3
 
 __rego__metadoc__ := {
   "custom": {

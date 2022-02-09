@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,10 +19,8 @@ import data.fugue
 # 
 # aws_kms_key
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Critical"
   },
   "description": "KMS master keys should not be publicly accessible. KMS keys are used for encrypting and decrypting data which may be sensitive. Publicly accessible KMS keys may allow anyone to perform decryption operations which may reveal data.",
@@ -30,7 +28,7 @@ __rego__metadoc__ := {
   "title": "KMS master keys should not be publicly accessible"
 }
 
-resource_type = "aws_kms_key"
+resource_type := "aws_kms_key"
 
 default deny = false
 
@@ -64,4 +62,3 @@ deny {
 }
 
 as_array(x) = [x] {not is_array(x)} else = x {true}
-

@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,22 +17,22 @@ package rules.arm_storage_account_trusted_ms_services
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00208",
-	"title": "Storage Accounts should have 'Trusted Microsoft Services' enabled",
-	"description": "Some Microsoft services that interact with storage accounts operate from networks that can't be granted access through network rules. Enabling \"Trusted Microsoft Services\" allows Azure Backup, Azure Site Recovery, Azure Networking, Azure Monitor, and other Azure services to access your storage account and bypass any firewall rules.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_3.7"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_3.7"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Some Microsoft services that interact with storage accounts operate from networks that can't be granted access through network rules. Enabling \"Trusted Microsoft Services\" allows Azure Backup, Azure Site Recovery, Azure Networking, Azure Monitor, and other Azure services to access your storage account and bypass any firewall rules.",
+  "id": "FG_R00208",
+  "title": "Storage Accounts should have 'Trusted Microsoft Services' enabled"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.Storage/storageAccounts"
+resource_type := "Microsoft.Storage/storageAccounts"
 
 default allow = false
 

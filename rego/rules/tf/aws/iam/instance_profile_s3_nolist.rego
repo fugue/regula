@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@ import data.fugue
 import data.aws.iam.policy_document_library as lib
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "IAM roles attached to instance profiles should not allow broad list actions on S3 buckets. Instance profiles contain trust policies that enable EC2 instances to assume IAM roles. To prevent compromised EC2 instances from being able to effectively survey all S3 buckets and potentionally access sensitive data, trust policies attached to instance profiles should not allow list actions on S3 buckets.",
@@ -100,7 +98,7 @@ is_bad_policy_arn(arn) {
 }
 
 # Judge roles
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   role = relevant_roles[_]
@@ -114,4 +112,3 @@ policy[j] {
 
 # Utility: turns anything into an array, if it's not an array already.
 as_array(x) = [x] {not is_array(x)} else = x {true}
-

@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,6 @@
 package rules.tf_aws_cloudtrail_log_validation
 
 __rego__metadoc__ := {
-  "id": "FG_R00027",
-  "title": "CloudTrail log file validation should be enabled",
-  "description": "CloudTrail log file validation should be enabled. It is recommended that file validation be enabled on all CloudTrail logs because it provides additional integrity checking of the log data.",
   "custom": {
     "controls": {
       "CIS-AWS_v1.2.0": [
@@ -24,13 +21,19 @@ __rego__metadoc__ := {
       ],
       "CIS-AWS_v1.3.0": [
         "CIS-AWS_v1.3.0_3.2"
+      ],
+      "CIS-AWS_v1.4.0": [
+        "CIS-AWS_v1.4.0_3.2"
       ]
     },
     "severity": "Medium"
-  }
+  },
+  "description": "CloudTrail log file validation should be enabled. It is recommended that file validation be enabled on all CloudTrail logs because it provides additional integrity checking of the log data.",
+  "id": "FG_R00027",
+  "title": "CloudTrail log file validation should be enabled"
 }
 
-resource_type = "aws_cloudtrail"
+resource_type := "aws_cloudtrail"
 
 default allow = false
 

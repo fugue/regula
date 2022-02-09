@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_elb_access_log_enabled
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "Load balancer access logging should be enabled. Load balancer access logging should be enabled. Access logs record information about every HTTP and TCP request a load balancer processes. Access logging should be enabled in order to analyze statistics, diagnose issues, and retain data for regulatory or legal purposes.",
@@ -44,7 +42,7 @@ access_logs_enabled(obj) {
   obj.access_logs[_].enabled == true
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   obj = all_resources[_]
@@ -55,4 +53,3 @@ policy[j] {
   not access_logs_enabled(obj)
   j = fugue.deny_resource(obj)
 }
-

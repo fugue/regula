@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ __rego__metadoc__ := {
   "title": "VPC flow logging should be enabled"
 }
 
-resource_type = "MULTIPLE"
-input_type = "cfn"
+resource_type := "MULTIPLE"
+input_type := "cfn"
 
 vpcs = fugue.resources("AWS::EC2::VPC")
 flow_logs = fugue.resources("AWS::EC2::FlowLog")

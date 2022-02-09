@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 package rules.tf_azurerm_postgresql_enforce_ssl_postgresql
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -31,7 +30,7 @@ __rego__metadoc__ := {
   "title": "PostgreSQL Database server 'enforce SSL connection' should be enabled"
 }
 
-resource_type = "azurerm_postgresql_server"
+resource_type := "azurerm_postgresql_server"
 
 default allow = false
 
@@ -41,4 +40,3 @@ allow {
   # New version of the provider.
   input.ssl_enforcement_enabled == true
 }
-

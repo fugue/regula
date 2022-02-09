@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 package rules.tf_azurerm_app_service_web_app_incoming_client_certs
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -31,11 +30,10 @@ __rego__metadoc__ := {
   "title": "App Service web apps should have 'Incoming client certificates' enabled"
 }
 
-resource_type = "azurerm_app_service"
+resource_type := "azurerm_app_service"
 
 default allow = false
 
 allow {
   input.client_cert_enabled == true
 }
-

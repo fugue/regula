@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_google_sql_database_sql_server_disable_contained_db_auth
 
 import data.fugue
 import data.google.sql_database.sql_database_library as lib
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -34,7 +33,7 @@ __rego__metadoc__ := {
   "title": "SQL Server database instance 'contained database authentication' database flag should be set to 'off'"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 valid_db_instances[id] {
   db = lib.sql_server_database_instances[id]
@@ -53,4 +52,3 @@ policy[j] {
   not valid_db_instances[id]
   j = fugue.deny_resource(db)
 }
-

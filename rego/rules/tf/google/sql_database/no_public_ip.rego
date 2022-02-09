@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_google_sql_database_no_public_ip
 
 import data.google.sql_database.sql_database_library as lib
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -33,7 +32,7 @@ __rego__metadoc__ := {
   "title": "SQL database instances should not have public IPs"
 }
 
-resource_type = "google_sql_database_instance"
+resource_type := "google_sql_database_instance"
 
 default deny = false
 
@@ -44,4 +43,3 @@ deny {
   # Design time
   input.settings[_].ip_configuration[_].ipv4_enabled == true
 }
-

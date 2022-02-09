@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_google_bigquery_no_public_access
 
 import data.fugue
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -33,7 +32,7 @@ __rego__metadoc__ := {
   "title": "BigQuery datasets should not be anonymously or publicly accessible"
 }
 
-resource_type = "google_bigquery_dataset"
+resource_type := "google_bigquery_dataset"
 
 anonymous_users = {"allAuthenticatedUsers", "allUsers"}
 
@@ -50,4 +49,3 @@ default deny = false
 deny {
   has_anonymous_access(input)
 }
-

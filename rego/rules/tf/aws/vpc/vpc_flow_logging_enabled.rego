@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@ package rules.tf_aws_vpc_vpc_flow_logging_enabled
 
 import data.fugue
 
+
 __rego__metadoc__ := {
-  "id": "FG_R00054",
-  "title": "VPC flow logging should be enabled",
-  "description": "VPC flow logging should be enabled. AWS VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows.",
   "custom": {
     "controls": {
       "CIS-AWS_v1.2.0": [
@@ -26,30 +24,32 @@ __rego__metadoc__ := {
       ],
       "CIS-AWS_v1.3.0": [
         "CIS-AWS_v1.3.0_3.9"
+      ],
+      "CIS-AWS_v1.4.0": [
+        "CIS-AWS_v1.4.0_3.9"
       ]
     },
     "severity": "Medium"
-  }
+  },
+  "description": "VPC flow logging should be enabled. AWS VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows.",
+  "id": "FG_R00054",
+  "title": "VPC flow logging should be enabled"
 }
 
-resource_type = "MULTIPLE"
-
-# every flow log in the template
-flow_logs = fugue.resources("aws_flow_log")
-# every VPC in the template
 vpcs = fugue.resources("aws_vpc")
 
-# VPC is valid if there is an associated flow log
-is_valid_vpc(vpc) {
-    vpc.id == flow_logs[_].vpc_id
-}
+flow_logs = fugue.resources("aws_flow_log")
 
-policy[p] {
-  resource = vpcs[_]
-  not is_valid_vpc(resource)
-  p = fugue.deny_resource(resource)
+flow_log_vpc_ids = {vpc_id | vpc_id = flow_logs[_].vpc_id}
+
+resource_type := "MULTIPLE"
+
+policy[j] {
+  vpc = vpcs[_]
+  flow_log_vpc_ids[vpc.id]
+  j = fugue.allow_resource(vpc)
 } {
-  resource = vpcs[_]
-  is_valid_vpc(resource)
-  p = fugue.allow_resource(resource)
+  vpc = vpcs[_]
+  not flow_log_vpc_ids[vpc.id]
+  j = fugue.deny_resource(vpc)
 }

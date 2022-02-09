@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,25 +17,25 @@ package rules.arm_sql_auditing_retention
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00283",
-	"title": "SQL Server auditing retention should be 90 days or greater",
-	"description": "Audit Logs can be used to check for anomalies and give insight into suspected breaches or misuse of information and access.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_4.3"
-			],
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_4.1.3"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_4.3"
+      ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_4.1.3"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Audit Logs can be used to check for anomalies and give insight into suspected breaches or misuse of information and access.",
+  "id": "FG_R00283",
+  "title": "SQL Server auditing retention should be 90 days or greater"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 servers = fugue.resources("Microsoft.Sql/servers")
 auditing_settings = fugue.resources("Microsoft.Sql/servers/auditingSettings")

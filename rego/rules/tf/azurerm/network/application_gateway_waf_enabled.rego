@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_azurerm_network_application_gateway_waf_enabled
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "Ensure Azure Application Gateway Web application firewall (WAF) is enabled. Azure Application Gateway offers a web application firewall (WAF) that provides centralized protection of your web applications from common exploits and vulnerabilities. Web applications are increasingly targeted by malicious attacks that exploit commonly known vulnerabilities.",
@@ -51,7 +49,7 @@ valid_app_gws[id] = app_gw {
     valid_app_gw(app_gw)
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   app_gw = valid_app_gws[id]
@@ -61,4 +59,3 @@ policy[j] {
   not valid_app_gws[id]
   j = fugue.deny_resource(app_gw)
 }
-

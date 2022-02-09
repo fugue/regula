@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,13 @@ package rules.tf_aws_sqs_payload_encryption
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
-  "description": "SQS queue server-side encryption should be enabled (AWS-managed keys). When using SQS queues to send and receive sensitive data, the message payloads should be encrypted using Server Side Encryption (SSE). SQS messages are encrypted using KMS keys.",
+  "description": "SQS queue server-side encryption should be enabled with KMS keys. When using SQS queues to send and receive sensitive data, message payloads should be encrypted using server-side encryption with keys managed in KMS (SSE-KMS). Using SQS owned keys (SSE-SQS) is also an option, but lacks the benefits of using KMS, including viewing key policies, auditing usage, and rotating cryptographic material.",
   "id": "FG_R00070",
-  "title": "SQS queue server-side encryption should be enabled (AWS-managed keys)"
+  "title": "SQS queue server-side encryption should be enabled with KMS keys"
 }
 
 queues = fugue.resources("aws_sqs_queue")
@@ -34,7 +32,7 @@ has_key(q) {
   _ = q.kms_master_key_id
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   q = queues[_]
@@ -45,4 +43,3 @@ policy[j] {
   not has_key(q)
   j = fugue.deny_resource(q)
 }
-

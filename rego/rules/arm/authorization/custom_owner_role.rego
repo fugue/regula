@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,25 +18,25 @@ import data.fugue
 import data.fugue.utils
 
 __rego__metadoc__ := {
-	"id": "FG_R00288",
-	"title": "Active Directory custom subscription owner roles should not be created",
-	"description": "Subscription ownership should not include permission to create custom owner roles. The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_1.23"
-			],
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_1.21"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_1.23"
+      ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_1.21"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Subscription ownership should not include permission to create custom owner roles. The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access.",
+  "id": "FG_R00288",
+  "title": "Active Directory custom subscription owner roles should not be created"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.Authorization/roledefinitions"
+resource_type := "Microsoft.Authorization/roledefinitions"
 
 is_subscription_scope(scope) {
 	scope == "/"

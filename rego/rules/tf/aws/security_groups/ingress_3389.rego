@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,12 +13,11 @@
 # limitations under the License.
 package rules.tf_aws_security_groups_ingress_3389
 
-import data.fugue.regula.aws.security_group as sglib
+import data.aws.security_groups.library
+import data.fugue
+
 
 __rego__metadoc__ := {
-  "id": "FG_R00087",
-  "title": "VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)",
-  "description": "VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 3389 (Remote Desktop Protocol). VPC security groups should not permit unrestricted access from the internet to port 3389 (RDP). Removing unfettered connectivity to remote console services, such as Remote Desktop Protocol, reduces a server's exposure to risk.",
   "custom": {
     "controls": {
       "CIS-AWS_v1.2.0": [
@@ -26,17 +25,28 @@ __rego__metadoc__ := {
       ],
       "CIS-AWS_v1.3.0": [
         "CIS-AWS_v1.3.0_5.2"
+      ],
+      "CIS-AWS_v1.4.0": [
+        "CIS-AWS_v1.4.0_5.2"
       ]
     },
     "severity": "High"
-  }
+  },
+  "description": "VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol). Removing unfettered connectivity to remote console services, such as Remote Desktop Protocol, reduces a server's exposure to risk.",
+  "id": "FG_R00087",
+  "title": "VPC security group rules should not permit ingress from '0.0.0.0/0' to port 3389 (Remote Desktop Protocol)"
 }
 
-resource_type = "aws_security_group"
+security_groups = fugue.resources("aws_security_group")
 
-default deny = false
+resource_type := "MULTIPLE"
 
-deny {
-  block = input.ingress[_]
-  sglib.ingress_zero_cidr_to_port(block, 3389)
+policy[j] {
+  sg = security_groups[_]
+  library.security_group_ingress_zero_cidr_to_port(sg, 3389)
+  j = fugue.deny_resource(sg)
+} {
+  sg = security_groups[_]
+  not library.security_group_ingress_zero_cidr_to_port(sg, 3389)
+  j = fugue.allow_resource(sg)
 }

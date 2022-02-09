@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 package rules.tf_azurerm_kubernetes_cluster_instances_rbac
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -31,7 +30,7 @@ __rego__metadoc__ := {
   "title": "Azure Kubernetes Service instances should have RBAC enabled"
 }
 
-resource_type = "azurerm_kubernetes_cluster"
+resource_type := "azurerm_kubernetes_cluster"
 
 default deny = false
 
@@ -40,4 +39,3 @@ deny {
 } {
   not all([r | r = input.role_based_access_control[_].enabled])
 }
-

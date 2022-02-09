@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_google_iam_kms_role_limits
 
 import data.fugue
 import data.google.iam.policy_library as lib
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -34,7 +33,7 @@ __rego__metadoc__ := {
   "title": "IAM users should not have both KMS admin and any of the KMS encrypter/decrypter roles"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 kms_admin_role := "roles/cloudkms.admin"
 kms_crypto_key_roles := {
@@ -83,4 +82,3 @@ policy[j] {
   not invalid_resources[id]
   j = fugue.allow_resource(r)
 }
-

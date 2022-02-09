@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_ec2_asg
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "Auto Scaling groups should span two or more availability zones. Auto Scaling groups that span two or more availability zones promote redundancy of data, which helps ensure availability and continuity during an adverse situation.",
@@ -53,7 +51,7 @@ valid_autoscaling_group(asg) {
   count(subnet_azs_by_asg_id[asg.id]) >= 2
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   asg = autoscaling_groups[_]
@@ -64,4 +62,3 @@ policy[j] {
   not valid_autoscaling_group(asg)
   j = fugue.deny_resource(asg)
 }
-

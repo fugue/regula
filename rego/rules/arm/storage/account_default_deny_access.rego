@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,22 +17,22 @@ package rules.arm_storage_account_default_deny_access
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00154",
-	"title": "Storage Account default network access rules should deny all traffic",
-	"description": "Storage accounts should be configured to deny access to traffic from all networks. Access can be granted to traffic from specific Azure Virtual networks, allowing a secure network boundary for specific applications to be built. Access can also be granted to public internet IP address ranges, to enable connections from specific internet or on-premises clients. When network rules are configured, only applications from allowed networks can access a storage account. When calling from an allowed network, applications continue to require proper authorization (a valid access key or SAS token) to access the storage account.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_3.6"
-			]
-		},
-		"severity": "High"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_3.6"
+      ]
+    },
+    "severity": "High"
+  },
+  "description": "Storage accounts should be configured to deny access to traffic from all networks. Access can be granted to traffic from specific Azure Virtual networks, allowing a secure network boundary for specific applications to be built. Access can also be granted to public internet IP address ranges, to enable connections from specific internet or on-premises clients. When network rules are configured, only applications from allowed networks can access a storage account. When calling from an allowed network, applications continue to require proper authorization (a valid access key or SAS token) to access the storage account.",
+  "id": "FG_R00154",
+  "title": "Storage Account default network access rules should deny all traffic"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.Storage/storageAccounts"
+resource_type := "Microsoft.Storage/storageAccounts"
 
 default allow = false
 

@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,18 +15,17 @@
 package rules.arm_sql_no_inbound_all
 
 __rego__metadoc__ := {
-	"id": "FG_R00221",
-	"title": "SQL Server firewall rules should not permit start and end IP addresses to be 0.0.0.0",
-	"description": "Adding a rule with range 0.0.0.0 to 0.0.0.0 is the same as enabling the \"Allow access to Azure services\" setting, which allows all connections from Azure, including from other subscriptions. Disabling this setting helps prevent malicious Azure users from connecting to your database and accessing sensitive data.",
-	"custom": {
-		"controls": {},
-		"severity": "High"
-	}
+  "custom": {
+    "severity": "High"
+  },
+  "description": "Adding a rule with range 0.0.0.0 to 0.0.0.0 is the same as enabling the \"Allow access to Azure services\" setting, which allows all connections from Azure, including from other subscriptions. Disabling this setting helps prevent malicious Azure users from connecting to your database and accessing sensitive data.",
+  "id": "FG_R00221",
+  "title": "SQL Server firewall rules should not permit start and end IP addresses to be 0.0.0.0"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.Sql/servers/firewallRules"
+resource_type := "Microsoft.Sql/servers/firewallRules"
 
 default deny = false
 deny {

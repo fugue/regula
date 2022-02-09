@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00487",
-	"title": "Pods should not run containers wishing to share the host IPC namespace",
-	"description": "Pods should not run containers wishing to share the host IPC namespace. Minimize the admission of containers wishing to share the host IPC namespace. A container that runs with hostIPC set has the ability to interact with processes running on the host via shared memory and other interprocess communication (IPC) mechanisms.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.2.3"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pods should not run containers wishing to share the host IPC namespace. Minimize the admission of containers wishing to share the host IPC namespace. A container that runs with hostIPC set has the ability to interact with processes running on the host via shared memory and other interprocess communication (IPC) mechanisms.",
+  "id": "FG_R00487",
+  "title": "Pods should not run containers wishing to share the host IPC namespace"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 host_ipc_set(template) {
 	template.spec.hostIPC == true

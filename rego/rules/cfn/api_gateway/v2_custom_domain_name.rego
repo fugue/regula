@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ __rego__metadoc__ := {
   "custom": {
     "severity": "Medium"
   },
-  "description": "The TLS (Transport Layer Security) protocol secures transmission of data over the internet using standard encryption technology. Encryption should be set with the latest version of TLS where possible. Versions prior to TLS 1.2 are deprecated and usage may pose security risks.",
+  "description": "API Gateway v2 custom domains should use secure TLS protocol versions (1.2 and above). The TLS (Transport Layer Security) protocol secures transmission of data over the internet using standard encryption technology. Encryption should be set with the latest version of TLS where possible. Versions prior to TLS 1.2 are deprecated and usage may pose security risks.",
   "id": "FG_R00376",
-  "title": "API Gateway v2 custom domains should use secure TLS protocol versions (1.2 and above) "
+  "title": "API Gateway v2 custom domains should use secure TLS protocol versions (1.2 and above)"
 }
 
-input_type = "cfn"
-resource_type = "MULTIPLE"
+input_type := "cfn"
+resource_type := "MULTIPLE"
 
 domain_names = fugue.resources("AWS::ApiGatewayV2::DomainName")
 serverless_apis = fugue.resources("AWS::Serverless::HttpApi")

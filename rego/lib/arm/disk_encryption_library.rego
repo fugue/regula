@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 # This helper rego code works for Azure "no ingress" rules.
 # It is built on top of the terraform code that does the same,
 # through a simple conversion (`rule_to_tf`).
-package fugue.arm.disk_encryption_library
+package arm.disk_encryption_library
 
 import data.fugue
 

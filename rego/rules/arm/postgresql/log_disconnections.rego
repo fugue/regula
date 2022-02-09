@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,28 +15,28 @@
 package rules.arm_postgresql_log_disconnections
 
 import data.fugue
-import data.fugue.arm.postgresql_configuration_library as lib
+import data.arm.postgresql_configuration_library as lib
 
 __rego__metadoc__ := {
-	"id": "FG_R00331",
-	"title": "PostgreSQL Database configuration 'log_disconnections' should be on",
-	"description": "Enabling log_disconnections helps PostgreSQL Database to Logs end of a session, including duration, which in turn generates query and error logs. Query and error logs can be used to identify, troubleshoot, and repair configuration errors and sub-optimal performance.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_4.15"
-			],
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_4.3.5"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_4.15"
+      ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_4.3.5"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Enabling log_disconnections helps PostgreSQL Database to Logs end of a session, including duration, which in turn generates query and error logs. Query and error logs can be used to identify, troubleshoot, and repair configuration errors and sub-optimal performance.",
+  "id": "FG_R00331",
+  "title": "PostgreSQL Database configuration 'log_disconnections' should be on"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 is_valid(server) {
     lower(lib.configuration_value(server, "log_disconnections")) == "on"

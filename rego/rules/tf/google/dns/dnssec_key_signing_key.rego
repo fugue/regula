@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 package rules.tf_google_dns_dnssec_key_signing_key
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -31,7 +30,7 @@ __rego__metadoc__ := {
   "title": "DNS managed zone DNSSEC key-signing keys should not use RSASHA1"
 }
 
-resource_type = "google_dns_managed_zone"
+resource_type := "google_dns_managed_zone"
 
 invalid_algorithms = {"rsasha1"}
 
@@ -48,4 +47,3 @@ allow {
   dnssec_config.state == "on"
   not has_invalid_algorithm(dnssec_config)
 }
-

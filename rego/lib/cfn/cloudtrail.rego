@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 package cfn.cloudtrail
 
-import data.fugue.cfn.s3
+import data.cfn.s3
 
 data_resource_value_matches_bucket(value, bucket) {
   s3.matches_bucket_name_or_id(bucket, value)

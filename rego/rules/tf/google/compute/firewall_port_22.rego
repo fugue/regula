@@ -52,17 +52,3 @@ policy[j] {
   f = lib.firewalls_by_priority_and_port(network, p, port)[_]
   j = fugue.deny_resource(f)
 }
-
-policy[j] {
-  # No network info found; simpler implementation.
-  firewall = firewalls[_]
-  not lib.network_for_firewall(firewall)
-  lib.firewall_zero_cidr_to_port(firewall, port)
-  j = fugue.deny_resource(firewall)
-} {
-  # No network info found; simpler implementation.
-  firewall = firewalls[_]
-  not lib.network_for_firewall(firewall)
-  not lib.firewall_zero_cidr_to_port(firewall, port)
-  j = fugue.deny_resource(firewall)
-}

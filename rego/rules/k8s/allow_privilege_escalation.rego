@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00489",
-	"title": "Pods should not run containers with allowPrivilegeEscalation",
-	"description": "Pods should not run containers with allowPrivilegeEscalation. The allowPrivilegeEscalation setting controls whether a process can gain more privileges than its parent process. Set allowPrivilegeEscalation to false unless it is absolutely required.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.2.5"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pods should not run containers with allowPrivilegeEscalation. The allowPrivilegeEscalation setting controls whether a process can gain more privileges than its parent process. Set allowPrivilegeEscalation to false unless it is absolutely required.",
+  "id": "FG_R00489",
+  "title": "Pods should not run containers with allowPrivilegeEscalation"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 any_invalid_containers(template) {
 	template.spec.containers[_].securityContext.allowPrivilegeEscalation == true

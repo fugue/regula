@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00483",
-	"title": "Default service account 'automountServiceAccountToken' should be set to 'false'",
-	"description": "Default service account 'automountServiceAccountToken' should be set to 'false'. Avoid automounting tokens for the default service account. The default service account should not be used and its ability to provide API credentials should be disabled.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.1.5"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Default service account 'automountServiceAccountToken' should be set to 'false'. Avoid automounting tokens for the default service account. The default service account should not be used and its ability to provide API credentials should be disabled.",
+  "id": "FG_R00483",
+  "title": "Default service account 'automountServiceAccountToken' should be set to 'false'"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 # This rule specifically checks for the following portion of 5.1.5. This may be
 # applicable primarily at runtime. "Additionally ensure that the

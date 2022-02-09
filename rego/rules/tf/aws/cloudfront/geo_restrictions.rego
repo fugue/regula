@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_cloudfront_geo_restrictions
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "CloudFront distributions should have geo-restrictions specified. CloudFront distributions should enable geo-restriction when an organization needs to prevent users in specific geographic locations from accessing content. For example, if an organization has rights to distribute content in only one country, geo restriction should be enabled to allow access only from users in the whitelisted country. Or if the organization cannot distribute content in a particular country, geo restriction should deny access from users in the blacklisted country.",
@@ -36,7 +34,7 @@ valid_cloudfront_distribution(cd) {
   valid_restriction_types[restriction_type]
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   cd = cloudfront_distributions[_]
@@ -47,4 +45,3 @@ policy[j] {
   not valid_cloudfront_distribution(cd)
   j = fugue.deny_resource(cd)
 }
-

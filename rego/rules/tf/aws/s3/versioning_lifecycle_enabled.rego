@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,8 @@
 package rules.tf_aws_s3_versioning_lifecycle_enabled
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "S3 bucket versioning and lifecycle policies should be enabled. S3 bucket versioning and lifecycle policies are used to protect data availability and integrity. By enabling object versioning, data is protected from overwrites and deletions. Lifecycle policies ensure sensitive data is deleted when appropriate.",
@@ -25,7 +23,7 @@ __rego__metadoc__ := {
   "title": "S3 bucket versioning and lifecycle policies should be enabled"
 }
 
-resource_type = "aws_s3_bucket"
+resource_type := "aws_s3_bucket"
 
 has_versioning_enabled {
   input.versioning[_].enabled
@@ -41,4 +39,3 @@ allow {
   has_versioning_enabled
   has_lifecycle_policy
 }
-

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@ package rules.tf_aws_iam_user_group_attachment
 
 import data.fugue
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Low"
   },
   "description": "IAM users should be members of at least one group. It is an IAM best practice for permissions to be managed at the group level, and therefore, for policies to be attached to groups - not users. Ensuring that a user belongs to at least one group helps prevent the user's permissions from being managed separately.",
@@ -35,7 +33,7 @@ group_attached(user) {
   groups[_].users[_] == user.name
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   user = users[_]
@@ -46,4 +44,3 @@ policy[j] {
   not group_attached(user)
   j = fugue.deny_resource(user)
 }
-

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_aws_iam_password_length
 
 import data.fugue
-
 
 
 __rego__metadoc__ := {
@@ -45,7 +44,7 @@ exists_password_policy {
 }
 
 # Placeholder for missing a password policy from the input.
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   fugue.input_type == "tf_runtime"
@@ -60,4 +59,3 @@ policy[j] {
   pol.minimum_password_length < 14
   j = fugue.deny_resource(pol)
 }
-

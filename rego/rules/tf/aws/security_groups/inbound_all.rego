@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@ import data.fugue
 import data.aws.security_groups.library
 import data.fugue.cidr
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "VPC security group inbound rules should not permit ingress from a public address to all ports and protocols. Security groups provide stateful filtering of ingress/egress network traffic to AWS resources. AWS recommends that no security groups explicitly allow inbound ports.",
@@ -28,7 +26,7 @@ __rego__metadoc__ := {
   "title": "VPC security group inbound rules should not permit ingress from a public address to all ports and protocols"
 }
 
-resource_type = "aws_security_group"
+resource_type := "aws_security_group"
 
 default deny = false
 
@@ -44,4 +42,3 @@ deny {
   has_public_cidr(b)
   library.rule_all_ports(b)
 }
-

@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,25 +17,25 @@ package rules.arm_app_service_min_tls_version
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00347",
-	"title": "App Service web apps should have 'Minimum TLS Version' set to '1.2'",
-	"description": "The TLS (Transport Layer Security) protocol secures transmission of data over the internet using standard encryption technology. Encryption should be set with the latest version of TLS. App service allows TLS 1.2 by default, which is the recommended TLS level by industry standards.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_9.3"
-			],
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_9.3"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_9.3"
+      ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_9.3"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "The TLS (Transport Layer Security) protocol secures transmission of data over the internet using standard encryption technology. Encryption should be set with the latest version of TLS. App service allows TLS 1.2 by default, which is the recommended TLS level by industry standards.",
+  "id": "FG_R00347",
+  "title": "App Service web apps should have 'Minimum TLS Version' set to '1.2'"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 sites := fugue.resources("Microsoft.Web/sites")
 configs := fugue.resources("Microsoft.Web/sites/config")

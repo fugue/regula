@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@ import data.aws.security_groups.library
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "VPC security groups attached to EC2 instances should not permit ingress from '0.0.0.0/0' to TCP/UDP port 389 (LDAP). Removing unfettered connectivity to LDAP reduces the chance of exposing critical data.",
@@ -28,7 +26,7 @@ __rego__metadoc__ := {
   "title": "VPC security groups attached to EC2 instances should not permit ingress from '0.0.0.0/0' to TCP/UDP port 389 (LDAP)"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   sg = library.ec2_connected_security_groups[_]
@@ -39,4 +37,3 @@ policy[j] {
   not library.security_group_ingress_zero_cidr_to_port(sg, 389)
   j = fugue.allow_resource(sg)
 }
-

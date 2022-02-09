@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_aws_cloudtrail_cloudwatch
 
 import data.fugue
-
 
 
 __rego__metadoc__ := {
@@ -46,7 +45,7 @@ has_log_integration(ct) {
   ct.cloud_watch_logs_role_arn != null
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   ct = cloudtrails[_]
@@ -57,4 +56,3 @@ policy[j] {
   not has_log_integration(ct)
   j = fugue.deny_resource(ct)
 }
-

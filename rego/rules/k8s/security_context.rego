@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00496",
-	"title": "Pods and containers should apply a security context",
-	"description": "Pods and containers should apply a security context. A security context controls a variety of settings for access control, Linux capabilities, and privileges. The security context may be set at the pod or the container level. Reference the Kubernetes documentation for specific recommendations for each setting.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.7.3"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pods and containers should apply a security context. A security context controls a variety of settings for access control, Linux capabilities, and privileges. The security context may be set at the pod or the container level. Reference the Kubernetes documentation for specific recommendations for each setting.",
+  "id": "FG_R00496",
+  "title": "Pods and containers should apply a security context"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 has_pod_security_context(template) {
 	template.spec.securityContext[_]

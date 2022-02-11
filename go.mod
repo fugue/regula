@@ -22,9 +22,9 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/hashicorp/errwrap v1.1.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
-	github.com/hashicorp/go-hclog v0.15.0
+	github.com/hashicorp/go-hclog v1.0.0
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/hashicorp/go-retryablehttp v0.5.2
+	github.com/hashicorp/go-retryablehttp v0.5.3
 	github.com/hashicorp/go-uuid v1.0.1
 	github.com/hashicorp/go-version v1.3.0
 	github.com/hashicorp/hcl/v2 v2.10.0
@@ -33,32 +33,27 @@ require (
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
-	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/mitchellh/panicwrap v1.0.0
-	github.com/open-policy-agent/opa v0.34.1
-	github.com/pelletier/go-toml v1.9.4 // indirect
+	github.com/open-policy-agent/opa v0.37.0
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.6.0
-	github.com/spf13/cast v1.4.1 // indirect
-	github.com/spf13/cobra v1.2.1
+	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.8.1
+	github.com/spf13/viper v1.10.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tailscale/hujson v0.0.0-20210818175511-7360507a6e88
 	github.com/zclconf/go-cty v1.8.4
 	github.com/zclconf/go-cty-yaml v1.0.2
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
-	golang.org/x/mod v0.4.2
-	golang.org/x/net v0.0.0-20210825183410-e898025ed96a
-	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f // indirect
+	golang.org/x/mod v0.5.0
+	golang.org/x/net v0.0.0-20211111083644-e5c967477495
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf // indirect
-	golang.org/x/text v0.3.6
-	gopkg.in/ini.v1 v1.63.2 // indirect
+	golang.org/x/text v0.3.7
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
 require (
 	go.mongodb.org/mongo-driver v1.5.1 // indirect
-	golang.org/x/tools v0.1.2
+	golang.org/x/tools v0.1.5
 )

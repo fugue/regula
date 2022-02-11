@@ -211,6 +211,7 @@ func (v *Evaluation) evaluate() error {
 
 		vars := v.prepareVariables(name, expr)
 		vars = MergeValTree(vars, SingletonValTree(LocalName{"path", "module"}, cty.StringVal(moduleMeta.Dir)))
+		vars = MergeValTree(vars, SingletonValTree(LocalName{"terraform", "workspace"}, cty.StringVal("default")))
 
 		// Add count.index if inside a counted resource.
 		resourceName, _ := name.AsResourceName()

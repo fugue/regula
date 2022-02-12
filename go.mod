@@ -34,7 +34,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
 	github.com/mitchellh/panicwrap v1.0.0
-	github.com/open-policy-agent/opa v0.37.0
+	github.com/open-policy-agent/opa v0.37.2
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.6.0
@@ -54,6 +54,7 @@ require (
 )
 
 require (
+	github.com/prometheus/client_golang v1.12.1 // indirect
 	go.mongodb.org/mongo-driver v1.5.1 // indirect
 	golang.org/x/tools v0.1.5
 )

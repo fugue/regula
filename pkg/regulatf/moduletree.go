@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/zclconf/go-cty/cty"
 
-	"github.com/fugue/regula/pkg/terraform/configs"
+	"github.com/fugue/regula/v2/pkg/terraform/configs"
 )
 
 type ModuleMeta struct {

@@ -19,12 +19,12 @@ import (
 	"strings"
 )
 
-//go:generate mockgen -destination=../mocks/mock_iacconfiguration.go -package=mocks github.com/fugue/regula/pkg/loader IACConfiguration
-//go:generate mockgen -destination=../mocks/mock_configurationdetector.go -package=mocks github.com/fugue/regula/pkg/loader ConfigurationDetector
-//go:generate mockgen -destination=../mocks/mock_inputpath.go -package=mocks github.com/fugue/regula/pkg/loader InputPath
-//go:generate mockgen -destination=../mocks/mock_inputdirectory.go -package=mocks github.com/fugue/regula/pkg/loader InputDirectory
-//go:generate mockgen -destination=../mocks/mock_inputfile.go -package=mocks github.com/fugue/regula/pkg/loader InputFile
-//go:generate mockgen -destination=../mocks/mock_loadedconfigurations.go -package=mocks github.com/fugue/regula/pkg/loader LoadedConfigurations
+//go:generate mockgen -destination=../mocks/mock_iacconfiguration.go -package=mocks github.com/fugue/regula/v2/pkg/loader IACConfiguration
+//go:generate mockgen -destination=../mocks/mock_configurationdetector.go -package=mocks github.com/fugue/regula/v2/pkg/loader ConfigurationDetector
+//go:generate mockgen -destination=../mocks/mock_inputpath.go -package=mocks github.com/fugue/regula/v2/pkg/loader InputPath
+//go:generate mockgen -destination=../mocks/mock_inputdirectory.go -package=mocks github.com/fugue/regula/v2/pkg/loader InputDirectory
+//go:generate mockgen -destination=../mocks/mock_inputfile.go -package=mocks github.com/fugue/regula/v2/pkg/loader InputFile
+//go:generate mockgen -destination=../mocks/mock_loadedconfigurations.go -package=mocks github.com/fugue/regula/v2/pkg/loader LoadedConfigurations
 
 // stdIn is the path used for stdin.
 const stdIn = "<stdin>"

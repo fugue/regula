@@ -5,7 +5,7 @@ import (
 	"net/url"
 
 	svchost "github.com/hashicorp/terraform-svchost"
-	"github.com/fugue/regula/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
 )
 
 // ErrHostNoProviders is an error type used to indicate that a hostname given

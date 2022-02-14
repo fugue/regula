@@ -6,7 +6,7 @@ import (
 
 	"github.com/zclconf/go-cty/cty"
 
-	"github.com/fugue/regula/pkg/terraform/configs/configschema"
+	"github.com/fugue/regula/v2/pkg/terraform/configs/configschema"
 )
 
 // UnknownVariableValue is a sentinel value that can be used

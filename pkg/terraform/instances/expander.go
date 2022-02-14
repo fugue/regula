@@ -5,7 +5,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/fugue/regula/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
 	"github.com/zclconf/go-cty/cty"
 )
 

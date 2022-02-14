@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fugue/regula/pkg/version"
+	"github.com/fugue/regula/v2/pkg/version"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/repl"
 	"github.com/open-policy-agent/opa/storage"

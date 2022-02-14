@@ -3,7 +3,7 @@ package getproviders
 import (
 	"context"
 
-	"github.com/fugue/regula/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
 )
 
 // FilesystemMirrorSource is a source that reads providers and their metadata

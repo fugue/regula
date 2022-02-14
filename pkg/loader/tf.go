@@ -21,7 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 
-	"github.com/fugue/regula/pkg/regulatf"
+	"github.com/fugue/regula/v2/pkg/regulatf"
 )
 
 // This is the loader that supports reading files and directories of HCL (.tf)

@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/fugue/regula/pkg/swagger/models"
+	"github.com/fugue/regula/v2/pkg/swagger/models"
 )
 
 // ListAuditLogEventsReader is a Reader for the ListAuditLogEvents structure.

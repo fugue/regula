@@ -17,9 +17,9 @@ package loader_test
 import (
 	"testing"
 
-	"github.com/fugue/regula/pkg/loader"
-	inputs "github.com/fugue/regula/pkg/loader/test_inputs"
-	"github.com/fugue/regula/pkg/mocks"
+	"github.com/fugue/regula/v2/pkg/loader"
+	inputs "github.com/fugue/regula/v2/pkg/loader/test_inputs"
+	"github.com/fugue/regula/v2/pkg/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )

@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/fugue/regula/pkg/swagger/models"
+	"github.com/fugue/regula/v2/pkg/swagger/models"
 )
 
 // NewTestCustomRuleParams creates a new TestCustomRuleParams object

@@ -7,6 +7,10 @@ import (
 )
 
 func ValueToInt(val cty.Value) *int {
+	if !val.IsKnown() || val.IsNull() {
+		return nil
+	}
+
 	if val.Type() == cty.Number {
 		b := val.AsBigFloat()
 		if b.IsInt() {

@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v2.5.0 (2022-02-11)
+
+### Changed
+* Rule package names to match what's in the Fugue platform offering (#300)
+
+### Fixed
+* Empty `opa.runtime()` result (#301)
+* Null `terraform.workspace` value (#305)
+* Panic from null count in some Terraform configurations (#307)
+
+### Improved
+* Table output by making the result and severity columns more visible (#298 authored by @fafg)
+
 ## v2.4.0 (2022-01-25)
 
 ### Added

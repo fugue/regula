@@ -16,6 +16,7 @@ package reporter
 
 import (
 	"bytes"
+
 	"github.com/fugue/regula/pkg/loader"
 	"github.com/fugue/regula/pkg/version"
 	"github.com/owenrumney/go-sarif/v2/sarif"
@@ -27,7 +28,11 @@ func SarifReporter(o *RegulaReport) (string, error) {
 		return "", err
 	}
 
-	run := sarif.NewRunWithInformationURI("regula", version.Homepage)
+	driver := sarif.NewDriver("regula").
+		WithSemanticVersion(version.PlainVersion()).
+		WithInformationURI(version.Homepage)
+	tool := sarif.NewTool(driver)
+	run := sarif.NewRun(*tool)
 
 	// AddDistinctArtifact is slow, use a set instead
 	artifacts := map[string]struct{}{}
@@ -42,7 +47,10 @@ func SarifReporter(o *RegulaReport) (string, error) {
 				rule = rule.WithShortDescription(sarif.NewMultiformatMessageString(r.RuleSummary))
 			}
 			if r.RuleDescription != "" {
-				rule = rule.WithFullDescription(sarif.NewMarkdownMultiformatMessageString(r.RuleDescription))
+				rule = rule.WithFullDescription(
+					sarif.NewMultiformatMessageString(r.RuleDescription).
+						WithMarkdown(r.RuleDescription),
+				)
 			}
 			if r.RuleRemediationDoc != "" {
 				rule = rule.WithHelpURI(r.RuleRemediationDoc)
@@ -54,7 +62,8 @@ func SarifReporter(o *RegulaReport) (string, error) {
 	for _, r := range o.RuleResults {
 		artifacts[r.Filepath] = struct{}{}
 		result := run.CreateResultForRule(r.RuleID).
-			WithLevel(ToSarifLevel(r.RuleResult, r.RuleSeverity))
+			WithLevel(ToSarifLevel(r.RuleResult, r.RuleSeverity)).
+			WithMessage(sarif.NewTextMessage(r.Message()))
 
 		// Important properties that don't fit well into the sarif format.
 		// SHOULD be camelCase properties.
@@ -66,13 +75,15 @@ func SarifReporter(o *RegulaReport) (string, error) {
 		props.Add("families", r.Families)
 		result.PropertyBag = *props
 
-		if r.RuleMessage != "" {
-			result = result.WithMessage(sarif.NewTextMessage(r.RuleMessage))
+		if r.IsWaived() || r.IsPass() {
+			result = result.WithKind("pass")
+		} else {
+			result = result.WithKind("fail")
 		}
 
 		if r.IsWaived() {
 			result = result.WithSuppression([]*sarif.Suppression{
-				sarif.NewSuppression("suppressedExternally"),
+				sarif.NewSuppression("external"),
 			})
 		}
 
@@ -120,7 +131,7 @@ func ToSarifLocation(l loader.Location) *sarif.Location {
 func ToSarifLevel(r string, s string) string {
 	if result, ok := regulaResults[r]; ok {
 		if result == PASS {
-			return "pass"
+			return "none"
 		}
 
 		if severity, ok := regulaSeverities[s]; ok {

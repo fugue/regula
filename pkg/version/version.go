@@ -25,6 +25,7 @@ import (
 var (
 	Version   = "unknown-version"
 	GitCommit = "unknown-commit"
+	Homepage  = "https://regula.dev"
 )
 
 // OPAVersion is the canonical version of OPA that is embedded in Regula

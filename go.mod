@@ -46,7 +46,7 @@ require (
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tailscale/hujson v0.0.0-20210818175511-7360507a6e88
-	github.com/zclconf/go-cty v1.8.4
+	github.com/zclconf/go-cty v1.10.0
 	github.com/zclconf/go-cty-yaml v1.0.2
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/mod v0.4.2
@@ -59,6 +59,7 @@ require (
 )
 
 require (
+	github.com/owenrumney/go-sarif/v2 v2.1.0
 	go.mongodb.org/mongo-driver v1.5.1 // indirect
 	golang.org/x/tools v0.1.2
 )

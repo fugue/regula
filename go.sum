@@ -512,6 +512,10 @@ github.com/open-policy-agent/opa v0.34.1 h1:u+x9Y1ynLv9w7GilJdtOrnM5PfQfOJYZg9eY
 github.com/open-policy-agent/opa v0.34.1/go.mod h1:buysXn+6zB/b+6JgLkP4WgKZ9+UgUtFAgtemYGrL9Ik=
 github.com/opentracing/opentracing-go v1.2.0 h1:uEJPy/1a5RIPAJ0Ov+OIO8OxWu77jEv+1B0VhjKrZUs=
 github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYrxe9dPLANfrWvHYVTgc=
+github.com/owenrumney/go-sarif v1.1.1 h1:QNObu6YX1igyFKhdzd7vgzmw7XsWN3/6NMGuDzBgXmE=
+github.com/owenrumney/go-sarif v1.1.1/go.mod h1:dNDiPlF04ESR/6fHlPyq7gHKmrM0sHUvAGjsoh8ZH0U=
+github.com/owenrumney/go-sarif/v2 v2.1.0 h1:Xp4RUbbQc5O2/t5YYZ+1QzJ8FZVdJwXeiWssiF5vQrA=
+github.com/owenrumney/go-sarif/v2 v2.1.0/go.mod h1:MSqMMx9WqlBSY7pXoOZWgEsVB4FDNfhcaXDA1j6Sr+w=
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
@@ -638,8 +642,8 @@ github.com/zclconf/go-cty v1.0.0/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLE
 github.com/zclconf/go-cty v1.1.0/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
 github.com/zclconf/go-cty v1.2.0/go.mod h1:hOPWgoHbaTUnI5k4D2ld+GRpFJSCe6bCM7m1q/N4PQ8=
 github.com/zclconf/go-cty v1.8.0/go.mod h1:vVKLxnk3puL4qRAv72AO+W99LUD4da90g3uUAzyuvAk=
-github.com/zclconf/go-cty v1.8.4 h1:pwhhz5P+Fjxse7S7UriBrMu6AUJSZM5pKqGem1PjGAs=
-github.com/zclconf/go-cty v1.8.4/go.mod h1:vVKLxnk3puL4qRAv72AO+W99LUD4da90g3uUAzyuvAk=
+github.com/zclconf/go-cty v1.10.0 h1:mp9ZXQeIcN8kAwuqorjH+Q+njbJKjLrvB2yIh4q7U+0=
+github.com/zclconf/go-cty v1.10.0/go.mod h1:vVKLxnk3puL4qRAv72AO+W99LUD4da90g3uUAzyuvAk=
 github.com/zclconf/go-cty-debug v0.0.0-20191215020915-b22d67c1ba0b/go.mod h1:ZRKQfBXbGkpdV6QMzT3rU1kSTAnfu1dO8dPKjYprgj8=
 github.com/zclconf/go-cty-yaml v1.0.2 h1:dNyg4QLTrv2IfJpm7Wtxi55ed5gLGOlPrZ6kMd51hY0=
 github.com/zclconf/go-cty-yaml v1.0.2/go.mod h1:IP3Ylp0wQpYm50IHK8OZWKMu6sPJIUgKa8XhiVHura0=

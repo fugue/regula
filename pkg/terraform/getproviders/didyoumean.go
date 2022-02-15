@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-retryablehttp"
 	svchost "github.com/hashicorp/terraform-svchost"
-	"github.com/fugue/regula/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
 )
 
 // MissingProviderSuggestion takes a provider address that failed installation

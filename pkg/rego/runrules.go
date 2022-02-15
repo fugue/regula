@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/fugue/regula/pkg/loader"
+	"github.com/fugue/regula/v2/pkg/loader"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/sirupsen/logrus"
@@ -40,6 +40,7 @@ func RunRules(ctx context.Context, options *RunRulesOptions) (RegoResult, error)
 	}
 	regoFuncs := []func(r *rego.Rego){
 		rego.Query(query),
+		rego.Runtime(RegulaRuntimeConfig()),
 	}
 	cb := func(r RegoFile) error {
 		regoFuncs = append(regoFuncs, rego.Module(r.Path(), r.String()))

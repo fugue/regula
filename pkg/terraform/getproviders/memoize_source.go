@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/fugue/regula/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
 )
 
 // MemoizeSource is a Source that wraps another Source and remembers its

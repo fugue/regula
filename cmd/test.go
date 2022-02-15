@@ -18,8 +18,8 @@ import (
 	"context"
 	_ "embed"
 
-	"github.com/fugue/regula/pkg/loader"
-	"github.com/fugue/regula/pkg/rego"
+	"github.com/fugue/regula/v2/pkg/loader"
+	"github.com/fugue/regula/v2/pkg/rego"
 
 	"github.com/spf13/cobra"
 )

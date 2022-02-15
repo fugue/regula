@@ -20,10 +20,10 @@ import (
 	svchost "github.com/hashicorp/terraform-svchost"
 	svcauth "github.com/hashicorp/terraform-svchost/auth"
 
-	"github.com/fugue/regula/pkg/terraform/addrs"
-	"github.com/fugue/regula/pkg/terraform/httpclient"
-	"github.com/fugue/regula/pkg/terraform/logging"
-	"github.com/fugue/regula/pkg/terraform/version"
+	"github.com/fugue/regula/v2/pkg/terraform/addrs"
+	"github.com/fugue/regula/v2/pkg/terraform/httpclient"
+	"github.com/fugue/regula/v2/pkg/terraform/logging"
+	"github.com/fugue/regula/v2/pkg/terraform/version"
 )
 
 const (

@@ -6,9 +6,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/zclconf/go-cty/cty"
 
-	"github.com/fugue/regula/pkg/terraform/lang"
+	"github.com/fugue/regula/v2/pkg/terraform/lang"
 
-	"github.com/fugue/regula/pkg/topsort"
+	"github.com/fugue/regula/v2/pkg/topsort"
 )
 
 type Analysis struct {
@@ -157,7 +157,7 @@ func EvaluateAnalysis(analysis *Analysis) (*Evaluation, error) {
 		Modules:  map[string]ValTree{},
 	}
 
-	for moduleKey, _ := range analysis.Modules {
+	for moduleKey := range analysis.Modules {
 		eval.Modules[moduleKey] = EmptyObjectValTree()
 	}
 
@@ -211,6 +211,7 @@ func (v *Evaluation) evaluate() error {
 
 		vars := v.prepareVariables(name, expr)
 		vars = MergeValTree(vars, SingletonValTree(LocalName{"path", "module"}, cty.StringVal(moduleMeta.Dir)))
+		vars = MergeValTree(vars, SingletonValTree(LocalName{"terraform", "workspace"}, cty.StringVal("default")))
 
 		// Add count.index if inside a counted resource.
 		resourceName, _ := name.AsResourceName()

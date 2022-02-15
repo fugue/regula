@@ -10,8 +10,8 @@ REGO_RULES_SOURCE = $(shell find rego/rules -type f -name '*.rego')
 GITCOMMIT = $(shell git rev-parse --short HEAD 2> /dev/null || true)
 BUILD_TYPE ?= dev
 define LDFLAGS
-    -X \"github.com/fugue/regula/pkg/version.Version=$(VERSION)-$(BUILD_TYPE)\" \
-    -X \"github.com/fugue/regula/pkg/version.GitCommit=$(GITCOMMIT)\"
+    -X \"github.com/fugue/regula/v2/pkg/version.Version=$(VERSION)-$(BUILD_TYPE)\" \
+    -X \"github.com/fugue/regula/v2/pkg/version.GitCommit=$(GITCOMMIT)\"
 endef
 CLI_BUILD = go build -ldflags="$(LDFLAGS) -s -w"
 GO_BIN_DIR= $(shell go env GOPATH)/bin
@@ -90,9 +90,9 @@ terraform_gen:
 	cp -r terraform-$(TERRAFORM_VERSION)/version pkg/terraform
 	cp terraform-$(TERRAFORM_VERSION)/LICENSE pkg/terraform
 	find pkg/terraform/ -name '*.go' \
-    	-exec sed -i".bak" 's#github\.com/hashicorp/terraform/internal/#github.com/fugue/regula/pkg/terraform/#' '{}' \;
+    	-exec sed -i".bak" 's#github\.com/hashicorp/terraform/internal/#github.com/fugue/regula/v2/pkg/terraform/#' '{}' \;
 	find pkg/terraform/ -name '*.go' \
-    	-exec sed -i".bak" 's#github\.com/hashicorp/terraform/version#github.com/fugue/regula/pkg/terraform/version#' '{}' \;
+    	-exec sed -i".bak" 's#github\.com/hashicorp/terraform/version#github.com/fugue/regula/v2/pkg/terraform/version#' '{}' \;
 	find pkg/terraform/ -name '*.bak' -delete
 	find pkg/terraform/ -name '*_test.go' -delete
 	rm -rf terraform.zip terraform-$(TERRAFORM_VERSION)

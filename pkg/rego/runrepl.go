@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fugue/regula/pkg/version"
+	"github.com/fugue/regula/v2/pkg/version"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/repl"
 	"github.com/open-policy-agent/opa/storage"
@@ -64,6 +64,7 @@ func RunREPL(ctx context.Context, options *RunREPLOptions) error {
 		"pretty",
 		ast.CompileErrorLimitDefault,
 		getBanner())
+	r = r.WithRuntime(RegulaRuntimeConfig())
 	r.OneShot(ctx, "strict-builtin-errors")
 	r.Loop(ctx)
 	return nil

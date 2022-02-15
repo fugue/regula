@@ -14,7 +14,7 @@
 package rules.cfn_s3_cloudtrail_s3_data_logging_write
 
 import data.fugue
-import data.fugue.cfn.cloudtrail
+import data.cfn.cloudtrail
 
 __rego__metadoc__ := {
   "custom": {

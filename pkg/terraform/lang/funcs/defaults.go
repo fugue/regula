@@ -3,7 +3,7 @@ package funcs
 import (
 	"fmt"
 
-	"github.com/fugue/regula/pkg/terraform/tfdiags"
+	"github.com/fugue/regula/v2/pkg/terraform/tfdiags"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 	"github.com/zclconf/go-cty/cty/function"

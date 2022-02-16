@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_google_compute_no_default_service_account_with_scopes
 
 import data.google.compute.compute_instance_library as lib
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -33,7 +32,7 @@ __rego__metadoc__ := {
   "title": "Compute instances should not use the default service account with full access to all Cloud APIs"
 }
 
-resource_type = "google_compute_instance"
+resource_type := "google_compute_instance"
 
 default deny = false
 
@@ -47,4 +46,3 @@ deny {
   lib.is_default_service_account(sa)
   invalid_scopes[sa.scopes[_]]
 }
-

@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,25 +17,25 @@ package rules.arm_monitor_key_vault_logging
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00344",
-	"title": "Key Vault logging should be enabled",
-	"description": "Enable AuditEvent logging for key vault instances to ensure interactions with key vaults are logged and available.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_5.1.7"
-			],
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_5.1.5"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_5.1.7"
+      ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_5.1.5"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Enable AuditEvent logging for key vault instances to ensure interactions with key vaults are logged and available.",
+  "id": "FG_R00344",
+  "title": "Key Vault logging should be enabled"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 key_vaults := fugue.resources("Microsoft.KeyVault/vaults")
 diagnostic_settings := fugue.resources("Microsoft.Insights/diagnosticSettings")

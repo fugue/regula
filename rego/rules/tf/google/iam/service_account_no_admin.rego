@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_google_iam_service_account_no_admin
 
 import data.fugue
 import data.google.iam.policy_library as lib
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -34,7 +33,7 @@ __rego__metadoc__ := {
   "title": "User-managed service accounts should not have admin privileges"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 admin_suffix = {"admin", "roles/editor", "roles/owner"}
 
@@ -66,4 +65,3 @@ policy[j] {
   service_account_has_admin(sa)
   j = fugue.deny_resource(sa)
 }
-

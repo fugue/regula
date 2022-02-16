@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_elb_http_listener
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "ELBv1 listener protocol should not be set to http. Communication from an ELB to EC2 instances should be encrypted to help prevent unauthorized access to data. To protect data in transit, ELB listener protocol should not be set to HTTP.",
@@ -34,7 +32,7 @@ elb_has_http(elb) {
   elb.listener[_].lb_protocol == "http"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   elb = elbs[_]
@@ -45,4 +43,3 @@ policy[j] {
   not elb_has_http(elb)
   j = fugue.allow_resource(elb)
 }
-

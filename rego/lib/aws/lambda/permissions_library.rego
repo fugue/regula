@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,4 +43,3 @@ perm_by_key := {k: rs |
 	k = permission_key(permissions[_])
 	rs = [r | r = permissions[_]; permission_key(r) = k]
 }
-

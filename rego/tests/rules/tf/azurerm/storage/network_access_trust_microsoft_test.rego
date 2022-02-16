@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,12 +13,41 @@
 # limitations under the License.
 package rules.tf_azurerm_storage_network_access_trust_microsoft
 
-import data.tests.rules.tf.azurerm.storage.inputs.account_microsoft_services_infra_json
+import data.tests.rules.tf.azurerm.storage.inputs
 
-test_storage_network_access_trust_microsoft {
-  resources = account_microsoft_services_infra_json.mock_resources
-  allow with input as resources["azurerm_storage_account.validstorageaccount1"]
-  allow with input as resources["azurerm_storage_account.validstorageaccount2"]
-  not allow with input as resources["azurerm_storage_account.invalidstorageaccount1"]
-  not allow with input as resources["azurerm_storage_account.invalidstorageaccount2"]
+import data.fugue
+
+test_network_access_trust_microsoft {
+  # Includes rules added automatically.
+  fugue.input_type == "tf_runtime"
+  pol = policy with input as inputs.network_access_trust_microsoft_tf.mock_input
+  count([p |
+    pol[p]; p.type == "azurerm_storage_account_network_rules"; p.valid == true]
+  ) == 3
+  count([p |
+    pol[p]; p.type == "azurerm_storage_account_network_rules"; p.valid == false]
+  ) == 2
+
+  # Azure automatically has this rule for storage accounts.
+  count([p |
+    pol[p]; p.type == "azurerm_storage_account"; p.valid == true]
+  ) == 5
+  count([p |
+    pol[p]; p.type == "azurerm_storage_account"; p.valid == false]
+  ) == 0
+} else {
+  fugue.input_type != "tf_runtime"
+  pol = policy with input as inputs.network_access_trust_microsoft_tf.mock_input
+  count([p |
+    pol[p]; p.type == "azurerm_storage_account_network_rules"; p.valid == true]
+  ) == 2
+  count([p |
+    pol[p]; p.type == "azurerm_storage_account_network_rules"; p.valid == false]
+  ) == 2
+  count([p |
+    pol[p]; p.type == "azurerm_storage_account"; p.valid == true]
+  ) == 2
+  count([p |
+    pol[p]; p.type == "azurerm_storage_account"; p.valid == false]
+  ) == 3
 }

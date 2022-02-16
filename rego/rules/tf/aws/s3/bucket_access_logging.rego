@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
 # limitations under the License.
 package rules.tf_aws_s3_bucket_access_logging
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "S3 bucket access logging should be enabled. Enabling server access logging provides detailed records for the requests that are made to a S3 bucket. This information is useful for security and compliance auditing purposes.",
@@ -24,11 +22,10 @@ __rego__metadoc__ := {
   "title": "S3 bucket access logging should be enabled"
 }
 
-resource_type = "aws_s3_bucket"
+resource_type := "aws_s3_bucket"
 
 default allow = false
 
 allow {
   _ = input.logging[_]
 }
-

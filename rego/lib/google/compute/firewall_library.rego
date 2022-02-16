@@ -52,7 +52,11 @@ network_for_firewall(firewall) = ret {
 # Creates a new document of all INGRESS from "0.0.0.0/0" firewalls organized by network
 ingress_firewalls_zero_cidr_by_network = {nid: fw |
   ret = ingress_firewalls_by_network[nid]
-  fw = [f | f = ret[_]; firewall_zero_cidr(f)]
+  fw = [f |
+    f = ret[_]
+    source_ranges = object.get(f, "source_ranges", [])
+    zero_cidr(source_ranges[_])
+  ]
 }
 
 # Returns the lowest priority INGRESS ALLOW firewall for a network for a given port
@@ -61,7 +65,7 @@ lowest_allow_ingress_zero_cidr_by_port(network, port) = ret {
   priorities = [p |
     f = fs[_]
     allow = object.get(f, "allow", [])
-    firewall_rule_matches_port(allow[_], port)
+    firewall_matches_port(allow[_], port)
     p = object.get(f, "priority", 1000)
   ]
   sorted = sort(priorities)
@@ -74,7 +78,7 @@ lowest_deny_ingress_zero_cidr_by_port(network, port) = ret {
   priorities = [p |
     f = fs[_]
     deny = object.get(f, "deny", [])
-    firewall_rule_matches_port(deny[_], port)
+    firewall_matches_port(deny[_], port)
     p = object.get(f, "priority", 1000)
   ]
   sorted = sort(priorities)
@@ -82,7 +86,7 @@ lowest_deny_ingress_zero_cidr_by_port(network, port) = ret {
 }
 
 # Determines if the specified port is allowed by the firewall rule
-firewall_rule_matches_port(rule, port) {
+firewall_matches_port(rule, port) {
   # Exact match
   rule.ports[_] == port
 } {
@@ -100,23 +104,12 @@ firewall_rule_matches_port(rule, port) {
   count(object.get(rule, "ports", [])) == 0
 }
 
-firewall_zero_cidr(firewall) {
-  source_ranges := object.get(firewall, "source_ranges", [])
-  zero_cidr(source_ranges[_])
-}
-
-# Can be used for validations when network info isn't available.
-firewall_zero_cidr_to_port(firewall, port) {
-  firewall_zero_cidr(firewall)
-  firewall_rule_matches_port(firewall.allow[_], port)
-}
-
 firewalls_by_priority_and_port(network, priority, port) = ret {
   fs = ingress_firewalls_zero_cidr_by_network[network_identifier(network)]
   ret = [f |
     f = fs[_]
     object.get(f, "priority", 1000) == priority
-    firewall_rule_matches_port(f.allow[_], port)
+    firewall_matches_port(f.allow[_], port)
   ]
 }
 

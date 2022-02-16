@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,20 +14,15 @@
 package rules.tf_azurerm_storage_container_private_access
 
 __rego__metadoc__ := {
-  "id": "FG_R00207",
-  "title": "Blob Storage containers should have public access disabled",
-  "description": "Anonymous, public read access to a container and its blobs can be enabled in Azure Blob storage. It grants read-only access to these resources without sharing the account key, and without requiring a shared access signature. It is recommended not to provide anonymous access to blob containers until, and unless, it is strongly desired. A shared access signature token should be used for providing controlled and timed access to blob containers.",
   "custom": {
-    "controls": {
-      "CIS-Azure_v1.1.0": [
-        "CIS-Azure_v1.1.0_3.6"
-      ]
-    },
     "severity": "Critical"
-  }
+  },
+  "description": "Blob Storage containers should have public access disabled. Anonymous, public read access to a container and its blobs can be enabled in Azure Blob storage. It grants read-only access to these resources without sharing the account key, and without requiring a shared access signature. It is recommended not to provide anonymous access to blob containers until, and unless, it is strongly desired. A shared access signature token should be used for providing controlled and timed access to blob containers.",
+  "id": "FG_R00207",
+  "title": "Blob Storage containers should have public access disabled"
 }
 
-resource_type = "azurerm_storage_container"
+resource_type := "azurerm_storage_container"
 
 default allow = false
 

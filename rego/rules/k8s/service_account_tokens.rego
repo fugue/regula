@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00484",
-	"title": "Service account 'automountServiceAccountToken' should be set to 'false'",
-	"description": "Service account 'automountServiceAccountToken' should be set to 'false'. Avoid automounting service account tokens. Service account tokens are used to authenticate requests from in-cluster processes to the Kubernetes API server. Many workloads do not need to communicate with the API server and hence should have automountServiceAccountToken set to false.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.1.6"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Service account 'automountServiceAccountToken' should be set to 'false'. Avoid automounting service account tokens. Service account tokens are used to authenticate requests from in-cluster processes to the Kubernetes API server. Many workloads do not need to communicate with the API server and hence should have automountServiceAccountToken set to false.",
+  "id": "FG_R00484",
+  "title": "Service account 'automountServiceAccountToken' should be set to 'false'"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 is_valid(template) {
 	template.spec.automountServiceAccountToken == false

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,13 @@ package rules.tf_aws_dynamodb_dynamodb_encryption
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
-  "description": "DynamoDB tables should be encrypted with AWS or customer managed KMS CMKs. Although DynamoDB tables are encrypted at rest by default with AWS owned CMKs, using AWS managed CMKs or customer managed CMKs provides additional functionality via AWS KMS, such as viewing key policies, auditing usage, and rotating cryptographic material.",
+  "description": "DynamoDB tables should be encrypted with AWS or customer managed KMS keys. Although DynamoDB tables are encrypted at rest by default with AWS owned KMS keys, using AWS managed or customer managed KMS keys provides additional functionality, such as viewing key policies, auditing usage, and rotating cryptographic material.",
   "id": "FG_R00069",
-  "title": "DynamoDB tables should be encrypted with AWS or customer managed KMS CMKs"
+  "title": "DynamoDB tables should be encrypted with AWS or customer managed KMS keys"
 }
 
 tables = fugue.resources("aws_dynamodb_table")
@@ -33,7 +31,7 @@ server_side_encryption_enabled(obj) {
   obj.server_side_encryption[_].enabled
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   tables[_] = obj
@@ -44,4 +42,3 @@ policy[j] {
   not server_side_encryption_enabled(obj)
   j = fugue.deny_resource(obj)
 }
-

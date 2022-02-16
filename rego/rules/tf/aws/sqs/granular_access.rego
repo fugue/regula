@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_sqs_granular_access
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Critical"
   },
   "description": "SQS access policies should not have global \"*.*\" access. SQS policies should not permit all users to access SQS queues. To promote the security principle of least privilege, an SQS policy should allow only necessary principals to access the queue.",
@@ -30,7 +28,7 @@ __rego__metadoc__ := {
 # Every sqs in input.
 sqs = fugue.resources("aws_sqs_queue")
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   q = sqs[id]
@@ -58,4 +56,3 @@ allow_all(pol) {
 
 # Utility: turns anything into an array, if it's not an array already.
 as_array(x) = [x] {not is_array(x)} else = x {true}
-

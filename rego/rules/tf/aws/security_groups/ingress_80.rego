@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@ import data.aws.security_groups.library
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 80 (HTTP), unless from ELBs. Security groups provide stateful filtering of ingress/egress network traffic to AWS resources. AWS recommends that no security group allow unrestricted ingress access to port 80, unless it is from an AWS Elastic Load Balancer.",
@@ -30,7 +28,7 @@ __rego__metadoc__ := {
 
 security_groups = fugue.resources("aws_security_group")
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   sg = security_groups[global_sg_id]
@@ -41,4 +39,3 @@ policy[j] {
   not library.deny_security_group_ingress_zero_cidr_to_port_lb(global_sg_id, sg, 80)
   j = fugue.allow_resource(sg)
 }
-

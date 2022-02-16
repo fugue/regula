@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,6 @@
 package rules.tf_azurerm_storage_secure_transfer
 
 __rego__metadoc__ := {
-  "id": "FG_R00152",
-  "title": "Storage Accounts 'Secure transfer required' should be enabled",
-  "description": "Storage Accounts 'Secure transfer required' should be enabled. The secure transfer option enhances the security of a storage account by only allowing requests to the storage account by a secure connection. This control does not apply for custom domain names since Azure storage does not support HTTPS for custom domain names.",
   "custom": {
     "controls": {
       "CIS-Azure_v1.1.0": [
@@ -27,10 +24,13 @@ __rego__metadoc__ := {
       ]
     },
     "severity": "Medium"
-  }
+  },
+  "description": "Storage Accounts 'Secure transfer required' should be enabled. The secure transfer option enhances the security of a storage account by only allowing requests to the storage account by a secure connection. This control does not apply for custom domain names since Azure storage does not support HTTPS for custom domain names.",
+  "id": "FG_R00152",
+  "title": "Storage Accounts 'Secure transfer required' should be enabled"
 }
 
-resource_type = "azurerm_storage_account"
+resource_type := "azurerm_storage_account"
 
 default allow = false
 

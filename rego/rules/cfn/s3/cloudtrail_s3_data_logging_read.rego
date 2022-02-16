@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ __rego__metadoc__ := {
   "title": "S3 bucket object-level logging for read events should be enabled"
 }
 
-input_type = "cfn"
-resource_type = "MULTIPLE"
+input_type := "cfn"
+resource_type := "MULTIPLE"
 
 trails = fugue.resources("AWS::CloudTrail::Trail")
 buckets = fugue.resources("AWS::S3::Bucket")

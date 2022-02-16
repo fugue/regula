@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_azurerm_network_flow_log_90days
 
 import data.fugue
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -43,7 +42,7 @@ watched_security_group_ids[security_group_id] {
   security_group_id = lower(flow_log.network_security_group_id)
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[p] {
   sg = security_groups[_]
@@ -54,4 +53,3 @@ policy[p] {
   not watched_security_group_ids[lower(sg.id)]
   p = fugue.deny_resource(sg)
 }
-

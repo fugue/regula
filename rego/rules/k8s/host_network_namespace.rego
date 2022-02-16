@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00488",
-	"title": "Pods should not run containers wishing to share the host network namespace",
-	"description": "Pods should not run containers wishing to share the host network namespace. A container that runs with hostNetwork set has the ability to interact with host services listening on localhost and potentially monitor traffic belonging to other pods. This opts-out of the network isolation provided by Linux network namespace mechanism.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.2.4"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pods should not run containers wishing to share the host network namespace. A container that runs with hostNetwork set has the ability to interact with host services listening on localhost and potentially monitor traffic belonging to other pods. This opts-out of the network isolation provided by Linux network namespace mechanism.",
+  "id": "FG_R00488",
+  "title": "Pods should not run containers wishing to share the host network namespace"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 host_network_set(template) {
 	template.spec.hostNetwork == true

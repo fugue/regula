@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_aws_s3_block_public_access
 
 import data.fugue
 import data.aws.s3.s3_library as lib
-
 
 
 __rego__metadoc__ := {
@@ -35,7 +34,7 @@ __rego__metadoc__ := {
   "title": "S3 buckets should have all `block public access` options enabled"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   b = buckets[bucket_id]
@@ -67,4 +66,3 @@ bucket_is_blocked(bucket) {
 } {
   blocked_buckets[bucket.bucket]
 }
-

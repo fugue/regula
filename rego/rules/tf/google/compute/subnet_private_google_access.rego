@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@
 package rules.tf_google_compute_subnet_private_google_access
 
 __rego__metadoc__ := {
-  "id": "FG_R00438",
-  "title": "VPC subnet 'Private Google Access' should be enabled",
-  "description": "Enabling \"Private Google Access\" for VPC subnets allows virtual machines to connect to the external IP addresses used by Google APIs and services.",
   "custom": {
     "controls": {
       "CIS-Google_v1.0.0": [
@@ -28,10 +25,13 @@ __rego__metadoc__ := {
       ]
     },
     "severity": "Low"
-  }
+  },
+  "description": "Enabling \"Private Google Access\" for VPC subnets allows virtual machines to connect to the external IP addresses used by Google APIs and services.",
+  "id": "FG_R00438",
+  "title": "VPC subnet 'Private Google Access' should be enabled"
 }
 
-resource_type = "google_compute_subnetwork"
+resource_type := "google_compute_subnetwork"
 
 default allow = false
 

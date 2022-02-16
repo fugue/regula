@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,28 +15,28 @@
 package rules.arm_postgresql_connection_throttling
 
 import data.fugue
-import data.fugue.arm.postgresql_configuration_library as lib
+import data.arm.postgresql_configuration_library as lib
 
 __rego__metadoc__ := {
-	"id": "FG_R00335",
-	"title": "PostgreSQL Database configuration 'connection_throttling' should be on",
-	"description": "Enabling connection_throttling helps the PostgreSQL Database to Set the verbosity of logged messages which in turn generates query and error logs with respect to concurrent connections, that could lead to a successful Denial of Service (DoS) attack by exhausting connection resources.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_4.17"
-			],
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_4.3.6"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_4.17"
+      ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_4.3.6"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Enabling connection_throttling helps the PostgreSQL Database to Set the verbosity of logged messages which in turn generates query and error logs with respect to concurrent connections, that could lead to a successful Denial of Service (DoS) attack by exhausting connection resources.",
+  "id": "FG_R00335",
+  "title": "PostgreSQL Database configuration 'connection_throttling' should be on"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 is_valid(server) {
     lower(lib.configuration_value(server, "connection_throttling")) == "on"

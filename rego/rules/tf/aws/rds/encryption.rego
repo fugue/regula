@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ import data.aws.rds.encryption_library as lib
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
     "controls": {
@@ -27,12 +26,12 @@ __rego__metadoc__ := {
     },
     "severity": "High"
   },
-  "description": "RDS instances should be encrypted (AWS-managed or customer-managed KMS CMKs). Encrypting your RDS DB instances provides an extra layer of security by securing your data from unauthorized access.",
+  "description": "RDS instances should be encrypted. Encrypting your RDS DB instances provides an extra layer of security by securing your data from unauthorized access. You have the option of using an AWS managed or customer managed KMS key for this purpose.",
   "id": "FG_R00093",
-  "title": "RDS instances should be encrypted (AWS-managed or customer-managed KMS CMKs)"
+  "title": "RDS instances should be encrypted"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   ioc = lib.instances_or_clusters[_]
@@ -43,4 +42,3 @@ policy[j] {
   not lib.is_encrypted(ioc)
   j = fugue.deny_resource(ioc)
 }
-

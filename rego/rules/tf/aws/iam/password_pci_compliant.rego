@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_iam_password_pci_compliant
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "IAM password policies should have a minimum length of 7 and include both alphabetic and numeric characters. IAM password policies are used to enforce password complexity requirements and increase account resiliency against brute force login attempts. Password policies should require passwords to be at least 7 characters long and include both alphabetic and numeric characters.",
@@ -42,7 +40,7 @@ pci_compliant(pol) {
 }
 
 # Placeholder for missing a password policy from the input.
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   fugue.input_type == "tf_runtime"
@@ -57,4 +55,3 @@ policy[j] {
   not pci_compliant(pol)
   j = fugue.deny_resource(pol)
 }
-

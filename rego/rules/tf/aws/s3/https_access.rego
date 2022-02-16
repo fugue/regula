@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ package rules.tf_aws_s3_https_access
 import data.fugue
 import data.aws.s3.s3_library as lib
 import data.aws.iam.policy_document_library as doclib
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -65,7 +64,7 @@ valid_buckets[bucket_id] = bucket {
   specifies_secure_transport(statements[_])
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   b = valid_buckets[_]
@@ -78,4 +77,3 @@ policy[j] {
 
 # Utility: turns anything into an array, if it's not an array already.
 as_array(x) = [x] {not is_array(x)} else = x {true}
-

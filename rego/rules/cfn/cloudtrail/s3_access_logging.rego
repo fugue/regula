@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 package rules.cfn_cloudtrail_s3_access_logging
 
 import data.fugue
-import data.fugue.cfn.s3
+import data.cfn.s3
 
 __rego__metadoc__ := {
   "custom": {
@@ -36,8 +36,8 @@ __rego__metadoc__ := {
   "title": "S3 bucket access logging should be enabled on S3 buckets that store CloudTrail log files"
 }
 
-input_type = "cfn"
-resource_type = "MULTIPLE"
+input_type := "cfn"
+resource_type := "MULTIPLE"
 
 cloudtrails = fugue.resources("AWS::CloudTrail::Trail")
 buckets = fugue.resources("AWS::S3::Bucket")

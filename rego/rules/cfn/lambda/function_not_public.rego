@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 package rules.cfn_lambda_function_not_public
 
 import data.fugue
-import data.fugue.cfn.lambda_library as lib
+import data.cfn.lambda_library as lib
 
 __rego__metadoc__ := {
   "custom": {
@@ -25,8 +25,8 @@ __rego__metadoc__ := {
   "title": "Lambda function policies should not allow global access"
 }
 
-input_type = "cfn"
-resource_type = "MULTIPLE"
+input_type := "cfn"
+resource_type := "MULTIPLE"
 
 permissions = fugue.resources("AWS::Lambda::Permission")
 functions[id] = function {

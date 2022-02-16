@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_rds_backup_retention_period
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "RDS instances should have backup retention periods configured. Retention periods for RDS backups should be configured according to business and regulatory needs. Backups should not be retained longer than is strictly necessary. When retention is properly configured, malicious individuals will be unable to retrieve data when it is no longer needed.",
@@ -39,7 +37,7 @@ valid_instances_or_clusters[id] = instance_or_cluster {
   has_backup_retention_period(instance_or_cluster)
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   valid_instances_or_clusters[id] = instance_or_cluster
@@ -49,4 +47,3 @@ policy[j] {
   not valid_instances_or_clusters[id]
   j = fugue.deny_resource(instance_or_cluster)
 }
-

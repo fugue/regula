@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
 package rules.tf_aws_iam_admin_policy
 
 import data.fugue
+import data.aws.iam.policy_document_library as lib
+
 
 __rego__metadoc__ := {
-  "id": "FG_R00092",
-  "title": "IAM policies should not have full \"*:*\" administrative privileges",
-  "description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
   "custom": {
     "controls": {
       "CIS-AWS_v1.2.0": [
@@ -26,33 +25,33 @@ __rego__metadoc__ := {
       ],
       "CIS-AWS_v1.3.0": [
         "CIS-AWS_v1.3.0_1.16"
+      ],
+      "CIS-AWS_v1.4.0": [
+        "CIS-AWS_v1.4.0_1.16"
       ]
     },
     "severity": "High"
-  }
+  },
+  "description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
+  "id": "FG_R00092",
+  "title": "IAM policies should not have full \"*:*\" administrative privileges"
 }
 
-resource_type = "MULTIPLE"
-
-# All policy objects that have a name and a `policy` field containing a JSON
+# All policy objects that have an ID and a `policy` field containing a JSON
 # string.
-policies[name] = p {
-  iam_policies = fugue.resources("aws_iam_policy")
-  p = iam_policies[name]
+policies[id] = p {
+  ps = fugue.resources("aws_iam_policy"); p = ps[id]
 } {
-  group_policies = fugue.resources("aws_iam_group_policy")
-  p = group_policies[name]
+  ps = fugue.resources("aws_iam_group_policy"); p = ps[id]
 } {
-  role_policies = fugue.resources("aws_iam_role_policy")
-  p = role_policies[name]
+  ps = fugue.resources("aws_iam_role_policy"); p = ps[id]
 } {
-  user_policies = fugue.resources("aws_iam_user_policy")
-  p = user_policies[name]
+  ps = fugue.resources("aws_iam_user_policy"); p = ps[id]
 }
 
 # All wildcard policies.
-wildcard_policies[name] = p {
-  p = policies[name]
+wildcard_policies := {id: p |
+  p = policies[id]
   is_wildcard_policy(p)
 }
 
@@ -62,8 +61,8 @@ wildcard_policies[name] = p {
 # - Effect: Allow
 # - Resource: "*"
 # - Action: "*"
-is_wildcard_policy(p) {
-  json.unmarshal(p.policy, doc)
+is_wildcard_policy(pol) {
+  doc = lib.to_policy_document(pol.policy)
   statements = as_array(doc.Statement)
   statement = statements[_]
 
@@ -78,14 +77,32 @@ is_wildcard_policy(p) {
   action == "*"
 }
 
+# Looking for AWS-managed IAM policies in AWS commercial regions
+aws_managed_policy(pol) {
+   policy_arn = pol.arn
+   prefix = "arn:aws:iam::aws:policy/"
+   startswith(policy_arn, prefix)
+ }
+
+# Looking for AWS-managed IAM policies in AWS GovCloud regions
+aws_govcloud_managed_policy(pol) {
+   policy_arn = pol.arn
+   prefix = "arn:aws-us-gov:iam::aws:policy/"
+   startswith(policy_arn, prefix)
+ }
+
 # Judge policies and wildcard policies.
-policy[p] {
-  single_policy = wildcard_policies[name]
-  p = fugue.deny_resource(single_policy)
+resource_type := "MULTIPLE"
+
+policy[j] {
+  pol = wildcard_policies[id]
+  not aws_managed_policy(pol)
+  not aws_govcloud_managed_policy(pol)
+  j = fugue.deny_resource(pol)
 } {
-  single_policy = policies[name]
-  not wildcard_policies[name]
-  p = fugue.allow_resource(single_policy)
+  pol = policies[id]
+  not wildcard_policies[id]
+  j = fugue.allow_resource(pol)
 }
 
 # Utility: turns anything into an array, if it's not an array already.

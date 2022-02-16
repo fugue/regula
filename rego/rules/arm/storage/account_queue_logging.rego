@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,22 +17,22 @@ package rules.arm_storage_account_queue_logging
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00440",
-	"title": "Storage Queue logging should be enabled for read, write, and delete requests",
-	"description": "Storage account read, write, and delete logging for Storage Queues is not enabled by default. Logging should be enabled so that users can monitor queues for security and performance issues.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_3.3"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_3.3"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Storage account read, write, and delete logging for Storage Queues is not enabled by default. Logging should be enabled so that users can monitor queues for security and performance issues.",
+  "id": "FG_R00440",
+  "title": "Storage Queue logging should be enabled for read, write, and delete requests"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.Storage/storageAccounts/queueServices/providers/diagnosticsettings"
+resource_type := "Microsoft.Storage/storageAccounts/queueServices/providers/diagnosticsettings"
 
 default allow = false
 

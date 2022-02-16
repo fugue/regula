@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00486",
-	"title": "Pods should not run containers wishing to share the host process ID namespace",
-	"description": "Pods should not run containers wishing to share the host process ID namespace. A container that runs with hostPID set has visibility into processes running on the host, which could expose information including environment variables to an attacker.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.2.2"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pods should not run containers wishing to share the host process ID namespace. A container that runs with hostPID set has visibility into processes running on the host, which could expose information including environment variables to an attacker.",
+  "id": "FG_R00486",
+  "title": "Pods should not run containers wishing to share the host process ID namespace"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 host_pid_set(template) {
 	template.spec.hostPID == true

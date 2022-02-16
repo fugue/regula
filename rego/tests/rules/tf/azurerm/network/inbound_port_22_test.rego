@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,17 +13,38 @@
 # limitations under the License.
 package rules.tf_azurerm_network_inbound_port_22
 
-import data.tests.rules.tf.azurerm.network.inputs.security_group_no_inbound_22_infra_json
+import data.tests.rules.tf.azurerm.network.inputs
 
-test_network_security_group_no_inbound_22 {
-  pol = policy with input as security_group_no_inbound_22_infra_json.mock_input
-  by_resource_id = {p.id: p.valid | pol[p]}
-  by_resource_id["azurerm_network_security_group.validnsg1"] == true
-  by_resource_id["azurerm_network_security_group.invalidnsg1"] == false
-  by_resource_id["azurerm_network_security_group.invalidnsg2"] == false
-  by_resource_id["azurerm_network_security_rule.validrule1"] == true
-  by_resource_id["azurerm_network_security_rule.validrule2"] == true
-  by_resource_id["azurerm_network_security_rule.invalidrule1"] == false
-  by_resource_id["azurerm_network_security_rule.invalidrule2"] == false
-  by_resource_id["azurerm_network_security_rule.invalidrule3"] == false
+import data.fugue
+
+report = fugue.report_v0("", policy)
+
+test_invalid_inbound_port_22 {
+  r := report with input as inputs.invalid_inbound_port_22_tf.mock_input
+  not r.valid
+
+  # Test that we have both cases.
+  rule = r.resources[_]
+  rule.type == "azurerm_network_security_rule"
+  not rule.valid
+
+  # Test that we have both cases.
+  group = r.resources[_]
+  group.type == "azurerm_network_security_group"
+  not group.valid
+}
+
+test_valid_inbound_port_22 {
+  r := report with input as inputs.valid_inbound_port_22_tf.mock_input
+  r.valid
+
+  # Test that we have both cases.
+  rule = r.resources[_]
+  rule.type == "azurerm_network_security_rule"
+  rule.valid
+
+  # Test that we have both cases.
+  group = r.resources[_]
+  group.type == "azurerm_network_security_group"
+  group.valid
 }

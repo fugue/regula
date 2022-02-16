@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -64,4 +64,3 @@ private_parsed_ipv4_cidr(cidr) {
   cidr.address[1] == 168
   cidr.mask >= 16
 }
-

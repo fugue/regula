@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,25 +17,25 @@ package rules.arm_postgresql_enforce_ssl
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00226",
-	"title": "PostgreSQL Database server 'enforce SSL connection' should be enabled",
-	"description": "Enforcing SSL connections between your database server and your client applications helps protect against \"man in the middle\" attacks by encrypting the data stream between the server and your application.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_4.13"
-			],
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_4.3.1"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_4.13"
+      ],
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_4.3.1"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Enforcing SSL connections between your database server and your client applications helps protect against \"man in the middle\" attacks by encrypting the data stream between the server and your application.",
+  "id": "FG_R00226",
+  "title": "PostgreSQL Database server 'enforce SSL connection' should be enabled"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.DBforPostgreSQL/servers"
+resource_type := "Microsoft.DBforPostgreSQL/servers"
 
 default allow = false
 allow {

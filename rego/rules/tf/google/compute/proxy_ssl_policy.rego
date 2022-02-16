@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_google_compute_proxy_ssl_policy
 
 import data.fugue
 
-
 __rego__metadoc__ := {
   "custom": {
     "controls": {
@@ -28,12 +27,12 @@ __rego__metadoc__ := {
     },
     "severity": "Medium"
   },
-  "description": "Load balancer HTTPS or SSL proxy SSL policies should not have weak cipher suites. The default SSL policy for load balancers uses a minimum TLS version of 1.0 and a Compatible profile, which allows the widest range of insecure cipher suites. The TLS (Transport Layer Security) protocol secures transmission of data over the internet using standard encryption technology, and older versions may pose security risks.",
+  "description": "Load balancer HTTPS or SSL proxy SSL policies should not have weak cipher suites. The TLS (Transport Layer Security) protocol secures transmission of data over the internet using standard encryption technology, and older versions (1.0, 1.1) may pose security risks. Note that the default SSL policy allows for these older versions, and we recommend that the minimum TLS version be set to 1.2.",
   "id": "FG_R00410",
   "title": "Load balancer HTTPS or SSL proxy SSL policies should not have weak cipher suites"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 ssl_policies = fugue.resources("google_compute_ssl_policy")
 proxies[id] = ret {
@@ -87,4 +86,3 @@ policy[j] {
   not invalid_ssl_policies[proxy.ssl_policy]
   j = fugue.allow_resource(proxy)
 }
-

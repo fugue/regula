@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_rds_instance_engine
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Low"
   },
   "description": "RDS instances should have FedRAMP approved database engines. FedRAMP-approved database engines such as MySQL and PostgresQL satisfy strict U.S. government requirements for securing sensitive data. An RDS instance should use an approved database engine.",
@@ -29,7 +27,7 @@ __rego__metadoc__ := {
 
 instances = fugue.resources("aws_db_instance")
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   i = instances[_]
@@ -59,4 +57,3 @@ supported = {
   "sqlserver-ex",
   "sqlserver-web"
 }
-

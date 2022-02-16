@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,10 +19,8 @@ import data.fugue
 # 
 # aws_iam_role
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "IAM roles used for trust relationships should have MFA or external IDs. IAM roles that establish trust with other AWS accounts should use additional security measures such as MFA or external IDs. This can protect your account if the trusted account is compromised and can also prevent the \"confused deputy problem.\"",
@@ -30,7 +28,7 @@ __rego__metadoc__ := {
   "title": "IAM roles used for trust relationships should have MFA or external IDs"
 }
 
-resource_type = "aws_iam_role"
+resource_type := "aws_iam_role"
 
 default deny = false
 
@@ -73,14 +71,20 @@ valid_condition(statement) {
     lower(j) == "sts:externalid"
 }
 
+grants_assume_role(statement) {
+  actions := as_array(statement.Action)
+  action := actions[_]
+  lower(action) == "sts:assumerole"
+}
+
 deny {
     json.unmarshal(input.assume_role_policy, doc)
     statements = as_array(doc.Statement)
     statement = statements[_]
 
     not valid_condition(statement)
+    grants_assume_role(statement)
     external_principal(input, statement)
 }
 
 as_array(x) = [x] {not is_array(x)} else = x {true}
-

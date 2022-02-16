@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_google_compute_disable_serial_ports
 
 import data.fugue
 import data.google.compute.compute_instance_library as lib
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -34,7 +33,7 @@ __rego__metadoc__ := {
   "title": "Compute instances 'Enable connecting to serial ports' should not be enabled"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 compute_instances = fugue.resources("google_compute_instance")
 
@@ -51,4 +50,3 @@ policy[j] {
   serial_port_enabled(instance)
   j = fugue.deny_resource(instance)
 }
-

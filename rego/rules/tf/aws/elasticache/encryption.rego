@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_elasticache_encryption
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "ElastiCache transport encryption should be enabled. In-transit encryption should be enabled for ElastiCache replication groups. Encryption protects data from unauthorized access when it is moved from one location to another, such as from a primary node to a read replica mode in a replication group or between a replication group and application.",
@@ -33,7 +31,7 @@ has_transport_encryption(repgroup) {
 
 repgroups = fugue.resources("aws_elasticache_replication_group")
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   repgroup = repgroups[_]
@@ -44,4 +42,3 @@ policy[j] {
   not has_transport_encryption(repgroup)
   j = fugue.deny_resource(repgroup)
 }
-

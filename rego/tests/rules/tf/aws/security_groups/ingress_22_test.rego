@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,12 +13,27 @@
 # limitations under the License.
 package rules.tf_aws_security_groups_ingress_22
 
-import data.tests.rules.tf.aws.security_group.inputs.ingress_anywhere_ssh_infra_json
+import data.tests.rules.tf.aws.security_groups.inputs
 
-test_security_groups_ingress_22 {
-  resources = ingress_anywhere_ssh_infra_json.mock_resources
-  not deny with input as resources["aws_security_group.valid_sg_1"]
-  not deny with input as resources["aws_security_group.valid_sg_2"]
-  deny with input as resources["aws_security_group.invalid_sg_1"]
-  deny with input as resources["aws_security_group.invalid_sg_2"]
+import data.fugue.check_report
+import data.fugue
+
+report = fugue.report_v0("", policy)
+
+test_invalid_security_group_all_open {
+    r = report with input as inputs.invalidSecurityGroupAllOpen_tf.mock_input
+    not r.valid
+    check_report.check_report(r, {"^sg-[a-z0-9]+$"})
+}
+
+test_invalid_security_group_multiple_ingress {
+    r = report with input as inputs.invalid_security_group_multiple_ingress_22_tf.mock_input
+    not r.valid
+    check_report.check_report(r, {"^sg-[a-z0-9]+$"})
+}
+
+test_invalid_ingress_22_ticket_opa_147 {
+    r = report with input as inputs.invalidIngress22TicketOpa147_tf.mock_input
+    not r.valid
+    check_report.check_report(r, {"^sg-[a-z0-9]+$"})
 }

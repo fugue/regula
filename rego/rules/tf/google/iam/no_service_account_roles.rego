@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_google_iam_no_service_account_roles
 
 import data.fugue
 import data.google.iam.policy_library as lib
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -34,7 +33,7 @@ __rego__metadoc__ := {
   "title": "IAM users should not have project-level 'Service Account User' or 'Service Account Token Creator' roles"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 invalid_roles = {"roles/iam.serviceAccountUser", "roles/iam.serviceAccountTokenCreator"}
 
@@ -73,4 +72,3 @@ policy[j] {
   not invalid_resources[id]
   j = fugue.allow_resource(r)
 }
-

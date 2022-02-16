@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00491",
-	"title": "Pods should not run containers with the NET_RAW capability",
-	"description": "Pods should not run containers with the NET_RAW capability. NET_RAW capability is present by default, but is unnecessary in most applications. An attacker could leverage NET_RAW to spy on network traffic or to generate IP traffic with spoofed addresses.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.2.7"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pods should not run containers with the NET_RAW capability. NET_RAW capability is present by default, but is unnecessary in most applications. An attacker could leverage NET_RAW to spy on network traffic or to generate IP traffic with spoofed addresses.",
+  "id": "FG_R00491",
+  "title": "Pods should not run containers with the NET_RAW capability"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 # At least one of these capabilities needs to be explicitly dropped to pass
 capabilities = {

@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,22 +17,22 @@ package rules.arm_monitor_log_profile_global_locations
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00342",
-	"title": "Monitor log profile should have activity logs for global services and all regions",
-	"description": "Configure the log profile to export activities from all Azure supported regions/locations including global. This rule is evaluated against all resource locations that Fugue has permission to scan.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_5.1.4"
-			],
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_5.1.4"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Configure the log profile to export activities from all Azure supported regions/locations including global. This rule is evaluated against all resource locations that Fugue has permission to scan.",
+  "id": "FG_R00342",
+  "title": "Monitor log profile should have activity logs for global services and all regions"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 log_profiles = fugue.resources("Microsoft.Insights/logprofiles")
 

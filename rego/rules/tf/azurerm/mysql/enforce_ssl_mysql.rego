@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 package rules.tf_azurerm_mysql_enforce_ssl_mysql
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -31,7 +30,7 @@ __rego__metadoc__ := {
   "title": "MySQL Database server 'enforce SSL connection' should be enabled"
 }
 
-resource_type = "azurerm_mysql_server"
+resource_type := "azurerm_mysql_server"
 
 default allow = false
 
@@ -41,4 +40,3 @@ allow {
   # New version of the provider.
   input.ssl_enforcement_enabled == true
 }
-

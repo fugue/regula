@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,24 +13,38 @@
 # limitations under the License.
 package rules.tf_aws_ebs_ebs_volume_encryption
 
+import data.fugue
+
+
 __rego__metadoc__ := {
-  "id": "FG_R00016",
-  "title": "EBS volume encryption should be enabled",
-  "description": "EBS volume encryption should be enabled. Enabling encryption on EBS volumes protects data at rest inside the volume, data in transit between the volume and the instance, snapshots created from the volume, and volumes created from those snapshots. EBS volumes are encrypted using KMS keys.",
   "custom": {
     "controls": {
       "CIS-AWS_v1.3.0": [
         "CIS-AWS_v1.3.0_2.2.1"
+      ],
+      "CIS-AWS_v1.4.0": [
+        "CIS-AWS_v1.4.0_2.2.1"
       ]
     },
     "severity": "High"
-  }
+  },
+  "description": "EBS volume encryption should be enabled. Enabling encryption on EBS volumes protects data at rest inside the volume, data in transit between the volume and the instance, snapshots created from the volume, and volumes created from those snapshots. By default, EBS volumes are encrypted with AWS managed KMS keys. Alternatively, you can specify a symmetric customer managed key as the default KMS key for EBS encryption via the AWS console and CLI.",
+  "id": "FG_R00016",
+  "title": "EBS volume encryption should be enabled"
 }
 
-resource_type = "aws_ebs_volume"
+volumes = fugue.resources("aws_ebs_volume")
 
-default allow = false
+resource_type := "MULTIPLE"
 
-allow {
-  input.encrypted == true
+policy[j] {
+  v = volumes[_]
+  v.encrypted
+  j = fugue.allow({"resource": v})
+} {
+  v = volumes[_]
+  not v.encrypted
+  j = fugue.deny(
+    {"resource": v, "attribute": ["encrypted"]}
+  )
 }

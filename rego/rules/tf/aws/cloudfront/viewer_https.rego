@@ -1,5 +1,4 @@
-# Copyright 2020 Fugue, Inc.
-# Copyright 2020 New Light Technologies Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,24 +14,29 @@
 package rules.tf_aws_cloudfront_viewer_https
 
 __rego__metadoc__ := {
-  "id": "FG_R00011",
-  "title": "CloudFront viewer protocol policy should be set to https-only or redirect-to-https",
-  "description": "CloudFront viewer protocol policy should be set to https-only or redirect-to-https. CloudFront connections should be encrypted during transmission over networks that can be accessed by malicious individuals. A CloudFront distribution should only use HTTPS or Redirect HTTP to HTTPS for communication between viewers and CloudFront.",
   "custom": {
     "severity": "Medium"
-  }
+  },
+  "description": "CloudFront viewer protocol policy should be set to https-only or redirect-to-https. CloudFront connections should be encrypted during transmission over networks that can be accessed by malicious individuals. A CloudFront distribution should only use HTTPS or Redirect HTTP to HTTPS for communication between viewers and CloudFront.",
+  "id": "FG_R00011",
+  "title": "CloudFront viewer protocol policy should be set to https-only or redirect-to-https"
 }
 
-resource_type = "aws_cloudfront_distribution"
+resource_type := "aws_cloudfront_distribution"
 
 # Explicitly allow only https or redirection to https.
-valid_protocols = {
+valid_protocols := {
   "redirect-to-https",
   "https-only"
 }
 
+# Properties where cache behaviors live.
+cache_behavior_keys := {
+  "cache_behavior", "default_cache_behavior", "ordered_cache_behavior"
+}
+
 used_traffic_protocols[protocol] {
-  protocol = input.default_cache_behavior[_].viewer_protocol_policy
+  protocol = input[cache_behavior_keys[_]][_].viewer_protocol_policy
 }
 
 default allow = false

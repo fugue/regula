@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ import data.fugue
 import data.google.iam.policy_library as lib_policy
 import data.google.kms.kms_policy_library as lib_kms_policy
 
-
 __rego__metadoc__ := {
   "custom": {
     "controls": {
@@ -35,7 +34,7 @@ __rego__metadoc__ := {
   "title": "KMS keys should not be anonymously or publicly accessible"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 kms_crypto_keys = fugue.resources("google_kms_crypto_key")
 
@@ -67,4 +66,3 @@ policy[j] {
   has_anonymous_access(key)
   j = fugue.deny_resource(key)
 }
-

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00495",
-	"title": "Pod seccomp profile should be set to 'docker/default'",
-	"description": "Pod seccomp profile should be set to 'docker/default'. The seccomp profile should be set to runtime/default or docker/default in pod definitions. The Secure Computing Mode (seccomp) in Linux is used to restrict which syscalls are allowed, which generally increases workload security. The docker/default profile was deprecated in Kubernetes 1.11 and runtime/default should now be used.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.7.2"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pod seccomp profile should be set to 'docker/default'. The seccomp profile should be set to runtime/default or docker/default in pod definitions. The Secure Computing Mode (seccomp) in Linux is used to restrict which syscalls are allowed, which generally increases workload security. The docker/default profile was deprecated in Kubernetes 1.11 and runtime/default should now be used.",
+  "id": "FG_R00495",
+  "title": "Pod seccomp profile should be set to 'docker/default'"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 # https://kubernetes.io/docs/concepts/policy/pod-security-policy/#seccomp
 # The Docker default seccomp profile is used. Deprecated as of Kubernetes 1.11.

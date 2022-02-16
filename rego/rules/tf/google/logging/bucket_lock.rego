@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_google_logging_bucket_lock
 
 import data.fugue
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -33,7 +32,7 @@ __rego__metadoc__ := {
   "title": "Logging storage bucket retention policies and Bucket Lock should be configured"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 buckets = fugue.resources("google_storage_bucket")
 sinks = fugue.resources("google_logging_project_sink")
@@ -65,4 +64,3 @@ policy[j] {
   not valid_retention_policy(bucket)
   j = fugue.deny_resource(bucket)
 }
-

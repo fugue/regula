@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_azurerm_authorization_custom_owner_role
 
 import data.fugue
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -33,7 +32,7 @@ __rego__metadoc__ := {
   "title": "Active Directory custom subscription owner roles should not be created"
 }
 
-resource_type = "azurerm_role_definition"
+resource_type := "azurerm_role_definition"
 
 is_subscription_scope(scope) {
   scope == "/"
@@ -58,4 +57,3 @@ deny {
   input.permissions[_].actions[_] == "*"
   is_subscription_scope(input.assignable_scopes[_])
 }
-

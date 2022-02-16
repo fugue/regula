@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ package rules.tf_aws_cloudtrail_encryption
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
     "controls": {
@@ -32,9 +31,9 @@ __rego__metadoc__ := {
     },
     "severity": "High"
   },
-  "description": "CloudTrail log files should be encrypted using KMS CMKs. By default, the log files delivered by CloudTrail to your bucket are encrypted with Amazon S3-managed encryption keys (SSE-S3). To get control over key rotation and obtain auditing visibility into key usage, use SSE-KMS to encrypt your log files.",
+  "description": "CloudTrail log files should be encrypted with customer managed KMS keys. By default, the log files delivered by CloudTrail to your bucket are encrypted with Amazon S3-managed encryption keys (SSE-S3). To get control over key rotation and obtain auditing visibility into key usage, use SSE-KMS to encrypt your log files with customer managed KMS keys.",
   "id": "FG_R00035",
-  "title": "CloudTrail log files should be encrypted using KMS CMKs"
+  "title": "CloudTrail log files should be encrypted with customer managed KMS keys"
 }
 
 # Is a cloudtrail encrypted using a KMS CMK?
@@ -55,7 +54,7 @@ is_encrypted(ct) {
 
 cloudtrails = fugue.resources("aws_cloudtrail")
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   ct = cloudtrails[_]
@@ -66,4 +65,3 @@ policy[j] {
   not is_encrypted(ct)
   j = fugue.deny_resource(ct)
 }
-

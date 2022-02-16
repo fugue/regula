@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,25 +17,25 @@ package rules.arm_storage_disable_public_access
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00207",
-	"title": "Blob Storage containers should have public access disabled",
-	"description": "Anonymous, public read access to a container and its blobs can be enabled in Azure Blob storage. It grants read-only access to these resources without sharing the account key, and without requiring a shared access signature. It is recommended not to provide anonymous access to blob containers until, and unless, it is strongly desired. A shared access signature token should be used for providing controlled and timed access to blob containers.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
         "CIS-Azure_v1.1.0_3.6"
       ],
-			"CIS-Azure_v1.3.0": [
+      "CIS-Azure_v1.3.0": [
         "CIS-Azure_v1.1.0_3.5"
       ]
-		},
-		"severity": "Critical"
-	}
+    },
+    "severity": "Critical"
+  },
+  "description": "Anonymous, public read access to a container and its blobs can be enabled in Azure Blob storage. It grants read-only access to these resources without sharing the account key, and without requiring a shared access signature. It is recommended not to provide anonymous access to blob containers until, and unless, it is strongly desired. A shared access signature token should be used for providing controlled and timed access to blob containers.",
+  "id": "FG_R00207",
+  "title": "Blob Storage containers should have public access disabled"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.Storage/storageAccounts/blobServices/containers"
+resource_type := "Microsoft.Storage/storageAccounts/blobServices/containers"
 
 public_options := {"blob", "container"}
 

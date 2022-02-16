@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_azurerm_app_service_web_app_auth
 
 import data.fugue
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -37,7 +36,7 @@ app_services = fugue.resources("azurerm_app_service")
 
 no_permissions_msg = "Fugue may not have the necessary permissions to evaluate this rule"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[p] {
   app_service = app_services[_]
@@ -54,4 +53,3 @@ policy[p] {
   not app_service.auth_settings
   p = fugue.deny_resource_with_message(app_service, no_permissions_msg)
 }
-

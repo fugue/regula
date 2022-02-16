@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@ package rules.tf_aws_security_groups_ingress_4505
 
 import data.aws.security_groups.library
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 4505 (SaltStack Master). Removing unfettered connectivity to a SaltStack Master server reduces its exposure to risk.",
@@ -26,11 +24,10 @@ __rego__metadoc__ := {
   "title": "VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 4505 (SaltStack Master)"
 }
 
-resource_type = "aws_security_group"
+resource_type := "aws_security_group"
 
 default deny = false
 
 deny {
   library.security_group_ingress_zero_cidr_to_port(input, 4505)
 }
-

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00493",
-	"title": "Pods should not run containers with default capabilities assigned",
-	"description": "Pods should not run containers with default capabilities assigned. A default set of Linux capabilities are granted when a container runs and many services do not need these capabilities to function. The recommended strategy is to drop all capabilities and then add back only the required ones, according to the principal of least privilege.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.2.9"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pods should not run containers with default capabilities assigned. A default set of Linux capabilities are granted when a container runs and many services do not need these capabilities to function. The recommended strategy is to drop all capabilities and then add back only the required ones, according to the principal of least privilege.",
+  "id": "FG_R00493",
+  "title": "Pods should not run containers with default capabilities assigned"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 # At least one of these capabilities needs to be explicitly dropped to pass
 capabilities = {

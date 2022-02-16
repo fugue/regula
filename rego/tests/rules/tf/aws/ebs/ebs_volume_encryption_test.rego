@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,11 +13,20 @@
 # limitations under the License.
 package rules.tf_aws_ebs_ebs_volume_encryption
 
-import data.tests.rules.tf.aws.ebs.inputs.volume_encrypted_infra_json
+import data.tests.rules.tf.aws.ebs.inputs
 
-test_ebs_ebs_volume_encryption {
-  resources = volume_encrypted_infra_json.mock_resources
-  allow with input as resources["aws_ebs_volume.good"]
-  not allow with input as resources["aws_ebs_volume.missing"]
-  not allow with input as resources["aws_ebs_volume.bad"]
+import data.fugue
+
+report = fugue.report_v0("", policy)
+
+test_valid_ebs_encrypted {
+    report.valid with input as inputs.ebs_volume_encryption_tf.mock_input
+}
+
+test_invalid_ebs_unencrypted {
+    not report.valid with input as inputs.ebs_volume_unencrypted_tf.mock_input
+}
+
+test_invalid_ebs_encrypted_and_unencrypted {
+    not report.valid with input as inputs.ebs_volumes_encrypted_and_unencrypted_tf.mock_input
 }

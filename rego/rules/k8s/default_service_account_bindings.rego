@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00498",
-	"title": "Roles and cluster roles should not be bound to the default service account",
-	"description": "Roles and cluster roles should not be bound to the default service account. Dedicated service accounts should be created for each workload with appropriate rights assigned.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.1.5"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Roles and cluster roles should not be bound to the default service account. Dedicated service accounts should be created for each workload with appropriate rights assigned.",
+  "id": "FG_R00498",
+  "title": "Roles and cluster roles should not be bound to the default service account"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 # This rule specifically checks for the following portion of 5.1.5:
 # "For each namespace in the cluster, review the rights assigned to the default

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 package rules.tf_azurerm_monitor_log_profile_retention
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -28,7 +27,7 @@ __rego__metadoc__ := {
   "title": "Monitor 'Activity Log Retention' should be 365 days or greater"
 }
 
-resource_type = "azurerm_monitor_log_profile"
+resource_type := "azurerm_monitor_log_profile"
 
 default allow = false
 
@@ -40,4 +39,3 @@ allow {
   input.retention_policy[i].enabled == false
   input.retention_policy[i].days == 0
 }
-

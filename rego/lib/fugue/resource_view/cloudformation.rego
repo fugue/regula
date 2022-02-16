@@ -18,10 +18,12 @@ import data.fugue.resource_view.terraform
 resource_view[id] = ret {
   resource := input.Resources[id]
   properties := rewrite_properties(object.get(resource, "Properties", {}))
+  tags := properties_tags(properties)
   ret := json.patch(properties, [
     {"op": "add", "path": ["id"], "value": id},
     {"op": "add", "path": ["_type"], "value": resource.Type},
     {"op": "add", "path": ["_provider"], "value": "aws"},
+    {"op": "add", "path": ["_tags"], "value": tags},
   ])
 }
 
@@ -100,4 +102,20 @@ attribute_references_1(attr) = ret {
     variable := template_vars[_]
     value := object.get(variables, variable, variable)
   ]
+}
+
+# Extracting tags from a resource.
+properties_tags(properties) = ret {
+  keys := {k | k := properties.Tags[_].Key}
+  ret := {k: v |
+    keys[k]
+    vs := [tag.Value |
+      tag := properties.Tags[_]
+      tag.Key == k
+      is_string(tag.Value)
+    ]
+    v := concat(";", vs)
+  }
+} else = ret {
+  ret := {}
 }

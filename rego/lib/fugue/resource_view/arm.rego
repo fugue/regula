@@ -104,7 +104,7 @@ resource_view := ret {
 	}
 
 	# Rewrite references.
-	resources_1 := {id: resource |
+	resources_1 := {id: resource_2 |
 		resource_0 := resources_0[id]
 		patches := [patch |
 			[path, val] := walk(resource_0)
@@ -113,7 +113,8 @@ resource_view := ret {
 			patch := {"op": "add", "path": path, "value": rewrite}
 		]
 
-		resource := json.patch(resource_0, patches)
+		resource_1 := json.patch(resource_0, patches)
+		resource_2 := json.patch(resource_1, [{"op": "add", "path": ["_tags"], "value": resource_tags(resource_1)}])
 	}
 
 	ret := resources_1
@@ -134,4 +135,11 @@ rewrite_token_reference(tokens, resources) = ret {
 	typed_name := make_typed_name(type, concat("/", names))
 	_ := resources[typed_name]
 	ret := typed_name
+}
+
+# Extract tags
+resource_tags(resource) = ret {
+	ret = resource.tags
+} else = ret {
+	ret = {}
 }

@@ -15,7 +15,6 @@ package rules.tf_aws_cloudwatch_encrypted_logs
 
 import data.fugue
 
-
 __rego__metadoc__ := {
   "custom": {
     "severity": "Medium"
@@ -25,32 +24,11 @@ __rego__metadoc__ := {
   "title": "CloudWatch log groups should be encrypted with customer managed KMS keys"
 }
 
-log_groups = fugue.resources("aws_cloudwatch_log_group")
+resource_type := "aws_cloudwatch_log_group"
 
-valid_kms_arn_prefix = {
-  "arn:aws:kms:",
-  "arn:aws-us-gov:kms:"
-}
+default allow = false
 
-valid_log_groups[id] = lg {
-  lg = log_groups[id]
-  lg.kms_key_id != null
-  valid_kms_arn_prefix[k]
-  startswith(lg.kms_key_id, k)
-} {
-  fugue.input_type != "tf_runtime"
-  lg = log_groups[id]
-  lg.kms_key_id != null
-  fugue.resources("aws_kms_key")[lg.kms_key_id]
-}
-
-resource_type := "MULTIPLE"
-
-policy[j] {
-  lg = valid_log_groups[id]
-  j = fugue.allow_resource(lg)
-} {
-  lg = log_groups[id]
-  not valid_log_groups[id]
-  j = fugue.deny_resource(lg)
+allow {
+  is_string(input.kms_key_id)
+  input.kms_key_id != ""
 }

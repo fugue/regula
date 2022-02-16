@@ -16,9 +16,17 @@ package fugue.resource_view.kubernetes
 
 resource_view[id] = ret {
 	resource := input.resources[id]
+	tags := resource_tags(resource)
 	ret := json.patch(resource, [
 		{"op": "add", "path": ["id"], "value": id},
 		{"op": "add", "path": ["_type"], "value": resource.kind},
 		{"op": "add", "path": ["_provider"], "value": "kubernetes"},
+		{"op": "add", "path": ["_tags"], "value": tags},
 	])
+}
+
+resource_tags(resource) = ret {
+	ret := resource.metadata.labels
+} else = ret {
+	ret := {}
 }

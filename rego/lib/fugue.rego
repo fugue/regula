@@ -50,6 +50,7 @@ allow(params) = ret {
     "message": object.get(params, "message", ""),
     "provider": params.resource._provider,
     "filepath": object.get(params.resource, "_filepath", ""),
+    "tags": object.get(params.resource, "_tags", {}),
   }
 }
 
@@ -70,6 +71,7 @@ deny(params) = ret {
     "attribute": object.get(params, "attribute", null),
     "provider": params.resource._provider,
     "filepath": object.get(params.resource, "_filepath", ""),
+    "tags": object.get(params.resource, "_tags", {}),
   }
 }
 
@@ -90,6 +92,7 @@ missing(params) = ret {
     "provider": object.get(params, "provider", ""),
     "attribute": null,
     "filepath": "",
+    "tags": {},
   }
 }
 

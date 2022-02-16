@@ -238,7 +238,7 @@ func (c *fugueClient) listRuleWaivers(
 	tagWaiversSkipped := 0
 	for _, ruleWaiver := range ruleWaivers {
 		waiver := ruleWaiverFromModel(ruleWaiver)
-		if waiver.ResourceTag != "" {
+		if !(waiver.ResourceTag == "*" || waiver.ResourceTag == "") {
 			tagWaiversSkipped += 1
 		}
 		waivers = append(waivers, waiver)
@@ -251,27 +251,21 @@ func (c *fugueClient) listRuleWaivers(
 }
 
 func ruleWaiverFromModel(model *models.RuleWaiver) rule_waivers.RuleWaiver {
-	waiver := rule_waivers.RuleWaiver{
-		ResourceTag: model.ResourceTag,
+	nilToWildcard := func(val *string) string {
+		if val == nil {
+			return "*"
+		} else {
+			return *val
+		}
 	}
 
-	if model.ResourceID != nil {
-		waiver.ResourceID = *model.ResourceID
+	return rule_waivers.RuleWaiver{
+		ResourceTag:      model.ResourceTag,
+		ResourceID:       nilToWildcard(model.ResourceID),
+		ResourceProvider: nilToWildcard(model.ResourceProvider),
+		ResourceType:     nilToWildcard(model.ResourceType),
+		RuleID:           nilToWildcard(model.RuleID),
 	}
-
-	if model.ResourceProvider != nil {
-		waiver.ResourceProvider = *model.ResourceProvider
-	}
-
-	if model.ResourceType != nil {
-		waiver.ResourceType = *model.ResourceType
-	}
-
-	if model.RuleID != nil {
-		waiver.RuleID = *model.RuleID
-	}
-
-	return waiver
 }
 
 func (c *fugueClient) PostProcessReport(

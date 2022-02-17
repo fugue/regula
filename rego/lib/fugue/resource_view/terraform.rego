@@ -23,7 +23,12 @@ import data.util.resolve
 resource_view = {id: ret |
   planned_values_resource := planned_values_resources[id]
   patches := object.get(resource_view_patches, id, [])
-  ret := json.patch(planned_values_resource, patches)
+  resource := json.patch(planned_values_resource, patches)
+
+  tags := resource_tags(resource)
+  ret := json.patch(resource, [
+    {"op": "add", "path": ["_tags"], "value": tags}
+  ])
 }
 
 # These are the patches applied to each resource in order to fill in
@@ -300,4 +305,33 @@ resource_changes_unknowns(address, prefix) = after_unknowns {
     unknown == true
     prefixed_path = array.concat(prefix, path)
   ]
+}
+
+resource_tags(resource) = ret {
+  # AWS provider: combine `tags` and `all_tags`
+  split(resource._provider, ".")[0] == "aws"
+  tags := resource_tags_field(resource, "tags")
+  all_tags := resource_tags_field(resource, "all_tags")
+  ret := object.union(tags, all_tags)
+} else = ret {
+  # Google provider: use `labels`
+  split(resource._provider, ".")[0] == "google"
+  ret := resource_tags_field(resource, "labels")
+} else = ret {
+  # Other providers (azurerm, ?): look in `tags`.
+  ret := resource_tags_field(resource, "tags")
+}
+
+# Utility: get tags from a resource, ensuring they are not null and contain
+# strings.
+resource_tags_field(resource, field) = ret {
+  tags := object.get(resource, field, {})
+  is_object(tags)
+  ret := {k: v |
+    v := tags[k]
+    is_string(k)
+    is_string(v)
+  }
+} else = ret {
+  ret = {}
 }

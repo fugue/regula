@@ -23,6 +23,10 @@ test_resource_view_05 {
 		"aws_cloudwatch_log_group.fargate-logs": {
 			"_provider": "aws",
 			"_type": "aws_cloudwatch_log_group",
+			"_tags": {
+				"Name": "foo",
+				"POC": "bar",
+			},
 			"id": "aws_cloudwatch_log_group.fargate-logs",
 			"kms_key_id": "aws_kms_key.cloudwatch",
 			"name": "/ecs/fargate-task-definition",
@@ -40,6 +44,10 @@ test_resource_view_05 {
 		"aws_kms_key.cloudwatch": {
 			"_provider": "aws",
 			"_type": "aws_kms_key",
+			"_tags": {
+				"Name": "foo",
+				"POC": "bar",
+			},
 			"bypass_policy_lockout_safety_check": false,
 			"customer_master_key_spec": "SYMMETRIC_DEFAULT",
 			"deletion_window_in_days": 10,

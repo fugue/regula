@@ -1,0 +1,37 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_s3_bucket.example": {
+        "_filepath": "tf_test/tags/main.tf",
+        "_provider": "aws",
+        "_tags": {
+          "Stage": "Prod"
+        },
+        "_type": "aws_s3_bucket",
+        "bucket_prefix": "example",
+        "id": "aws_s3_bucket.example",
+        "provider": null,
+        "tags": {
+          "Stage": "Prod"
+        }
+      },
+      "google_storage_bucket.example": {
+        "_filepath": "tf_test/tags/main.tf",
+        "_provider": "google",
+        "_tags": {
+          "Stage": "Prod"
+        },
+        "_type": "google_storage_bucket",
+        "id": "google_storage_bucket.example",
+        "labels": {
+          "Stage": "Prod"
+        },
+        "location": "US",
+        "name": "example",
+        "provider": null
+      }
+    }
+  },
+  "filepath": "tf_test/tags"
+}

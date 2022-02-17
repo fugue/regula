@@ -25,6 +25,7 @@ mock_config := {
     "aws_ebs_volume.bad": {
       "_filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
       "_provider": "aws",
+      "_tags": {},
       "_type": "aws_ebs_volume",
       "availability_zone": "us-west-2a",
       "encrypted": false,
@@ -34,6 +35,7 @@ mock_config := {
     "aws_ebs_volume.good": {
       "_filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
       "_provider": "aws",
+      "_tags": {},
       "_type": "aws_ebs_volume",
       "availability_zone": "us-west-2a",
       "encrypted": true,
@@ -43,6 +45,7 @@ mock_config := {
     "aws_ebs_volume.missing": {
       "_filepath": "tests/lib/inputs/volume_encrypted_infra.tf",
       "_provider": "aws",
+      "_tags": {},
       "_type": "aws_ebs_volume",
       "availability_zone": "us-west-2a",
       "id": "aws_ebs_volume.missing",

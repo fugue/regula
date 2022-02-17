@@ -20,6 +20,7 @@ test_resource_view_02 {
     "aws_s3_bucket.example": {
       "_provider": "aws",
       "_type": "aws_s3_bucket",
+      "_tags": {},
       "acl": "private",
       "bucket_prefix": "example",
       "cors_rule": [],
@@ -38,6 +39,7 @@ test_resource_view_02 {
     "data.aws_iam_policy_document.example": {
       "_provider": "aws",
       "_type": "data.aws_iam_policy_document",
+      "_tags": {},
       "id": "data.aws_iam_policy_document.example",
       "override_json": null,
       "override_policy_documents": null,
@@ -66,6 +68,7 @@ test_resource_view_02 {
     "aws_iam_policy.example": {
       "_provider": "aws",
       "_type": "aws_iam_policy",
+      "_tags": {},
       "description": null,
       "id": "aws_iam_policy.example",
       "name_prefix": null,

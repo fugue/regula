@@ -5,6 +5,7 @@
       "aws_s3_bucket.test1": {
         "_filepath": "tf_test/template-in-jsonencode/main.tf",
         "_provider": "aws",
+        "_tags": {},
         "_type": "aws_s3_bucket",
         "bucket": "test1",
         "id": "aws_s3_bucket.test1"
@@ -12,6 +13,7 @@
       "aws_s3_bucket_policy.test1": {
         "_filepath": "tf_test/template-in-jsonencode/main.tf",
         "_provider": "aws",
+        "_tags": {},
         "_type": "aws_s3_bucket_policy",
         "bucket": "aws_s3_bucket.test1",
         "id": "aws_s3_bucket_policy.test1",

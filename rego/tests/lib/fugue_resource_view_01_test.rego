@@ -32,6 +32,7 @@ test_resource_view_01 {
       "logging": [],
       "lifecycle_rule": [],
       "_type": "aws_s3_bucket",
+      "_tags": {},
       "_provider": "aws",
       "force_destroy": false
     },
@@ -40,6 +41,7 @@ test_resource_view_01 {
       "bucket": "aws_s3_bucket.example",
       "policy": "data.aws_iam_policy_document.example",
       "_type": "aws_s3_bucket_policy",
+      "_tags": {},
       "_provider": "aws",
     },
     "data.aws_iam_policy_document.example": {
@@ -65,6 +67,7 @@ test_resource_view_01 {
       "version": null,
       "policy_id": null,
       "_type": "data.aws_iam_policy_document",
+      "_tags": {},
       "_provider": "aws",
     }
   }

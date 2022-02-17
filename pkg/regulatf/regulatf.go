@@ -2,6 +2,8 @@
 package regulatf
 
 import (
+	"strings"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/zclconf/go-cty/cty"
@@ -282,6 +284,7 @@ func (v *Evaluation) Resources() map[string]interface{} {
 		}
 
 		input[resourceKey] = ValueToInterface(ValTreeToValue(tree))
+		PopulateTags(input[resourceKey])
 	}
 
 	return input
@@ -302,4 +305,36 @@ func (v *Evaluation) Location(resourceKey string) []hcl.Range {
 		}
 	}
 	return ranges
+}
+
+func PopulateTags(resource interface{}) {
+	resourceObj := map[string]interface{}{}
+	if obj, ok := resource.(map[string]interface{}); ok {
+		resourceObj = obj
+	}
+
+	tagObj := map[string]interface{}{}
+	if providerStr, ok := resourceObj["_provider"].(string); ok {
+		if provider := strings.SplitN(providerStr, ".", 2); len(provider) > 0 {
+			switch provider[0] {
+			case "google":
+				if tags, ok := resourceObj["labels"].(map[string]interface{}); ok {
+					tagObj = tags
+				}
+			default:
+				if tags, ok := resourceObj["tags"].(map[string]interface{}); ok {
+					tagObj = tags
+				}
+			}
+		}
+	}
+
+	tags := map[string]string{}
+	for k, v := range tagObj {
+		if str, ok := v.(string); ok {
+			tags[k] = str
+		}
+	}
+
+	resourceObj["_tags"] = tags
 }

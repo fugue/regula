@@ -194,3 +194,25 @@ Resources:
     }
   }
 }
+
+test_resource_tags_02 {
+  cfn := yaml.unmarshal(`
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      Tags:
+        Stage: Dev`)
+  rv := resource_view with input as cfn
+  rv == {
+    "VPC": {
+      "_type": "AWS::EC2::VPC",
+      "_provider": "aws",
+      "_tags": {"Stage": "Dev"},
+      "id": "VPC",
+      "CidrBlock": "10.0.0.0/16",
+      "Tags": {"Stage": "Dev"},
+    }
+  }
+}

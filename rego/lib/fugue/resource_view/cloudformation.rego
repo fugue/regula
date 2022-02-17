@@ -106,6 +106,7 @@ attribute_references_1(attr) = ret {
 
 # Extracting tags from a resource.
 properties_tags(properties) = ret {
+  is_array(properties.Tags)
   keys := {k | k := properties.Tags[_].Key}
   ret := {k: v |
     keys[k]
@@ -115,6 +116,12 @@ properties_tags(properties) = ret {
       is_string(tag.Value)
     ]
     v := concat(";", vs)
+  }
+} else = ret {
+  is_object(properties.Tags)
+  ret := {k: v |
+    v := properties.Tags[k]
+    is_string(v)
   }
 } else = ret {
   ret := {}

@@ -35,7 +35,7 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
 	github.com/mitchellh/panicwrap v1.0.0
 	github.com/open-policy-agent/opa v0.37.2
-	github.com/owenrumney/go-sarif/v2 v2.1.0
+	github.com/owenrumney/go-sarif/v2 v2.1.1
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.6.0

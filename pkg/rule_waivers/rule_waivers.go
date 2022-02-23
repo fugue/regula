@@ -32,6 +32,7 @@ func ExactMatchOrWildcards(waiverElem string, resourceElem string) bool {
 }
 
 type RuleWaiver struct {
+	ID               string
 	ResourceID       string
 	ResourceProvider string
 	ResourceTag      string
@@ -52,6 +53,13 @@ func ApplyRuleWaivers(report *reporter.RegulaReport, waivers []RuleWaiver) {
 		for _, waiver := range waivers {
 			if waiver.Match(report.RuleResults[i]) {
 				report.RuleResults[i].RuleResult = "WAIVED"
+
+				if waiver.ID != "" {
+					report.RuleResults[i].ActiveWaivers = append(
+						report.RuleResults[i].ActiveWaivers,
+						waiver.ID,
+					)
+				}
 			}
 		}
 	}

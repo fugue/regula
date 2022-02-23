@@ -259,13 +259,19 @@ func ruleWaiverFromModel(model *models.RuleWaiver) rule_waivers.RuleWaiver {
 		}
 	}
 
-	return rule_waivers.RuleWaiver{
+	rule_waiver := rule_waivers.RuleWaiver{
 		ResourceTag:      model.ResourceTag,
 		ResourceID:       nilToWildcard(model.ResourceID),
 		ResourceProvider: nilToWildcard(model.ResourceProvider),
 		ResourceType:     nilToWildcard(model.ResourceType),
 		RuleID:           nilToWildcard(model.RuleID),
 	}
+
+	if model.ID != nil {
+		rule_waiver.ID = *model.ID
+	}
+
+	return rule_waiver
 }
 
 func (c *fugueClient) PostProcessReport(

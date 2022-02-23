@@ -362,6 +362,7 @@ type RuleResult struct {
 	// and further elements indicate modules in which this was included, like
 	// a call stack.
 	SourceLocation loader.LocationStack `json:"source_location,omitempty"`
+	ActiveWaivers  []string             `json:"active_waivers,omitempty"`
 }
 
 func (r RuleResult) IsWaived() bool {

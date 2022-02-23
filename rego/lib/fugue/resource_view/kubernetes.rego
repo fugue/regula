@@ -14,6 +14,8 @@
 
 package fugue.resource_view.kubernetes
 
+import data.fugue.resource_view.tags as tags_lib
+
 resource_view[id] = ret {
 	resource := input.resources[id]
 	tags := resource_tags(resource)
@@ -26,7 +28,8 @@ resource_view[id] = ret {
 }
 
 resource_tags(resource) = ret {
-	ret := resource.metadata.labels
+	metadata := resource.metadata
+	ret := tags_lib.get_from_object(metadata, "labels")
 } else = ret {
 	ret := {}
 }

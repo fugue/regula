@@ -14,6 +14,7 @@
 package fugue.resource_view.cloudformation
 
 import data.fugue.resource_view.terraform
+import data.fugue.resource_view.tags as tags_lib
 
 resource_view[id] = ret {
   resource := input.Resources[id]
@@ -106,23 +107,10 @@ attribute_references_1(attr) = ret {
 
 # Extracting tags from a resource.
 properties_tags(properties) = ret {
-  is_array(properties.Tags)
-  keys := {k | k := properties.Tags[_].Key}
-  ret := {k: v |
-    keys[k]
-    vs := [tag.Value |
-      tag := properties.Tags[_]
-      tag.Key == k
-      is_string(tag.Value)
-    ]
-    v := concat(";", vs)
-  }
-} else = ret {
-  is_object(properties.Tags)
-  ret := {k: v |
-    v := properties.Tags[k]
-    is_string(v)
-  }
+  ret := object.union(
+    tags_lib.get_from_object(properties, "Tags"),
+    tags_lib.get_from_list(properties, "Tags", "Key", "Value"),
+  )
 } else = ret {
   ret := {}
 }

@@ -13,6 +13,8 @@
 # limitations under the License.
 package fugue.resource_view.arm
 
+import data.fugue.resource_view.tags as tags_lib
+
 # Returns a list of all parent resources of the resource at the given path,
 # ending with the resource itself.
 parent_resources(top_level_resource, path) = ret {
@@ -139,7 +141,7 @@ rewrite_token_reference(tokens, resources) = ret {
 
 # Extract tags
 resource_tags(resource) = ret {
-	ret = resource.tags
+	ret := tags_lib.get_from_object(resource, "tags")
 } else = ret {
-	ret = {}
+	ret := {}
 }

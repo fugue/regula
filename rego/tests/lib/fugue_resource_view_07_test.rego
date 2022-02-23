@@ -17,6 +17,11 @@ import data.tests.lib.inputs.resource_view_07_infra_json
 
 # Tests tags
 test_resource_view_07 {
-  resource := resource_view_07_infra_json.mock_resources[_]
-  resource._tags.Stage == "Prod"
+  bucket := resource_view_07_infra_json.mock_resources[_]
+  bucket._type == "aws_s3_bucket"
+  bucket._tags.Stage == "Prod"
+
+  asg := resource_view_07_infra_json.mock_resources[_]
+  asg._type == "aws_autoscaling_group"
+  asg._tags.Stage == "Dev"
 }

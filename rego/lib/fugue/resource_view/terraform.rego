@@ -17,6 +17,7 @@
 package fugue.resource_view.terraform
 
 import data.util.resolve
+import data.fugue.resource_view.tags as tags_lib
 
 # In our final resource view available to the rules, we merge optional
 # `configuration_resources` into `planned_values_resources`.
@@ -308,30 +309,27 @@ resource_changes_unknowns(address, prefix) = after_unknowns {
 }
 
 resource_tags(resource) = ret {
+  # Exception.
+  resource._type == "aws_autoscaling_group"
+  ret := object.union(
+    object.union(
+      tags_lib.get_from_object(resource, "tags"),
+      tags_lib.get_from_object(resource, "all_tags")
+    ),
+    tags_lib.get_from_list(resource, "tag", "key", "value"),
+  )
+} else = ret {
   # AWS provider: combine `tags` and `all_tags`
   split(resource._provider, ".")[0] == "aws"
-  tags := resource_tags_field(resource, "tags")
-  all_tags := resource_tags_field(resource, "all_tags")
-  ret := object.union(tags, all_tags)
+  ret := object.union(
+    tags_lib.get_from_object(resource, "tags"),
+    tags_lib.get_from_object(resource, "all_tags"),
+  )
 } else = ret {
   # Google provider: use `labels`
   split(resource._provider, ".")[0] == "google"
-  ret := resource_tags_field(resource, "labels")
+  ret := tags_lib.get_from_object(resource, "labels")
 } else = ret {
   # Other providers (azurerm, ?): look in `tags`.
-  ret := resource_tags_field(resource, "tags")
-}
-
-# Utility: get tags from a resource, ensuring they are not null and contain
-# strings.
-resource_tags_field(resource, field) = ret {
-  tags := object.get(resource, field, {})
-  is_object(tags)
-  ret := {k: v |
-    v := tags[k]
-    is_string(k)
-    is_string(v)
-  }
-} else = ret {
-  ret = {}
+  ret := tags_lib.get_from_object(resource, "tags")
 }

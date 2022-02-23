@@ -2,6 +2,46 @@
   "content": {
     "hcl_resource_view_version": "0.0.1",
     "resources": {
+      "aws_autoscaling_group.example": {
+        "_filepath": "tf_test/tags/main.tf",
+        "_provider": "aws",
+        "_tags": {
+          "Stage": "Dev"
+        },
+        "_type": "aws_autoscaling_group",
+        "availability_zones": [
+          "us-east-1a"
+        ],
+        "desired_capacity": 1,
+        "id": "aws_autoscaling_group.example",
+        "launch_template": [
+          {
+            "id": "aws_launch_template.example",
+            "version": "$Latest"
+          }
+        ],
+        "max_size": 1,
+        "min_size": 1,
+        "provider": null,
+        "tag": [
+          {
+            "key": "Stage",
+            "propagate_at_launch": true,
+            "value": "Dev"
+          }
+        ]
+      },
+      "aws_launch_template.example": {
+        "_filepath": "tf_test/tags/main.tf",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_launch_template",
+        "id": "aws_launch_template.example",
+        "image_id": "ami-1a2b3c",
+        "instance_type": "t2.micro",
+        "name_prefix": "example",
+        "provider": null
+      },
       "aws_s3_bucket.example": {
         "_filepath": "tf_test/tags/main.tf",
         "_provider": "aws",

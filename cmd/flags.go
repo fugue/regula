@@ -62,6 +62,7 @@ Output formats:
     junit   The JUnit XML format
     tap     The Test Anything Protocol format
     compact An alternate, more compact human friendly format
+    sarif   Static Analysis Results Interchange Format
     none    Do not print any output on stdout
 `
 const severityDescriptions = `

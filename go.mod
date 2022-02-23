@@ -35,6 +35,7 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
 	github.com/mitchellh/panicwrap v1.0.0
 	github.com/open-policy-agent/opa v0.37.2
+	github.com/owenrumney/go-sarif/v2 v2.1.1
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.6.0
@@ -43,18 +44,14 @@ require (
 	github.com/spf13/viper v1.10.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tailscale/hujson v0.0.0-20210818175511-7360507a6e88
-	github.com/zclconf/go-cty v1.8.4
+	github.com/zclconf/go-cty v1.10.0
 	github.com/zclconf/go-cty-yaml v1.0.2
+	go.mongodb.org/mongo-driver v1.5.1 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/mod v0.5.0
 	golang.org/x/net v0.0.0-20211111083644-e5c967477495
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf // indirect
 	golang.org/x/text v0.3.7
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
-)
-
-require (
-	github.com/prometheus/client_golang v1.12.1 // indirect
-	go.mongodb.org/mongo-driver v1.5.1 // indirect
 	golang.org/x/tools v0.1.5
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )

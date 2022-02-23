@@ -32,6 +32,8 @@ func GetReporter(format Format) (Reporter, error) {
 		return TextReporter, nil
 	case Compact:
 		return CompactReporter, nil
+	case Sarif:
+		return SarifReporter, nil
 	default:
 		return nil, fmt.Errorf("Unsupported or unrecognized reporter: %v", FormatIDs[format])
 	}

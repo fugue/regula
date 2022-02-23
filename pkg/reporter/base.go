@@ -84,6 +84,7 @@ const (
 	None
 	Text
 	Compact
+	Sarif
 )
 
 var FormatIDs = map[Format][]string{
@@ -94,6 +95,7 @@ var FormatIDs = map[Format][]string{
 	None:    {"none"},
 	Text:    {"text"},
 	Compact: {"compact"},
+	Sarif:   {"sarif"},
 }
 
 var DefaultFormat = FormatIDs[Text][0]

@@ -32,6 +32,7 @@ test_resource_view_04 {
       "logging": [],
       "lifecycle_rule": [],
       "_type": "aws_s3_bucket",
+      "_tags": {},
       "_provider": "aws",
       "force_destroy": false
     }

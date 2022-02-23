@@ -17,13 +17,19 @@
 package fugue.resource_view.terraform
 
 import data.util.resolve
+import data.fugue.resource_view.tags as tags_lib
 
 # In our final resource view available to the rules, we merge optional
 # `configuration_resources` into `planned_values_resources`.
 resource_view = {id: ret |
   planned_values_resource := planned_values_resources[id]
   patches := object.get(resource_view_patches, id, [])
-  ret := json.patch(planned_values_resource, patches)
+  resource := json.patch(planned_values_resource, patches)
+
+  tags := resource_tags(resource)
+  ret := json.patch(resource, [
+    {"op": "add", "path": ["_tags"], "value": tags}
+  ])
 }
 
 # These are the patches applied to each resource in order to fill in
@@ -300,4 +306,30 @@ resource_changes_unknowns(address, prefix) = after_unknowns {
     unknown == true
     prefixed_path = array.concat(prefix, path)
   ]
+}
+
+resource_tags(resource) = ret {
+  # Exception.
+  resource._type == "aws_autoscaling_group"
+  ret := object.union(
+    object.union(
+      tags_lib.get_from_object(resource, "tags"),
+      tags_lib.get_from_object(resource, "all_tags")
+    ),
+    tags_lib.get_from_list(resource, "tag", "key", "value"),
+  )
+} else = ret {
+  # AWS provider: combine `tags` and `all_tags`
+  split(resource._provider, ".")[0] == "aws"
+  ret := object.union(
+    tags_lib.get_from_object(resource, "tags"),
+    tags_lib.get_from_object(resource, "all_tags"),
+  )
+} else = ret {
+  # Google provider: use `labels`
+  split(resource._provider, ".")[0] == "google"
+  ret := tags_lib.get_from_object(resource, "labels")
+} else = ret {
+  # Other providers (azurerm, ?): look in `tags`.
+  ret := tags_lib.get_from_object(resource, "tags")
 }

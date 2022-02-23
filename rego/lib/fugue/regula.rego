@@ -128,6 +128,7 @@ rule_resource_result(rule, judgement) = ret {
     "provider": judgement.provider,
     "resource_id": judgement.id,
     "resource_type": judgement.type,
+    "resource_tags": judgement.tags,
     "rule_message": judgement.message,
     "rule_result": result_string(judgement),
     "rule_raw_result": judgement.valid,

@@ -5,6 +5,9 @@
       "aws_s3_bucket.main": {
         "_filepath": "tf_test/vars/main.tf",
         "_provider": "aws",
+        "_tags": {
+          "department": "engineering"
+        },
         "_type": "aws_s3_bucket",
         "id": "aws_s3_bucket.main",
         "tags": {

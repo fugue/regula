@@ -5,6 +5,7 @@
       "aws_s3_bucket.bucket": {
         "_filepath": "tf_test/issue-305/main.tf",
         "_provider": "aws",
+        "_tags": {},
         "_type": "aws_s3_bucket",
         "bucket": "default",
         "id": "aws_s3_bucket.bucket"

@@ -5,6 +5,7 @@
       "data.google_iam_policy.all_authenticated_users": {
         "_filepath": "tf_test/data-resources/main.tf",
         "_provider": "google",
+        "_tags": {},
         "_type": "data.google_iam_policy",
         "binding": [
           {
@@ -25,6 +26,7 @@
       "data.google_iam_policy.all_users": {
         "_filepath": "tf_test/data-resources/main.tf",
         "_provider": "google",
+        "_tags": {},
         "_type": "data.google_iam_policy",
         "binding": [
           {
@@ -45,6 +47,7 @@
       "google_storage_bucket.all_authenticated_users": {
         "_filepath": "tf_test/data-resources/main.tf",
         "_provider": "google",
+        "_tags": {},
         "_type": "google_storage_bucket",
         "force_destroy": true,
         "id": "google_storage_bucket.all_authenticated_users",
@@ -53,6 +56,7 @@
       "google_storage_bucket.all_users": {
         "_filepath": "tf_test/data-resources/main.tf",
         "_provider": "google",
+        "_tags": {},
         "_type": "google_storage_bucket",
         "force_destroy": true,
         "id": "google_storage_bucket.all_users",
@@ -61,6 +65,7 @@
       "google_storage_bucket_iam_policy.all_authenticated_users_policy": {
         "_filepath": "tf_test/data-resources/main.tf",
         "_provider": "google",
+        "_tags": {},
         "_type": "google_storage_bucket_iam_policy",
         "bucket": "invalid-public-all-authenticated-iam",
         "id": "google_storage_bucket_iam_policy.all_authenticated_users_policy",
@@ -69,6 +74,7 @@
       "google_storage_bucket_iam_policy.all_users_policy": {
         "_filepath": "tf_test/data-resources/main.tf",
         "_provider": "google",
+        "_tags": {},
         "_type": "google_storage_bucket_iam_policy",
         "bucket": "invalid-public-all-users-iam",
         "id": "google_storage_bucket_iam_policy.all_users_policy",

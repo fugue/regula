@@ -606,6 +606,7 @@ expected_resource_view = {
     "instance_tenancy": "default",
     "enable_dns_support": true,
     "_type": "aws_vpc",
+    "_tags": {},
     "_provider": "aws",
   },
   "module.child1.module.grandchild1.aws_vpc.grandchild": {
@@ -616,6 +617,7 @@ expected_resource_view = {
     "instance_tenancy": "default",
     "enable_dns_support": true,
     "_type": "aws_vpc",
+    "_tags": {},
     "_provider": "aws",
   },
   "module.child2.aws_vpc.child": {
@@ -626,6 +628,7 @@ expected_resource_view = {
     "instance_tenancy": "default",
     "enable_dns_support": true,
     "_type": "aws_vpc",
+    "_tags": {},
     "_provider": "aws",
   },
   "module.child2.aws_security_group.child": {
@@ -636,6 +639,7 @@ expected_resource_view = {
     "vpc_id": "module.child1.module.grandchild1.aws_vpc.grandchild",
     "timeouts": null,
     "_type": "aws_security_group",
+    "_tags": {},
     "_provider": "aws",
     "name_prefix": null
   },
@@ -647,6 +651,7 @@ expected_resource_view = {
     "vpc_id": "module.child1.module.grandchild1.aws_vpc.grandchild",
     "timeouts": null,
     "_type": "aws_security_group",
+    "_tags": {},
     "_provider": "aws",
     "name_prefix": null
   },
@@ -658,6 +663,7 @@ expected_resource_view = {
     "instance_tenancy": "default",
     "enable_dns_support": true,
     "_type": "aws_vpc",
+    "_tags": {},
     "_provider": "aws",
   },
   "module.child1.module.grandchild1.aws_security_group.grandchild": {
@@ -668,6 +674,7 @@ expected_resource_view = {
     "vpc_id": "module.child1.module.grandchild1.aws_vpc.grandchild",
     "timeouts": null,
     "_type": "aws_security_group",
+    "_tags": {},
     "_provider": "aws",
     "name_prefix": null
   }

@@ -21,6 +21,7 @@ test_resource_view_06 {
 		"aws_security_group.parent": {
 			"_provider": "aws",
 			"_type": "aws_security_group",
+			"_tags": {},
 			"description": "Managed by Terraform",
 			"id": "aws_security_group.parent",
 			"revoke_rules_on_delete": false,
@@ -31,6 +32,7 @@ test_resource_view_06 {
 		"aws_vpc.parent": {
 			"_provider": "aws",
 			"_type": "aws_vpc",
+			"_tags": {},
 			"assign_generated_ipv6_cidr_block": false,
 			"cidr_block": "10.0.0.0/16",
 			"enable_dns_support": true,
@@ -41,6 +43,7 @@ test_resource_view_06 {
 		"module.child1.aws_vpc.child": {
 			"_provider": "aws",
 			"_type": "aws_vpc",
+			"_tags": {},
 			"assign_generated_ipv6_cidr_block": false,
 			"cidr_block": "10.0.0.0/16",
 			"enable_dns_support": true,
@@ -51,6 +54,7 @@ test_resource_view_06 {
 		"module.child1.module.grandchild1.aws_security_group.grandchild": {
 			"_provider": "aws",
 			"_type": "aws_security_group",
+			"_tags": {},
 			"description": "Managed by Terraform",
 			"id": "module.child1.module.grandchild1.aws_security_group.grandchild",
 			"revoke_rules_on_delete": false,
@@ -61,6 +65,7 @@ test_resource_view_06 {
 		"module.child1.module.grandchild1.aws_vpc.grandchild": {
 			"_provider": "aws",
 			"_type": "aws_vpc",
+			"_tags": {},
 			"assign_generated_ipv6_cidr_block": false,
 			"cidr_block": "10.0.0.0/16",
 			"enable_dns_support": true,
@@ -71,6 +76,7 @@ test_resource_view_06 {
 		"module.child2.aws_security_group.child": {
 			"_provider": "aws",
 			"_type": "aws_security_group",
+			"_tags": {},
 			"description": "Managed by Terraform",
 			"id": "module.child2.aws_security_group.child",
 			"revoke_rules_on_delete": false,
@@ -81,6 +87,7 @@ test_resource_view_06 {
 		"module.child2.aws_vpc.child": {
 			"_provider": "aws",
 			"_type": "aws_vpc",
+			"_tags": {},
 			"assign_generated_ipv6_cidr_block": false,
 			"cidr_block": "10.0.0.0/16",
 			"enable_dns_support": true,

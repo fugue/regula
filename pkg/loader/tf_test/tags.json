@@ -1,0 +1,77 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_autoscaling_group.example": {
+        "_filepath": "tf_test/tags/main.tf",
+        "_provider": "aws",
+        "_tags": {
+          "Stage": "Dev"
+        },
+        "_type": "aws_autoscaling_group",
+        "availability_zones": [
+          "us-east-1a"
+        ],
+        "desired_capacity": 1,
+        "id": "aws_autoscaling_group.example",
+        "launch_template": [
+          {
+            "id": "aws_launch_template.example",
+            "version": "$Latest"
+          }
+        ],
+        "max_size": 1,
+        "min_size": 1,
+        "provider": null,
+        "tag": [
+          {
+            "key": "Stage",
+            "propagate_at_launch": true,
+            "value": "Dev"
+          }
+        ]
+      },
+      "aws_launch_template.example": {
+        "_filepath": "tf_test/tags/main.tf",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_launch_template",
+        "id": "aws_launch_template.example",
+        "image_id": "ami-1a2b3c",
+        "instance_type": "t2.micro",
+        "name_prefix": "example",
+        "provider": null
+      },
+      "aws_s3_bucket.example": {
+        "_filepath": "tf_test/tags/main.tf",
+        "_provider": "aws",
+        "_tags": {
+          "Stage": "Prod"
+        },
+        "_type": "aws_s3_bucket",
+        "bucket_prefix": "example",
+        "id": "aws_s3_bucket.example",
+        "provider": null,
+        "tags": {
+          "Stage": "Prod"
+        }
+      },
+      "google_storage_bucket.example": {
+        "_filepath": "tf_test/tags/main.tf",
+        "_provider": "google",
+        "_tags": {
+          "Stage": "Prod"
+        },
+        "_type": "google_storage_bucket",
+        "id": "google_storage_bucket.example",
+        "labels": {
+          "Stage": "Prod"
+        },
+        "location": "US",
+        "name": "example",
+        "provider": null
+      }
+    }
+  },
+  "filepath": "tf_test/tags"
+}

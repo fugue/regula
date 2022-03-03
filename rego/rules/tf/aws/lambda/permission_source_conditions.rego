@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_lambda_permission_source_conditions
 import data.fugue
 import data.aws.lambda.permissions_library as lib
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "Lambda permissions with a service principal should contain a source ARN condition to restrict access to a single resource. Lambda permissions for S3 and SES should also contain a source account condition, because S3 and SES ARNs do not contain an AWS account ID.",
@@ -27,7 +25,7 @@ __rego__metadoc__ := {
   "title": "Lambda permissions with a service principal should apply to only one resource and AWS account"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 requires_source_account := {
   "s3.amazonaws.com",
@@ -78,4 +76,3 @@ policy[j] {
   msg = concat(" ", invalid_perms_by_key[k])
   j = fugue.deny_resource_with_message(func, msg)
 }
-

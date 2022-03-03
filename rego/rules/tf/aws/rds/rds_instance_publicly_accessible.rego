@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@ package rules.tf_aws_rds_rds_instance_publicly_accessible
 
 import data.fugue
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "RDS instance 'Publicly Accessible' should not be enabled. Publicly accessible RDS instances allow any AWS user or anonymous user access to the data in the database. RDS instances should not be publicly accessible.",
@@ -26,11 +24,10 @@ __rego__metadoc__ := {
   "title": "RDS instance 'Publicly Accessible' should not be enabled"
 }
 
-resource_type = "aws_db_instance"
+resource_type := "aws_db_instance"
 
 default deny = false
 
 deny {
   input.publicly_accessible == true
 }
-

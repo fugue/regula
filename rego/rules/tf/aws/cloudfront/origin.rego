@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_cloudfront_origin
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "CloudFront distribution origin should be set to S3 or origin protocol policy should be set to https-only. CloudFront connections should be encrypted during transmission over networks that can be accessed by malicious individuals. If a CloudFront distribution uses a custom origin, CloudFront should only use HTTPS to communicate with it. This does not apply if the CloudFront distribution is configured to use S3 as origin.",
@@ -40,7 +38,7 @@ valid_origin(cf) {
   fugue.resources("aws_s3_bucket")[cf.origin[_].domain_name]
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   cf = cloudfronts[_]
@@ -51,4 +49,3 @@ policy[j] {
   not valid_origin(cf)
   j = fugue.deny_resource(cf)
 }
-

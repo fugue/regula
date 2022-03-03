@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_azurerm_monitor_key_vault_logging
 
 import data.fugue
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -38,17 +37,55 @@ diagnostic_settings = fugue.resources("azurerm_monitor_diagnostic_setting")
 
 valid_audit_target_ids = {lower(id) |
   diagnostic_setting = diagnostic_settings[_]
-  _ = diagnostic_setting.storage_account_id
   id = diagnostic_setting.target_resource_id
   log = diagnostic_setting.log[_]
 
   lower(log.category) == "auditevent"
   log.enabled == true
-  log.retention_policy[_].days >= 180
-  log.retention_policy[_].enabled == true
+
+  check_log(diagnostic_setting, log)
 }
 
-resource_type = "MULTIPLE"
+# Log Analytics and EventHub don't support retention policies, so we
+# don't have to worry about them.
+
+check_log(diagnostic_setting, log) {
+  diagnostic_setting.log_analytics_workspace_id != ""
+}
+
+check_log(diagnostic_setting, log) {
+  diagnostic_setting.eventhub_authorization_rule_id != ""
+}
+
+# If the Key Vault is using a storage account the retention policy is
+# important...
+check_log(diagnostic_setting, log) {
+  diagnostic_setting.storage_account_id != ""
+  check_retention(log.retention_policy[_])
+}
+
+# If the retention policy is disabled, data will be retained
+# indefinitely.
+check_retention(retention_policy) {
+  retention_policy.enabled = false
+}
+
+# If the retention policy is enabled, make sure that it is retained for
+# a minimum of 180 days.
+check_retention(retention_policy) {
+  retention_policy.enabled = true
+  retention_policy.days >= 180
+}
+
+# A retention policy of 0 days is also acceptable as 0 is used to
+# indicate unlimited retention (i.e., it's equivalent to having the
+# policy disabled).
+check_retention(retention_policy) {
+  retention_policy.enabled = true
+  retention_policy.days == 0
+}
+
+resource_type := "MULTIPLE"
 
 policy[p] {
   key_vault = key_vaults[_]
@@ -59,4 +96,3 @@ policy[p] {
   not valid_audit_target_ids[lower(key_vault.id)]
   p = fugue.deny_resource(key_vault)
 }
-

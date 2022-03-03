@@ -31,12 +31,14 @@ Resources:
       "Vpc": "MyVpc",
       "_type": "SecurityGroupId",
       "_provider": "aws",
+      "_tags": {},
     },
     "MyVpc": {
       "id": "MyVpc",
       "Name": "bar",
       "_type": "Vpc",
       "_provider": "aws",
+      "_tags": {},
     }
   }
 }
@@ -64,6 +66,7 @@ Resources:
       "ThePort": 80,
       "_type": "Server",
       "_provider": "aws",
+      "_tags": {},
     }
   }
 }
@@ -91,11 +94,13 @@ Resources:
     "LoggingBucket": {
       "_type": "AWS::S3::Bucket",
       "_provider": "aws",
+      "_tags": {},
       "id": "LoggingBucket"
     },
     "CloudTrailLogging": {
       "_type": "AWS::CloudTrail::Trail",
       "_provider": "aws",
+      "_tags": {},
       "EventSelectors": [
         {
           "DataResources": [
@@ -143,6 +148,7 @@ Resources:
     "CloudTrailLogging": {
       "_type": "AWS::CloudTrail::Trail",
       "_provider": "aws",
+      "_tags": {},
       "EventSelectors": [
         {
           "DataResources": [
@@ -160,6 +166,53 @@ Resources:
       "TrailName": "cf-fuguetest-trail",
       "id": "CloudTrailLogging",
       "S3BucketName": "LoggingBucket"
+    }
+  }
+}
+
+test_resource_tags_01 {
+  cfn := yaml.unmarshal(`
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      Tags:
+        - Key: Stage
+          Value: Dev`)
+  rv := resource_view with input as cfn
+  rv == {
+    "VPC": {
+      "_type": "AWS::EC2::VPC",
+      "_provider": "aws",
+      "_tags": {"Stage": "Dev"},
+      "id": "VPC",
+      "CidrBlock": "10.0.0.0/16",
+      "Tags": [
+        {"Key": "Stage", "Value": "Dev"}
+      ]
+    }
+  }
+}
+
+test_resource_tags_02 {
+  cfn := yaml.unmarshal(`
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      Tags:
+        Stage: Dev`)
+  rv := resource_view with input as cfn
+  rv == {
+    "VPC": {
+      "_type": "AWS::EC2::VPC",
+      "_provider": "aws",
+      "_tags": {"Stage": "Dev"},
+      "id": "VPC",
+      "CidrBlock": "10.0.0.0/16",
+      "Tags": {"Stage": "Dev"},
     }
   }
 }

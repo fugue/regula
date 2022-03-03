@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_iam_password_reuse_4
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "IAM password policies should prevent reuse of the four previously used passwords. IAM password policies should prevent users from reusing any of their previous 4 passwords. Preventing password reuse increases account resiliency against brute force login attempts.",
@@ -35,7 +33,7 @@ exists_password_policy {
 }
 
 # Placeholder for missing a password policy from the input.
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   fugue.input_type == "tf_runtime"
@@ -54,4 +52,3 @@ policy[j] {
   not pol.password_reuse_prevention
   j = fugue.deny_resource(pol)
 }
-

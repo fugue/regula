@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,22 +15,22 @@
 package rules.arm_security_contact_notifications_enabled
 
 __rego__metadoc__ := {
-	"id": "FG_R00468",
-	"title": "Security Center 'Send email notification for high severity alerts' should be enabled",
-	"description": "Security Center email notifications ensure that the appropriate individuals in an organization are notified when issues occur, speeding up time to remediation. If using the Azure CLI or API, notifications are sent for \"high\" or greater severity alerts. If using the Azure Portal, users have the additional option of configuring the severity level.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.3.0": [
-				"CIS-Azure_v1.3.0_2.14"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.3.0": [
+        "CIS-Azure_v1.3.0_2.14"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "Security Center email notifications ensure that the appropriate individuals in an organization are notified when issues occur, speeding up time to remediation. If using the Azure CLI or API, notifications are sent for \"high\" or greater severity alerts. If using the Azure Portal, users have the additional option of configuring the severity level.",
+  "id": "FG_R00468",
+  "title": "Security Center 'Send email notification for high severity alerts' should be enabled"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.Security/securityContacts"
+resource_type := "Microsoft.Security/securityContacts"
 
 default allow = false
 

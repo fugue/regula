@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
 # This helper rego code works for Azure "no ingress" rules.
 # It is built on top of the terraform code that does the same,
 # through a simple conversion (`rule_to_tf`).
-package fugue.arm.network_security_group_library
+package arm.network_security_group_library
 
 import data.fugue
-import data.fugue.azure.network_security_group as tf
+import data.azurerm.network.inbound_port as tf
 
 rule_to_tf(arm_rule) = ret {
 	# We only pass in the attributes we actually use.
@@ -34,12 +34,12 @@ rule_to_tf(arm_rule) = ret {
 }
 
 rule_allows_anywhere_to_port(rule, bad_port) {
-	tf.rule_allows_anywhere_to_port(rule_to_tf(rule), bad_port)
+	tf.bad_inbound_rule(bad_port, rule_to_tf(rule))
 }
 
 group_allows_anywhere_to_port(group, bad_port) {
 	rule = group.properties.securityRules[_]
-	tf.rule_allows_anywhere_to_port(rule_to_tf(rule), bad_port)
+	tf.bad_inbound_rule(bad_port, rule_to_tf(rule))
 }
 
 no_inbound_anywhere_to_port_policy(port) = ret {

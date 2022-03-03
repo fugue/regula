@@ -5,6 +5,7 @@
       "google_sql_database_instance.default": {
         "_filepath": "tf_test/repeated-blocks/main.tf",
         "_provider": "google",
+        "_tags": {},
         "_type": "google_sql_database_instance",
         "database_version": "POSTGRES_11",
         "deletion_protection": false,

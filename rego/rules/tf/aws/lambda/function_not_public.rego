@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,10 +21,8 @@ import data.aws.lambda.permissions_library as lib
 # aws_lambda_permission
 # aws_lambda_function
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "Lambda function policies should not allow global access. Publicly accessible lambda functions may be runnable by anyone and could drive up your costs, disrupt your services, or leak your data.",
@@ -32,7 +30,7 @@ __rego__metadoc__ := {
   "title": "Lambda function policies should not allow global access"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 message = "Lambda function policies should not allow global access"
 
@@ -58,4 +56,3 @@ policy[j] {
   f = lib.funcs_by_key[k][_]
   j = fugue.deny_resource_with_message(f, message)
 }
-

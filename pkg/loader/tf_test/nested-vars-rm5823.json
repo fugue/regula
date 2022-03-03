@@ -5,6 +5,7 @@
       "aws_network_acl.main": {
         "_filepath": "tf_test/nested-vars-rm5823/main.tf",
         "_provider": "aws",
+        "_tags": {},
         "_type": "aws_network_acl",
         "egress": [
           {
@@ -30,6 +31,7 @@
       "aws_vpc.main": {
         "_filepath": "tf_test/nested-vars-rm5823/main.tf",
         "_provider": "aws",
+        "_tags": {},
         "_type": "aws_vpc",
         "cidr_block": "10.0.0.0/24",
         "id": "aws_vpc.main"

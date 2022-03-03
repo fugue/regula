@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,25 +15,25 @@
 package rules.arm_vm_data_disk_encryption
 
 import data.fugue
-import data.fugue.arm.disk_encryption_library as lib
+import data.arm.disk_encryption_library as lib
 
 __rego__metadoc__ := {
-	"id": "FG_R00196",
-	"title": "Virtual Machines data disks (non-boot volumes) should be encrypted",
-	"description": "Encrypting the IaaS VM's Data disks ensures that its entire content is fully unrecoverable without a key and thus protects the volume from unwarranted reads.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_7.2"
-			]
-		},
-		"severity": "High"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_7.2"
+      ]
+    },
+    "severity": "High"
+  },
+  "description": "Encrypting the IaaS VM's Data disks ensures that its entire content is fully unrecoverable without a key and thus protects the volume from unwarranted reads.",
+  "id": "FG_R00196",
+  "title": "Virtual Machines data disks (non-boot volumes) should be encrypted"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 disks[id] = disk {
 	disk := lib.disks[id]

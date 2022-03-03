@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,4 +43,3 @@ get_db_flag_with_default(db_instance, flag_name, default_value) = ret {
 } else = ret {
   ret = default_value
 }
-

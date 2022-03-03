@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ __rego__metadoc__ := {
   "title": "API Gateway classic custom domains should use secure TLS protocol versions (1.2 and above)"
 }
 
-input_type = "cfn"
-resource_type = "MULTIPLE"
+input_type := "cfn"
+resource_type := "MULTIPLE"
 
 domain_names = fugue.resources("AWS::ApiGateway::DomainName")
 serverless_apis = fugue.resources("AWS::Serverless::Api")

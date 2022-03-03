@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,18 +19,16 @@ package rules.tf_aws_security_groups_inbound_all_private
 import data.fugue
 import data.aws.security_groups.library
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
-  "description": "Security groups provide stateful filtering of ingress/egress network traffic to AWS resources. AWS recommends that no security groups explicitly allow inbound ports. ",
+  "description": "VPC security group inbound rules should not permit ingress from any address to all ports and protocols. Security groups provide stateful filtering of ingress/egress network traffic to AWS resources. AWS recommends that no security groups explicitly allow inbound ports.",
   "id": "FG_R00350",
   "title": "VPC security group inbound rules should not permit ingress from any address to all ports and protocols"
 }
 
-resource_type = "aws_security_group"
+resource_type := "aws_security_group"
 
 default deny = false
 
@@ -39,4 +37,3 @@ deny {
   not library.rule_self_only(b)
   library.rule_all_ports(b)
 }
-

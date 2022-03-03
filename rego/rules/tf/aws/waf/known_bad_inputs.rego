@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@ package rules.tf_aws_waf_known_bad_inputs
 
 import data.fugue
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Critical"
   },
   "description": "WAFv2 web ACLs should include the 'AWSManagedRulesKnownBadInputsRuleSet' managed rule group. The 'Known bad inputs' (AWSManagedRulesKnownBadInputsRuleSet) managed rule group contains rules that block request patterns that are invalid or known to be associated with vulnerabilities, such as Log4j. Please note that the 'Log4JRCE' WAFv2 rule (and many others) only inspects the first 8 KB of the request body, so you may additionally want to ensure that the 'Core rule set' (AWSManagedRulesCommonRuleSet) is also included, as the 'SizeRestrictions_BODY' rule in that managed rule group verifies that the request body size is at most 8 KB.",
@@ -28,7 +26,7 @@ __rego__metadoc__ := {
 
 wafsv2 = fugue.resources("aws_wafv2_web_acl")
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 valid_rule_names = {"AWSManagedRulesKnownBadInputsRuleSet"}
 valid_vendor_names = {"AWS"}
@@ -63,4 +61,3 @@ policy[j] {
   not is_valid_waf(waf)
   j = fugue.deny_resource(waf)
 }
-

@@ -14,14 +14,17 @@
 package fugue.resource_view.cloudformation
 
 import data.fugue.resource_view.terraform
+import data.fugue.resource_view.tags as tags_lib
 
 resource_view[id] = ret {
   resource := input.Resources[id]
   properties := rewrite_properties(object.get(resource, "Properties", {}))
+  tags := properties_tags(properties)
   ret := json.patch(properties, [
     {"op": "add", "path": ["id"], "value": id},
     {"op": "add", "path": ["_type"], "value": resource.Type},
     {"op": "add", "path": ["_provider"], "value": "aws"},
+    {"op": "add", "path": ["_tags"], "value": tags},
   ])
 }
 
@@ -100,4 +103,14 @@ attribute_references_1(attr) = ret {
     variable := template_vars[_]
     value := object.get(variables, variable, variable)
   ]
+}
+
+# Extracting tags from a resource.
+properties_tags(properties) = ret {
+  ret := object.union(
+    tags_lib.get_from_object(properties, "Tags"),
+    tags_lib.get_from_list(properties, "Tags", "Key", "Value"),
+  )
+} else = ret {
+  ret := {}
 }

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ package rules.tf_google_logging_audit_config_exemptions
 import data.fugue
 import data.google.logging.audit_config_library as lib
 
-
 __rego__metadoc__ := {
   "custom": {
     "controls": {
@@ -31,7 +30,7 @@ __rego__metadoc__ := {
   "title": "IAM default audit log config should not exempt any users"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 valid_audit_config_exemptions(audit_config) {
   # Check if all exempted_members are empty
@@ -59,4 +58,3 @@ policy[j] {
   count(lib.default_audit_config) == 0
   j = fugue.missing_resource_with_message(lib.audit_config_type, lib.missing_default_config_message)
 }
-

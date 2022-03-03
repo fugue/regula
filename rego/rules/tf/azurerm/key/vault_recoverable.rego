@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 package rules.tf_azurerm_key_vault_recoverable
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -31,7 +30,7 @@ __rego__metadoc__ := {
   "title": "Key Vault 'Enable Soft Delete' and 'Enable Purge Protection' should be enabled"
 }
 
-resource_type = "azurerm_key_vault"
+resource_type := "azurerm_key_vault"
 
 default allow = false
 
@@ -39,4 +38,3 @@ allow {
   input.purge_protection_enabled == true
   input.soft_delete_enabled == true
 }
-

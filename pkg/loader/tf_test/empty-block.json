@@ -5,6 +5,7 @@
       "google_compute_instance.test": {
         "_filepath": "tf_test/empty-block/main.tf",
         "_provider": "google",
+        "_tags": {},
         "_type": "google_compute_instance",
         "boot_disk": [
           {

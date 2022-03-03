@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@ package rules.tf_aws_rds_delete_protection_enabled
 
 import data.fugue
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "RDS instance 'Deletion Protection' should be enabled. Enabling deletion protection ensures that any user or anonymous user can't accidentally or intentionally delete your database.",
@@ -26,11 +24,10 @@ __rego__metadoc__ := {
   "title": "RDS instance 'Deletion Protection' should be enabled"
 }
 
-resource_type = "aws_db_instance"
+resource_type := "aws_db_instance"
 
 default allow = false
 
 allow {
   input.deletion_protection == true
 }
-

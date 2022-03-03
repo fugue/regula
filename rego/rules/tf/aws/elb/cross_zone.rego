@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_elb_cross_zone
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "ELBv1 load balancer cross zone load balancing should be enabled. Having Availability Zone with the Cross-Zone Load Balancing feature enabled for the VPC reduces the risk of failure at a single location as the AWS Elastic Load Balancers distribute the traffic to the other locations.",
@@ -29,7 +27,7 @@ __rego__metadoc__ := {
 
 elbs = fugue.resources("aws_elb")
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   elbs[_] = obj
@@ -40,4 +38,3 @@ policy[j] {
   not obj.cross_zone_load_balancing
   j = fugue.deny_resource(obj)
 }
-

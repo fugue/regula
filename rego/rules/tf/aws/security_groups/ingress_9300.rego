@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@ import data.aws.security_groups.library
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "VPC security group rules should not permit ingress from '0.0.0.0/0' to TCP/UDP port 9300 (Elasticsearch). Removing unfettered connectivity to an Elasticsearch server reduces the chance of exposing critical data.",
@@ -30,7 +28,7 @@ __rego__metadoc__ := {
 
 security_groups = fugue.resources("aws_security_group")
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   sg = security_groups[_]
@@ -41,4 +39,3 @@ policy[j] {
   not library.security_group_ingress_zero_cidr_to_port(sg, 9300)
   j = fugue.allow_resource(sg)
 }
-

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_google_compute_block_project_ssh_keys
 
 import data.fugue
 import data.google.compute.compute_instance_library as lib
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -34,7 +33,7 @@ __rego__metadoc__ := {
   "title": "Compute instance 'block-project-ssh-keys' should be enabled"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 compute_instances = fugue.resources("google_compute_instance")
 
@@ -53,4 +52,3 @@ policy[j] {
   not lib.get_metadata_with_default(instance, "block-project-ssh-keys", false)
   j = fugue.deny_resource(instance)
 }
-

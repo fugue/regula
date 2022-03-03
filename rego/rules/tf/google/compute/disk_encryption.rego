@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_google_compute_disk_encryption
 
 import data.fugue
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -33,7 +32,7 @@ __rego__metadoc__ := {
   "title": "Compute instance disks should be encrypted with customer-supplied encryption keys (CSEKs)"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 compute_instances = fugue.resources("google_compute_instance")
 
@@ -70,4 +69,3 @@ policy[j] {
   message = sprintf(base_message, [concat(", ", disk_names)])
   j = fugue.deny_resource_with_message(instance, message)
 }
-

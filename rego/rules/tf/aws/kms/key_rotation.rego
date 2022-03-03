@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
 # limitations under the License.
 package rules.tf_aws_kms_key_rotation
 
+import data.fugue
+
+
 __rego__metadoc__ := {
-  "id": "FG_R00036",
-  "title": "KMS CMK rotation should be enabled",
-  "description": "KMS CMK rotation should be enabled. It is recommended that users enable rotation for the customer created AWS Customer Master Key (CMK). Rotating encryption keys helps reduce the potential impact of a compromised key as users cannot use the old key to access the data.",
   "custom": {
     "controls": {
       "CIS-AWS_v1.2.0": [
@@ -24,13 +24,19 @@ __rego__metadoc__ := {
       ],
       "CIS-AWS_v1.3.0": [
         "CIS-AWS_v1.3.0_3.8"
+      ],
+      "CIS-AWS_v1.4.0": [
+        "CIS-AWS_v1.4.0_3.8"
       ]
     },
     "severity": "Medium"
-  }
+  },
+  "description": "KMS CMK rotation should be enabled. It is recommended that users enable rotation for the customer created AWS Customer Master Key (CMK). Rotating encryption keys helps reduce the potential impact of a compromised key as users cannot use the old key to access the data.",
+  "id": "FG_R00036",
+  "title": "KMS CMK rotation should be enabled"
 }
 
-resource_type = "aws_kms_key"
+resource_type := "aws_kms_key"
 
 deny[msg] {
   not input.enable_key_rotation

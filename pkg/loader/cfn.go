@@ -39,7 +39,7 @@ func (c *CfnDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurat
 	}
 
 	template := &cfnTemplate{}
-	if err := yaml.Unmarshal(contents, &template); err != nil {
+	if err := yaml.Unmarshal(contents, &template); err != nil || template == nil {
 		return nil, fmt.Errorf("Failed to parse file as YAML or JSON %v: %v", i.Path(), err)
 	}
 	_, hasTemplateFormatVersion := template.Contents["AWSTemplateFormatVersion"]

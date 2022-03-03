@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_google_storage_not_public
 
 import data.fugue
 import data.google.storage.bucket_policy_library as lib
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -34,7 +33,7 @@ __rego__metadoc__ := {
   "title": "Storage buckets should not be anonymously or publicly accessible"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 buckets = fugue.resources("google_storage_bucket")
 
@@ -56,4 +55,3 @@ policy[j] {
   has_public_access(bucket)
   j = fugue.deny_resource(bucket)
 }
-

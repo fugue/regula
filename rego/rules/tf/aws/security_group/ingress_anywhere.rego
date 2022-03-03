@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,35 +13,35 @@
 # limitations under the License.
 package rules.tf_aws_security_group_ingress_anywhere
 
-import data.fugue.regula.aws.security_group as sglib
+import data.aws.security_groups.library as sglib
 
 __rego__metadoc__ := {
-  "id": "FG_R00377",
-  "title": "VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443",
-  "description": "VPC firewall rules should not permit unrestricted access from the internet, with the exception of port 80 (HTTP) and port 443 (HTTPS). Web applications or APIs generally need to be publicly accessible.",
   "custom": {
     "severity": "Medium"
-  }
+  },
+  "description": "VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443. VPC firewall rules should not permit unrestricted access from the internet, with the exception of port 80 (HTTP) and port 443 (HTTPS). Web applications or APIs generally need to be publicly accessible.",
+  "id": "FG_R00377",
+  "title": "VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443"
 }
 
-resource_type = "aws_security_group"
+resource_type := "aws_security_group"
 
 whitelisted_ports = {80, 443}
 
-whitelisted_ingress_block(block) {
-  block.from_port == block.to_port
-  whitelisted_ports[block.from_port]
+whitelisted_ingress_rule(rule) {
+  rule.from_port == rule.to_port
+  whitelisted_ports[rule.from_port]
 }
 
-bad_ingress_block(block) {
-  sglib.ingress_zero_cidr(block)
-  not sglib.ingress_self_only(block)
-  not whitelisted_ingress_block(block)
+bad_ingress_rule(rule) {
+  sglib.rule_zero_cidr(rule)
+  not sglib.rule_self_only(rule)
+  not whitelisted_ingress_rule(rule)
 }
 
 default deny = false
 
 deny {
-  block = input.ingress[_]
-  bad_ingress_block(block)
+  rule = input.ingress[_]
+  bad_ingress_rule(rule)
 }

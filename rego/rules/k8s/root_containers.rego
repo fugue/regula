@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,22 +23,17 @@ import data.k8s
 # level securityContext is applied if container overrides are not present.
 
 __rego__metadoc__ := {
-	"id": "FG_R00490",
-	"title": "Pods should not run containers as the root user",
-	"description": "Pods should not run containers as the root user. Running as a non-root user helps ensure that an attacker does not gain root privileges to the host system in the event of a container breakout.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.2.6"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pods should not run containers as the root user. Running as a non-root user helps ensure that an attacker does not gain root privileges to the host system in the event of a container breakout.",
+  "id": "FG_R00490",
+  "title": "Pods should not run containers as the root user"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 # Determines the value of "runAsNonRoot" that is in effect for a container.
 # Defaults to false if the value is not explicitly set.

@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,18 +17,17 @@ package rules.arm_network_flow_log_retention
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00286",
-	"title": "Virtual Network security group flow log retention period should be set to 90 days or greater",
-	"description": "Flow logs enable capturing information about IP traffic flowing in and out of network security groups. Logs can be used to check for anomalies and give insight into suspected breaches.",
-	"custom": {
-		"controls": {},
-		"severity": "Medium",
-	},
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Flow logs enable capturing information about IP traffic flowing in and out of network security groups. Logs can be used to check for anomalies and give insight into suspected breaches.",
+  "id": "FG_R00286",
+  "title": "Virtual Network security group flow log retention period should be set to 90 days or greater"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 network_security_groups = fugue.resources("Microsoft.Network/networkSecurityGroups")
 

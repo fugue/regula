@@ -5,6 +5,7 @@
       "aws_s3_bucket.foo": {
         "_filepath": "tf_test/null-count/main.tf",
         "_provider": "aws",
+        "_tags": {},
         "_type": "aws_s3_bucket",
         "bucket": "mybucket-0",
         "count": null,

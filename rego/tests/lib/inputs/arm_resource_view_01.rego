@@ -16,49 +16,39 @@ package tests.lib.inputs.arm_resource_view_01
 import data.fugue.resource_view.resource_view_input
 
 mock_input := ret {
-  ret = resource_view_input with input as mock_config
+	ret = resource_view_input with input as mock_config
 }
+
 mock_resources := mock_input.resources
+
 mock_config := {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "resources": [
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2018-10-01",
-      "name": "VNet1",
-      "location": "switzerlandnorth",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "10.0.0.0/16"
-          ]
-        }
-      },
-      "resources": [
-        {
-          "type": "subnets",
-          "apiVersion": "2018-10-01",
-          "name": "Subnet1",
-          "dependsOn": [
-            "VNet1"
-          ],
-          "properties": {
-            "addressPrefix": "10.0.0.0/24"
-          }
-        }
-      ]
-    },
-    {
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "apiVersion": "2018-10-01",
-      "name": "VNet1/Subnet2",
-      "dependsOn": [
-        "VNet1"
-      ],
-      "properties": {
-        "addressPrefix": "10.0.1.0/24"
-      }
-    }
-  ]
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"resources": [
+		{
+			"type": "Microsoft.Network/virtualNetworks",
+			"apiVersion": "2018-10-01",
+			"name": "VNet1",
+			"location": "switzerlandnorth",
+			"properties": {"addressSpace": {"addressPrefixes": ["10.0.0.0/16"]}},
+			"tags": {
+				"Dept": "Finance",
+				"Environment": "Production",
+			},
+			"resources": [{
+				"type": "subnets",
+				"apiVersion": "2018-10-01",
+				"name": "Subnet1",
+				"dependsOn": ["VNet1"],
+				"properties": {"addressPrefix": "10.0.0.0/24"},
+			}],
+		},
+		{
+			"type": "Microsoft.Network/virtualNetworks/subnets",
+			"apiVersion": "2018-10-01",
+			"name": "VNet1/Subnet2",
+			"dependsOn": ["VNet1"],
+			"properties": {"addressPrefix": "10.0.1.0/24"},
+		},
+	],
 }

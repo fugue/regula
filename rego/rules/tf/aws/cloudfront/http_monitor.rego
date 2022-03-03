@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_cloudfront_http_monitor
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "CloudFront distributions should be protected by WAFs. WAF should be deployed on CloudFront distributions to protect web applications from common web exploits that could affect application availability, compromise security, or consume excessive resources.",
@@ -27,11 +25,10 @@ __rego__metadoc__ := {
   "title": "CloudFront distributions should be protected by WAFs"
 }
 
-resource_type = "aws_cloudfront_distribution"
+resource_type := "aws_cloudfront_distribution"
 
 default allow = false
 
 allow {
   input.web_acl_id != ""
 }
-

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00479",
-	"title": "The 'cluster-admin' role should not be used",
-	"description": "The 'cluster-admin' role should not be used. The 'cluster-admin' role comes with super-user level access which can be used to manipulate all resources in the cluster. Avoid using this role unless it's absolutely necessary.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.1.1"
-			]
-		},
-		"severity": "High"
-	}
+  "custom": {
+    "severity": "High"
+  },
+  "description": "The 'cluster-admin' role should not be used. The 'cluster-admin' role comes with super-user level access which can be used to manipulate all resources in the cluster. Avoid using this role unless it's absolutely necessary.",
+  "id": "FG_R00479",
+  "title": "The 'cluster-admin' role should not be used"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 is_invalid(resource) {
 	resource.roleRef.name == "cluster-admin"

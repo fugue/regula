@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_azurerm_postgresql_configuration_log_retention_days
 
 import data.azurerm.postgresql.configuration
 import data.fugue
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -44,7 +43,7 @@ valid_configuration(server) {
   not configuration.configuration_value(server, "log_retention_days")
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[p] {
   server = postgresql_servers[_]
@@ -55,4 +54,3 @@ policy[p] {
   not valid_configuration(server)
   p = fugue.deny_resource(server)
 }
-

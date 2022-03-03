@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_aws_vpc_default_security_group
 
 import data.fugue
-
 
 
 __rego__metadoc__ := {
@@ -37,7 +36,7 @@ __rego__metadoc__ := {
   "title": "VPC default security group should restrict all traffic"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   vpcs[id] = vpc
@@ -110,4 +109,3 @@ restricts_egress_traffic(sg) {
   eg = sg.egress[_]
   eg.cidr_blocks == ["127.0.0.1/32"]
 }
-

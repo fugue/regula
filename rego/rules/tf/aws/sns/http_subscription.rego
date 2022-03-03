@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_sns_http_subscription
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "SNS subscriptions should deny access via HTTP. SNS subscriptions should not use HTTP as the delivery protocol. To enforce encryption in transit, any subscription to an HTTP endpoint should use HTTPS instead.",
@@ -34,7 +32,7 @@ invalid_topic_subscriptions[id] = topic_subscription {
   topic_subscription.protocol == "http"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   invalid_topic_subscriptions[id] = sub
@@ -44,4 +42,3 @@ policy[j] {
   not invalid_topic_subscriptions[id]
   j = fugue.allow_resource(sub)
 }
-

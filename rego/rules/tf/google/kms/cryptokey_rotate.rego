@@ -1,4 +1,4 @@
-# Copyright 2020 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 package rules.tf_google_kms_cryptokey_rotate
 
 __rego__metadoc__ := {
-  "id": "FG_R00378",
-  "title": "KMS keys should be rotated every 90 days or less",
-  "description": "KMS keys should be rotated frequently because rotation helps reduce the potential impact of a compromised key as users cannot use the old key to access the data.",
   "custom": {
     "controls": {
       "CIS-Google_v1.1.0": [
@@ -26,10 +23,13 @@ __rego__metadoc__ := {
       ]
     },
     "severity": "Medium"
-  }
+  },
+  "description": "KMS keys should be rotated frequently because rotation helps reduce the potential impact of a compromised key as users cannot use the old key to access the data.",
+  "id": "FG_R00378",
+  "title": "KMS keys should be rotated every 90 days or less"
 }
 
-resource_type = "google_kms_crypto_key"
+resource_type := "google_kms_crypto_key"
 
 default allow = false
 

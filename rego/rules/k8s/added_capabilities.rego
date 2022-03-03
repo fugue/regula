@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00492",
-	"title": "Pods should not run containers with added capabilities",
-	"description": "Pods should not run containers with added capabilities. Adding capabilities beyond the default set increases the risk of container breakout attacks. In most cases, applications are able to operate normally with all Linux capabilities dropped, or with the default set of capabilities.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.2.8"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pods should not run containers with added capabilities. Adding capabilities beyond the default set increases the risk of container breakout attacks. In most cases, applications are able to operate normally with all Linux capabilities dropped, or with the default set of capabilities.",
+  "id": "FG_R00492",
+  "title": "Pods should not run containers with added capabilities"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 is_invalid(obj) {
 	count(k8s.added_capabilities(obj.containers[_])) > 0

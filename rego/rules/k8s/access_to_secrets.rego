@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00480",
-	"title": "Roles and cluster roles should not grant 'get', 'list', or 'watch' permissions for secrets",
-	"description": "Roles and cluster roles should not grant 'get', 'list', or 'watch' permissions for secrets. RBAC resources in Kubernetes are used to grant access to get, list, and watch secrets on the Kubernetes API. Restrict use of these permissions to the smallest set of users and service accounts as possible.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.1.2"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Roles and cluster roles should not grant 'get', 'list', or 'watch' permissions for secrets. RBAC resources in Kubernetes are used to grant access to get, list, and watch secrets on the Kubernetes API. Restrict use of these permissions to the smallest set of users and service accounts as possible.",
+  "id": "FG_R00480",
+  "title": "Roles and cluster roles should not grant 'get', 'list', or 'watch' permissions for secrets"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 match_verbs = {"get", "list", "watch"}
 

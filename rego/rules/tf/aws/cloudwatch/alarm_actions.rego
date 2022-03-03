@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@ package rules.tf_aws_cloudwatch_alarm_actions
 
 import data.fugue.utils
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "CloudWatch alarms should have at least one alarm action, one INSUFFICIENT_DATA action, or one OK action enabled. AWS can invoke an action when a metric alarm changes state. For example, you can configure CloudWatch to send an SNS notification when an EC2 instance's CPU usage exceeds a certain threshold, alerting you to potentially anomalous activity.",
@@ -26,7 +24,7 @@ __rego__metadoc__ := {
   "title": "CloudWatch alarms should have at least one alarm action, one INSUFFICIENT_DATA action, or one OK action enabled"
 }
 
-resource_type = "aws_cloudwatch_metric_alarm"
+resource_type := "aws_cloudwatch_metric_alarm"
 
 default allow = false
 
@@ -40,4 +38,3 @@ allow {
   input.ok_actions != null
   count(utils.as_array(input.ok_actions)) > 0
 }
-

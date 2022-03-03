@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_rds_multi_az
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "Require Multi Availability Zones turned on for RDS Instances. Provisioning multi-AZ RDS instances provides enhanced availability and durability in case of AZ failure.",
@@ -47,7 +45,7 @@ bad_instance(dbi) = "The RDS database engine must support multiple availability 
   not dbi.multi_az
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   dbi = db_instances[_]
@@ -58,4 +56,3 @@ policy[j] {
   not bad_instance(dbi)
   j = fugue.allow_resource(dbi)
 }
-

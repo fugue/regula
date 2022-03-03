@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,22 +17,17 @@ package rules.k8s_default_namespace_use
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00497",
-	"title": "The default namespace should not be used",
-	"description": "The default namespace should not be used. Kubernetes cluster resources should be segregated by namespace to support security controls and resource management.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.7.4"
-			]
-		},
-		"severity": "Low"
-	}
+  "custom": {
+    "severity": "Low"
+  },
+  "description": "The default namespace should not be used. Kubernetes cluster resources should be segregated by namespace to support security controls and resource management.",
+  "id": "FG_R00497",
+  "title": "The default namespace should not be used"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 namespaced_kinds = {
 	"ConfigMap",

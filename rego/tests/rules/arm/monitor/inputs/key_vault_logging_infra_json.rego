@@ -43,7 +43,7 @@ mock_config := {
     },
     {
       "apiVersion": "2021-04-01-preview",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "name": "valid",
       "properties": {
         "accessPolicies": [
@@ -68,7 +68,7 @@ mock_config := {
     {
       "apiVersion": "2021-05-01-preview",
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+        "[resourceId('Microsoft.KeyVault/vaults', 'valid')]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ],
       "name": "valid",
@@ -90,7 +90,7 @@ mock_config := {
     },
     {
       "apiVersion": "2021-04-01-preview",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "name": "invalidNoRetention",
       "properties": {
         "accessPolicies": [
@@ -115,7 +115,7 @@ mock_config := {
     {
       "apiVersion": "2021-05-01-preview",
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+        "[resourceId('Microsoft.KeyVault/vaults', 'invalidNoRetention')]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ],
       "name": "invalidNoRetention",
@@ -136,7 +136,7 @@ mock_config := {
     },
     {
       "apiVersion": "2021-04-01-preview",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "name": "invalidNoDiagnostics",
       "properties": {
         "accessPolicies": [

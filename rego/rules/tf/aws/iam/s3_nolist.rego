@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_iam_s3_nolist
 import data.fugue
 import data.aws.iam.policy_document_library as lib
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "IAM policies should not allow broad list actions on S3 buckets. Should a malicious actor gain access to a role with a policy that includes broad list actions such as ListAllMyBuckets, the malicious actor would be able to enumerate all buckets and potentially extract sensitive data.",
@@ -90,7 +88,7 @@ is_bad_resource(r) {
 }
 
 # Judge policies and bad policies. We exclude AWS-managed IAM policies from denied resources.
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   pol = bad_policies[id]
@@ -164,4 +162,3 @@ policy[j] {
 
 # Utility: turns anything into an array, if it's not an array already.
 as_array(x) = [x] {not is_array(x)} else = x {true}
-

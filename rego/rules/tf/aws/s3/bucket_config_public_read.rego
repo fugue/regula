@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,10 +23,8 @@ import data.aws.iam.policy_document_library as doclib
 # aws_s3_bucket
 # aws_s3_bucket_policy
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "S3 bucket policies and ACLs should not be configured for public read access. It is a security risk for a bucket to have an ACL or bucket policy that is configured for public read access, even if the bucket itself is not currently public. A bucket configured for public read access can potentially be made public, allowing any AWS user or anonymous user to access the data in it.",
@@ -34,7 +32,7 @@ __rego__metadoc__ := {
   "title": "S3 bucket policies and ACLs should not be configured for public read access"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 base_message = "S3 buckets should not be configured for public access:"
 
@@ -117,4 +115,3 @@ policy[j] {
 
 # Utility: turns anything into an array, if it's not an array already.
 as_array(x) = [x] {not is_array(x)} else = x {true}
-

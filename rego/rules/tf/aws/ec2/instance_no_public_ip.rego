@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
 # limitations under the License.
 package rules.tf_aws_ec2_instance_no_public_ip
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "EC2 instances should not have a public IP association (IPv4). Publicly accessible EC2 instances are reachable over the internet even if you have protections such as NACLs or security groups. If these protections are accidentally removed your instances may be vulnerable to attack.",
@@ -24,7 +22,7 @@ __rego__metadoc__ := {
   "title": "EC2 instances should not have a public IP association (IPv4)"
 }
 
-resource_type = "aws_instance"
+resource_type := "aws_instance"
 
 default deny = false
 
@@ -34,4 +32,3 @@ deny {
 } {
   input.associate_public_ip_address == true
 }
-

@@ -84,6 +84,7 @@ const (
 	None
 	Text
 	Compact
+	Sarif
 )
 
 var FormatIDs = map[Format][]string{
@@ -94,6 +95,7 @@ var FormatIDs = map[Format][]string{
 	None:    {"none"},
 	Text:    {"text"},
 	Compact: {"compact"},
+	Sarif:   {"sarif"},
 }
 
 var DefaultFormat = FormatIDs[Text][0]
@@ -341,22 +343,23 @@ func (o RegulaReport) FailuresByRule() ResultsByRule {
 }
 
 type RuleResult struct {
-	Controls           []string `json:"controls"`
-	Families           []string `json:"families"`
-	Filepath           string   `json:"filepath"`
-	InputType          string   `json:"input_type"`
-	Provider           string   `json:"provider"`
-	ResourceID         string   `json:"resource_id"`
-	ResourceType       string   `json:"resource_type"`
-	RuleDescription    string   `json:"rule_description"`
-	RuleID             string   `json:"rule_id"`
-	RuleMessage        string   `json:"rule_message"`
-	RuleName           string   `json:"rule_name"`
-	RuleRawResult      bool     `json:"rule_raw_result"`
-	RuleRemediationDoc string   `json:"rule_remediation_doc,omitempty"`
-	RuleResult         string   `json:"rule_result"`
-	RuleSeverity       string   `json:"rule_severity"`
-	RuleSummary        string   `json:"rule_summary"`
+	Controls           []string          `json:"controls"`
+	Families           []string          `json:"families"`
+	Filepath           string            `json:"filepath"`
+	InputType          string            `json:"input_type"`
+	Provider           string            `json:"provider"`
+	ResourceID         string            `json:"resource_id"`
+	ResourceType       string            `json:"resource_type"`
+	ResourceTags       map[string]string `json:"resource_tags"`
+	RuleDescription    string            `json:"rule_description"`
+	RuleID             string            `json:"rule_id"`
+	RuleMessage        string            `json:"rule_message"`
+	RuleName           string            `json:"rule_name"`
+	RuleRawResult      bool              `json:"rule_raw_result"`
+	RuleRemediationDoc string            `json:"rule_remediation_doc,omitempty"`
+	RuleResult         string            `json:"rule_result"`
+	RuleSeverity       string            `json:"rule_severity"`
+	RuleSummary        string            `json:"rule_summary"`
 	// List of source code locations this rule result pertains to.  The first
 	// element of the list always refers to the most specific source code site,
 	// and further elements indicate modules in which this was included, like

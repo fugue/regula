@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 package rules.tf_google_storage_uniform_access
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -31,11 +30,10 @@ __rego__metadoc__ := {
   "title": "Storage bucket uniform access control should be enabled"
 }
 
-resource_type = "google_storage_bucket"
+resource_type := "google_storage_bucket"
 
 default allow = false
 
 allow {
   input.uniform_bucket_level_access == true
 }
-

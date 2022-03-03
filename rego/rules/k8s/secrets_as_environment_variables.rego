@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ import data.fugue
 import data.k8s
 
 __rego__metadoc__ := {
-	"id": "FG_R00494",
-	"title": "Pods should not use secrets stored in environment variables",
-	"description": "Pods should not use secrets stored in environment variables. Providing access to secrets via volume mounts is preferred. Any secrets stored in environment variables could be exposed if the environment is logged or otherwise exposed by an application.",
-	"custom": {
-		"controls": {
-			"CIS-Kubernetes_v1.6.1": [
-				"CIS-Kubernetes_v1.6.1_5.4.1"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "severity": "Medium"
+  },
+  "description": "Pods should not use secrets stored in environment variables. Providing access to secrets via volume mounts is preferred. Any secrets stored in environment variables could be exposed if the environment is logged or otherwise exposed by an application.",
+  "id": "FG_R00494",
+  "title": "Pods should not use secrets stored in environment variables"
 }
 
-input_type = "k8s"
+input_type := "k8s"
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 has_secret_key_ref(template) {
 	ref := template.spec.containers[_].env[_].valueFrom.secretKeyRef

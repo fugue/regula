@@ -34,9 +34,17 @@ expected = {
 		"_parent_id": null,
 		"name": "VNet1",
 		"id": "Microsoft.Network/virtualNetworks/VNet1",
+		"tags": {
+			"Dept": "Finance",
+			"Environment": "Production",
+		},
 		"type": "Microsoft.Network/virtualNetworks",
 		"_provider": "azurerm",
 		"properties": {"addressSpace": {"addressPrefixes": ["10.0.0.0/16"]}},
+		"_tags": {
+			"Dept": "Finance",
+			"Environment": "Production",
+		},
 	},
 	"Microsoft.Network/virtualNetworks/VNet1/subnets/Subnet2": {
 		"_type": "Microsoft.Network/virtualNetworks/subnets",
@@ -48,6 +56,7 @@ expected = {
 		"type": "Microsoft.Network/virtualNetworks/subnets",
 		"_provider": "azurerm",
 		"properties": {"addressPrefix": "10.0.1.0/24"},
+		"_tags": {},
 	},
 	"Microsoft.Network/virtualNetworks/VNet1/subnets/Subnet1": {
 		"_type": "Microsoft.Network/virtualNetworks/subnets",
@@ -59,5 +68,6 @@ expected = {
 		"type": "subnets",
 		"_provider": "azurerm",
 		"properties": {"addressPrefix": "10.0.0.0/24"},
+		"_tags": {},
 	},
 }

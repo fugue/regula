@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
 # limitations under the License.
 package rules.tf_aws_cloudtrail_management_events
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "CloudTrail trails should be configured to log management events. Management events provide visibility into management operations that are performed on resources in your AWS account. Management events can also include non-API events that occur in your account. For example, when a user logs in to your account, CloudTrail logs the ConsoleLogin event. CloudTrail logging enables security analysis, resource change tracking, and compliance auditing.",
@@ -24,11 +22,10 @@ __rego__metadoc__ := {
   "title": "CloudTrail trails should be configured to log management events"
 }
 
-resource_type = "aws_cloudtrail"
+resource_type := "aws_cloudtrail"
 
 default deny = false
 
 deny {
   input.event_selector[_].include_management_events == false
 }
-

@@ -43,6 +43,7 @@ test_resource_view {
       "id": "aws_ebs_volume.bad",
       "_type": "aws_ebs_volume",
       "_provider": "aws",
+      "_tags": {},
       "availability_zone": "us-west-2a",
       "size": 8,
       "tags": null

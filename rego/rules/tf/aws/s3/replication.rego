@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
 # limitations under the License.
 package rules.tf_aws_s3_replication
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "S3 bucket replication (cross-region or same-region) should be enabled. Cross-Region S3 replication can help with meeting compliance requirements, minimizing latency, and increasing operational efficiency. Same-Region S3 replication can help with aggregating logs and compliance with data sovereignty laws.",
@@ -24,11 +22,10 @@ __rego__metadoc__ := {
   "title": "S3 bucket replication (cross-region or same-region) should be enabled"
 }
 
-resource_type = "aws_s3_bucket"
+resource_type := "aws_s3_bucket"
 
 default allow = false
 
 allow {
   _ = input.replication_configuration[_]
 }
-

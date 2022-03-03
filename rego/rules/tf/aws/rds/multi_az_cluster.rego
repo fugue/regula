@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@ package rules.tf_aws_rds_multi_az_cluster
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "Medium"
   },
   "description": "RDS Aurora cluster multi-AZ should be enabled. An Aurora cluster in a Multi-AZ (availability zone) deployment provides enhanced availability and durability of data. When an Aurora cluster is provisioned, Amazon creates a primary DB instance and replicates the data to a Aurora replica in another availability zone.",
@@ -87,7 +85,7 @@ bad_cluster(rdsc) {
   not iac_good_cluster(rdsc)
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   rdsc = rds_clusters[_]
@@ -98,4 +96,3 @@ policy[j] {
   not bad_cluster(rdsc)
   j = fugue.allow_resource(rdsc)
 }
-

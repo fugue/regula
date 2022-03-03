@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@ package rules.tf_azurerm_sql_auditing_retention_90days
 
 import data.fugue
 import data.fugue.utils
-
 
 __rego__metadoc__ := {
   "custom": {
@@ -70,7 +69,7 @@ valid_database(database) {
   valid_server(server_by_name_or_id(server_name))
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[p] {
   server = servers[_]
@@ -89,4 +88,3 @@ policy[p] {
   not valid_database(database)
   p = fugue.deny_resource(database)
 }
-

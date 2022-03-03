@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 package rules.tf_azurerm_postgresql_no_inbound_azure_all_postgresql
 
 import data.fugue
-
 
 
 __rego__metadoc__ := {
@@ -39,7 +38,7 @@ invalid_address(firewall_rule) {
   firewall_rule.end_ip_address == "0.0.0.0"
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   firewall_rule = firewall_rules[_]
@@ -50,4 +49,3 @@ policy[j] {
   not invalid_address(firewall_rule)
   j = fugue.allow_resource(firewall_rule)
 }
-

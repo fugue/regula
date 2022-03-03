@@ -1,4 +1,4 @@
-# Copyright 2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,22 +17,22 @@ package rules.arm_monitor_log_profile_all_categories
 import data.fugue
 
 __rego__metadoc__ := {
-	"id": "FG_R00341",
-	"title": "Monitor audit profile should log all activities",
-	"description": "The log profile should be configured to export all activities from the control/management plane. A log profile controls how the activity log is exported. Configuring the log profile to collect logs for the categories \"write\", \"delete\" and \"action\" ensures that all the control/management plane activities performed on the subscription are exported.",
-	"custom": {
-		"controls": {
-			"CIS-Azure_v1.1.0": [
-				"CIS-Azure_v1.1.0_5.1.3"
-			]
-		},
-		"severity": "Medium"
-	}
+  "custom": {
+    "controls": {
+      "CIS-Azure_v1.1.0": [
+        "CIS-Azure_v1.1.0_5.1.3"
+      ]
+    },
+    "severity": "Medium"
+  },
+  "description": "The log profile should be configured to export all activities from the control/management plane. A log profile controls how the activity log is exported. Configuring the log profile to collect logs for the categories \"write\", \"delete\" and \"action\" ensures that all the control/management plane activities performed on the subscription are exported.",
+  "id": "FG_R00341",
+  "title": "Monitor audit profile should log all activities"
 }
 
-input_type = "arm"
+input_type := "arm"
 
-resource_type = "Microsoft.Insights/logprofiles"
+resource_type := "Microsoft.Insights/logprofiles"
 
 required_categories := {"write", "delete", "action"}
 

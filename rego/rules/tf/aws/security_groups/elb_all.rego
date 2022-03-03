@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Fugue, Inc.
+# Copyright 2020-2022 Fugue, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@ import data.aws.security_groups.library
 import data.fugue
 
 
-
 __rego__metadoc__ := {
   "custom": {
-    "controls": {},
     "severity": "High"
   },
   "description": "ELB listener security groups should not be set to TCP all. ELB security groups should permit access only to necessary ports to prevent access to potentially vulnerable services on other ports.",
@@ -32,7 +30,7 @@ invalid_security_group(sg) {
   library.rule_all_ports(sg.ingress[_])
 }
 
-resource_type = "MULTIPLE"
+resource_type := "MULTIPLE"
 
 policy[j] {
   sg = library.load_balancer_security_groups[_]
@@ -43,4 +41,3 @@ policy[j] {
   not invalid_security_group(sg)
   j = fugue.allow_resource(sg)
 }
-

@@ -47,3 +47,41 @@ resource "aws_launch_template" "example" {
   image_id      = "ami-1a2b3c"
   instance_type = "t2.micro"
 }
+
+provider "google" {
+}
+
+resource "google_storage_bucket" "example" {
+  provider = google
+  name     = "example"
+  location = "US"
+  labels   = {
+    Stage = "Prod"
+  }
+}
+
+resource "google_compute_instance" "default" {
+  name         = "test"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  tags = ["foo", "bar"]
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+  scratch_disk {
+    interface = "SCSI"
+  }
+
+  network_interface {
+    network = "default"
+
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+}

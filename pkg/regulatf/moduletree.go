@@ -197,7 +197,8 @@ func moduleIsLocal(source string) bool {
 
 type Visitor interface {
 	VisitModule(name ModuleName, meta *ModuleMeta)
-	VisitResource(name FullName, resource *ResourceMeta)
+	EnterResource(name FullName, resource *ResourceMeta)
+	LeaveResource()
 	VisitBlock(name FullName)
 	VisitExpr(name FullName, expr hcl.Expression)
 }
@@ -258,17 +259,19 @@ func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, 
 		name = name.AddKey("data")
 	}
 	name = name.AddKey(resource.Type).AddKey(resource.Name)
+	haveCount := resource.Count != nil
 
 	resourceMeta := &ResourceMeta{
 		Data:     isDataResource,
 		Provider: resource.Provider.Type,
 		Type:     resource.Type,
 		Location: resource.DeclRange,
-		Count:    resource.Count != nil,
+		Count:    haveCount,
 	}
-	v.VisitResource(name, resourceMeta)
+	v.EnterResource(name, resourceMeta)
 
-	if resource.Count != nil {
+	if haveCount {
+		name = name.AddIndex(0)
 		v.VisitExpr(name.AddKey("count"), resource.Count)
 	}
 
@@ -279,6 +282,7 @@ func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, 
 	}
 
 	walkBlock(v, name, body)
+	v.LeaveResource()
 }
 
 func walkBlock(v Visitor, name FullName, body *hclsyntax.Body) {

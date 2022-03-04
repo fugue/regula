@@ -2,6 +2,8 @@
 package regulatf
 
 import (
+	"strings"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/zclconf/go-cty/cty"
@@ -12,18 +14,35 @@ import (
 )
 
 type Analysis struct {
-	Modules     map[string]*ModuleMeta
-	Resources   map[string]*ResourceMeta
+	// Module metadata
+	Modules map[string]*ModuleMeta
+
+	// Resource metadata
+	Resources map[string]*ResourceMeta
+
+	// Holds all keys to expressions within resources.  This is necessary if
+	// we want to do dependency analysis and something depends on "all of
+	// a resource".
+	ResourceExpressions map[string][]FullName
+
+	// All known expressions
 	Expressions map[string]hcl.Expression
-	Blocks      []FullName
+
+	// All known blocks
+	Blocks []FullName
+
+	// Visit state: current resource (if any)
+	currentResource *string
 }
 
 func AnalyzeModuleTree(mtree *ModuleTree) *Analysis {
 	analysis := &Analysis{
-		Modules:     map[string]*ModuleMeta{},
-		Resources:   map[string]*ResourceMeta{},
-		Expressions: map[string]hcl.Expression{},
-		Blocks:      []FullName{},
+		Modules:             map[string]*ModuleMeta{},
+		Resources:           map[string]*ResourceMeta{},
+		ResourceExpressions: map[string][]FullName{},
+		Expressions:         map[string]hcl.Expression{},
+		Blocks:              []FullName{},
+		currentResource:     nil,
 	}
 	mtree.Walk(analysis)
 	return analysis
@@ -33,8 +52,15 @@ func (v *Analysis) VisitModule(name ModuleName, meta *ModuleMeta) {
 	v.Modules[ModuleNameToString(name)] = meta
 }
 
-func (v *Analysis) VisitResource(name FullName, resource *ResourceMeta) {
-	v.Resources[name.ToString()] = resource
+func (v *Analysis) EnterResource(name FullName, resource *ResourceMeta) {
+	resourceKey := name.ToString()
+	v.Resources[resourceKey] = resource
+	v.ResourceExpressions[resourceKey] = []FullName{}
+	v.currentResource = &resourceKey
+}
+
+func (v *Analysis) LeaveResource() {
+	v.currentResource = nil
 }
 
 func (v *Analysis) VisitBlock(name FullName) {
@@ -43,6 +69,12 @@ func (v *Analysis) VisitBlock(name FullName) {
 
 func (v *Analysis) VisitExpr(name FullName, expr hcl.Expression) {
 	v.Expressions[name.ToString()] = expr
+	if v.currentResource != nil {
+		v.ResourceExpressions[*v.currentResource] = append(
+			v.ResourceExpressions[*v.currentResource],
+			name,
+		)
+	}
 }
 
 type dependency struct {
@@ -62,50 +94,67 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 		}
 		full := FullName{Module: name.Module, Local: local}
 		_, exists := v.Expressions[full.ToString()]
-		var dep *dependency
 
-		if exists {
-			dep = &dependency{full, &full, nil}
+		if exists || full.IsBuiltin() {
+			deps = append(deps, dependency{full, &full, nil})
 		} else if moduleOutput := full.AsModuleOutput(); moduleOutput != nil {
 			// Rewrite module outputs.
-			dep = &dependency{full, moduleOutput, nil}
+			deps = append(deps, dependency{full, moduleOutput, nil})
 		} else if asDefault := full.AsDefault(); asDefault != nil {
 			// Rewrite variables either as default, or as module input.
 			asModuleInput := full.AsModuleInput()
+			isModuleInput := false
 			if asModuleInput != nil {
 				if _, ok := v.Expressions[asModuleInput.ToString()]; ok {
-					dep = &dependency{full, asModuleInput, nil}
+					deps = append(deps, dependency{full, asModuleInput, nil})
+					isModuleInput = true
 				}
 			}
-			if dep == nil {
-				dep = &dependency{full, asDefault, nil}
+			if !isModuleInput {
+				deps = append(deps, dependency{full, asDefault, nil})
 			}
-		} else if asResourceName, _ := full.AsResourceName(); asResourceName != nil {
+		} else if asResourceName, _, trailing := full.AsResourceName(); asResourceName != nil {
 			// Rewrite resource references.
 			resourceKey := asResourceName.ToString()
-			if _, ok := v.Resources[resourceKey]; ok {
-				val := cty.StringVal(resourceKey)
-				dep = &dependency{full, nil, &val}
+			if resourceMeta, ok := v.Resources[resourceKey]; ok {
+				// Keep track of attributes already added, and add "real"
+				// resource expressions.
+				attrs := map[string]struct{}{}
+				for _, re := range v.ResourceExpressions[resourceKey] {
+					attr := re
+					attrs[attr.ToString()] = struct{}{}
+					deps = append(deps, dependency{attr, &attr, nil})
+				}
+
+				// There may be absent attributes as well, such as "id" and
+				// "arn".  We will fill these in with the resource key.
+
+				// Construct attribute name where we will place these.
+				resourceKeyVal := cty.StringVal(resourceKey)
+				resourceName := *asResourceName
+				if resourceMeta.Count {
+					resourceName = resourceName.AddIndex(0)
+				}
+
+				// Add attributes that are not in `attrs` yet.  Include
+				// the requested one (`trailing`) as well as any possible
+				// references we find in the expression (`ExprAttributes`).
+				absentAttrs := ExprAttributes(expr)
+				if len(trailing) > 0 {
+					absentAttrs = append(absentAttrs, trailing)
+				}
+				for _, attr := range absentAttrs {
+					attrName := resourceName.AddLocalName(attr)
+					if _, ok := attrs[attrName.ToString()]; !ok {
+						deps = append(deps, dependency{attrName, nil, &resourceKeyVal})
+					}
+				}
 			} else {
 				// In other cases, just use the local name.  This is sort of
 				// a catch-all and we should try to not rely on this too much.
 				val := cty.StringVal(LocalNameToString(local))
-				dep = &dependency{full, nil, &val}
+				deps = append(deps, dependency{full, nil, &val})
 			}
-		}
-
-		if dep != nil {
-			dst := dep.destination.ToString()
-			src := "?"
-			if dep.source != nil {
-				src = dep.source.ToString()
-			} else if dep.value != nil {
-				src = dep.value.GoString()
-			}
-			logrus.Debugf("%s: %s -> %s", name.ToString(), dst, src)
-			deps = append(deps, *dep)
-		} else {
-			logrus.Debugf("%s: %s -> missing", name.ToString(), full.ToString())
 		}
 	}
 	return deps
@@ -214,7 +263,7 @@ func (v *Evaluation) evaluate() error {
 		vars = MergeValTree(vars, SingletonValTree(LocalName{"terraform", "workspace"}, cty.StringVal("default")))
 
 		// Add count.index if inside a counted resource.
-		resourceName, _ := name.AsResourceName()
+		resourceName, _, _ := name.AsResourceName()
 		if resourceName != nil {
 			resourceKey := resourceName.ToString()
 			if resource, ok := v.Analysis.Resources[resourceKey]; ok {
@@ -253,7 +302,7 @@ func (v *Evaluation) Resources() map[string]interface{} {
 
 	for resourceKey, resource := range v.Analysis.Resources {
 		resourceName, err := StringToFullName(resourceKey)
-		if err != nil {
+		if err != nil || resourceName == nil {
 			logrus.Warningf("Skipping resource with bad key %s: %s", resourceKey, err)
 			continue
 		}
@@ -269,7 +318,12 @@ func (v *Evaluation) Resources() map[string]interface{} {
 		tree = MergeValTree(tree, SingletonValTree(LocalName{"_provider"}, cty.StringVal(resource.Provider)))
 		tree = MergeValTree(tree, SingletonValTree(LocalName{"_filepath"}, cty.StringVal(resource.Location.Filename)))
 
-		attributes := LookupValTree(v.Modules[module], resourceName.Local)
+		resourceAttrsName := *resourceName
+		if resource.Count {
+			resourceAttrsName = resourceAttrsName.AddIndex(0)
+		}
+
+		attributes := LookupValTree(v.Modules[module], resourceAttrsName.Local)
 		tree = MergeValTree(tree, attributes)
 
 		if countTree := LookupValTree(tree, LocalName{"count"}); countTree != nil {

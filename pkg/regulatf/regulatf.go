@@ -230,6 +230,8 @@ func (v *Evaluation) evaluate() error {
 			}
 		}
 
+		logrus.Debugf("sparse: %s", PrettyValTree(vars))
+
 		data := Data{}
 		scope := lang.Scope{
 			Data:     &data,
@@ -259,7 +261,7 @@ func (v *Evaluation) Resources() map[string]interface{} {
 
 	for resourceKey, resource := range v.Analysis.Resources {
 		resourceName, err := StringToFullName(resourceKey)
-		if err != nil {
+		if err != nil || resourceName == nil {
 			logrus.Warningf("Skipping resource with bad key %s: %s", resourceKey, err)
 			continue
 		}
@@ -275,7 +277,12 @@ func (v *Evaluation) Resources() map[string]interface{} {
 		tree = MergeValTree(tree, SingletonValTree(LocalName{"_provider"}, cty.StringVal(resource.Provider)))
 		tree = MergeValTree(tree, SingletonValTree(LocalName{"_filepath"}, cty.StringVal(resource.Location.Filename)))
 
-		attributes := LookupValTree(v.Modules[module], resourceName.Local)
+		resourceAttrsName := *resourceName
+		if resource.Count {
+    		resourceAttrsName = resourceAttrsName.AddIndex(0)
+		}
+
+		attributes := LookupValTree(v.Modules[module], resourceAttrsName.Local)
 		tree = MergeValTree(tree, attributes)
 
 		if countTree := LookupValTree(tree, LocalName{"count"}); countTree != nil {

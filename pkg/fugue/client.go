@@ -208,6 +208,7 @@ func (c *fugueClient) listRuleWaivers(
 	ruleWaivers := []*models.RuleWaiver{}
 
 	query := []string{
+		fmt.Sprintf("status:%s", "active"),
 		fmt.Sprintf("environment_id:%s", environmentID),
 	}
 	queryBytes, err := json.Marshal(query)

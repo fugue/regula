@@ -3,6 +3,8 @@ package regulatf
 
 import (
 	"strings"
+	"fmt"
+	"os"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/sirupsen/logrus"
@@ -66,7 +68,7 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 		_, exists := v.Expressions[full.ToString()]
 		var dep *dependency
 
-		if exists {
+		if exists || full.IsBuiltin() {
 			dep = &dependency{full, &full, nil}
 		} else if moduleOutput := full.AsModuleOutput(); moduleOutput != nil {
 			// Rewrite module outputs.
@@ -82,10 +84,12 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 			if dep == nil {
 				dep = &dependency{full, asDefault, nil}
 			}
-		} else if asResourceName, _ := full.AsResourceName(); asResourceName != nil {
+		} else if asResourceName, _, _ := full.AsResourceName(); asResourceName != nil {
 			// Rewrite resource references.
 			resourceKey := asResourceName.ToString()
+			fmt.Fprintf(os.Stderr, "Looking for resource %s\n", resourceKey)
 			if _, ok := v.Resources[resourceKey]; ok {
+    			fmt.Fprintf(os.Stderr, "Found resource %s\n", resourceKey)
 				val := cty.StringVal(resourceKey)
 				dep = &dependency{full, nil, &val}
 			} else {
@@ -216,7 +220,7 @@ func (v *Evaluation) evaluate() error {
 		vars = MergeValTree(vars, SingletonValTree(LocalName{"terraform", "workspace"}, cty.StringVal("default")))
 
 		// Add count.index if inside a counted resource.
-		resourceName, _ := name.AsResourceName()
+		resourceName, _, _ := name.AsResourceName()
 		if resourceName != nil {
 			resourceKey := resourceName.ToString()
 			if resource, ok := v.Analysis.Resources[resourceKey]; ok {

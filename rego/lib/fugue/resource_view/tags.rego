@@ -23,7 +23,7 @@ get_from_object(resource, field) = ret {
   ret := {k: v |
     v := tags[k]
     is_string(k)
-    is_string(v)
+    is_tag_value(v)
   }
 } else = ret {
   ret := {}
@@ -39,10 +39,28 @@ get_from_list(resource, field, key_field, value_field) = ret {
     vs := [tag[value_field] |
       tag := tags[_]
       tag[key_field] == k
-      is_string(tag[value_field])
+      is_tag_value(tag[value_field])
     ]
     v := concat(";", vs)
   }
 } else = ret {
   ret := {}
+}
+
+# Get tags (without values) from a resource.  Values are set to null.
+get_from_key_list(resource, field) = ret {
+  tags := object.get(resource, field, [])
+  ret := {k: null |
+    k := tags[_]
+    is_string(k)
+  }
+} else = ret {
+  ret := {}
+}
+
+# Check that a tag value is valid (string or null)
+is_tag_value(x) {
+  is_string(x)
+} {
+  is_null(x)
 }

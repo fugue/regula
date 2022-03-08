@@ -17,7 +17,7 @@
         "_provider": "aws",
         "_tags": {},
         "_type": "aws_s3_bucket_public_access_block",
-        "block_public_acls": false,
+        "block_public_acls": true,
         "block_public_policy": true,
         "bucket": "aws_s3_bucket.not_working_1",
         "count": 1,

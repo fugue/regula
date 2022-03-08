@@ -121,8 +121,9 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 				// resource expressions.
 				attrs := map[string]struct{}{}
 				for _, re := range v.ResourceExpressions[resourceKey] {
-					attrs[re.ToString()] = struct{}{}
-					deps = append(deps, dependency{re, &re, nil})
+					attr := re
+					attrs[attr.ToString()] = struct{}{}
+					deps = append(deps, dependency{attr, &attr, nil})
 				}
 
 				// There may be absent attributes as well, such as "id" and

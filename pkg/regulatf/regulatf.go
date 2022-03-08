@@ -117,7 +117,7 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 			if !isModuleInput {
 				deps = append(deps, dependency{full, asDefault, nil})
 			}
-		} else if asResourceName, _, _ := full.AsResourceName(); asResourceName != nil {
+		} else if asResourceName, _, trailing := full.AsResourceName(); asResourceName != nil {
 			// Rewrite resource references.
 			resourceKey := asResourceName.ToString()
 			if resourceMeta, ok := v.Resources[resourceKey]; ok {
@@ -139,8 +139,14 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 					resourceName = resourceName.AddIndex(0)
 				}
 
-				// Add attributes that are not in `attrs` yet.
-				for _, attr := range ExprAttributes(expr) {
+				// Add attributes that are not in `attrs` yet.  Include
+				// the requested one (`trailing`) as well as any possible
+				// references we find in the expression (`ExprAttributes`).
+				absentAttrs := ExprAttributes(expr)
+				if len(trailing) > 0 {
+					absentAttrs = append(absentAttrs, trailing)
+				}
+				for _, attr := range absentAttrs {
 					attrName := resourceName.AddLocalName(attr)
 					if _, ok := attrs[attrName.ToString()]; !ok {
 						deps = append(deps, dependency{attrName, nil, &resourceKeyVal})

@@ -328,7 +328,10 @@ resource_tags(resource) = ret {
 } else = ret {
   # Google provider: use `labels`
   split(resource._provider, ".")[0] == "google"
-  ret := tags_lib.get_from_object(resource, "labels")
+  ret := object.union(
+    tags_lib.get_from_object(resource, "labels"),
+    tags_lib.get_from_key_list(resource, "tags"),
+  )
 } else = ret {
   # Other providers (azurerm, ?): look in `tags`.
   ret := tags_lib.get_from_object(resource, "tags")

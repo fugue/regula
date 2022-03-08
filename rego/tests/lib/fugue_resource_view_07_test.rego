@@ -24,4 +24,13 @@ test_resource_view_07 {
   asg := resource_view_07_infra_json.mock_resources[_]
   asg._type == "aws_autoscaling_group"
   asg._tags.Stage == "Dev"
+
+  google_storage_bucket := resource_view_07_infra_json.mock_resources[_]
+  google_storage_bucket._type == "google_storage_bucket"
+  google_storage_bucket._tags.Stage == "Prod"
+
+  google_compute_instance := resource_view_07_infra_json.mock_resources[_]
+  google_compute_instance._type == "google_compute_instance"
+  google_compute_instance._tags.foo == null
+  google_compute_instance._tags.bar == null
 }

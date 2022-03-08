@@ -125,6 +125,13 @@ func (name FullName) AddIndex(i int) FullName {
 	return name.add(i)
 }
 
+func (name FullName) AddLocalName(after LocalName) FullName {
+	local := make([]interface{}, len(name.Local)+len(after))
+	copy(local, name.Local)
+	copy(local[len(name.Local):], after)
+	return FullName{name.Module, local}
+}
+
 // Is this a builtin variable?
 func (name FullName) IsBuiltin() bool {
 	if len(name.Module) > 0 {

@@ -70,52 +70,48 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 		}
 		full := FullName{Module: name.Module, Local: local}
 		_, exists := v.Expressions[full.ToString()]
-		var dep *dependency
 
 		if exists || full.IsBuiltin() {
-			dep = &dependency{full, &full, nil}
+			deps = append(deps, dependency{full, &full, nil})
 		} else if moduleOutput := full.AsModuleOutput(); moduleOutput != nil {
 			// Rewrite module outputs.
-			dep = &dependency{full, moduleOutput, nil}
+			deps = append(deps, dependency{full, moduleOutput, nil})
 		} else if asDefault := full.AsDefault(); asDefault != nil {
 			// Rewrite variables either as default, or as module input.
 			asModuleInput := full.AsModuleInput()
+			isModuleInput := false
 			if asModuleInput != nil {
 				if _, ok := v.Expressions[asModuleInput.ToString()]; ok {
-					dep = &dependency{full, asModuleInput, nil}
+					deps = append(deps, dependency{full, asModuleInput, nil})
+					isModuleInput = true
 				}
 			}
-			if dep == nil {
-				dep = &dependency{full, asDefault, nil}
+			if !isModuleInput {
+				deps = append(deps, dependency{full, asDefault, nil})
 			}
 		} else if asResourceName, _, _ := full.AsResourceName(); asResourceName != nil {
 			// Rewrite resource references.
 			resourceKey := asResourceName.ToString()
 			fmt.Fprintf(os.Stderr, "Looking for resource %s\n", resourceKey)
-			if _, ok := v.Resources[resourceKey]; ok {
-				fmt.Fprintf(os.Stderr, "Found resource %s\n", resourceKey)
-				val := cty.StringVal(resourceKey)
-				dep = &dependency{full, nil, &val}
+			if resourceMeta, ok := v.Resources[resourceKey]; ok {
+				resourceName := *asResourceName
+				if resourceMeta.Count {
+					resourceName = resourceName.AddIndex(0)
+				}
+				resourceKeyVal := cty.StringVal(resourceKey)
+
+				// Construct attributes for object.
+				for _, attr := range ExprAttributes(expr) {
+					attrName := resourceName.AddLocalName(attr)
+					deps = append(deps, dependency{attrName, nil, &resourceKeyVal})
+				}
+
 			} else {
 				// In other cases, just use the local name.  This is sort of
 				// a catch-all and we should try to not rely on this too much.
 				val := cty.StringVal(LocalNameToString(local))
-				dep = &dependency{full, nil, &val}
+				deps = append(deps, dependency{full, nil, &val})
 			}
-		}
-
-		if dep != nil {
-			dst := dep.destination.ToString()
-			src := "?"
-			if dep.source != nil {
-				src = dep.source.ToString()
-			} else if dep.value != nil {
-				src = dep.value.GoString()
-			}
-			logrus.Debugf("%s: %s -> %s", name.ToString(), dst, src)
-			deps = append(deps, *dep)
-		} else {
-			logrus.Debugf("%s: %s -> missing", name.ToString(), full.ToString())
 		}
 	}
 	return deps

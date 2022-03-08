@@ -29,6 +29,9 @@ mock_config := {
           }
         },
         "name": "aws"
+      },
+      "google": {
+        "name": "google"
       }
     },
     "root_module": {
@@ -118,6 +121,80 @@ mock_config := {
           "provider_config_key": "aws",
           "schema_version": 0,
           "type": "aws_s3_bucket"
+        },
+        {
+          "address": "google_compute_instance.default",
+          "expressions": {
+            "boot_disk": [
+              {
+                "initialize_params": [
+                  {
+                    "image": {
+                      "constant_value": "debian-cloud/debian-9"
+                    }
+                  }
+                ]
+              }
+            ],
+            "machine_type": {
+              "constant_value": "e2-medium"
+            },
+            "name": {
+              "constant_value": "test"
+            },
+            "network_interface": [
+              {
+                "access_config": [
+                  {}
+                ],
+                "network": {
+                  "constant_value": "default"
+                }
+              }
+            ],
+            "scratch_disk": [
+              {
+                "interface": {
+                  "constant_value": "SCSI"
+                }
+              }
+            ],
+            "tags": {
+              "constant_value": [
+                "foo",
+                "bar"
+              ]
+            },
+            "zone": {
+              "constant_value": "us-central1-a"
+            }
+          },
+          "mode": "managed",
+          "name": "default",
+          "provider_config_key": "google",
+          "schema_version": 6,
+          "type": "google_compute_instance"
+        },
+        {
+          "address": "google_storage_bucket.example",
+          "expressions": {
+            "labels": {
+              "constant_value": {
+                "Stage": "Prod"
+              }
+            },
+            "location": {
+              "constant_value": "US"
+            },
+            "name": {
+              "constant_value": "example"
+            }
+          },
+          "mode": "managed",
+          "name": "example",
+          "provider_config_key": "google",
+          "schema_version": 0,
+          "type": "google_storage_bucket"
         }
       ]
     }
@@ -233,6 +310,97 @@ mock_config := {
             "tags_all": {
               "Stage": "Prod"
             }
+          }
+        },
+        {
+          "address": "google_compute_instance.default",
+          "mode": "managed",
+          "name": "default",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 6,
+          "type": "google_compute_instance",
+          "values": {
+            "advanced_machine_features": [],
+            "allow_stopping_for_update": null,
+            "attached_disk": [],
+            "boot_disk": [
+              {
+                "auto_delete": true,
+                "disk_encryption_key_raw": null,
+                "initialize_params": [
+                  {
+                    "image": "debian-cloud/debian-9"
+                  }
+                ],
+                "mode": "READ_WRITE"
+              }
+            ],
+            "can_ip_forward": false,
+            "deletion_protection": false,
+            "description": null,
+            "desired_status": null,
+            "enable_display": null,
+            "hostname": null,
+            "labels": null,
+            "machine_type": "e2-medium",
+            "metadata": null,
+            "metadata_startup_script": null,
+            "name": "test",
+            "network_interface": [
+              {
+                "access_config": [
+                  {
+                    "public_ptr_domain_name": null
+                  }
+                ],
+                "alias_ip_range": [],
+                "ipv6_access_config": [],
+                "network": "default",
+                "nic_type": null,
+                "queue_count": null
+              }
+            ],
+            "resource_policies": null,
+            "scratch_disk": [
+              {
+                "interface": "SCSI"
+              }
+            ],
+            "service_account": [],
+            "shielded_instance_config": [],
+            "tags": [
+              "bar",
+              "foo"
+            ],
+            "timeouts": null,
+            "zone": "us-central1-a"
+          }
+        },
+        {
+          "address": "google_storage_bucket.example",
+          "mode": "managed",
+          "name": "example",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "type": "google_storage_bucket",
+          "values": {
+            "cors": [],
+            "default_event_based_hold": null,
+            "encryption": [],
+            "force_destroy": false,
+            "labels": {
+              "Stage": "Prod"
+            },
+            "lifecycle_rule": [],
+            "location": "US",
+            "logging": [],
+            "name": "example",
+            "requester_pays": null,
+            "retention_policy": [],
+            "storage_class": "STANDARD",
+            "timeouts": null,
+            "versioning": [],
+            "website": []
           }
         }
       ]
@@ -438,6 +606,182 @@ mock_config := {
       "name": "example",
       "provider_name": "registry.terraform.io/hashicorp/aws",
       "type": "aws_s3_bucket"
+    },
+    {
+      "address": "google_compute_instance.default",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "advanced_machine_features": [],
+          "allow_stopping_for_update": null,
+          "attached_disk": [],
+          "boot_disk": [
+            {
+              "auto_delete": true,
+              "disk_encryption_key_raw": null,
+              "initialize_params": [
+                {
+                  "image": "debian-cloud/debian-9"
+                }
+              ],
+              "mode": "READ_WRITE"
+            }
+          ],
+          "can_ip_forward": false,
+          "deletion_protection": false,
+          "description": null,
+          "desired_status": null,
+          "enable_display": null,
+          "hostname": null,
+          "labels": null,
+          "machine_type": "e2-medium",
+          "metadata": null,
+          "metadata_startup_script": null,
+          "name": "test",
+          "network_interface": [
+            {
+              "access_config": [
+                {
+                  "public_ptr_domain_name": null
+                }
+              ],
+              "alias_ip_range": [],
+              "ipv6_access_config": [],
+              "network": "default",
+              "nic_type": null,
+              "queue_count": null
+            }
+          ],
+          "resource_policies": null,
+          "scratch_disk": [
+            {
+              "interface": "SCSI"
+            }
+          ],
+          "service_account": [],
+          "shielded_instance_config": [],
+          "tags": [
+            "bar",
+            "foo"
+          ],
+          "timeouts": null,
+          "zone": "us-central1-a"
+        },
+        "after_unknown": {
+          "advanced_machine_features": [],
+          "attached_disk": [],
+          "boot_disk": [
+            {
+              "device_name": true,
+              "disk_encryption_key_sha256": true,
+              "initialize_params": [
+                {
+                  "labels": true,
+                  "size": true,
+                  "type": true
+                }
+              ],
+              "kms_key_self_link": true,
+              "source": true
+            }
+          ],
+          "confidential_instance_config": true,
+          "cpu_platform": true,
+          "current_status": true,
+          "guest_accelerator": true,
+          "id": true,
+          "instance_id": true,
+          "label_fingerprint": true,
+          "metadata_fingerprint": true,
+          "min_cpu_platform": true,
+          "network_interface": [
+            {
+              "access_config": [
+                {
+                  "nat_ip": true,
+                  "network_tier": true
+                }
+              ],
+              "alias_ip_range": [],
+              "ipv6_access_config": [],
+              "ipv6_access_type": true,
+              "name": true,
+              "network_ip": true,
+              "stack_type": true,
+              "subnetwork": true,
+              "subnetwork_project": true
+            }
+          ],
+          "project": true,
+          "reservation_affinity": true,
+          "scheduling": true,
+          "scratch_disk": [
+            {}
+          ],
+          "self_link": true,
+          "service_account": [],
+          "shielded_instance_config": [],
+          "tags": [
+            false,
+            false
+          ],
+          "tags_fingerprint": true
+        },
+        "before": null
+      },
+      "mode": "managed",
+      "name": "default",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "type": "google_compute_instance"
+    },
+    {
+      "address": "google_storage_bucket.example",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "cors": [],
+          "default_event_based_hold": null,
+          "encryption": [],
+          "force_destroy": false,
+          "labels": {
+            "Stage": "Prod"
+          },
+          "lifecycle_rule": [],
+          "location": "US",
+          "logging": [],
+          "name": "example",
+          "requester_pays": null,
+          "retention_policy": [],
+          "storage_class": "STANDARD",
+          "timeouts": null,
+          "versioning": [],
+          "website": []
+        },
+        "after_unknown": {
+          "cors": [],
+          "encryption": [],
+          "id": true,
+          "labels": {},
+          "lifecycle_rule": [],
+          "logging": [],
+          "project": true,
+          "retention_policy": [],
+          "self_link": true,
+          "uniform_bucket_level_access": true,
+          "url": true,
+          "versioning": [],
+          "website": []
+        },
+        "before": null
+      },
+      "mode": "managed",
+      "name": "example",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "type": "google_storage_bucket"
     }
   ],
   "terraform_version": "0.13.7"

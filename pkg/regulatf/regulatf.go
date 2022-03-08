@@ -2,9 +2,9 @@
 package regulatf
 
 import (
-	"strings"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/sirupsen/logrus"
@@ -57,6 +57,10 @@ type dependency struct {
 
 // Iterate all dependencies of a the given expression with the given name.
 func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency {
+	for _, name := range ExprAttributes(expr) {
+		logrus.Debugf("- ExprAttributes: %s", LocalNameToString(name))
+	}
+
 	deps := []dependency{}
 	for _, traversal := range expr.Variables() {
 		local, err := TraversalToLocalName(traversal)
@@ -89,7 +93,7 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 			resourceKey := asResourceName.ToString()
 			fmt.Fprintf(os.Stderr, "Looking for resource %s\n", resourceKey)
 			if _, ok := v.Resources[resourceKey]; ok {
-    			fmt.Fprintf(os.Stderr, "Found resource %s\n", resourceKey)
+				fmt.Fprintf(os.Stderr, "Found resource %s\n", resourceKey)
 				val := cty.StringVal(resourceKey)
 				dep = &dependency{full, nil, &val}
 			} else {
@@ -279,7 +283,7 @@ func (v *Evaluation) Resources() map[string]interface{} {
 
 		resourceAttrsName := *resourceName
 		if resource.Count {
-    		resourceAttrsName = resourceAttrsName.AddIndex(0)
+			resourceAttrsName = resourceAttrsName.AddIndex(0)
 		}
 
 		attributes := LookupValTree(v.Modules[module], resourceAttrsName.Local)
@@ -327,19 +331,19 @@ func PopulateTags(resource interface{}) {
 	tagObj := map[string]interface{}{}
 
 	if typeStr, ok := resourceObj["_type"].(string); ok {
-    	if typeStr == "aws_autoscaling_group" {
-        	if arr, ok := resourceObj["tag"].([]interface{}); ok {
-            	for i := range(arr) {
-                	if obj, ok := arr[i].(map[string]interface{}); ok {
-                    	if key, ok := obj["key"].(string); ok {
-                        	if value, ok := obj["value"]; ok {
-                            	tagObj[key] = value
-                        	}
-                    	}
-                	}
-            	}
-        	}
-    	}
+		if typeStr == "aws_autoscaling_group" {
+			if arr, ok := resourceObj["tag"].([]interface{}); ok {
+				for i := range arr {
+					if obj, ok := arr[i].(map[string]interface{}); ok {
+						if key, ok := obj["key"].(string); ok {
+							if value, ok := obj["value"]; ok {
+								tagObj[key] = value
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	if providerStr, ok := resourceObj["_provider"].(string); ok {
@@ -347,15 +351,15 @@ func PopulateTags(resource interface{}) {
 			switch provider[0] {
 			case "google":
 				if tags, ok := resourceObj["labels"].(map[string]interface{}); ok {
-    				for k, v := range tags {
-        				tagObj[k] = v
-    				}
+					for k, v := range tags {
+						tagObj[k] = v
+					}
 				}
 			default:
 				if tags, ok := resourceObj["tags"].(map[string]interface{}); ok {
-    				for k, v := range tags {
-        				tagObj[k] = v
-    				}
+					for k, v := range tags {
+						tagObj[k] = v
+					}
 				}
 			}
 		}

@@ -85,10 +85,6 @@ type dependency struct {
 
 // Iterate all dependencies of a the given expression with the given name.
 func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency {
-	for _, name := range ExprAttributes(expr) {
-		logrus.Debugf("- ExprAttributes: %s", LocalNameToString(name))
-	}
-
 	deps := []dependency{}
 	for _, traversal := range expr.Variables() {
 		local, err := TraversalToLocalName(traversal)
@@ -275,8 +271,6 @@ func (v *Evaluation) evaluate() error {
 				}
 			}
 		}
-
-		logrus.Debugf("sparse: %s", PrettyValTree(vars))
 
 		data := Data{}
 		scope := lang.Scope{

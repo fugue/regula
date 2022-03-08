@@ -197,7 +197,8 @@ func moduleIsLocal(source string) bool {
 
 type Visitor interface {
 	VisitModule(name ModuleName, meta *ModuleMeta)
-	VisitResource(name FullName, resource *ResourceMeta)
+	EnterResource(name FullName, resource *ResourceMeta)
+	LeaveResource()
 	VisitBlock(name FullName)
 	VisitExpr(name FullName, expr hcl.Expression)
 }
@@ -267,7 +268,7 @@ func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, 
 		Location: resource.DeclRange,
 		Count:    haveCount,
 	}
-	v.VisitResource(name, resourceMeta)
+	v.EnterResource(name, resourceMeta)
 
 	if haveCount {
     	name = name.AddIndex(0)
@@ -281,6 +282,7 @@ func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, 
 	}
 
 	walkBlock(v, name, body)
+	v.LeaveResource()
 }
 
 func walkBlock(v Visitor, name FullName, body *hclsyntax.Body) {

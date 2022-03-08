@@ -2,8 +2,6 @@
 package regulatf
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/hashicorp/hcl/v2"
@@ -16,18 +14,35 @@ import (
 )
 
 type Analysis struct {
-	Modules     map[string]*ModuleMeta
-	Resources   map[string]*ResourceMeta
+	// Module metadata
+	Modules map[string]*ModuleMeta
+
+	// Resource metadata
+	Resources map[string]*ResourceMeta
+
+	// Holds all keys to expressions within resources.  This is necessary if
+	// we want to do dependency analysis and something depends on "all of
+	// a resource".
+	ResourceExpressions map[string][]FullName
+
+	// All known expressions
 	Expressions map[string]hcl.Expression
-	Blocks      []FullName
+
+	// All known blocks
+	Blocks []FullName
+
+	// Visit state: current resource (if any)
+	currentResource *string
 }
 
 func AnalyzeModuleTree(mtree *ModuleTree) *Analysis {
 	analysis := &Analysis{
-		Modules:     map[string]*ModuleMeta{},
-		Resources:   map[string]*ResourceMeta{},
-		Expressions: map[string]hcl.Expression{},
-		Blocks:      []FullName{},
+		Modules:             map[string]*ModuleMeta{},
+		Resources:           map[string]*ResourceMeta{},
+		ResourceExpressions: map[string][]FullName{},
+		Expressions:         map[string]hcl.Expression{},
+		Blocks:              []FullName{},
+		currentResource:     nil,
 	}
 	mtree.Walk(analysis)
 	return analysis
@@ -37,8 +52,15 @@ func (v *Analysis) VisitModule(name ModuleName, meta *ModuleMeta) {
 	v.Modules[ModuleNameToString(name)] = meta
 }
 
-func (v *Analysis) VisitResource(name FullName, resource *ResourceMeta) {
-	v.Resources[name.ToString()] = resource
+func (v *Analysis) EnterResource(name FullName, resource *ResourceMeta) {
+	resourceKey := name.ToString()
+	v.Resources[resourceKey] = resource
+	v.ResourceExpressions[resourceKey] = []FullName{}
+	v.currentResource = &resourceKey
+}
+
+func (v *Analysis) LeaveResource() {
+	v.currentResource = nil
 }
 
 func (v *Analysis) VisitBlock(name FullName) {
@@ -47,6 +69,12 @@ func (v *Analysis) VisitBlock(name FullName) {
 
 func (v *Analysis) VisitExpr(name FullName, expr hcl.Expression) {
 	v.Expressions[name.ToString()] = expr
+	if v.currentResource != nil {
+		v.ResourceExpressions[*v.currentResource] = append(
+			v.ResourceExpressions[*v.currentResource],
+			name,
+		)
+	}
 }
 
 type dependency struct {
@@ -92,20 +120,32 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 		} else if asResourceName, _, _ := full.AsResourceName(); asResourceName != nil {
 			// Rewrite resource references.
 			resourceKey := asResourceName.ToString()
-			fmt.Fprintf(os.Stderr, "Looking for resource %s\n", resourceKey)
 			if resourceMeta, ok := v.Resources[resourceKey]; ok {
+				// Keep track of attributes already added, and add "real"
+				// resource expressions.
+				attrs := map[string]struct{}{}
+				for _, re := range v.ResourceExpressions[resourceKey] {
+					attrs[re.ToString()] = struct{}{}
+					deps = append(deps, dependency{re, &re, nil})
+				}
+
+				// There may be absent attributes as well, such as "id" and
+				// "arn".  We will fill these in with the resource key.
+
+				// Construct attribute name where we will place these.
+				resourceKeyVal := cty.StringVal(resourceKey)
 				resourceName := *asResourceName
 				if resourceMeta.Count {
 					resourceName = resourceName.AddIndex(0)
 				}
-				resourceKeyVal := cty.StringVal(resourceKey)
 
-				// Construct attributes for object.
+				// Add attributes that are not in `attrs` yet.
 				for _, attr := range ExprAttributes(expr) {
 					attrName := resourceName.AddLocalName(attr)
-					deps = append(deps, dependency{attrName, nil, &resourceKeyVal})
+					if _, ok := attrs[attrName.ToString()]; !ok {
+						deps = append(deps, dependency{attrName, nil, &resourceKeyVal})
+					}
 				}
-
 			} else {
 				// In other cases, just use the local name.  This is sort of
 				// a catch-all and we should try to not rely on this too much.

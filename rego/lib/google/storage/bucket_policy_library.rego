@@ -18,19 +18,19 @@ import data.google.iam.policy_library as lib
 
 bucket_iam_member_resources := {id: m |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["google_storage_bucket_iam_member"]
+  fugue.input_resource_types["google_storage_bucket_iam_member"]
   m = fugue.resources("google_storage_bucket_iam_member")[id]
 }
 
 bucket_iam_binding_resources := {id: b |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["google_storage_bucket_iam_binding"]
+  fugue.input_resource_types["google_storage_bucket_iam_binding"]
   b = fugue.resources("google_storage_bucket_iam_binding")[id]
 }
 
 bucket_access_control := {id: a |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["google_storage_bucket_access_control"]
+  fugue.input_resource_types["google_storage_bucket_access_control"]
   a = fugue.resources("google_storage_bucket_access_control")[id]
 }
 

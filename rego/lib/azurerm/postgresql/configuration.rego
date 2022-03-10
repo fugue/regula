@@ -18,7 +18,7 @@ import data.fugue
 configuration_sets = fugue.resources("azurerm_postgresql_configuration_set")
 
 configurations_by_server_name := {server_name: configs |
-  fugue.resource_types_v0["azurerm_postgresql_configuration"]
+  fugue.input_resource_types["azurerm_postgresql_configuration"]
   configurations := fugue.resources("azurerm_postgresql_configuration")
   server_name := lower(configurations[_].server_name)
   configs := [c |

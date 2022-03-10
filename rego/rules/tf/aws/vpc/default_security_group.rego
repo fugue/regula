@@ -61,7 +61,7 @@ security_groups[id] = sg {
   #
   # The solution we use is to only query for this resource type after checking
   # that there is at least one in the input.
-  fugue.resource_types_v0["aws_default_security_group"]
+  fugue.input_resource_types["aws_default_security_group"]
   sgs = fugue.resources("aws_default_security_group")
   sg = sgs[id]
 }

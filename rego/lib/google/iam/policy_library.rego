@@ -17,19 +17,19 @@ import data.fugue
 
 policy_data_resources := {id: p |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["data.google_iam_policy"]
+  fugue.input_resource_types["data.google_iam_policy"]
   p = fugue.resources("data.google_iam_policy")[id]
 }
 
 project_iam_member_resources := {id: m |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["google_project_iam_member"]
+  fugue.input_resource_types["google_project_iam_member"]
   m = fugue.resources("google_project_iam_member")[id]
 }
 
 project_iam_binding_resources := {id: b |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["google_project_iam_binding"]
+  fugue.input_resource_types["google_project_iam_binding"]
   b = fugue.resources("google_project_iam_binding")[id]
 }
 

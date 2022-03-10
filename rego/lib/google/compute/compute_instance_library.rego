@@ -32,7 +32,7 @@ coerce_metadata_value(value) = ret {
 
 compute_metadata_items := {id: m |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["google_compute_project_metadata_item"]
+  fugue.input_resource_types["google_compute_project_metadata_item"]
   m = fugue.resources("google_compute_project_metadata_item")[id]
 }
 

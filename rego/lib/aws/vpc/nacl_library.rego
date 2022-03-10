@@ -18,7 +18,7 @@ import data.fugue
 ingress_for_nacl[id] = nacl_rules {
   # aws_network_acl_rule is not currently supported. 
   # This check ensures the library will function.
-  fugue.resource_types_v0["aws_network_acl_rule"]
+  fugue.input_resource_types["aws_network_acl_rule"]
   
   rules = fugue.resources("aws_network_acl_rule")
   nacls = fugue.resources("aws_network_acl")
@@ -36,7 +36,7 @@ ingress_for_nacl[id] = nacl_rules {
     ]
   )
 } {
-  not fugue.resource_types_v0["aws_network_acl_rule"]
+  not fugue.input_resource_types["aws_network_acl_rule"]
   nacls = fugue.resources("aws_network_acl")
   nacl = nacls[_]
   id = nacl.id

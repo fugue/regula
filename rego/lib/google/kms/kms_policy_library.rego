@@ -18,13 +18,13 @@ import data.google.iam.policy_library as lib
 
 kms_iam_member_resources := {id: m |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["google_kms_crypto_key_iam_member"]
+  fugue.input_resource_types["google_kms_crypto_key_iam_member"]
   m = fugue.resources("google_kms_crypto_key_iam_member")[id]
 }
 
 kms_iam_binding_resources := {id: b |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["google_kms_crypto_key_iam_binding"]
+  fugue.input_resource_types["google_kms_crypto_key_iam_binding"]
   b = fugue.resources("google_kms_crypto_key_iam_binding")[id]
 }
 

@@ -56,7 +56,35 @@ func (waiver RuleWaiver) Match(
 	return ExactMatchOrWildcards(waiver.ResourceID, result.ResourceID) &&
 		ExactMatchOrWildcards(waiver.ResourceProvider, configFilepath) &&
 		ExactMatchOrWildcards(waiver.ResourceType, result.ResourceType) &&
-		ExactMatchOrWildcards(waiver.RuleID, result.RuleID)
+		ExactMatchOrWildcards(waiver.RuleID, result.RuleID) &&
+		waiver.matchTags(result)
+}
+
+func (waiver RuleWaiver) matchTags(result reporter.RuleResult) bool {
+	if waiver.ResourceTag == "*" {
+		return true
+	}
+
+	escapeTag := func(str string) string {
+		return strings.Replace(str, ":", "\\:", -1)
+	}
+
+	tags := []string{}
+	for key, val := range result.ResourceTags {
+		if str, ok := val.(string); ok {
+			tags = append(tags, escapeTag(key)+":"+escapeTag(str))
+		} else if val == nil {
+			tags = append(tags, escapeTag(key))
+		}
+	}
+
+	for _, tag := range tags {
+		if ExactMatchOrWildcards(waiver.ResourceTag, tag) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func ApplyRuleWaivers(

@@ -237,16 +237,9 @@ func (c *fugueClient) listRuleWaivers(
 	}
 
 	waivers := []rule_waivers.RuleWaiver{}
-	tagWaiversSkipped := 0
 	for _, ruleWaiver := range ruleWaivers {
 		waiver := ruleWaiverFromModel(ruleWaiver)
-		if !(waiver.ResourceTag == "*" || waiver.ResourceTag == "") {
-			tagWaiversSkipped += 1
-		}
 		waivers = append(waivers, waiver)
-	}
-	if tagWaiversSkipped > 0 {
-		logrus.Infof("Skipped %d tag-based rule waivers...", tagWaiversSkipped)
 	}
 
 	return waivers, nil
@@ -271,6 +264,10 @@ func ruleWaiverFromModel(model *models.RuleWaiver) rule_waivers.RuleWaiver {
 
 	if model.ID != nil {
 		rule_waiver.ID = *model.ID
+	}
+
+	if rule_waiver.ResourceTag == "" {
+		rule_waiver.ResourceTag = "*"
 	}
 
 	return rule_waiver

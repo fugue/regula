@@ -112,7 +112,6 @@ type LoadedConfigurations interface {
 	ConfigurationPath(path string) *string
 	// AlreadyLoaded indicates whether the given path has already been loaded as
 	// part of another IACConfiguration.
-	// NOTE: consider removing this in favor of `ConfigurationPath`.
 	AlreadyLoaded(path string) bool
 	// Location resolves a file path and attribute path from the regula output to a
 	// location within a file.

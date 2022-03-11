@@ -26,6 +26,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/fugue/regula/v2/pkg/loader"
 	"github.com/fugue/regula/v2/pkg/rego"
 	"github.com/fugue/regula/v2/pkg/reporter"
 	"github.com/fugue/regula/v2/pkg/rule_waivers"
@@ -71,7 +72,7 @@ type FugueClient interface {
 	CustomRulesProvider() rego.RegoProvider
 	CustomRuleProvider(ruleID string) rego.RegoProvider
 	EnvironmentRegulaConfigProvider(environmentID string) rego.RegoProvider
-	PostProcessReport(ctx context.Context, environmentID string, report *reporter.RegulaReport) error
+	PostProcessReport(ctx context.Context, configs loader.LoadedConfigurations, environmentID string, report *reporter.RegulaReport) error
 	UploadScan(ctx context.Context, environmentId string, scanView reporter.ScanView) error
 }
 
@@ -277,6 +278,7 @@ func ruleWaiverFromModel(model *models.RuleWaiver) rule_waivers.RuleWaiver {
 
 func (c *fugueClient) PostProcessReport(
 	ctx context.Context,
+	configs loader.LoadedConfigurations,
 	environmentID string,
 	report *reporter.RegulaReport,
 ) error {
@@ -285,7 +287,7 @@ func (c *fugueClient) PostProcessReport(
 		return err
 	}
 
-	rule_waivers.ApplyRuleWaivers(report, waivers)
+	rule_waivers.ApplyRuleWaivers(configs, report, waivers)
 
 	return nil
 }

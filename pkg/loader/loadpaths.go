@@ -164,8 +164,15 @@ type cachedLocation struct {
 
 type loadedConfigurations struct {
 	configurations map[string]IACConfiguration
-	// The corresponding key in configurations for every loaded path
-	loadedPaths   map[string]string
+
+	// The corresponding key in configurations for every loaded path.
+	//
+	// For example, if you have a HCL configuration under "src/vpc", this may
+	// contain many paths, such as "src/vpc/.terraform/modules/vpc/main.tf".
+	// This map can be used to map those additional paths back to the canonical
+	// input path, "src/vpc".
+	loadedPaths map[string]string
+
 	locationCache map[string]map[string]cachedLocation
 }
 
@@ -184,6 +191,18 @@ func (l *loadedConfigurations) AddConfiguration(path string, config IACConfigura
 		l.loadedPaths[f] = path
 		logrus.Debugf("loadedPaths[%s] -> %s", f, path)
 	}
+}
+
+func (l *loadedConfigurations) ConfigurationPath(path string) *string {
+	if fp, ok := l.loadedPaths[path]; ok {
+		return &fp
+	} else {
+		return nil
+	}
+}
+
+func (l *loadedConfigurations) AlreadyLoaded(path string) bool {
+	return l.ConfigurationPath(path) != nil
 }
 
 func (l *loadedConfigurations) RegulaInput() []RegulaInput {
@@ -237,11 +256,6 @@ func (l *loadedConfigurations) Location(path string, attributePath []string) (Lo
 	loc, err := loader.Location(attributePath)
 	l.cacheLocation(path, joinedAttributePath, loc, err)
 	return loc, err
-}
-
-func (l *loadedConfigurations) AlreadyLoaded(path string) bool {
-	_, ok := l.loadedPaths[path]
-	return ok
 }
 
 func (l *loadedConfigurations) Count() int {

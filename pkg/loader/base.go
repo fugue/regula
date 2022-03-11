@@ -106,12 +106,17 @@ func ValidateInputTypes(names []string) error {
 type LoadedConfigurations interface {
 	// AddConfiguration adds a configuration entry for the given path
 	AddConfiguration(path string, config IACConfiguration)
+	// ConfigurationPath checks if the given path has already been loaded as a
+	// part of another IACConfiguration, and if so, returns the path for that
+	// configuration.
+	ConfigurationPath(path string) *string
+	// AlreadyLoaded indicates whether the given path has already been loaded as
+	// part of another IACConfiguration.
+	// NOTE: consider removing this in favor of `ConfigurationPath`.
+	AlreadyLoaded(path string) bool
 	// Location resolves a file path and attribute path from the regula output to a
 	// location within a file.
 	Location(path string, attributePath []string) (LocationStack, error)
-	// AlreadyLoaded indicates whether the given path has already been loaded as part
-	// of another IACConfiguration.
-	AlreadyLoaded(path string) bool
 	// RegulaInput renders the RegulaInput from all of the contained configurations.
 	RegulaInput() []RegulaInput
 	// Count returns the number of loaded configurations.

@@ -119,7 +119,7 @@ func (c *runConfig) ResultProcessor() rego.RegoResultProcessor {
 			if err != nil {
 				return err
 			}
-			if client.PostProcessReport(ctx, c.environmentId, &scanView.Report); err != nil {
+			if client.PostProcessReport(ctx, conf, c.environmentId, &scanView.Report); err != nil {
 				return err
 			}
 			if err := client.UploadScan(ctx, c.environmentId, *scanView); err != nil {
@@ -156,7 +156,7 @@ func (c *runConfig) ResultProcessor() rego.RegoResultProcessor {
 			if err != nil {
 				return err
 			}
-			if client.PostProcessReport(ctx, c.environmentId, report); err != nil {
+			if client.PostProcessReport(ctx, conf, c.environmentId, report); err != nil {
 				return err
 			}
 		}

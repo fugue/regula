@@ -17,6 +17,7 @@ package rule_waivers
 import (
 	"strings"
 
+	"github.com/fugue/regula/v2/pkg/loader"
 	"github.com/fugue/regula/v2/pkg/reporter"
 )
 
@@ -40,18 +41,32 @@ type RuleWaiver struct {
 	RuleID           string
 }
 
-// TODO: Add an interface for results/resources so we can apply this to both.
-func (waiver RuleWaiver) Match(result reporter.RuleResult) bool {
+// TODO: Add an interface for results/resources so we can use this both at
+// runtime as in IaC.  Move out configs and replace it by a method in this
+// interface.
+func (waiver RuleWaiver) Match(
+	configs loader.LoadedConfigurations,
+	result reporter.RuleResult,
+) bool {
+	configFilepath := result.Filepath
+	if strp := configs.ConfigurationPath(result.Filepath); strp != nil {
+		configFilepath = *strp
+	}
+
 	return ExactMatchOrWildcards(waiver.ResourceID, result.ResourceID) &&
-		ExactMatchOrWildcards(waiver.ResourceProvider, result.Filepath) &&
+		ExactMatchOrWildcards(waiver.ResourceProvider, configFilepath) &&
 		ExactMatchOrWildcards(waiver.ResourceType, result.ResourceType) &&
 		ExactMatchOrWildcards(waiver.RuleID, result.RuleID)
 }
 
-func ApplyRuleWaivers(report *reporter.RegulaReport, waivers []RuleWaiver) {
+func ApplyRuleWaivers(
+	configs loader.LoadedConfigurations,
+	report *reporter.RegulaReport,
+	waivers []RuleWaiver,
+) {
 	for i := range report.RuleResults {
 		for _, waiver := range waivers {
-			if waiver.Match(report.RuleResults[i]) {
+			if waiver.Match(configs, report.RuleResults[i]) {
 				report.RuleResults[i].RuleResult = "WAIVED"
 
 				if waiver.ID != "" {

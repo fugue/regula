@@ -2,8 +2,6 @@
 package regulatf
 
 import (
-	"strings"
-
 	"github.com/hashicorp/hcl/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/zclconf/go-cty/cty"

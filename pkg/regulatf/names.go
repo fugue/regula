@@ -125,6 +125,35 @@ func (name FullName) AddIndex(i int) FullName {
 	return name.add(i)
 }
 
+func (name FullName) AddLocalName(after LocalName) FullName {
+	local := make([]interface{}, len(name.Local)+len(after))
+	copy(local, name.Local)
+	copy(local[len(name.Local):], after)
+	return FullName{name.Module, local}
+}
+
+// Is this a builtin variable?
+func (name FullName) IsBuiltin() bool {
+	if len(name.Module) > 0 {
+		return false
+	}
+
+	if len(name.Local) == 2 {
+		if str, ok := name.Local[0].(string); ok {
+			switch str {
+			case "terraform":
+				return true
+			case "path":
+				return true
+			case "count":
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 // Parses the use of an output (e.g. "module.child.x") to the fully expanded
 // output name (e.g. module.child.output.x")
 func (name FullName) AsModuleOutput() *FullName {
@@ -168,19 +197,28 @@ func (name FullName) AsDefault() *FullName {
 	return nil
 }
 
-// Parses "aws_s3_bucket.my_bucket.bucket_prefix" into "aws_s3_bucket.my_bucket"
-// and also returns the remainder.
-func (name FullName) AsResourceName() (*FullName, LocalName) {
+// Parses "aws_s3_bucket.my_bucket[3].bucket_prefix" into:
+// - The resource name "aws_s3_bucket.my_bucket".
+// - The count index "3", or -1 if not present.
+// - The remainder, "bucket_prefix".
+func (name FullName) AsResourceName() (*FullName, int, LocalName) {
 	if len(name.Local) >= 2 {
 		if str, ok := name.Local[0].(string); ok {
 			cut := 2
-			if str == "data" && len(name.Local) >= 3 {
-				cut = 3
+			if str == "data" && len(name.Local) >= cut+1 {
+				cut += 1
 			}
-			return &FullName{name.Module, name.Local[:cut]}, name.Local[cut:]
+
+			if len(name.Local) > cut {
+				if index, ok := name.Local[cut].(int); ok {
+					return &FullName{name.Module, name.Local[:cut]}, index, name.Local[cut+1:]
+				}
+			}
+
+			return &FullName{name.Module, name.Local[:cut]}, -1, name.Local[cut:]
 		}
 	}
-	return nil, nil
+	return nil, -1, nil
 }
 
 // TODO: Refactor to TraversalToName?

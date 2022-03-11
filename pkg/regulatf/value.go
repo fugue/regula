@@ -22,6 +22,15 @@ func ValueToInt(val cty.Value) *int {
 	return nil
 }
 
+func ValueToString(val cty.Value) *string {
+	if !val.IsKnown() || val.IsNull() || val.Type() != cty.String {
+		return nil
+	}
+
+	str := val.AsString()
+	return &str
+}
+
 func ValueToInterface(val cty.Value) interface{} {
 	if !val.IsKnown() || val.IsNull() {
 		return nil

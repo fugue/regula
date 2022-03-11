@@ -37,7 +37,7 @@ rds_cluster_instances[id] = instance {
     # NOTE(jaspervdj): We also ensure that there actually are
     # `aws_rds_cluster_instance` resources in the input in order not to
     # generate wrong "missing resource types" in the rules engine.
-    fugue.resource_types_v0["aws_rds_cluster_instance"]
+    fugue.input_resource_types["aws_rds_cluster_instance"]
     instances = fugue.resources("aws_rds_cluster_instance")
     instance = instances[id]
 }

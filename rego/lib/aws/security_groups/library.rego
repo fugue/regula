@@ -124,7 +124,7 @@ security_groups_ids_by_resource = {resource_id: sgs |
 
 # All resources by ID.
 all_resources = {resource_id: resource |
-	fugue.resource_types_v0[resource_type]
+	fugue.input_resource_types[resource_type]
 	types_with_security_groups[resource_type]
 	resources = fugue.resources(resource_type)
 	resource = resources[resource_id]

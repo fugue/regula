@@ -63,7 +63,7 @@ make_document(doc) = ret {
 
 policy_documents := {global_id: ret |
   # This is a design-time only resource type so make sure it exists.
-  fugue.resource_types_v0["data.aws_iam_policy_document"]
+  fugue.input_resource_types["data.aws_iam_policy_document"]
   doc := fugue.resources("data.aws_iam_policy_document")[global_id]
   ret := make_document(doc)
 }

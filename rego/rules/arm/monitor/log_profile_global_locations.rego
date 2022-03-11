@@ -37,7 +37,7 @@ resource_type := "MULTIPLE"
 log_profiles = fugue.resources("Microsoft.Insights/logprofiles")
 
 used_locations := {lower(l) |
-	fugue.resource_types_v0[ty]
+	fugue.input_resource_types[ty]
 	r := fugue.resources(ty)
 	l := r[_].location
 }

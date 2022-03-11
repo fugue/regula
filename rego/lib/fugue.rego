@@ -15,10 +15,13 @@ package fugue
 
 import data.fugue.input_type_internal
 
+# Internal, use input_resource_types instead.
 resource_types = {rt |
   r = input.resources[_]
   rt = r._type
 }
+
+input_resource_types = resource_types
 
 resources_by_type = {rt: rs |
   resource_types[rt]
@@ -104,6 +107,7 @@ report_v0(message, policy) = ret {
 }
 
 # Provided for backward-compatibility with older Fugue rules only.
+# Use input_resource_types instead.
 resource_types_v0 = resource_types
 
 input_type = ret {

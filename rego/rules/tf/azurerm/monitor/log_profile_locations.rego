@@ -30,7 +30,7 @@ __rego__metadoc__ := {
 }
 
 used_locations = {lower(location) |
-  fugue.resource_types_v0[ty]
+  fugue.input_resource_types[ty]
   resources = fugue.resources(ty)
   location = resources[_].location
 }

@@ -119,6 +119,9 @@ func (c *runConfig) ResultProcessor() rego.RegoResultProcessor {
 			if err != nil {
 				return err
 			}
+			if client.PostProcessReport(ctx, conf, c.environmentId, &scanView.Report); err != nil {
+				return err
+			}
 			if err := client.UploadScan(ctx, c.environmentId, *scanView); err != nil {
 				return err
 			}
@@ -143,10 +146,19 @@ func (c *runConfig) ResultProcessor() rego.RegoResultProcessor {
 		}
 	}
 
-	return func(_ context.Context, conf loader.LoadedConfigurations, r rego.RegoResult) error {
+	return func(ctx context.Context, conf loader.LoadedConfigurations, r rego.RegoResult) error {
 		report, err := reporter.ParseRegulaOutput(conf, r)
 		if err != nil {
 			return err
+		}
+		if c.sync {
+			client, err := fugue.NewFugueClient()
+			if err != nil {
+				return err
+			}
+			if client.PostProcessReport(ctx, conf, c.environmentId, report); err != nil {
+				return err
+			}
 		}
 		reporter, err := reporter.GetReporter(c.format)
 		if err != nil {

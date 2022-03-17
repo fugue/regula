@@ -168,6 +168,41 @@ func (o RegulaReport) ExceedsSeverity(severity Severity) bool {
 	return maxSeverity >= severity
 }
 
+func (report *RegulaReport) RecomputeSummary() {
+	filepathSet := map[string]struct{}{}
+	ruleResults := map[string]int{}
+	severities := map[string]int{}
+
+	for k := range regulaResults {
+		ruleResults[k] = 0
+	}
+	for k := range regulaSeverities {
+		severities[k] = 0
+	}
+
+	for _, result := range report.RuleResults {
+		filepathSet[result.Filepath] = struct{}{}
+		if _, ok := ruleResults[result.RuleResult]; ok {
+			ruleResults[result.RuleResult] += 1
+		}
+		if _, ok := severities[result.RuleSeverity]; ok {
+			severities[result.RuleSeverity] += 1
+		}
+	}
+
+	filepaths := []string{}
+	for filepath := range filepathSet {
+		filepaths = append(filepaths, filepath)
+	}
+	sort.Strings(filepaths)
+
+	report.Summary = Summary{
+		Filepaths:   filepaths,
+		RuleResults: ruleResults,
+		Severities:  severities,
+	}
+}
+
 type ResourceResults struct {
 	Filepath     string
 	ResourceID   string
@@ -330,6 +365,7 @@ type RuleResult struct {
 	// and further elements indicate modules in which this was included, like
 	// a call stack.
 	SourceLocation loader.LocationStack `json:"source_location,omitempty"`
+	ActiveWaivers  []string             `json:"active_waivers,omitempty"`
 }
 
 func (r RuleResult) IsWaived() bool {

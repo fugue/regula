@@ -60,6 +60,20 @@ func (mr *MockLoadedConfigurationsMockRecorder) AlreadyLoaded(arg0 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AlreadyLoaded", reflect.TypeOf((*MockLoadedConfigurations)(nil).AlreadyLoaded), arg0)
 }
 
+// ConfigurationPath mocks base method.
+func (m *MockLoadedConfigurations) ConfigurationPath(arg0 string) *string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConfigurationPath", arg0)
+	ret0, _ := ret[0].(*string)
+	return ret0
+}
+
+// ConfigurationPath indicates an expected call of ConfigurationPath.
+func (mr *MockLoadedConfigurationsMockRecorder) ConfigurationPath(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfigurationPath", reflect.TypeOf((*MockLoadedConfigurations)(nil).ConfigurationPath), arg0)
+}
+
 // Count mocks base method.
 func (m *MockLoadedConfigurations) Count() int {
 	m.ctrl.T.Helper()

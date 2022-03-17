@@ -34,7 +34,7 @@ Make sure you're in the `regula-ci-example` directory and run this command:
 regula run -f json --include example_custom_rule infra_tf
 ```
 
-We see this output:
+We see this output (edited for length):
 
 ```json
 {
@@ -43,11 +43,15 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
+      "families": [
+        "CORPORATE-POLICY"
+      ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
@@ -68,11 +72,15 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
+      "families": [
+        "CORPORATE-POLICY"
+      ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
@@ -92,13 +100,20 @@ We see this output:
     {
       "controls": [
         "CIS-AWS_v1.2.0_1.22",
-        "CIS-AWS_v1.3.0_1.16"
+        "CIS-AWS_v1.3.0_1.16",
+        "CIS-AWS_v1.4.0_1.16"
+      ],
+      "families": [
+        "CIS-AWS_v1.2.0",
+        "CIS-AWS_v1.3.0",
+        "CIS-AWS_v1.4.0"
       ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
       "rule_id": "FG_R00092",
       "rule_message": "",
@@ -119,13 +134,20 @@ We see this output:
     {
       "controls": [
         "CIS-AWS_v1.2.0_1.22",
-        "CIS-AWS_v1.3.0_1.16"
+        "CIS-AWS_v1.3.0_1.16",
+        "CIS-AWS_v1.4.0_1.16"
+      ],
+      "families": [
+        "CIS-AWS_v1.2.0",
+        "CIS-AWS_v1.3.0",
+        "CIS-AWS_v1.4.0"
       ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
       "rule_id": "FG_R00092",
       "rule_message": "",
@@ -151,7 +173,7 @@ We see this output:
     ],
     "rule_results": {
       "FAIL": 2,
-      "PASS": 4,
+      "PASS": 6,
       "WAIVED": 0
     },
     "severities": {
@@ -203,7 +225,7 @@ Here's the full command:
 regula run -f json --include example_custom_rule --include config.rego infra_tf
 ```
 
-We see this output:
+We see this output (which we've edited for length):
 
 ```json
 {
@@ -212,11 +234,15 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
+      "families": [
+        "CORPORATE-POLICY"
+      ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
@@ -237,11 +263,15 @@ We see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
+      "families": [
+        "CORPORATE-POLICY"
+      ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
@@ -261,13 +291,20 @@ We see this output:
     {
       "controls": [
         "CIS-AWS_v1.2.0_1.22",
-        "CIS-AWS_v1.3.0_1.16"
+        "CIS-AWS_v1.3.0_1.16",
+        "CIS-AWS_v1.4.0_1.16"
+      ],
+      "families": [
+        "CIS-AWS_v1.2.0",
+        "CIS-AWS_v1.3.0",
+        "CIS-AWS_v1.4.0"
       ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
       "rule_id": "FG_R00092",
       "rule_message": "",
@@ -288,13 +325,20 @@ We see this output:
     {
       "controls": [
         "CIS-AWS_v1.2.0_1.22",
-        "CIS-AWS_v1.3.0_1.16"
+        "CIS-AWS_v1.3.0_1.16",
+        "CIS-AWS_v1.4.0_1.16"
+      ],
+      "families": [
+        "CIS-AWS_v1.2.0",
+        "CIS-AWS_v1.3.0",
+        "CIS-AWS_v1.4.0"
       ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
       "rule_id": "FG_R00092",
       "rule_message": "",
@@ -320,7 +364,7 @@ We see this output:
     ],
     "rule_results": {
       "FAIL": 1,
-      "PASS": 4,
+      "PASS": 6,
       "WAIVED": 1
     },
     "severities": {
@@ -335,7 +379,7 @@ We see this output:
 }
 ```
 
-This time, there are 1 FAIL, 4 PASS, and 1 WAIVED rule results! You can see in the output that the `rule_result` value is `WAIVED` for the rule `long_description` and resource `aws_iam_policy.basically_allow_all`.
+This time, there are 1 FAIL, 6 PASS, and 1 WAIVED rule results! You can see in the output that the `rule_result` value is `WAIVED` for the rule `long_description` and resource `aws_iam_policy.basically_allow_all`.
 
 Hooray! You've just configured Regula to waive a rule result for a resource. Your next mission: disabling a rule!
 
@@ -360,7 +404,7 @@ Run the same command we ran a moment ago:
 regula run -f json --include example_custom_rule --include config.rego infra_tf
 ```
 
-We'll see this output:
+We'll see this output (again, edited for length):
 
 ```json
 {
@@ -369,11 +413,15 @@ We'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
+      "families": [
+        "CORPORATE-POLICY"
+      ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
@@ -394,11 +442,15 @@ We'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
+      "families": [
+        "CORPORATE-POLICY"
+      ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
@@ -423,7 +475,7 @@ We'll see this output:
     ],
     "rule_results": {
       "FAIL": 0,
-      "PASS": 3,
+      "PASS": 5,
       "WAIVED": 1
     },
     "severities": {
@@ -438,7 +490,7 @@ We'll see this output:
 }
 ```
 
-Now there are just 4 rule results: 3 PASS and 1 WAIVED. As you can see, the rule `tf_aws_iam_admin_policy` was totally ignored.
+Now there are just 6 rule results: 5 PASS and 1 WAIVED. As you can see, the rule `tf_aws_iam_admin_policy` was totally ignored.
 
 Nice job! You just configured Regula to disable a rule. 
 

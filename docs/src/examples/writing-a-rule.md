@@ -115,7 +115,9 @@ You'll see this output:
 ```json
 {
   "aws_iam_policy.basically_allow_all": {
+    "_filepath": "infra_tf/main.tf",
     "_provider": "aws",
+    "_tags": {},
     "_type": "aws_iam_policy",
     "description": "Some policy",
     "id": "aws_iam_policy.basically_allow_all",
@@ -124,7 +126,9 @@ You'll see this output:
     "policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"*\",\n      \"Effect\": \"Allow\",\n      \"Resource\": \"*\"\n    }\n  ]\n}\n"
   },
   "aws_iam_policy.basically_deny_all": {
+    "_filepath": "infra_tf/main.tf",
     "_provider": "aws",
+    "_tags": {},
     "_type": "aws_iam_policy",
     "description": "Some policy with a long description that denies anything",
     "id": "aws_iam_policy.basically_deny_all",
@@ -138,6 +142,12 @@ You'll see this output:
 Here you can see that there are two resources defined, both of the type `aws_iam_policy`. The attribute `description` is what we're looking for, and it's located at the level directly beneath the resource ID. That means it's a top-level attribute -- it's not nested under any other attribute.
 
 If you'd like to learn more about using the REPL for developing rules, take a detour to [Test Inputs](../development/test-inputs.md).
+
+Now you can exit the REPL:
+
+```
+exit
+```
 
 ### Specify the condition
 
@@ -232,11 +242,15 @@ You'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
+      "families": [
+        "CORPORATE-POLICY"
+      ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
@@ -257,11 +271,15 @@ You'll see this output:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
+      "families": [
+        "CORPORATE-POLICY"
+      ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
       "rule_id": "CUSTOM_0001",
       "rule_message": "",

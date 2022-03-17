@@ -147,13 +147,20 @@ You'll see output like this:
     {
       "controls": [
         "CIS-AWS_v1.2.0_1.22",
-        "CIS-AWS_v1.3.0_1.16"
+        "CIS-AWS_v1.3.0_1.16",
+        "CIS-AWS_v1.4.0_1.16"
+      ],
+      "families": [
+        "CIS-AWS_v1.2.0",
+        "CIS-AWS_v1.3.0",
+        "CIS-AWS_v1.4.0"
       ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
       "rule_id": "FG_R00092",
       "rule_message": "",
@@ -174,13 +181,20 @@ You'll see output like this:
     {
       "controls": [
         "CIS-AWS_v1.2.0_1.22",
-        "CIS-AWS_v1.3.0_1.16"
+        "CIS-AWS_v1.3.0_1.16",
+        "CIS-AWS_v1.4.0_1.16"
+      ],
+      "families": [
+        "CIS-AWS_v1.2.0",
+        "CIS-AWS_v1.3.0",
+        "CIS-AWS_v1.4.0"
       ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
       "rule_id": "FG_R00092",
       "rule_message": "",
@@ -199,12 +213,82 @@ You'll see output like this:
       ]
     },
     {
-      "controls": [],
+      "controls": [
+        "CIS-AWS_v1.2.0_1.16",
+        "CIS-AWS_v1.3.0_1.15",
+        "CIS-AWS_v1.4.0_1.15"
+      ],
+      "families": [
+        "CIS-AWS_v1.2.0",
+        "CIS-AWS_v1.3.0",
+        "CIS-AWS_v1.4.0"
+      ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
+      "rule_description": "IAM policies should not be attached to users. Assigning privileges at the group or role level reduces the complexity of access management as the number of users grow. Reducing access management complexity may reduce opportunity for a principal to inadvertently receive or retain excessive privileges.",
+      "rule_id": "FG_R00007",
+      "rule_message": "",
+      "rule_name": "tf_aws_iam_policy",
+      "rule_raw_result": true,
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00007.html",
+      "rule_result": "PASS",
+      "rule_severity": "Low",
+      "rule_summary": "IAM policies should not be attached to users",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 6,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "controls": [
+        "CIS-AWS_v1.2.0_1.16",
+        "CIS-AWS_v1.3.0_1.15",
+        "CIS-AWS_v1.4.0_1.15"
+      ],
+      "families": [
+        "CIS-AWS_v1.2.0",
+        "CIS-AWS_v1.3.0",
+        "CIS-AWS_v1.4.0"
+      ],
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
+      "provider": "aws",
+      "resource_id": "aws_iam_policy.basically_deny_all",
+      "resource_type": "aws_iam_policy",
+      "resource_tags": {},
+      "rule_description": "IAM policies should not be attached to users. Assigning privileges at the group or role level reduces the complexity of access management as the number of users grow. Reducing access management complexity may reduce opportunity for a principal to inadvertently receive or retain excessive privileges.",
+      "rule_id": "FG_R00007",
+      "rule_message": "",
+      "rule_name": "tf_aws_iam_policy",
+      "rule_raw_result": true,
+      "rule_remediation_doc": "https://docs.fugue.co/FG_R00007.html",
+      "rule_result": "PASS",
+      "rule_severity": "Low",
+      "rule_summary": "IAM policies should not be attached to users",
+      "source_location": [
+        {
+          "path": "infra_tf/main.tf",
+          "line": 25,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "controls": [],
+      "families": [],
+      "filepath": "infra_tf/main.tf",
+      "input_type": "tf",
+      "provider": "aws",
+      "resource_id": "aws_iam_policy.basically_allow_all",
+      "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "IAM policies should not allow broad list actions on S3 buckets. Should a malicious actor gain access to a role with a policy that includes broad list actions such as ListAllMyBuckets, the malicious actor would be able to enumerate all buckets and potentially extract sensitive data.",
       "rule_id": "FG_R00218",
       "rule_message": "",
@@ -224,11 +308,13 @@ You'll see output like this:
     },
     {
       "controls": [],
+      "families": [],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "IAM policies should not allow broad list actions on S3 buckets. Should a malicious actor gain access to a role with a policy that includes broad list actions such as ListAllMyBuckets, the malicious actor would be able to enumerate all buckets and potentially extract sensitive data.",
       "rule_id": "FG_R00218",
       "rule_message": "",
@@ -253,7 +339,7 @@ You'll see output like this:
     ],
     "rule_results": {
       "FAIL": 1,
-      "PASS": 3,
+      "PASS": 5,
       "WAIVED": 0
     },
     "severities": {
@@ -270,7 +356,7 @@ You'll see output like this:
 
 ### What does it mean?
 
-Regula just showed us that our [sample Terraform](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) is noncompliant and a security vulnerability. In this example, there are 4 rule results: 3 PASS and 1 FAIL.
+Regula just showed us that our [sample Terraform](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) is noncompliant and a security vulnerability. In this example, there are 6 rule results: 5 PASS and 1 FAIL.
 
 The AWS IAM policy resource `aws_iam_policy.basically_allow_all` failed the Regula rule ["IAM policies should not have full `"*:*"` administrative privileges."](https://github.com/fugue/regula/blob/master/rego/rules/tf/aws/iam/admin_policy.rego) The report includes lots of other info, such as the filepath, line, and column the resource was found in; the rule severity; a full description of the rule; and more:
 
@@ -278,13 +364,20 @@ The AWS IAM policy resource `aws_iam_policy.basically_allow_all` failed the Regu
     {
       "controls": [
         "CIS-AWS_v1.2.0_1.22",
-        "CIS-AWS_v1.3.0_1.16"
+        "CIS-AWS_v1.3.0_1.16",
+        "CIS-AWS_v1.4.0_1.16"
+      ],
+      "families": [
+        "CIS-AWS_v1.2.0",
+        "CIS-AWS_v1.3.0",
+        "CIS-AWS_v1.4.0"
       ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
       "rule_id": "FG_R00092",
       "rule_message": "",
@@ -310,13 +403,20 @@ In contrast, the policy `aws_iam_policy.basically_deny_all` passed the rule:
     {
       "controls": [
         "CIS-AWS_v1.2.0_1.22",
-        "CIS-AWS_v1.3.0_1.16"
+        "CIS-AWS_v1.3.0_1.16",
+        "CIS-AWS_v1.4.0_1.16"
+      ],
+      "families": [
+        "CIS-AWS_v1.2.0",
+        "CIS-AWS_v1.3.0",
+        "CIS-AWS_v1.4.0"
       ],
       "filepath": "infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_deny_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "IAM policies should not have full \"*:*\" administrative privileges. IAM policies should start with a minimum set of permissions and include more as needed rather than starting with full administrative privileges. Providing full administrative privileges when unnecessary exposes resources to potentially unwanted actions.",
       "rule_id": "FG_R00092",
       "rule_message": "",
@@ -345,7 +445,7 @@ The summary lists the filenames evaluated, the number of FAIL/PASS/[WAIVED](conf
     ],
     "rule_results": {
       "FAIL": 1,
-      "PASS": 3,
+      "PASS": 5,
       "WAIVED": 0
     },
     "severities": {

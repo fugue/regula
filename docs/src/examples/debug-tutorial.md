@@ -153,6 +153,7 @@ Here's the output:
   "google_storage_bucket.bad": {
     "_filepath": "bucket.tf",
     "_provider": "google",
+    "_tags": {},
     "_type": "google_storage_bucket",
     "id": "google_storage_bucket.bad",
     "location": "US",
@@ -167,6 +168,7 @@ Here's the output:
   "google_storage_bucket.good": {
     "_filepath": "bucket.tf",
     "_provider": "google",
+    "_tags": {},
     "_type": "google_storage_bucket",
     "id": "google_storage_bucket.good",
     "lifecycle_rule": [

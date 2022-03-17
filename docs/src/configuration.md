@@ -17,6 +17,9 @@ Or a directory that includes your other Rego rules and libraries:
 
 ## Waiving rule results
 
+!!! note
+    For information about waiving rules for [Fugue repository environments](https://docs.fugue.co/waivers.html), see [Regula and Fugue](fugue.md).
+
 Regula enables you to waive a rule for resources or rules that match certain attributes.  When a rule is waived for a resource, the result (`PASS` or `FAIL`) becomes `WAIVED` and is effectively ignored in compliance calculations.
 
 The following rule result attributes, which are also in the [Regula report output](report.md), are supported for waiver objects:

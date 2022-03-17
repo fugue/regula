@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## v2.6.0 (2022-03-17)
+
+### Added
+* New TF rules: FG_R00354, FG_R00355, FG_R00357, FG_R00359, FG_R00375, FG_R00451, FG_R00452, FG_R00468
+* SARIF output format (#284)
+* Resource tags to JSON report (#317)
+* Support for valueless tags (#319)
+* `input_resource_types` set to `fugue` library (#322)
+* Support for waivers defined in Fugue SaaS when using `--sync` (#316)
+
+### Removed
+* Commented-out defaults from generated config file (#320)
+
+### Fixed
+* Package name to match Go mod conventions for package versioning (#296) (#312)
+* Nil panic in Cloudformation detector (#313)
+* Bug in FG_R00068 when KMS key resource not defined in same module (#299)
+
+### Security
+* Upgrade OPA from 0.34.1 to 0.37.0 (#308)
+* Upgrade Alpine version in docker image (#323)
+
+### Improved
+* Support for `count` attribute in HCL (#321)
+
 ## v2.5.0 (2022-02-11)
 
 ### Changed

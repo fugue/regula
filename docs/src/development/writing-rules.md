@@ -93,6 +93,7 @@ The `fugue` API consists of these functions for advanced rules:
 
 -   `fugue.resources(resource_type)` returns an object with all resources of
     the requested type.
+    `fugue.input_resource_types` is a set with all resource types in the input document.
 -   `fugue.allow_resource(resource)` marks a resource as valid.
 -   `fugue.deny_resource(resource)` marks a resource as invalid.
 -   `fugue.deny_resource_with_message(resource, msg)` marks a resource as invalid and displays a custom `rule_message` in the report.
@@ -188,23 +189,26 @@ Here's an example rule result to show how this metadata looks in the report:
       "controls": [
         "CORPORATE-POLICY_1.1"
       ],
-      "filepath": "../regula-ci-example/infra_tf/",
+      "families": [
+        "CORPORATE-POLICY"
+      ],
+      "filepath": "../regula-ci-example/infra_tf/main.tf",
       "input_type": "tf",
       "provider": "aws",
       "resource_id": "aws_iam_policy.basically_allow_all",
       "resource_type": "aws_iam_policy",
+      "resource_tags": {},
       "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
       "rule_id": "CUSTOM_0001",
       "rule_message": "",
       "rule_name": "long_description",
       "rule_raw_result": false,
-      "rule_remediation_doc": "https://example.com",
       "rule_result": "FAIL",
       "rule_severity": "Low",
       "rule_summary": "IAM policies must have a description of at least 25 characters",
       "source_location": [
         {
-          "path": "../regula-ci-example/infra_tf/",
+          "path": "../regula-ci-example/infra_tf/main.tf",
           "line": 6,
           "column": 1
         }

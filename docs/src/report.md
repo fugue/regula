@@ -19,6 +19,9 @@ Here's a snippet of test results from a Regula JSON report:
       "provider": "azurerm",
       "resource_id": "azurerm_network_security_group.devnsg",
       "resource_type": "azurerm_network_security_group",
+      "resource_tags": {
+        "environment": "dev"
+      },
       "rule_description": "Virtual Network security group flow log retention period should be set to 90 days or greater. Flow logs enable capturing information about IP traffic flowing in and out of network security groups. Logs can be used to check for anomalies and give insight into suspected breaches.",
       "rule_id": "FG_R00286",
       "rule_message": "",
@@ -50,6 +53,9 @@ Here's a snippet of test results from a Regula JSON report:
       "provider": "azurerm",
       "resource_id": "azurerm_network_security_group.devnsg",
       "resource_type": "azurerm_network_security_group",
+      "resource_tags": {
+        "environment": "dev"
+      },
       "rule_description": "Virtual Network security groups should not permit ingress from '0.0.0.0/0' to TCP/UDP port 22 (SSH). The potential security problem with using SSH over the internet is that attackers can use various brute force techniques to gain access to Azure Virtual Machines. Once the attackers gain access, they can use a virtual machine as a launch point for compromising other machines on the Azure Virtual Network or even attack networked devices outside of Azure.",
       "rule_id": "FG_R00191",
       "rule_message": "",
@@ -81,6 +87,9 @@ Here's a snippet of test results from a Regula JSON report:
       "provider": "azurerm",
       "resource_id": "azurerm_storage_account.main",
       "resource_type": "azurerm_storage_account",
+      "resource_tags": {
+        "environment": "dev"
+      },
       "rule_description": "Storage Accounts 'Secure transfer required' should be enabled. The secure transfer option enhances the security of a storage account by only allowing requests to the storage account by a secure connection. This control does not apply for custom domain names since Azure storage does not support HTTPS for custom domain names.",
       "rule_id": "FG_R00152",
       "rule_message": "",
@@ -148,6 +157,7 @@ Each rule result in the JSON report lists the following attributes:
 - `provider`: `aws`, `azurerm`, `google`, `kubernetes`, `arm`
 - `resource_id`: ID of the evaluated resource
 - `resource_type`: Type of the evaluated resource
+- `resource_tags`: Normalized resource tags/labels
 - `rule_description`: A detailed description of the rule
 - `rule_id`: ID of the rule; built-in rules start with `FG_R`
 - `rule_message`: Optional error message associated with the rule; see how to create custom error messages in [simple](development/writing-rules.md#custom-error-messages-and-attributes-simple-rules) and [advanced](development/writing-rules.md#custom-error-messages-advanced-rules) custom rules
@@ -158,6 +168,7 @@ Each rule result in the JSON report lists the following attributes:
 - `rule_severity`: `Critical`, `High`, `Medium`, `Low`, `Informational`, or `Unknown`
 - `rule_summary`: A short summary of the rule
 - `source_location`: The path, line, and column of the evaluated resource
+- `active_waivers`: A list of [Fugue waiver](https://docs.fugue.co/waivers.html) IDs applied to the relevant [Fugue repository environment](https://docs.fugue.co/setup-repository.html) (not applicable when running Regula without `--sync`)
 
 ## Compliance controls vs. rules
 

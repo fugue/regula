@@ -153,6 +153,7 @@ Regula operates on ARM templates formatted as JSON.
 - `junit` -- The JUnit XML format
 - `tap` -- The Test Anything Protocol format
 - `compact` -- An alternate, more compact human friendly format
+- `sarif` -- Static Analysis Results Interchange Format
 - `none` -- Do not print any output on stdout
 
 `-t, --input type INPUT-TYPE` values:
@@ -269,11 +270,15 @@ Use the `--f | --format FORMAT` flag to specify the output format:
           "controls": [
             "CORPORATE-POLICY_1.1"
           ],
+          "families": [
+            "CORPORATE-POLICY"
+          ],
           "filepath": "infra_cfn/invalid_long_description.yaml",
           "input_type": "cfn",
           "provider": "aws",
           "resource_id": "InvalidManagedPolicy01",
           "resource_type": "AWS::IAM::ManagedPolicy",
+          "resource_tags": {},
           "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
           "rule_id": "CUSTOM_0001",
           "rule_message": "",
@@ -294,11 +299,15 @@ Use the `--f | --format FORMAT` flag to specify the output format:
           "controls": [
             "CORPORATE-POLICY_1.1"
           ],
+          "families": [
+            "CORPORATE-POLICY"
+          ],
           "filepath": "infra_cfn/invalid_long_description.yaml",
           "input_type": "cfn",
           "provider": "aws",
           "resource_id": "ValidManagedPolicy01",
           "resource_type": "AWS::IAM::ManagedPolicy",
+          "resource_tags": {},
           "rule_description": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
           "rule_id": "CUSTOM_0001",
           "rule_message": "",
@@ -340,14 +349,14 @@ Use the `--f | --format FORMAT` flag to specify the output format:
 === "table"
 
     ```
-    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
-    |        Resource        |          Type           |                   Filepath                   | Severity |   Rule ID   |      Rule Name       |                            Message                             | Result |
-    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
-    | InvalidManagedPolicy01 | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml:14:3 | Low      | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters | FAIL   |
-    | ValidManagedPolicy01   | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml:3:3  | Low      | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters | PASS   |
-    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
-    |                        |                         |                                              |          |             |                      |                                                        Overall | FAIL   |
-    +------------------------+-------------------------+----------------------------------------------+----------+-------------+----------------------+----------------------------------------------------------------+--------+
+    +--------+------------------------+----------+-------------------------+----------------------------------------------+-------------+----------------------+----------------------------------------------------------------+
+    | Result |        Resource        | Severity |          Type           |                   Filepath                   |   Rule ID   |      Rule Name       |                            Message                             |
+    +--------+------------------------+----------+-------------------------+----------------------------------------------+-------------+----------------------+----------------------------------------------------------------+
+    | FAIL   | InvalidManagedPolicy01 | Low      | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml:14:3 | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters |
+    | PASS   | ValidManagedPolicy01   | Low      | AWS::IAM::ManagedPolicy | infra_cfn/invalid_long_description.yaml:3:3  | CUSTOM_0001 | long_description_cfn | IAM policies must have a description of at least 25 characters |
+    +--------+------------------------+----------+-------------------------+----------------------------------------------+-------------+----------------------+----------------------------------------------------------------+
+    | FAIL   | Overall                |          |                         |                                              |             |                      |                                                                |
+    +--------+------------------------+----------+-------------------------+----------------------------------------------+-------------+----------------------+----------------------------------------------------------------+
     ```
 
 === "junit"
@@ -376,6 +385,114 @@ Use the `--f | --format FORMAT` flag to specify the output format:
     CUSTOM_0001: IAM policies must have a description of at least 25 characters [Low]
       [1]: InvalidManagedPolicy01 in infra_cfn/invalid_long_description.yaml:14:3
     Found one problem.
+    ```
+
+=== "sarif"
+
+    ```json
+    {
+      "version": "2.1.0",
+      "$schema": "https://json.schemastore.org/sarif-2.1.0-rtm.5.json",
+      "runs": [
+        {
+          "tool": {
+            "driver": {
+              "informationUri": "https://regula.dev",
+              "name": "regula",
+              "rules": [
+                {
+                  "id": "CUSTOM_0001",
+                  "shortDescription": {
+                    "text": "IAM policies must have a description of at least 25 characters"
+                  },
+                  "fullDescription": {
+                    "text": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters.",
+                    "markdown": "Per company policy, it is required for all IAM policies to have a description of at least 25 characters."
+                  }
+                }
+              ],
+              "semanticVersion": ""
+            }
+          },
+          "artifacts": [
+            {
+              "location": {
+                "uri": "infra_cfn/invalid_long_description.yaml"
+              },
+              "length": -1
+            }
+          ],
+          "results": [
+            {
+              "properties": {
+                "controls": [
+                  "CORPORATE-POLICY_1.1"
+                ],
+                "families": [
+                  "CORPORATE-POLICY"
+                ],
+                "inputType": "cfn",
+                "resourceId": "InvalidManagedPolicy01",
+                "resourceType": "AWS::IAM::ManagedPolicy"
+              },
+              "ruleId": "CUSTOM_0001",
+              "ruleIndex": 0,
+              "kind": "fail",
+              "level": "error",
+              "message": {
+                "text": "IAM policies must have a description of at least 25 characters"
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "infra_cfn/invalid_long_description.yaml"
+                    },
+                    "region": {
+                      "startLine": 14,
+                      "startColumn": 3
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "properties": {
+                "controls": [
+                  "CORPORATE-POLICY_1.1"
+                ],
+                "families": [
+                  "CORPORATE-POLICY"
+                ],
+                "inputType": "cfn",
+                "resourceId": "ValidManagedPolicy01",
+                "resourceType": "AWS::IAM::ManagedPolicy"
+              },
+              "ruleId": "CUSTOM_0001",
+              "ruleIndex": 0,
+              "kind": "pass",
+              "level": "none",
+              "message": {
+                "text": "IAM policies must have a description of at least 25 characters"
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "infra_cfn/invalid_long_description.yaml"
+                    },
+                    "region": {
+                      "startLine": 3,
+                      "startColumn": 3
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
     ```
 
 You can also set the output format using the `REGULA_FORMAT` environment variable:
@@ -526,7 +643,7 @@ When using Regula with [Fugue](https://www.fugue.co), set the environment ID for
 regula init --environment-id a29aec17-ab48-42dc-ade5-c0ba8b650c4c
 ```
 
-Sync the built-in and custom rules from your [Fugue](https://www.fugue.co) tenant when running Regula locally:
+Sync the built-in and custom rules/families/waivers from your [Fugue](https://www.fugue.co) tenant when running Regula locally:
 
 ```
 regula init --environment-id a29aec17-ab48-42dc-ade5-c0ba8b650c4c --sync

@@ -2,14 +2,15 @@
 
 **Tip: See all of our documentation at [regula.dev](https://regula.dev)!**
 
-- [Introduction](#introduction)
-- [Installation](#installation)
-  - [Homebrew](#homebrew-macos--linux)
-  - [Prebuilt binary (all platforms)](#prebuilt-binary-all-platforms)
-  - [Docker (all platforms)](#docker-all-platforms)
-  - [From source](#from-source)
-- [Usage](#usage)
-- [For more information](#for-more-information)
+- [Regula](#regula)
+  - [Introduction](#introduction)
+  - [Installation](#installation)
+    - [Homebrew (macOS & Linux)](#homebrew-macos--linux)
+    - [Prebuilt binary (all platforms)](#prebuilt-binary-all-platforms)
+    - [Docker (all platforms)](#docker-all-platforms)
+    - [From source](#from-source)
+  - [Usage](#usage)
+  - [For more information](#for-more-information)
 
 ## Introduction
 
@@ -95,7 +96,7 @@ For usage, see [Running Regula with Docker](https://regula.dev/usage.html#runnin
 
 _macOS, Linux, and [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) only_
 
-1. [Install Go (v1.16+)](https://go.dev/doc/install)
+1. [Install Go (v1.17+)](https://go.dev/doc/install)
 
 2. Build binary and move to `/usr/local/bin/regula`:
 

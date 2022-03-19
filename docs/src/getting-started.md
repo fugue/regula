@@ -42,7 +42,7 @@ brew upgrade regula
         move regula.exe C:\regula\bin
         setx PATH "%PATH%;C:\regula\bin"
         ```
-    
+
     === "Windows (PowerShell)"
 
         ```powershell
@@ -67,7 +67,7 @@ brew upgrade regula
             regula
 
     5. macOS will ask you to confirm that you want to open it. Select "Open."
-    
+
     You can now execute regula commands.
 
 ### Docker (all platforms)
@@ -84,7 +84,7 @@ For usage, see [Running Regula with Docker](usage.md#running-regula-with-docker)
 !!! note
     macOS, Linux, and [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) only
 
-1. [Install Go (v1.16+)](https://go.dev/doc/install)
+1. [Install Go (v1.17+)](https://go.dev/doc/install)
 
 2. Build binary and move to `/usr/local/bin/regula`:
 

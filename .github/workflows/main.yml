@@ -1,16 +1,21 @@
+name: main
+
 on: [pull_request, push]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Test
+    name: Test with Go ${{ matrix.go }}
+    strategy:
+      matrix:
+        go: ["1.17", "1.18"]
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: true
     - uses: actions/setup-go@v2
       with:
-        go-version: '^1.16'
+        go-version: ${{ matrix.go }}
     - name: Go test
       run: make test
     - name: Build

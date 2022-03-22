@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.6.1 (2022-03-22)
+
+### Fixed
+* `regula version` output
+
 ## v2.6.0 (2022-03-17)
 
 ### Added

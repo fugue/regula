@@ -17,10 +17,12 @@ package rego
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/fugue/regula/v2/pkg/loader"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
+	"github.com/open-policy-agent/opa/topdown"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,16 +35,76 @@ type RunRulesOptions struct {
 	Query     string
 }
 
+type RunRulesTracer struct {
+}
+
+func (t *RunRulesTracer) Enabled() bool {
+	return true
+}
+
+func (t *RunRulesTracer) TraceEvent(e topdown.Event) {
+	if e.Op != topdown.EvalOp {
+		return
+	}
+
+	if strings.HasPrefix(e.Location.File, "lib/fugue") {
+		return
+	}
+
+	if expr, ok := e.Node.(*ast.Expr); ok {
+		// if term, ok := expr.Terms.(*ast.Term); ok {
+		// 	if ref, ok := term.Value.(ast.Ref); ok {
+		// 		logrus.Info(ref)
+		// 	}
+		// } else if terms, ok := expr.Terms.([]*ast.Term); ok {
+		// 	for _, t := range terms {
+		// 		if ref, ok := t.Value.(ast.Ref); ok {
+		// 			for _, t := range ref {
+		// 				if t.Equal(ast.InputRootDocument) {
+		// 					logrus.Info(ref.String())
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+
+		if terms, ok := expr.Terms.([]*ast.Term); ok {
+			for _, t := range terms {
+				if ref, ok := t.Value.(ast.Ref); ok {
+					for _, t := range ref {
+						if t.Equal(ast.InputRootDocument) {
+							logrus.Infof("%s accessed %s", e.Location.File, ref.String())
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func (t *RunRulesTracer) Config() topdown.TraceConfig {
+	return topdown.TraceConfig{
+		PlugLocalVars: true,
+	}
+}
+
 func RunRules(ctx context.Context, options *RunRulesOptions) (RegoResult, error) {
 	query := options.Query
 	if query == "" {
 		query = REPORT_QUERY
 	}
 	regoFuncs := []func(r *rego.Rego){
+		// rego.QueryTracer(&RunRulesTracer{}),
 		rego.Query(query),
 		rego.Runtime(RegulaRuntimeConfig()),
 	}
+	modules := make(map[string]*ast.Module, len(options.Providers))
 	cb := func(r RegoFile) error {
+		mod, err := r.AstModule()
+		if err != nil {
+			return err
+		}
+		modules[r.Path()] = mod
 		regoFuncs = append(regoFuncs, rego.Module(r.Path(), r.String()))
 		return nil
 	}
@@ -66,7 +128,9 @@ func RunRules(ctx context.Context, options *RunRulesOptions) (RegoResult, error)
 	if err != nil {
 		return nil, err
 	}
-	results, err := regoQuery.Eval(ctx, rego.EvalInput(options.Input))
+	results, err := regoQuery.Eval(ctx, rego.EvalInput(options.Input), rego.EvalQueryTracer(&EvalStateTracer{
+		Modules: modules,
+	}))
 	if err != nil {
 		return nil, err
 	}

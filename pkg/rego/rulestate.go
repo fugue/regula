@@ -43,13 +43,15 @@ func (m *RuleMeta) IsJudgement(l *ast.Location) bool {
 }
 
 type EvalStateTracer struct {
-	currentRule  *RuleMeta
-	evalState    EvalState
-	isRuleCache  map[string]bool
-	packageCache map[string]string
-	ruleMetas    map[string]*RuleMeta
-	Modules      map[string]*ast.Module
-	queryStack   *Stack
+	currentRule      *RuleMeta
+	evalState        EvalState
+	isRuleCache      map[string]bool
+	packageCache     map[string]string
+	ruleMetas        map[string]*RuleMeta
+	Modules          map[string]*ast.Module
+	queryStack       *Stack
+	ruleQueryID      int
+	judgementQueryID int
 }
 
 func (t *EvalStateTracer) Enabled() bool {
@@ -124,20 +126,34 @@ func (t *EvalStateTracer) isRule(path string) bool {
 func (t *EvalStateTracer) inJudgement(e topdown.Event) {
 	switch e.Op {
 	case topdown.EvalOp:
-	case topdown.EnterOp:
-		t.queryStack.Push(e.QueryID)
+		if ref := extractInputRef(e.Node); ref != "" {
+			logrus.Infof("%s accessed: %s", t.currentRule.Package, ref)
+		}
+		return
+	// case topdown.EnterOp:
+	// t.queryStack.Push(e.QueryID)
 	case topdown.ExitOp:
-		if ele := t.queryStack.Pop(); ele == nil {
+		if int(e.QueryID) == t.judgementQueryID {
 			logrus.Info("Exiting judgement")
-			t.evalState = OutsideJudgement
-			t.currentRule = nil
+			t.judgementQueryID = -1
+			return
 		}
+		// if ele := t.queryStack.Pop(); ele == nil {
+		// 	logrus.Info("Exiting judgement")
+		// 	t.evalState = OutsideJudgement
+		// 	t.currentRule = nil
+		// }
 	case topdown.FailOp:
-		if ele := t.queryStack.Pop(); ele == nil {
+		if int(e.QueryID) == t.judgementQueryID {
 			logrus.Info("Failing judgement")
-			t.evalState = OutsideJudgement
-			t.currentRule = nil
+			t.judgementQueryID = -1
+			return
 		}
+		// if ele := t.queryStack.Pop(); ele == nil {
+		// 	logrus.Info("Failing judgement")
+		// 	t.evalState = OutsideJudgement
+		// 	t.currentRule = nil
+		// }
 	default:
 		return
 	}
@@ -155,19 +171,25 @@ func (t *EvalStateTracer) inRule(e topdown.Event) {
 	// }
 	// t.currentRule =
 	// meta := t.ruleMetaFor(e.Location.File)
-	if t.evalState == InsideJudgement {
+	if t.judgementQueryID > 0 {
 		t.inJudgement(e)
 		return
 	}
 	switch e.Op {
+	// case topdown.IndexOp:
+	// 	logrus.Info("Index", e.Ref.String())
 	case topdown.EvalOp:
+		if ref := extractInputRef(e.Node); ref != "" {
+			logrus.Infof("%s accessed: %s", t.currentRule.Package, ref)
+		}
 		return
 		// logrus.Infof("Op: %s, Loc: %s", e.Op, loc)
 	case topdown.EnterOp:
 		if t.currentRule.IsJudgement(e.Location) {
 			logrus.Infof("Entering judgement: %s", string(e.Location.Text))
-			t.evalState = InsideJudgement
-			t.queryStack = NewStack()
+			// t.evalState = InsideJudgement
+			t.judgementQueryID = int(e.QueryID)
+			// t.queryStack = NewStack()
 			t.inJudgement(e)
 			return
 		}
@@ -177,6 +199,16 @@ func (t *EvalStateTracer) inRule(e topdown.Event) {
 		return
 		// logrus.Infof("Op: %s, Loc: %s", e.Op, loc)
 	case topdown.ExitOp:
+		if int(e.QueryID) == t.ruleQueryID {
+			logrus.Info("Exiting rule")
+			t.ruleQueryID = -1
+			t.currentRule = nil
+			return
+		} else {
+			if ref := extractInputRef(e.Node); ref != "" {
+				logrus.Infof("%s accessed: %s")
+			}
+		}
 		// return
 		// if strings.Contains(loc, "not valid_buckets[id]") {
 		// 	logrus.Info(e.QueryID)
@@ -185,6 +217,12 @@ func (t *EvalStateTracer) inRule(e topdown.Event) {
 		// logrus.Infof("Op: %s, Loc: %s", e.Op, loc)
 		return
 	case topdown.FailOp:
+		if int(e.QueryID) == t.ruleQueryID {
+			logrus.Info("Failing rule")
+			t.ruleQueryID = -1
+			t.currentRule = nil
+			return
+		}
 		// return
 		// logrus.Infof("Op: %s, Loc: %s", e.Op, loc)
 		return
@@ -194,22 +232,44 @@ func (t *EvalStateTracer) inRule(e topdown.Event) {
 }
 
 func (t *EvalStateTracer) TraceEvent(e topdown.Event) {
-	if t.currentRule != nil {
+
+	// if t.currentRule != nil {
+	// 	t.inRule(e)
+	// 	return
+	// }
+	if t.ruleQueryID > 0 {
 		t.inRule(e)
+		return
+	}
+	file := e.Location.File
+	switch e.Op {
+	case topdown.EnterOp:
+		if t.isRule(file) {
+			currentRule := t.ruleMetaFor(file)
+			if len(currentRule.Judgements) < 1 {
+				logrus.Infof("Rule has no judgements: %s", currentRule.Package)
+			}
+			logrus.Infof("Entered rule: %s", currentRule.Package)
+			t.currentRule = currentRule
+			t.ruleQueryID = int(e.QueryID)
+			t.inRule(e)
+			return
+		}
+	default:
 		return
 	}
 	// loc := string(e.Location.Text)
-	file := e.Location.File
-	if t.isRule(file) {
-		currentRule := t.ruleMetaFor(file)
-		if len(currentRule.Judgements) < 1 {
-			logrus.Infof("Rule has no judgements: %s", currentRule.Package)
-		}
-		logrus.Infof("Entered rule: %s", currentRule.Package)
-		t.currentRule = currentRule
-		t.inRule(e)
-		return
-	}
+	// file := e.Location.File
+	// if t.isRule(file) {
+	// 	currentRule := t.ruleMetaFor(file)
+	// 	if len(currentRule.Judgements) < 1 {
+	// 		logrus.Infof("Rule has no judgements: %s", currentRule.Package)
+	// 	}
+	// 	logrus.Infof("Entered rule: %s", currentRule.Package)
+	// 	t.currentRule = currentRule
+	// 	t.inRule(e)
+	// 	return
+	// }
 	// switch e.Op {
 	// case topdown.EvalOp:
 	// 	logrus.Infof("Op: %s, Loc: %s", e.Op, loc)
@@ -236,7 +296,7 @@ func extractInputRef(n ast.Node) string {
 	for _, t := range terms {
 		ref, ok := t.Value.(ast.Ref)
 		if !ok {
-			return ""
+			continue
 		}
 		for _, term := range ref {
 			if term.Equal(ast.InputRootDocument) {

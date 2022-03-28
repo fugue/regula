@@ -9,10 +9,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type EvalState int
+type EvalState2 int
 
 const (
-	OutsideJudgement EvalState = iota
+	OutsideJudgement EvalState2 = iota
 	InsideJudgement
 )
 
@@ -44,7 +44,7 @@ func (m *RuleMeta) IsJudgement(l *ast.Location) bool {
 
 type EvalStateTracer struct {
 	currentRule      *RuleMeta
-	evalState        EvalState
+	evalState        EvalState2
 	isRuleCache      map[string]bool
 	packageCache     map[string]string
 	ruleMetas        map[string]*RuleMeta

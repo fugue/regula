@@ -22,12 +22,6 @@ var judgementStates = map[string]bool{
 	"policy": true,
 }
 
-type ResourceGraphNode struct {
-	Children ResourceGraph
-}
-
-type ResourceGraph map[string]*ResourceGraphNode
-
 type RuleMeta struct {
 	Package    string
 	Judgements []*ast.Rule
@@ -308,23 +302,23 @@ func extractInputRef(n ast.Node) string {
 }
 
 type Stack struct {
-	dll *list.List
+	*list.List
 }
 
 func NewStack() *Stack {
-	return &Stack{dll: list.New()}
+	return &Stack{list.New()}
 }
 
 func (s *Stack) Push(x interface{}) {
-	s.dll.PushBack(x)
+	s.PushBack(x)
 }
 
 func (s *Stack) Pop() interface{} {
-	if s.dll.Len() == 0 {
+	if s.Len() == 0 {
 		return nil
 	}
-	tail := s.dll.Back()
+	tail := s.Back()
 	val := tail.Value
-	s.dll.Remove(tail)
+	s.Remove(tail)
 	return val
 }

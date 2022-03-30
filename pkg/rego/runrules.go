@@ -128,7 +128,8 @@ func RunRules(ctx context.Context, options *RunRulesOptions) (RegoResult, error)
 	if err != nil {
 		return nil, err
 	}
-	results, err := regoQuery.Eval(ctx, rego.EvalInput(options.Input), rego.EvalQueryTracer(newEvalTracer(modules)))
+	// results, err := regoQuery.Eval(ctx, rego.EvalInput(options.Input), rego.EvalQueryTracer(newEvalTracer(modules)))
+	results, err := regoQuery.Eval(ctx, rego.EvalInput(options.Input), rego.EvalQueryTracer(newInputTracer()))
 	if err != nil {
 		return nil, err
 	}

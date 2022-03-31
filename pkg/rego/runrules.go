@@ -128,10 +128,16 @@ func RunRules(ctx context.Context, options *RunRulesOptions) (RegoResult, error)
 	if err != nil {
 		return nil, err
 	}
+	tracer := newInputTracer()
 	// results, err := regoQuery.Eval(ctx, rego.EvalInput(options.Input), rego.EvalQueryTracer(newEvalTracer(modules)))
-	results, err := regoQuery.Eval(ctx, rego.EvalInput(options.Input), rego.EvalQueryTracer(newInputTracer()))
+	results, err := regoQuery.Eval(ctx, rego.EvalInput(options.Input), rego.EvalQueryTracer(tracer))
 	if err != nil {
 		return nil, err
+	}
+	rootContext := tracer.contextStack.Front().Value.(*evalContext)
+	logrus.Infof("Accessed %d paths", len(rootContext.accessedPaths))
+	for p := range rootContext.accessedPaths {
+		logrus.Infof("Accessed path: %s", p)
 	}
 	return &results[0], nil
 }

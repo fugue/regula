@@ -81,6 +81,7 @@ type evalContext struct {
 	traversed     ResourceGraph
 	inputVars     map[ast.Var]ast.Ref
 	accessedPaths map[string]bool
+	failed        bool
 }
 
 // var EQ_OP = ast.RefTerm(ast.VarTerm("eq"))
@@ -352,9 +353,12 @@ func newEvalContext(queryID uint64, inputRef ast.Ref) *evalContext {
 	}
 }
 
+type listener func(c *evalContext, e topdown.Event) (matched bool)
+
 type inputTracer struct {
 	contextStack   *Stack
 	currentContext *evalContext
+	listeners      []listener
 }
 
 func newInputTracer() *inputTracer {
@@ -373,13 +377,23 @@ func (t *inputTracer) Config() topdown.TraceConfig {
 	}
 }
 
+var breakpoints = []struct {
+	file string
+	line int
+}{
+	// {"lib/fugue/regula.rego", 156},
+	// {"lib/fugue/resource_view.rego", 33},
+	{"lib/fugue/resource_view/cloudformation.rego", 23},
+}
+
 func (t *inputTracer) TraceEvent(e topdown.Event) {
-	if e.Location.File == "lib/fugue/regula.rego" && e.Location.Row == 156 {
-		logrus.Info("Break here")
+	for _, b := range breakpoints {
+		if e.Location.File == b.file && e.Location.Row == b.line {
+			logrus.Infof("Breakpoint %s:%d", b.file, b.line)
+			continue
+		}
 	}
-	if e.Location.File == "lib/fugue/resource_view.rego" && e.Location.Row == 33 {
-		logrus.Info("Break here")
-	}
+	t.callListeners(e)
 	if t.contextStack.Len() < 1 {
 		// logrus.Infof("Initialized at query %d", e.QueryID)
 		t.currentContext = newEvalContext(e.QueryID, ast.InputRootRef)
@@ -388,8 +402,14 @@ func (t *inputTracer) TraceEvent(e topdown.Event) {
 	}
 	if e.QueryID != t.currentContext.queryID {
 		for e.QueryID != t.currentContext.queryID && e.ParentID != t.currentContext.queryID {
+
 			t.contextStack.Pop()
-			t.currentContext = t.contextStack.Back().Value.(*evalContext)
+			nextContext := t.contextStack.Back().Value.(*evalContext)
+			logrus.Infof("Copying %d paths from query %d to %d", len(t.currentContext.accessedPaths), t.currentContext.queryID, nextContext.queryID)
+			for p := range t.currentContext.accessedPaths {
+				nextContext.accessedPaths[p] = true
+			}
+			t.currentContext = nextContext
 			// logrus.Infof("Popped back up to %d", t.currentContext.queryID)
 		}
 		if e.ParentID == t.currentContext.queryID {
@@ -407,7 +427,9 @@ func (t *inputTracer) TraceEvent(e topdown.Event) {
 	switch e.Op {
 	case topdown.EnterOp:
 		return
-	case topdown.EvalOp, topdown.IndexOp:
+	case topdown.IndexOp:
+		t.addListener(e)
+	case topdown.EvalOp:
 		t.currentContext.extractInputVars(e)
 		t.currentContext.extractNextInput(e)
 		// refs := t.currentContext.extractInputRefs(e)
@@ -425,9 +447,63 @@ func (t *inputTracer) TraceEvent(e topdown.Event) {
 		// 	return
 		// }
 		return
+	case topdown.FailOp:
+		t.currentContext.failed = true
 	case topdown.RedoOp:
 		return
 	}
+}
+
+func (t *inputTracer) addListener(e topdown.Event) {
+	switch n := e.Node.(type) {
+	case *ast.Expr:
+		if n.Operator().Equal(EQ_OP) {
+			v, ref := t.currentContext.extractVarAndRef(n.Operands())
+			if v == "" || ref == nil {
+				return
+			}
+			parent := t.currentContext
+			l := func(c *evalContext, next topdown.Event) (matched bool) {
+				if next.ParentID != parent.queryID {
+					return
+				}
+				switch next.Op {
+				case topdown.FailOp:
+					matched = true
+				case topdown.ExitOp:
+					matched = true
+					rule, ok := next.Node.(*ast.Rule)
+					if !ok {
+						return
+					}
+					// What is VarSet?
+					if rule.Head.Value == nil {
+						return
+					}
+					ret, ok := rule.Head.Value.Value.(ast.Var)
+					if !ok {
+						return
+					}
+					if ref, ok := c.inputVars[ret]; ok {
+						logrus.Info("This worked!")
+						parent.inputVars[v] = c.expandRef(ref, next)
+					}
+				}
+				return
+			}
+			t.listeners = append(t.listeners, l)
+		}
+	}
+}
+
+func (t *inputTracer) callListeners(e topdown.Event) {
+	unmatched := []listener{}
+	for _, l := range t.listeners {
+		if !l(t.currentContext, e) {
+			unmatched = append(unmatched, l)
+		}
+	}
+	t.listeners = unmatched
 }
 
 // func extractInputRef(n ast.Node) string {

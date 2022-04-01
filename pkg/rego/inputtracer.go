@@ -377,14 +377,14 @@ func (t *inputTracer) Config() topdown.TraceConfig {
 	}
 }
 
-var breakpoints = []struct {
-	file string
-	line int
-}{
-	// {"lib/fugue/regula.rego", 156},
-	// {"lib/fugue/resource_view.rego", 33},
-	{"lib/fugue/resource_view/cloudformation.rego", 23},
-}
+// var breakpoints = []struct {
+// 	file string
+// 	line int
+// }{
+// 	// {"lib/fugue/regula.rego", 156},
+// 	// {"lib/fugue/resource_view.rego", 33},
+// 	{"lib/fugue/resource_view/cloudformation.rego", 23},
+// }
 
 func (t *inputTracer) TraceEvent(e topdown.Event) {
 	for _, b := range breakpoints {

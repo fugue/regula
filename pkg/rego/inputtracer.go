@@ -85,7 +85,7 @@ type evalContext struct {
 }
 
 // var EQ_OP = ast.RefTerm(ast.VarTerm("eq"))
-var EQ_OP = ast.Ref{ast.VarTerm("eq")}
+// var EQ_OP = ast.Ref{ast.VarTerm("eq")}
 
 func (c *evalContext) extractVarAndRef(terms []*ast.Term) (ast.Var, ast.Ref) {
 	if t1, ok := terms[0].Value.(ast.Var); ok {

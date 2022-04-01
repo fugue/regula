@@ -8,6 +8,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var EQ_OP = ast.Ref{ast.VarTerm("eq")}
+var OBJECT_GET_OP = ast.Ref{ast.VarTerm("object"), ast.StringTerm("get")}
+
 type InputRef struct {
 	LocationInVar    ast.Ref
 	LocationsInInput []ast.Ref
@@ -107,18 +110,18 @@ func (i InputVars) RenderRef(ref ast.Ref, locals *ast.ValueMap) ast.Ref {
 
 func (i InputVars) ExpandRef(head ast.Var, tail ast.Ref, locals *ast.ValueMap) []ast.Ref {
 	expanded := []ast.Ref{}
-	if head.Equal(ast.InputRootDocument.Value) {
-		expanded = []ast.Ref{append(ast.InputRootRef, tail...)}
-	} else {
-		for _, inputRef := range i[head] {
-			if inputRef.IsParent(tail) {
-				accessor := tail[len(inputRef.LocationInVar):]
-				for _, l := range inputRef.LocationsInInput {
-					expanded = append(expanded, append(l, accessor...))
-				}
+	// if head.Equal(ast.InputRootDocument.Value) {
+	// 	expanded = []ast.Ref{append(ast.InputRootRef, tail...)}
+	// } else {
+	for _, inputRef := range i[head] {
+		if inputRef.IsParent(tail) {
+			accessor := tail[len(inputRef.LocationInVar):]
+			for _, l := range inputRef.LocationsInInput {
+				expanded = append(expanded, append(l, accessor...))
 			}
 		}
 	}
+	// }
 
 	// rendered := []ast.Ref{}
 	// for _, e := range expanded {
@@ -137,7 +140,7 @@ type Query struct {
 	Locals          *ast.ValueMap
 	LocalMetadata   map[ast.Var]topdown.VarMetadata
 	Head            *ast.Head
-	NextInputVar    ast.Var
+	NextInput       InputRefs
 	Failed          bool
 	ReturnInputRefs InputRefs
 	InputAccesses   map[string]bool
@@ -164,9 +167,76 @@ func (q *Query) HandleEvent(e topdown.Event) {
 		q.Failed = true
 	case topdown.EvalOp:
 		q.ExtractInputVars(e)
+		q.ExtractNextInput(e)
 	case topdown.IndexOp:
 		q.ExtractInputAccessFromEvent(e)
+		q.ExtractNextInput(e)
 		// q.ExtractInputVars(e)
+	}
+}
+
+func (q *Query) ExtractNextInput(e topdown.Event) {
+	switch n := e.Node.(type) {
+	case *ast.Expr:
+		if len(n.With) < 1 {
+			q.NextInput = q.InputVars["input"]
+			return
+		}
+		for _, w := range n.With {
+			t, ok := w.Target.Value.(ast.Ref)
+			if !ok {
+				continue
+			}
+			if !t.Equal(ast.InputRootRef) {
+				continue
+			}
+			v, ok := w.Value.Value.(ast.Var)
+			if !ok {
+				q.NextInput = nil
+			}
+			if i, ok := q.InputVars[v]; ok {
+				expanded := InputRefs{}
+				for _, r := range i {
+					locsInInput := []ast.Ref{}
+					for _, ref := range r.LocationsInInput {
+						rendered := ast.Ref{}
+						for _, t := range ref {
+							switch v := t.Value.(type) {
+							case ast.Var:
+								if v == "input" {
+									rendered = append(rendered, t)
+									continue
+								}
+								if val := q.Locals.Get(v); val != nil {
+									rendered = append(rendered, &ast.Term{Value: val})
+								} else {
+									logrus.Warn("Unresolved variable %s found in With. Query ID: %d, Op: %s", v, q.ID, e.Op)
+									rendered = append(rendered, t)
+								}
+							case ast.String, ast.Number:
+								rendered = append(rendered, t)
+							default:
+								logrus.Warn("Non variable, non primitive variable found in input ref. Stopping expansion.")
+								q.NextInput = nil
+								return
+							}
+						}
+						locsInInput = append(locsInInput, rendered)
+						// head := ref[0].Value.(ast.Var)
+						// tail := ref[1:]
+						// locsInInput = append(locsInInput, q.InputVars.ExpandRef(head, tail, q.Locals)...)
+					}
+					expanded = append(expanded, &InputRef{
+						LocationInVar:    r.LocationInVar,
+						LocationsInInput: locsInInput,
+					})
+				}
+				q.NextInput = expanded
+			} else {
+				q.NextInput = nil
+			}
+			return
+		}
 	}
 }
 
@@ -211,8 +281,13 @@ func (q *Query) ExtractInputAccess(t *ast.Term) {
 func (q *Query) ExtractInputVars(e topdown.Event) {
 	switch n := e.Node.(type) {
 	case *ast.Expr:
-		if n.Operator().Equal(EQ_OP) {
-			v, ref := coerceAssignmentOperands(n.Operands())
+		operator := n.Operator()
+		operands := n.Operands()
+		if len(n.With) > 0 {
+			logrus.Info("Found a with statement")
+		}
+		if operator.Equal(EQ_OP) {
+			v, ref := coerceAssignmentOperands(operands)
 			if v == "" || ref == nil {
 				break
 			}
@@ -224,8 +299,28 @@ func (q *Query) ExtractInputVars(e topdown.Event) {
 					logrus.Info("Here")
 				}
 			}
+		} else if operator.Equal(OBJECT_GET_OP) {
+			// operands := n.Operands()
+			// First operand is the target object
+			ref, ok := operands[0].Value.(ast.Var)
+			if !ok {
+				break
+			}
+			logrus.Infof("Ref: %s", ref)
+			// second operand is property as a string
+			prop, ok := operands[1].Value.(ast.String)
+			if !ok {
+				break
+			}
+			logrus.Infof("Prop: %s", prop)
+			// fourth operand is the temp variable name
+			v, ok := operands[3].Value.(ast.Var)
+			if !ok {
+				break
+			}
+			logrus.Infof("Value: %s", v)
 		}
-		for _, operand := range n.Operands() {
+		for _, operand := range operands {
 			q.ExtractInputAccess(operand)
 		}
 	}
@@ -247,22 +342,17 @@ func (q *Query) MergeInputAccesses(o *Query) {
 }
 
 // TODO: Take input from nextInput
-func NewQuery(e topdown.Event) *Query {
-	return &Query{
-		ID:       e.QueryID,
-		ParentID: e.ParentID,
-		InputVars: InputVars{
-			"input": InputRefs{
-				&InputRef{
-					LocationInVar: ast.EmptyRef(),
-					LocationsInInput: []ast.Ref{
-						ast.EmptyRef(),
-					},
-				},
-			},
-		},
+func NewQuery(e topdown.Event, inputRefs InputRefs) *Query {
+	q := &Query{
+		ID:            e.QueryID,
+		ParentID:      e.ParentID,
+		InputVars:     InputVars{},
 		InputAccesses: map[string]bool{},
 	}
+	if inputRefs != nil {
+		q.InputVars["input"] = inputRefs
+	}
+	return q
 }
 
 type QueryStack struct {
@@ -309,22 +399,30 @@ var breakpoints = []struct {
 }{
 	// {"lib/fugue/regula.rego", 156},
 	// {"lib/fugue/resource_view.rego", 33},
+	{"lib/fugue/resource_view/cloudformation.rego", 21},
 	// {"lib/fugue/resource_view/cloudformation.rego", 23},
 }
 
 func (t *QueryTracer) TraceEvent(e topdown.Event) {
+	var current *Query
+	if t.QueryStack.Len() < 1 {
+		current = NewQuery(e, InputRefs{
+			&InputRef{
+				LocationInVar: ast.EmptyRef(),
+				LocationsInInput: []ast.Ref{
+					ast.InputRootRef,
+				},
+			},
+		})
+		t.QueryStack.Push(current)
+	} else {
+		current = t.QueryStack.Last()
+	}
 	for _, b := range breakpoints {
 		if e.Location.File == b.file && e.Location.Row == b.line {
 			logrus.Infof("Breakpoint %s:%d", b.file, b.line)
 			continue
 		}
-	}
-	var current *Query
-	if t.QueryStack.Len() < 1 {
-		current = NewQuery(e)
-		t.QueryStack.Push(current)
-	} else {
-		current = t.QueryStack.Last()
 	}
 	if e.QueryID != current.ID {
 		for e.QueryID != current.ID && e.ParentID != current.ID {
@@ -342,7 +440,7 @@ func (t *QueryTracer) TraceEvent(e topdown.Event) {
 
 		}
 		if e.ParentID == current.ID {
-			next := NewQuery(e)
+			next := NewQuery(e, current.NextInput)
 			t.QueryStack.Push(next)
 			current = next
 		}

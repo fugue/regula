@@ -8,8 +8,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var EQ_OP = ast.Ref{ast.VarTerm("eq")}
-var OBJECT_GET_OP = ast.Ref{ast.VarTerm("object"), ast.StringTerm("get")}
+var EQ_OP = ast.Equality.Ref()
+var ASSIGN_OP = ast.Assign.Ref()
+var OBJECT_GET_OP = ast.ObjectGet.Ref()
 
 type InputRef struct {
 	LocationInVar    ast.Ref
@@ -286,6 +287,61 @@ func (q *Query) ExtractInputVars(e topdown.Event) {
 		if len(n.With) > 0 {
 			logrus.Info("Found a with statement")
 		}
+
+		if len(operands) != 2 {
+			break
+		}
+
+		var newVar ast.Var
+		var newVarIdx int
+		for idx, o := range operands {
+			if asVar, ok := o.Value.(ast.Var); ok {
+				newVar = asVar
+				newVarIdx = idx
+			}
+		}
+		if newVar == "" {
+			break
+		}
+		valIdx := 0
+		if newVarIdx == 0 {
+			valIdx = 1
+		}
+		val := operands[valIdx]
+		vars := val.Vars()
+		var refersToInput bool
+		for _, v := range vars.Sorted() {
+			if _, ok := q.InputVars[v]; ok {
+				refersToInput = true
+			}
+		}
+		if !refersToInput {
+			break
+		}
+
+		// n.Operator().OutputVars()
+
+		// vars := n.Vars(ast.VarVisitorParams{
+		// 	SkipWithTarget:  true,
+		// 	SkipRefCallHead: true,
+		// })
+		// if e.QueryID == 185 {
+		// 	logrus.Info("Break")
+		// }
+		// newVars := []ast.Var{}
+		// for _, v := range vars.Sorted() {
+		// 	if p := e.Locals.Get(v); p == nil {
+		// 		newVars = append(newVars, v)
+		// 		// logrus.Infof("QueryID: %d Found new variable: %s", e.QueryID, v)
+		// 	}
+		// }
+		// if len(newVars) != 1 {
+		// 	break
+		// }
+		// for
+		// if len(newVars) == 1 {
+		// 	logrus.Infof("QueryID: %d - Found %d new variables: %s", e.QueryID, len(newVars), strings.Join(newVars, ", "))
+		// }
 		if operator.Equal(EQ_OP) {
 			v, ref := coerceAssignmentOperands(operands)
 			if v == "" || ref == nil {
@@ -401,6 +457,7 @@ var breakpoints = []struct {
 	// {"lib/fugue/resource_view.rego", 33},
 	{"lib/fugue/resource_view/cloudformation.rego", 21},
 	// {"lib/fugue/resource_view/cloudformation.rego", 23},
+	// {"rego/rules/cfn/s3/block_public_access.rego", 39},
 }
 
 func (t *QueryTracer) TraceEvent(e topdown.Event) {

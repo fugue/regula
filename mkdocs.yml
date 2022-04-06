@@ -58,7 +58,7 @@ markdown_extensions:
   - toc:
       permalink: ⚓︎
 site_url: https://regula.dev
-edit_uri: blob/master/docs/
+edit_uri: blob/master/docs/src/
 extra:
   version: v2.6.1
   social:

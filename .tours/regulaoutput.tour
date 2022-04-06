@@ -1,0 +1,101 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "RegulaOutput",
+  "steps": [
+    {
+      "file": "rego/lib/fugue/regula.rego",
+      "description": "Regula's rule result output is produced on the Rego side via this `report` rule.",
+      "line": 363,
+      "selection": {
+        "start": {
+          "line": 363,
+          "character": 1
+        },
+        "end": {
+          "line": 374,
+          "character": 2
+        }
+      }
+    },
+    {
+      "file": "rego/lib/fugue/regula.rego",
+      "description": "The main content of the report output is this `rule_results` field, which contains a denormalized list of rule results. This list will contain one element per rule, per resource.",
+      "line": 344
+    },
+    {
+      "file": "rego/lib/fugue/regula.rego",
+      "description": "Each \"rule-resource result\" represents a single rule result for a single resource. The fields are taken from the resource, the rule result, and the rule metadata.",
+      "line": 126,
+      "selection": {
+        "start": {
+          "line": 126,
+          "character": 1
+        },
+        "end": {
+          "line": 146,
+          "character": 1
+        }
+      }
+    },
+    {
+      "file": "docs/src/report.md",
+      "description": "This section of the docs describes what each rule result field represents.",
+      "line": 149
+    },
+    {
+      "file": "rego/lib/fugue/regula.rego",
+      "description": "The other output to be aware of is this \"scan view\". This output is used for the Fugue IaC integration, which is where the term \"scan view\" originates. The scan view contains the report output along with the full \"streamlined state\" representaiton of each input.",
+      "line": 376,
+      "selection": {
+        "start": {
+          "line": 376,
+          "character": 1
+        },
+        "end": {
+          "line": 391,
+          "character": 2
+        }
+      }
+    },
+    {
+      "file": "pkg/reporter/base.go",
+      "description": "The `reporter` package on the Go side is responsible for processing the output produced by the Rego side. It contains code to:\n* deserialize the outputs produced by OPA\n* enrich those outputs with resource line numbers\n* reshape the output into the desired format\n",
+      "line": 15
+    },
+    {
+      "file": "pkg/reporter/base.go",
+      "description": "The `RegulaReport` struct holds the deserialized report output. It has a few methods to enrich and aggregate the rule results.",
+      "line": 136
+    },
+    {
+      "file": "pkg/reporter/base.go",
+      "description": "The `ScanView` struct holds the deserialized scan view output. Just like on the Rego side, the `RegulaReport` struct is a child of `ScanView`.",
+      "line": 436
+    },
+    {
+      "file": "pkg/reporter/base.go",
+      "description": "The source location (which is currently just the line number of the resource) is added by this package.",
+      "line": 367
+    },
+    {
+      "file": "pkg/reporter/base.go",
+      "description": "We find the line numbers by querying our loaded configurations for a filepath and attribute path, which at this time is just the resource ID.",
+      "line": 395,
+      "selection": {
+        "start": {
+          "line": 395,
+          "character": 2
+        },
+        "end": {
+          "line": 395,
+          "character": 66
+        }
+      }
+    },
+    {
+      "file": "pkg/rule_waivers/rule_waivers.go",
+      "description": "There is an additional post-processing step for Fugue IaC. Fugue-defined waivers support globbing. Regula's Rego-defined waiver mechanism can be slow to execute and supporting glob expressions would have made it slower. Fugue IaC's waivers are applied as a post-processing step on the report in Go.",
+      "line": 90
+    }
+  ]
+}

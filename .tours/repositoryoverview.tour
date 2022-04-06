@@ -1,0 +1,96 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "RepositoryOverview",
+  "steps": [
+    {
+      "directory": "changes",
+      "description": "The `changes` directory contains changelogs for each release as well as any changelog notes for unreleased changes. This directory is generated and maintained via a tool called [`changie`](https://changie.dev/)."
+    },
+    {
+      "directory": "cmd",
+      "description": "`cmd` contains all of the top-level and subcommands in the Regula CLI. Regula uses `spf13/cobra` to define these commands."
+    },
+    {
+      "directory": "docs",
+      "description": "`docs` contains the source for the `regula.dev` docs site. We use [`mkdocs`](https://www.mkdocs.org/) to generate that site."
+    },
+    {
+      "directory": "pkg",
+      "description": "`pkg` contains the Go code for the Regula CLI's features. This organization was intended to reflect that this code is usable as a library in other Go projects (see [golang-standards/project-layout](https://github.com/golang-standards/project-layout#pkg))."
+    },
+    {
+      "directory": "rego",
+      "description": "The `rego` directory contains all of Regula's rego code. This mainly consists of libraries, rules, tests, and a conftest integration."
+    },
+    {
+      "file": "rego/embedded.go",
+      "description": "The `rego` directory does contain one Go file, which uses the `go:embed` directive. This causes the Rego code to get built into the `regula` Go binary and it makes the Rego code easily available to the Go code.",
+      "line": 15
+    },
+    {
+      "file": "Makefile",
+      "description": "The Regula build and release process is scripted via `make`.",
+      "line": 1
+    },
+    {
+      "directory": ".github/workflows",
+      "description": "Regula uses GitHub Actions to automate the release process for the Regula CLI and the regula.dev docs site."
+    },
+    {
+      "directory": "pkg/fugue",
+      "description": "The `fugue` package contains code that integrates with the Fugue platform."
+    },
+    {
+      "directory": "pkg/git",
+      "description": "The `git` package contains the code for Regula's `.gitignore` support."
+    },
+    {
+      "directory": "pkg/loader",
+      "description": "`loader` is where the entrypoints for all of Regula's IaC parsers live. This package also contains the code that invokes those parsers on inputs. Regula's Terraform HCL parser is a special case where the main parser logic lives in a separate `regulatf` package."
+    },
+    {
+      "directory": "pkg/rego",
+      "description": "The `rego` package contains all of the code that interacts with OPA."
+    },
+    {
+      "directory": "pkg/regotools",
+      "description": "`regotools` is a small library for programatically editing Rego code."
+    },
+    {
+      "directory": "pkg/regotools/doublequote",
+      "description": "The Fugue platform uses Fregot as its Rego interpreter. Unlike OPA, Fregot supports single-quoted strings. This `doublequote` package is used to convert single-quoted strings to double-quoted strings so that custom rules from the Fugue platform can run in Regula."
+    },
+    {
+      "directory": "pkg/regotools/metadoc",
+      "description": "The `metadoc` package provides tools for inserting and updating the `__rego__metadoc__` constant in rules. We use this in Regula for custom Fugue rules. We also use it outside of Regula in our rule publishing automation."
+    },
+    {
+      "directory": "pkg/regulatf",
+      "description": "`regulatf` contains the implementation for Regula's HCL parser."
+    },
+    {
+      "directory": "pkg/reporter",
+      "description": "The `reporter` package contains code that enriches and formats the output we get from OPA."
+    },
+    {
+      "directory": "pkg/rule_waivers",
+      "description": "The `rule_waivers` package is used to support waivers in the Fugue IaC integration."
+    },
+    {
+      "directory": "pkg/swagger",
+      "description": "`swagger` is generated from the Fugue API's swagger definition."
+    },
+    {
+      "directory": "pkg/terraform",
+      "description": "`terraform` is vendored code from [`hashicorp/terraform`](https://github.com/hashicorp/terraform). This was necessary because they moved some code that we depend on into an `internal` package, which made it unusable by us. The process to update this package is mostly automated in the `make terraform_gen` recipe."
+    },
+    {
+      "directory": "pkg/topsort",
+      "description": "`topsort` is a topological sort implementation that we use in the Terraform HCL parser."
+    },
+    {
+      "directory": "pkg/version",
+      "description": "`version` contains information about the Regula version. This information is defined at build time via `ldflags`."
+    }
+  ]
+}

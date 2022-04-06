@@ -1,0 +1,36 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "RuleAuthorshipTools",
+  "steps": [
+    {
+      "file": "cmd/test.go",
+      "description": "The Regula CLI has a `regula test` command that enhances `opa test` by:\n* pre-loading the Regula rego library\n* dynamically generating test input Rego code from IaC code",
+      "line": 29
+    },
+    {
+      "file": "pkg/rego/load.go",
+      "description": "The dynamic test inputs feature works by using the same \"configuration loader\" that's used during `regula run`.",
+      "line": 198
+    },
+    {
+      "file": "pkg/rego/testinput.go",
+      "description": "That parsed configuration is then JSON encoded",
+      "line": 59
+    },
+    {
+      "file": "pkg/rego/testinput.tmpl",
+      "description": "And templated into a Rego file that can be imported by tests.",
+      "line": 22
+    },
+    {
+      "file": "cmd/write_test_inputs.go",
+      "description": "Regula also has a command that will persist the generated test outputs so that they can be used with other Rego interpreters, like OPA or Fregot.",
+      "line": 32
+    },
+    {
+      "file": "cmd/repl.go",
+      "description": "The other main rule authorship feature in Regula is the `regula repl` command. This supports the same features as `regula test`:\n* pre-loaded Regula rego library\n* dynamically-generated test input Rego files\n\nBut, it wraps the OPA's REPL (accessed via `opa run`) rather than `opa test`.",
+      "line": 31
+    }
+  ]
+}

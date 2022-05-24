@@ -13,6 +13,9 @@
 # limitations under the License.
 package rules.tf_aws_s3_encryption
 
+import data.fugue
+import data.aws.s3.s3_library as lib
+
 __rego__metadoc__ := {
   "custom": {
     "controls": {
@@ -30,16 +33,32 @@ __rego__metadoc__ := {
   "title": "S3 bucket server-side encryption should be enabled"
 }
 
-is_encrypted {
-  count([algorithm |
-    algorithm = input.server_side_encryption_configuration[_].rule[_][_][_].sse_algorithm
-  ]) >= 1
+resource_type := "MULTIPLE"
+
+buckets := fugue.resources("aws_s3_bucket")
+encryption_configs := { id: config |
+  # This is a design-time only resource type, so make sure it exists
+  fugue.input_resource_types["aws_s3_bucket_server_side_encryption_configuration"]
+  config := fugue.resources("aws_s3_bucket_server_side_encryption_configuration")[id]
 }
 
-resource_type := "aws_s3_bucket"
+is_encrypted(bucket) {
+  _ = bucket.server_side_encryption_configuration[_].rule[_][_][_].sse_algorithm
+}
 
-default allow = false
+is_encrypted(bucket) {
+  ec := encryption_configs[_]
+  lib.matches_bucket_or_id(ec.bucket, bucket)
+}
 
-allow {
-  is_encrypted
+policy[j] {
+  bucket := buckets[_]
+  is_encrypted(bucket)
+  j := fugue.allow_resource(bucket)
+}
+
+policy[j] {
+  bucket := buckets[_]
+  not is_encrypted(bucket)
+  j := fugue.deny_resource(bucket)
 }

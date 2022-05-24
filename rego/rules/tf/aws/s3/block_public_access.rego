@@ -48,6 +48,7 @@ policy[j] {
 
 buckets = fugue.resources("aws_s3_bucket")
 bucket_access_blocks = fugue.resources("aws_s3_bucket_public_access_block")
+account_access_blocks = fugue.resources("aws_s3_account_public_access_block")
 
 # Using the `bucket_access_blocks`, we construct a set of bucket IDs that have
 # the public access blocked.
@@ -60,7 +61,17 @@ blocked_buckets[bucket_name] {
     block.restrict_public_buckets == true
 }
 
+blocked_account {
+    block := account_access_blocks[_]
+    block.block_public_acls == true
+    block.ignore_public_acls == true
+    block.block_public_policy == true
+    block.restrict_public_buckets == true
+}
+
 bucket_is_blocked(bucket) {
+  blocked_account
+} {
   fugue.input_type != "tf_runtime"
   blocked_buckets[bucket.id]
 } {

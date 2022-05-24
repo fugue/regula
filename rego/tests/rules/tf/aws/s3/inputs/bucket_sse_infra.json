@@ -1,4 +1,3 @@
-# some comment
 {
   "format_version": "0.1",
   "terraform_version": "0.13.5",
@@ -450,5 +449,5 @@
         }
       ]
     }
-  },
+  }
 }

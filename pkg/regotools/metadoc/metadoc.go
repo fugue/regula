@@ -15,12 +15,13 @@
 package metadoc
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"regexp"
 	"strconv"
 	"strings"
 
-	json "github.com/tailscale/hujson"
+	"github.com/tailscale/hujson"
 )
 
 // Utility to modify metadata of rego files.
@@ -175,12 +176,12 @@ func RegoMetaFromString(str string) (*RegoMeta, error) {
 		lines := []string{"{"}
 		lines = append(lines, rego.lines[rego.metadocStartLine+1:rego.metadocEndLine+1]...)
 		jsonBytes := []byte(strings.Join(lines, "\n"))
-		if err := json.Unmarshal(jsonBytes, &metadoc); err != nil {
+		if err := hujsonUnmarshal(jsonBytes, &metadoc); err != nil {
 			return nil, err
 		}
 
 		rego.metadoc = map[string]interface{}{}
-		if err := json.Unmarshal(jsonBytes, &rego.metadoc); err != nil {
+		if err := hujsonUnmarshal(jsonBytes, &rego.metadoc); err != nil {
 			return nil, err
 		}
 
@@ -340,4 +341,12 @@ func (rego *RegoMeta) String() string {
 	}
 
 	return strings.Join(lines, "\n")
+}
+
+func hujsonUnmarshal(b []byte, v interface{}) error {
+	b, err := hujson.Standardize(b)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(b, v)
 }

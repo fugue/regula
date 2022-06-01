@@ -43,27 +43,32 @@ ingress_for_nacl[id] = nacl_rules {
   nacl_rules = nacl.ingress
 }
 
+allows_port(ingress, port) {
+  ingress.from_port <= port
+  ingress.to_port >= port
+} {
+  ingress.from_port == 0
+  ingress.to_port == 0
+}
+
 # Returns true if the given cidr is all zeroes
-zero_cidr(cidr) {cidr == "0.0.0.0/0"} {cidr == "::/0"}
+zero_cidr(ingress) {ingress.cidr_block == "0.0.0.0/0"} {ingress.ipv6_cidr_block == "::/0"}
 
 # Returns the list of rules for a nacl for a given port open to the world
 ingress_zero_cidr_by_port(nacl, port) = ret {
-  ret = ingress_for_nacl[nacl.id]
-  zero_cidr(ret[i].cidr_block)
-  ret[i].from_port <= port
-  ret[i].to_port >= port
-} {
-  ret = ingress_for_nacl[nacl.id]
-  zero_cidr(ret[i].cidr_block)
-  ret[i].from_port == 0
-  ret[i].to_port == 0
+ ingresses = ingress_for_nacl[nacl.id]
+  ret = [i |
+    i = ingresses[_]
+    zero_cidr(i)
+    allows_port(i, port)
+  ]
 }
 
 # Returns the lowest ALLOW numbered rule for a nacl by port open to the world
 lowest_allow_ingress_zero_cidr_by_port(nacl, port) = ret {
   rules = ingress_zero_cidr_by_port(nacl, port)
-  rule = rules[_]
   arr_rule_nos = [ rule_no |
+    rule = rules[_]
     rule_no = rule_number(rule)
     rule_action(rule) == "allow"
   ]
@@ -77,8 +82,8 @@ lowest_allow_ingress_zero_cidr_by_port(nacl, port) = ret {
 # Returns the lowest DENY numbered rule for a nacl by port open to the world
 lowest_deny_ingress_zero_cidr_by_port(nacl, port) = ret {
   rules = ingress_zero_cidr_by_port(nacl, port)
-  rule = rules[_]
   arr_rule_nos = [ rule_no |
+    rule = rules[_]
     rule_no = rule_number(rule)
     rule_action(rule) == "deny"
   ]

@@ -16,8 +16,9 @@ package rules.tf_aws_s3_encryption
 import data.tests.rules.tf.aws.s3.inputs.bucket_sse_infra_json
 
 test_s3_encryption {
-  resources = bucket_sse_infra_json.mock_resources
-  not allow with input as resources["aws_s3_bucket.unencrypted"]
-  allow with input as resources["aws_s3_bucket.aes_encrypted"]
-  allow with input as resources["aws_s3_bucket.kms_encrypted"]
+  pol = policy with input as bucket_sse_infra_json.mock_input
+  by_resource_id = {p.id: p.valid | pol[p]}
+  by_resource_id["aws_s3_bucket.unencrypted"] = false
+  by_resource_id["aws_s3_bucket.aes_encrypted"] = true
+  by_resource_id["aws_s3_bucket.kms_encrypted"] = true
 }

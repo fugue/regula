@@ -36,9 +36,31 @@ __rego__metadoc__ := {
   "title": "KMS CMK rotation should be enabled"
 }
 
-resource_type := "aws_kms_key"
+resource_type := "MULTIPLE"
 
-deny[msg] {
-  not input.enable_key_rotation
-  msg = "KMS key rotation should be enabled"
+keys := fugue.resources("aws_kms_key")
+
+symmetric_key_spec_prefixes := {"HMAC", "SYMMETRIC"}
+
+is_symmetric(k) {
+  prefix := split(k.customer_master_key_spec, "_")[0]
+  symmetric_key_spec_prefixes[prefix]
+}
+
+is_symmetric(k) {
+  not k.customer_master_key_spec
+}
+
+policy[j] {
+  k = keys[_]
+  is_symmetric(k)
+  k.enable_key_rotation == true
+  j = fugue.allow_resource(k)
+}
+
+policy[j] {
+  k = keys[_]
+  is_symmetric(k)
+  not k.enable_key_rotation
+  j = fugue.deny_resource(k)
 }

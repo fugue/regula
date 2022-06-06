@@ -13,6 +13,9 @@
 # limitations under the License.
 package rules.tf_aws_s3_replication
 
+import data.fugue
+import data.aws.s3.s3_library as lib
+
 __rego__metadoc__ := {
   "custom": {
     "severity": "Medium"
@@ -22,10 +25,30 @@ __rego__metadoc__ := {
   "title": "S3 bucket replication (cross-region or same-region) should be enabled"
 }
 
-resource_type := "aws_s3_bucket"
+resource_type := "MULTIPLE"
 
-default allow = false
+buckets = fugue.resources("aws_s3_bucket")
 
-allow {
-  _ = input.replication_configuration[_]
+bucket_replication_by_bucket := ret {
+  fugue.input_resource_types["aws_s3_bucket_replication_configuration"]
+  confs := fugue.resources("aws_s3_bucket_replication_configuration")
+  ret := {conf.bucket: conf | conf := confs[_]}
+}
+
+bucket_has_replication(bucket) {
+  _ = bucket.replication_configuration[_]
+}
+
+bucket_has_replication(bucket) {
+  _ = bucket_replication_by_bucket[lib.bucket_name_or_id(bucket)]
+}
+
+policy[p] {
+  bucket := buckets[_]
+  bucket_has_replication(bucket)
+  p := fugue.allow_resource(bucket)
+} {
+  bucket := buckets[_]
+  not bucket_has_replication(bucket)
+  p := fugue.deny_resource(bucket)
 }

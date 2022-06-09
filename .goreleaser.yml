@@ -55,6 +55,8 @@ dockers:
   - image_templates:
     - "fugue/regula:{{ if .Prerelease }}preview{{ else }}latest{{ end }}"
     - "fugue/regula:{{ .Tag }}"
+    - "fugue/regula:v{{ .Major }}{{ if .Prerelease }}-pre{{ end }}"
+    - "fugue/regula:v{{ .Major }}.{{ .Minor }}{{ if .Prerelease }}-pre{{ end }}"
 
 brews:
   - skip_upload: auto

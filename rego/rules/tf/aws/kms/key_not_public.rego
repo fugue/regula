@@ -38,18 +38,26 @@ all_principals(statement) {
     principal.AWS == "*"
 }
 
-missing_caller_condition(statement) {
-    not statement.Condition
+is_nonempty_string(str) {
+    is_string(str)
+    count(str) > 1
+}
+
+valid_condition(condition) {
+    is_nonempty_string(condition.StringEquals["kms:CallerAccount"])
 } {
-    statement.Condition == ""
+    is_nonempty_string(condition.StringEquals["aws:PrincipalOrgID"])
+}
+
+statement_conditions(statement) = ret {
+    ret := as_array(object.get(statement, "Condition", []))
+}
+
+statement_missing_caller_condition(statement) {
+    count(statement_conditions(statement)) == 0
 } {
-    conditions = as_array(statement.Condition)
-    condition = conditions[_]
-    not condition.StringEquals["kms:CallerAccount"]
-} {
-    conditions = as_array(statement.Condition)
-    condition = conditions[_]
-    condition.StringEquals["kms:CallerAccount"] == ""
+    condition := statement_conditions(statement)[_]
+    not valid_condition(condition)
 }
 
 deny {
@@ -58,7 +66,7 @@ deny {
     statement = statements[_]
 
     all_principals(statement)
-    missing_caller_condition(statement)
+    statement_missing_caller_condition(statement)
 }
 
 as_array(x) = [x] {not is_array(x)} else = x {true}

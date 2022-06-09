@@ -46,10 +46,13 @@ cloudtrail_buckets = {bucket_id: bucket |
   lib.bucket_name_or_id(bucket) == ct.s3_bucket_name
 }
 
+public_acls := {"public-read", "public-read-write"}
+
 bucket_public_acl(bucket) {
-  bucket.acl == "public-read"
+  public_acls[bucket.acl]
 } {
-  bucket.acl == "public-read-write"
+  acl := lib.bucket_acls_by_bucket[lib.bucket_name_or_id(bucket)]
+  public_acls[acl.acl]
 }
 
 resource_type := "MULTIPLE"

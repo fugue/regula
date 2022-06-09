@@ -16,7 +16,8 @@ package rules.tf_aws_kms_key_rotation
 import data.tests.rules.tf.aws.kms.inputs.key_rotation_infra_json
 
 test_kms_rotate {
-  resources = key_rotation_infra_json.mock_resources
-  count(deny) == 0 with input as resources["aws_kms_key.valid"]
-  count(deny) == 1 with input as resources["aws_kms_key.invalid"]
+  pol := policy with input as key_rotation_infra_json.mock_input
+  by_resource_id := {p.id: p.valid | pol[p]}
+  by_resource_id["aws_kms_key.valid"] == true
+  by_resource_id["aws_kms_key.invalid"] == false
 }

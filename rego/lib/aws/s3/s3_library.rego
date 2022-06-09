@@ -32,6 +32,18 @@ bucket_policies_for_bucket(bucket) = ret {
   )
 }
 
+bucket_acls_by_bucket := ret {
+  fugue.input_resource_types["aws_s3_bucket_acl"]
+  acls := fugue.resources("aws_s3_bucket_acl")
+  ret := {acl.bucket: acl | acl := acls[_]}
+}
+
+bucket_logging_by_bucket := ret {
+  fugue.input_resource_types["aws_s3_bucket_logging"]
+  confs := fugue.resources("aws_s3_bucket_logging")
+  ret := {conf.bucket: conf | conf := confs[_]}
+}
+
 matches_bucket_or_id(val, bucket) {
   not is_null(val)
   val == bucket.bucket

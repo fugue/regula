@@ -55,9 +55,16 @@ invalid_permissions = {"READ", "FULL_CONTROL", "READ_ACP"}
 
 invalid_grant(grants) {
   grant = grants[_]
-  perms = grant.permissions[_]
-  invalid_permissions[perms]
+  perm = grant.permissions[_]
+  invalid_permissions[perm]
   invalid_grant_uris[grant.uri]
+}
+
+invalid_acl_grant(acl) {
+  grant := acl.access_control_policy[_].grant[_]
+  invalid_permissions[grant.permission]
+  uri := grant.grantee[_].uri
+  invalid_grant_uris[uri]
 }
 
 # https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#permissions
@@ -94,8 +101,14 @@ invalid_bucket_policy(pol) {
 
 bucket_invalid_reason(b) = concat(" ", [base_message, "An ACL allows public access to the bucket"]) {
   invalid_canned_acl[b.acl]
+} else = concat(" ", [base_message, "An ACL allows public access to the bucket"]) {
+  acl := lib.bucket_acls_by_bucket[lib.bucket_name_or_id(b)]
+  invalid_canned_acl[acl.acl]
 } else = concat(" ", [base_message, "A grant allows public access to the bucket"]) {
   invalid_grant(b.grant)
+} else = concat(" ", [base_message, "A grant allows public access to the bucket"]) {
+  acl := lib.bucket_acls_by_bucket[lib.bucket_name_or_id(b)]
+  invalid_acl_grant(acl)
 } else = concat(" ", [base_message, "A bucket policy allows public access to the bucket"]) {
   policies = lib.bucket_policies_for_bucket(b)
   pol = policies[_]

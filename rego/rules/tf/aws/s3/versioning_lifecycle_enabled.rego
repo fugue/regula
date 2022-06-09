@@ -13,6 +13,8 @@
 # limitations under the License.
 package rules.tf_aws_s3_versioning_lifecycle_enabled
 
+import data.fugue
+import data.aws.s3.s3_library as lib
 
 __rego__metadoc__ := {
   "custom": {
@@ -23,19 +25,47 @@ __rego__metadoc__ := {
   "title": "S3 bucket versioning and lifecycle policies should be enabled"
 }
 
-resource_type := "aws_s3_bucket"
+resource_type := "MULTIPLE"
 
-has_versioning_enabled {
-  input.versioning[_].enabled
+buckets := fugue.resources("aws_s3_bucket")
+
+bucket_versioning_enabled(bucket) {
+  bucket.versioning[_].enabled
+} {
+  conf := bucket_versioning_configs[lib.bucket_name_or_id(bucket)]
+  lower(conf.versioning_configuration[_].status) == "enabled"
 }
 
-has_lifecycle_policy {
-  count(input.lifecycle_rule) >= 1
+bucket_has_lifecycle_policy(bucket) {
+  count(bucket.lifecycle_rule) >= 1
+} {
+  conf := bucket_lifecycle_configs[lib.bucket_name_or_id(bucket)]
+  count(conf.rule) >= 1
 }
 
-default allow = false
+bucket_versioning_configs := ret {
+  fugue.input_resource_types["aws_s3_bucket_versioning"]
+  confs := fugue.resources("aws_s3_bucket_versioning")
+  ret := {conf.bucket: conf | conf := confs[_]}
+}
 
-allow {
-  has_versioning_enabled
-  has_lifecycle_policy
+bucket_lifecycle_configs := ret {
+  fugue.input_resource_types["aws_s3_bucket_lifecycle_configuration"]
+  confs := fugue.resources("aws_s3_bucket_lifecycle_configuration")
+  ret := {conf.bucket: conf | conf := confs[_]}
+}
+
+bucket_valid(bucket) {
+  bucket_versioning_enabled(bucket)
+  bucket_has_lifecycle_policy(bucket)
+}
+
+policy[p] {
+  bucket := buckets[_]
+  bucket_valid(bucket)
+  p := fugue.allow_resource(bucket)
+} {
+  bucket := buckets[_]
+  not bucket_valid(bucket)
+  p := fugue.deny_resource(bucket)
 }

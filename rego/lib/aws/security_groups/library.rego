@@ -59,8 +59,15 @@ rule_all_ports(rule) {
 }
 
 rule_all_ports(rule) {
-	rule.from_port == 0
-	rule.to_port == 0
+	rule.protocol == -1
+}
+
+rule_all_ports(rule) {
+	rule.protocol == "-1"
+}
+
+rule_all_ports(rule) {
+	lower(rule.protocol) == "all"
 }
 
 # Does an ingress block allow access from the zero CIDR to a given port?

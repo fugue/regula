@@ -13,6 +13,9 @@
 # limitations under the License.
 package rules.tf_aws_s3_bucket_access_logging
 
+import data.aws.s3.s3_library as lib
+import data.fugue
+
 __rego__metadoc__ := {
   "custom": {
     "severity": "Medium"
@@ -22,10 +25,24 @@ __rego__metadoc__ := {
   "title": "S3 bucket access logging should be enabled"
 }
 
-resource_type := "aws_s3_bucket"
+resource_type := "MULTIPLE"
 
-default allow = false
+buckets := fugue.resources("aws_s3_bucket")
 
-allow {
-  _ = input.logging[_]
+bucket_has_logging(bucket) {
+  _ = bucket.logging[_]
+}
+
+bucket_has_logging(bucket) {
+  _ = lib.bucket_logging_by_bucket[lib.bucket_name_or_id(bucket)]
+}
+
+policy[p] {
+  bucket := buckets[_]
+  bucket_has_logging(bucket)
+  p := fugue.allow_resource(bucket)
+} {
+  bucket := buckets[_]
+  not bucket_has_logging(bucket)
+  p := fugue.deny_resource(bucket)
 }

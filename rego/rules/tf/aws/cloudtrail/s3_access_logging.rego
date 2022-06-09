@@ -45,7 +45,15 @@ buckets_by_name = {bucket_name: bucket |
 }
 
 target_has_access_logging(ct) {
-  count(buckets_by_name[ct.s3_bucket_name].logging) > 0
+  bucket_has_logging(buckets_by_name[ct.s3_bucket_name])
+}
+
+bucket_has_logging(bucket) {
+  _ = bucket.logging[_]
+}
+
+bucket_has_logging(bucket) {
+  _ = lib.bucket_logging_by_bucket[lib.bucket_name_or_id(bucket)]
 }
 
 resource_type := "MULTIPLE"

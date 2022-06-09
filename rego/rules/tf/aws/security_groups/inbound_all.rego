@@ -26,19 +26,50 @@ __rego__metadoc__ := {
   "title": "VPC security group inbound rules should not permit ingress from a public address to all ports and protocols"
 }
 
-resource_type := "aws_security_group"
+resource_type := "MULTIPLE"
 
-default deny = false
+security_groups := fugue.resources("aws_security_group")
 
-has_public_cidr(b) {
-  cidr.public_cidr(b.cidr_blocks[_])
-} {
-  cidr.public_cidr(b.ipv6_cidr_blocks[_])
+ingress_security_group_rules[rule_id] = rule {
+    fugue.input_resource_types["aws_security_group_rule"]
+    rules = fugue.resources("aws_security_group_rule")
+    rule = rules[rule_id]
+    lower(rule.type) == "ingress"
 }
 
-deny {
-  b = input.ingress[_]
-  not library.rule_self_only(b)
-  has_public_cidr(b)
-  library.rule_all_ports(b)
+has_public_cidr(b) {
+    cidr.public_cidr(b.cidr_blocks[_])
+} {
+    cidr.public_cidr(b.ipv6_cidr_blocks[_])
+}
+
+deny_security_group_rule(rule) {
+    not library.rule_self_only(rule)
+    has_public_cidr(rule)
+    library.rule_all_ports(rule)
+}
+
+deny_security_group(security_group) {
+    rule = security_group.ingress[_]
+    deny_security_group_rule(rule)
+}
+
+policy[p] {
+    security_group := security_groups[_]
+    deny_security_group(security_group)
+    p := fugue.deny_resource(security_group)
+} {
+    security_group := security_groups[_]
+    not deny_security_group(security_group)
+    p := fugue.allow_resource(security_group)
+}
+
+policy[p] {
+    security_group_rule := ingress_security_group_rules[_]
+    deny_security_group_rule(security_group_rule)
+    p := fugue.deny_resource(security_group_rule)
+} {
+    security_group_rule := ingress_security_group_rules[_]
+    not deny_security_group_rule(security_group_rule)
+    p := fugue.allow_resource(security_group_rule)
 }

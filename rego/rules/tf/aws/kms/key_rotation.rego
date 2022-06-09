@@ -40,7 +40,7 @@ resource_type := "MULTIPLE"
 
 keys := fugue.resources("aws_kms_key")
 
-symmetric_key_spec_prefixes := {"HMAC", "SYMMETRIC"}
+symmetric_key_spec_prefixes := {"SYMMETRIC"}
 
 is_symmetric(k) {
   prefix := split(k.customer_master_key_spec, "_")[0]

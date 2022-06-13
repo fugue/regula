@@ -45,7 +45,7 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 		}
 	}
 
-	moduleTree, err := regulatf.ParseFiles(nil, inputFs, false, dir, []string{i.Path()})
+	moduleTree, err := regulatf.ParseFiles(nil, inputFs, false, dir, []string{i.Path()}, []string{})
 	if err != nil {
 		return nil, err
 	}

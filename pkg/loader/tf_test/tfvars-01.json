@@ -1,0 +1,30 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_s3_bucket.bucket": {
+        "_filepath": "tf_test/tfvars-01/main.tf",
+        "_provider": "aws",
+        "_tags": {
+          "var_1": "default_value",
+          "var_2": "hi I am in terraform.tfvars",
+          "var_3": "hey I'm in terraform.tfvars.json",
+          "var_4": "Hey I'm in aaa",
+          "var_5": "Hey I'm in bbb",
+          "var_6": "Hey I'm in ccc"
+        },
+        "_type": "aws_s3_bucket",
+        "id": "aws_s3_bucket.bucket",
+        "tags": {
+          "var_1": "default_value",
+          "var_2": "hi I am in terraform.tfvars",
+          "var_3": "hey I'm in terraform.tfvars.json",
+          "var_4": "Hey I'm in aaa",
+          "var_5": "Hey I'm in bbb",
+          "var_6": "Hey I'm in ccc"
+        }
+      }
+    }
+  },
+  "filepath": "tf_test/tfvars-01"
+}

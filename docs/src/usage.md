@@ -53,7 +53,7 @@ Flags:
   -s, --severity string         Set the minimum severity that will result in a non-zero exit code. (default "unknown")
       --sync                    Fetch rules and configuration from Fugue
       --upload                  Upload rule results to Fugue
-      --var-file strings        Paths to .tfvars or .json files to be used while evaluating Terraform HCL source code.
+      --var-file strings        Paths to .tfvars or .json files to be used while evaluating Terraform HCL source code. Can be specified multiple times.
 
 Global Flags:
   -v, --verbose   verbose output

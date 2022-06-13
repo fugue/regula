@@ -156,7 +156,7 @@ func addOnlyFlag(cmd *cobra.Command, v *viper.Viper) {
 }
 
 func addVarFileFlag(cmd *cobra.Command, v *viper.Viper) {
-	cmd.Flags().StringSlice(varFileFlag, nil, "Paths to .tfvars or .json files to be used while evaluating Terraform HCL source code.")
+	cmd.Flags().StringSlice(varFileFlag, nil, "Paths to .tfvars or .json files to be used while evaluating Terraform HCL source code. Can be specified multiple times.")
 	v.BindPFlag(varFileFlag, cmd.Flags().Lookup(varFileFlag))
 }
 

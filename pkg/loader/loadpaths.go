@@ -31,6 +31,7 @@ type LoadPathsOptions struct {
 	InputTypes  []InputType
 	NoGitIgnore bool
 	IgnoreDirs  bool
+	VarFiles    []string
 }
 
 type NoLoadableConfigsError struct {
@@ -67,6 +68,7 @@ func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
 			loader, _ := i.DetectType(detector, DetectOptions{
 				IgnoreExt:  false,
 				IgnoreDirs: options.IgnoreDirs,
+				VarFiles:   options.VarFiles,
 			})
 			if loader != nil {
 				configurations.AddConfiguration(i.Path(), loader)
@@ -87,6 +89,7 @@ func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
 				i := newFile(stdIn, stdIn)
 				loader, err := i.DetectType(detector, DetectOptions{
 					IgnoreExt: true,
+					VarFiles:  options.VarFiles,
 				})
 				if err != nil {
 					return nil, err
@@ -124,6 +127,7 @@ func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
 				loader, err := i.DetectType(detector, DetectOptions{
 					IgnoreExt:  ignoreFileExtension,
 					IgnoreDirs: options.IgnoreDirs,
+					VarFiles:   options.VarFiles,
 				})
 				if err != nil {
 					return nil, err
@@ -138,6 +142,7 @@ func LocalConfigurationLoader(options LoadPathsOptions) ConfigurationLoader {
 				i := newFile(path, name)
 				loader, err := i.DetectType(detector, DetectOptions{
 					IgnoreExt: ignoreFileExtension,
+					VarFiles:  options.VarFiles,
 				})
 				if err != nil {
 					return nil, err

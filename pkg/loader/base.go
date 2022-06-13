@@ -163,6 +163,7 @@ func (l Location) String() string {
 type DetectOptions struct {
 	IgnoreExt  bool
 	IgnoreDirs bool
+	VarFiles   []string
 }
 
 // ConfigurationDetector implements the visitor part of the visitor pattern for the

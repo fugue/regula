@@ -45,6 +45,7 @@ func ParseDirectory(
 	moduleRegister *TerraformModuleRegister,
 	parserFs afero.Fs,
 	dir string,
+	varFiles []string,
 ) (*ModuleTree, error) {
 	parser := configs.NewParser(parserFs)
 	var diags hcl.Diagnostics
@@ -61,12 +62,15 @@ func ParseDirectory(
 		filepaths[i] = TfFilePathJoin(dir, filepath.Base(file))
 	}
 
-	varfiles, err := findVarFiles(parserFs, dir)
+	foundVarFiles, err := findVarFiles(parserFs, dir)
 	if err != nil {
 		return nil, err
 	}
 
-	return ParseFiles(moduleRegister, parserFs, true, dir, filepaths, varfiles)
+	// The order here is important so that var files that are explicitly specified get
+	// applied after any automatically-loaded var files.
+	varFiles = append(foundVarFiles, varFiles...)
+	return ParseFiles(moduleRegister, parserFs, true, dir, filepaths, varFiles)
 }
 
 func ParseFiles(
@@ -136,7 +140,7 @@ func ParseFiles(
 						}
 						logrus.Debugf("Loading source from %s", childDir)
 
-						child, err := ParseDirectory(moduleRegister, parserFs, childDir)
+						child, err := ParseDirectory(moduleRegister, parserFs, childDir, []string{})
 						if err == nil {
 							child.meta.Location = &moduleCall.SourceAddrRange
 							child.config = body

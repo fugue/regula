@@ -45,7 +45,7 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 		}
 	}
 
-	moduleTree, err := regulatf.ParseFiles(nil, inputFs, false, dir, []string{i.Path()}, []string{})
+	moduleTree, err := regulatf.ParseFiles(nil, inputFs, false, dir, []string{i.Path()}, opts.VarFiles)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 	}
 
 	moduleRegister := regulatf.NewTerraformRegister(i.Path())
-	moduleTree, err := regulatf.ParseDirectory(moduleRegister, nil, i.Path())
+	moduleTree, err := regulatf.ParseDirectory(moduleRegister, nil, i.Path(), opts.VarFiles)
 	if err != nil {
 		return nil, err
 	}

@@ -21,8 +21,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fugue/regula/v2/pkg/rego"
 	"github.com/fugue/regula/v2/pkg/loader"
+	"github.com/fugue/regula/v2/pkg/rego"
 	"github.com/fugue/regula/v2/pkg/reporter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -112,6 +112,7 @@ func NewRunCommand() *cobra.Command {
 				severity:      severity,
 				sync:          v.GetBool(syncFlag),
 				upload:        upload,
+				varFiles:      v.GetStringSlice(varFileFlag),
 			}
 			if err := config.Validate(); err != nil {
 				return err
@@ -173,6 +174,7 @@ func NewRunCommand() *cobra.Command {
 	addSeverityFlag(cmd, v)
 	addSyncFlag(cmd, v)
 	addUploadFlag(cmd)
+	addVarFileFlag(cmd, v)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

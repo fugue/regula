@@ -34,11 +34,13 @@ func NewShowInputCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			varFiles := v.GetStringSlice(varFileFlag)
 			// Silence usage now that we're past arg parsing
 			cmd.SilenceUsage = true
 			loadedFiles, err := loader.LocalConfigurationLoader(loader.LoadPathsOptions{
 				Paths:      paths,
 				InputTypes: inputTypes,
+				VarFiles:   varFiles,
 			})()
 			if err != nil {
 				return err
@@ -53,6 +55,7 @@ func NewShowInputCommand() *cobra.Command {
 	}
 
 	addInputTypeFlag(cmd, v)
+	addVarFileFlag(cmd, v)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

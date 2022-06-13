@@ -161,6 +161,7 @@ Regula can use an optional `.regula.yaml` configuration file to set some default
   -o, --only strings            Rule IDs or names to run. All other rules will be excluded. Can be specified multiple times.
   -s, --severity string         Set the minimum severity that will result in a non-zero exit code. (default "unknown")
       --sync                    Fetch rules and configuration from Fugue
+      --var-file strings        Paths to .tfvars or .json files to be used while evaluating Terraform HCL source code.
 ```
 
 To create the configuration file, run `regula init [input...] [flags]`. An easy way to setup the configuration file is to use `regula run` to figure out which options you want to set:

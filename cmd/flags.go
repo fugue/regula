@@ -44,6 +44,7 @@ const syncFlag = "sync"
 const uploadFlag = "upload"
 const excludeFlag = "exclude"
 const onlyFlag = "only"
+const varFileFlag = "var-file"
 
 const inputTypeDescriptions = `
 Input types:
@@ -152,6 +153,11 @@ func addExcludeFlag(cmd *cobra.Command, v *viper.Viper) {
 func addOnlyFlag(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().StringSliceP(onlyFlag, "o", nil, "Rule IDs or names to run. All other rules will be excluded. Can be specified multiple times.")
 	v.BindPFlag(onlyFlag, cmd.Flags().Lookup(onlyFlag))
+}
+
+func addVarFileFlag(cmd *cobra.Command, v *viper.Viper) {
+	cmd.Flags().StringSlice(varFileFlag, nil, "Paths to .tfvars or .json files to be used while evaluating Terraform HCL source code.")
+	v.BindPFlag(varFileFlag, cmd.Flags().Lookup(varFileFlag))
 }
 
 func joinDescriptions(descriptions ...string) string {

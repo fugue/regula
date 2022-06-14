@@ -43,6 +43,7 @@ type runConfig struct {
 	severity      reporter.Severity
 	sync          bool
 	upload        bool
+	varFiles      []string
 }
 
 func (c *runConfig) Validate() error {
@@ -105,6 +106,7 @@ func (c *runConfig) ConfigurationLoader() (loader.ConfigurationLoader, error) {
 		Paths:       c.inputs,
 		InputTypes:  inputTypes,
 		NoGitIgnore: c.noIgnore,
+		VarFiles:    c.varFiles,
 	}), nil
 }
 

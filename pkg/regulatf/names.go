@@ -184,17 +184,17 @@ func (name FullName) AsModuleInput() *FullName {
 	return nil
 }
 
-// Parses "var.my_var" into "variable.my_var"
-func (name FullName) AsDefault() *FullName {
+// Parses "var.my_var.key" into "variable.my_var", "var.my_var" and "key".
+func (name FullName) AsVariable() (*FullName, *FullName, LocalName) {
 	if len(name.Local) >= 2 {
 		if str, ok := name.Local[0].(string); ok && str == "var" {
 			local := make(LocalName, len(name.Local))
 			copy(local, name.Local)
 			local[0] = "variable"
-			return &FullName{name.Module, local}
+			return &FullName{name.Module, local[:2]}, &FullName{name.Module, name.Local[:2]}, local[2:]
 		}
 	}
-	return nil
+	return nil, nil, nil
 }
 
 // Parses "aws_s3_bucket.my_bucket[3].bucket_prefix" into:

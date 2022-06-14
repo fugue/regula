@@ -53,6 +53,7 @@ Flags:
   -s, --severity string         Set the minimum severity that will result in a non-zero exit code. (default "unknown")
       --sync                    Fetch rules and configuration from Fugue
       --upload                  Upload rule results to Fugue
+      --var-file strings        Paths to .tfvars or .json files to be used while evaluating Terraform HCL source code. Can be specified multiple times.
 
 Global Flags:
   -v, --verbose   verbose output
@@ -127,6 +128,24 @@ terraform show -json plan.tfplan | regula run
 
 !!! note
     Regula can only evaluate Terraform modules that are available locally. If your Terraform configuration depends on external modules (for example from the Terraform module registry or GitHub) and you want to evaluate resources from those modules, run `terraform init` before running Regula. `terraform init` will download all external modules to a `.terraform` directory and Regula will be able to resolve them.
+
+##### Variable support
+
+The `run` command has a `--var-file` option which you can use to specify Terraform variable files that should be used during evaluation. For example:
+
+```sh
+regula run --var-file prod.tfvars my_tf_infra
+```
+
+Regula will also automatically load `terraform.tfvars`, `*.auto.tfvars` and their JSON equivalents when found. We follow the same order of preference described in the [Variable Definition Precedence](https://www.terraform.io/language/values/variables#variable-definition-precedence) section of the Terraform documentation with the caveats that Regula **does not** currently support Terraform variables in environment variables nor does it have an analog of Terraform's `-var` option. With those caveats in mind, Regula follows this order of precedence to resolve variable values, with later sources taking precedence over earlier ones:
+
+* Any default values specified in the variable declarations
+* The `terraform.tfvars` file, if present.
+* The `terraform.tfvars.json` file, if present.
+* Any `*.auto.tfvars` or `*.auto.tfvars.json` files, processed in lexical order of their filenames
+* Any `--var-file` options on the command line, in the order they are provided
+
+If Regula does not have any possible values for a variable, that variable will evaluate to `null`.
 
 #### CloudFormation input
 

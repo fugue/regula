@@ -1,0 +1,24 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_s3_bucket.bucket": {
+        "_filepath": "tf_test/tfvars-02/main.tf",
+        "_provider": "aws",
+        "_tags": {
+          "booly": "yes",
+          "listy": "Hello",
+          "mappy": "value"
+        },
+        "_type": "aws_s3_bucket",
+        "id": "aws_s3_bucket.bucket",
+        "tags": {
+          "booly": "yes",
+          "listy": "Hello",
+          "mappy": "value"
+        }
+      }
+    }
+  },
+  "filepath": "tf_test/tfvars-02"
+}

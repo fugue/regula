@@ -98,7 +98,7 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 		} else if moduleOutput := full.AsModuleOutput(); moduleOutput != nil {
 			// Rewrite module outputs.
 			deps = append(deps, dependency{full, moduleOutput, nil})
-		} else if asDefault := full.AsDefault(); asDefault != nil {
+		} else if asVariable, asVar, _ := full.AsVariable(); asVar != nil {
 			// Rewrite variables either as default, or as module input.
 			asModuleInput := full.AsModuleInput()
 			isModuleInput := false
@@ -109,7 +109,7 @@ func (v *Analysis) dependencies(name FullName, expr hcl.Expression) []dependency
 				}
 			}
 			if !isModuleInput {
-				deps = append(deps, dependency{full, asDefault, nil})
+				deps = append(deps, dependency{*asVar, asVariable, nil})
 			}
 		} else if asResourceName, _, trailing := full.AsResourceName(); asResourceName != nil {
 			// Rewrite resource references.

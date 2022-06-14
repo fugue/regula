@@ -73,6 +73,9 @@ func NewInitCommand() *cobra.Command {
 			if err := configureBoolIfSet(cmd, v, syncFlag); err != nil {
 				return err
 			}
+			if err := configureStringSliceIfSet(cmd, v, varFileFlag); err != nil {
+				return err
+			}
 			if len(paths) > 0 {
 				v.Set(inputsFlag, paths)
 			}
@@ -120,6 +123,7 @@ func NewInitCommand() *cobra.Command {
 	addOnlyFlag(cmd, v)
 	addSeverityFlag(cmd, v)
 	addSyncFlag(cmd, v)
+	addVarFileFlag(cmd, v)
 	cmd.Flags().SetNormalizeFunc(normalizeFlag)
 	return cmd
 }

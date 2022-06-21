@@ -6,6 +6,8 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -35,6 +37,9 @@ type RuleWaiver struct {
 
 	// environment name
 	EnvironmentName string `json:"environment_name,omitempty"`
+
+	// The date and time when this rule waiver expires.
+	ExpiresAt int64 `json:"expires_at,omitempty"`
 
 	// id
 	// Required: true
@@ -68,6 +73,10 @@ type RuleWaiver struct {
 	// rule id
 	// Required: true
 	RuleID *string `json:"rule_id"`
+
+	// Enum for whether or not this waiver is active or expired.
+	// Enum: [ACTIVE EXPIRED]
+	Status string `json:"status,omitempty"`
 
 	// The date and time when the rule waiver was last updated.
 	UpdatedAt int64 `json:"updated_at,omitempty"`
@@ -108,6 +117,10 @@ func (m *RuleWaiver) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRuleID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -174,6 +187,49 @@ func (m *RuleWaiver) validateResourceType(formats strfmt.Registry) error {
 func (m *RuleWaiver) validateRuleID(formats strfmt.Registry) error {
 
 	if err := validate.Required("rule_id", "body", m.RuleID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var ruleWaiverTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["ACTIVE","EXPIRED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		ruleWaiverTypeStatusPropEnum = append(ruleWaiverTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// RuleWaiverStatusACTIVE captures enum value "ACTIVE"
+	RuleWaiverStatusACTIVE string = "ACTIVE"
+
+	// RuleWaiverStatusEXPIRED captures enum value "EXPIRED"
+	RuleWaiverStatusEXPIRED string = "EXPIRED"
+)
+
+// prop value enum
+func (m *RuleWaiver) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, ruleWaiverTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *RuleWaiver) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
 		return err
 	}
 

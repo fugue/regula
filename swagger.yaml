@@ -239,6 +239,10 @@ paths:
       summary: Creates a new environment.
       description: Creates a new environment.
       operationId: createEnvironment
+      consumes:
+      - application/json
+      produces:
+      - application/json
       security:
       - CustomerApiAuthorizer: []
       tags:
@@ -354,6 +358,10 @@ paths:
       summary: Updates an environment.
       description: Updates an environment.
       operationId: updateEnvironment
+      consumes:
+      - application/json
+      produces:
+      - application/json
       security:
       - CustomerApiAuthorizer: []
       tags:
@@ -531,6 +539,10 @@ paths:
       summary: Returns the permissions required to survey and remediate resources.
       description: Returns the permissions required to survey and remediate resources.
       operationId: createPolicy
+      consumes:
+      - application/json
+      produces:
+      - application/json
       security:
       - CustomerApiAuthorizer: []
       tags:
@@ -1269,6 +1281,10 @@ paths:
       summary: Creates a new notification.
       description: Creates a new notification.
       operationId: createNotification
+      consumes:
+      - application/json
+      produces:
+      - application/json
       security:
       - CustomerApiAuthorizer: []
       tags:
@@ -1327,6 +1343,10 @@ paths:
       summary: Updates an existing notification.
       description: Updates an existing notification.
       operationId: updateNotification
+      consumes:
+      - application/json
+      produces:
+      - application/json
       security:
       - CustomerApiAuthorizer: []
       tags:
@@ -1447,6 +1467,8 @@ paths:
       summary: Create a new custom rule.
       description: |
         Create a new custom rule.
+      consumes:
+      - application/json
       produces:
       - application/json
       security:
@@ -1646,6 +1668,8 @@ paths:
       summary: Update custom rule.
       description: |
         Update configuration of a custom rule.
+      consumes:
+      - application/json
       produces:
       - application/json
       security:
@@ -1767,6 +1791,8 @@ paths:
       summary: Test a custom rule.
       description: |
         Test a custom rule using state from an scan.
+      consumes:
+      - application/json
       produces:
       - application/json
       security:
@@ -1890,6 +1916,8 @@ paths:
       summary: Create a new custom compliance family.
       description: |
         Create a new custom compliance family.
+      consumes:
+      - application/json
       produces:
       - application/json
       security:
@@ -2155,6 +2183,8 @@ paths:
       summary: Edit an existing user Family.
       description: |
         Edit an existing user Family.
+      consumes:
+      - application/json
       produces:
       - application/json
       security:
@@ -2303,6 +2333,10 @@ paths:
       summary: Creates a new invite.
       description: Creates a new invite.
       operationId: createInvite
+      consumes:
+      - application/json
+      produces:
+      - application/json
       security:
       - CustomerApiAuthorizer: []
       tags:
@@ -2503,6 +2537,10 @@ paths:
       summary: Creates a new group.
       description: Creates a new group.
       operationId: createGroup
+      consumes:
+      - application/json
+      produces:
+      - application/json
       security:
       - CustomerApiAuthorizer: []
       tags:
@@ -2643,6 +2681,8 @@ paths:
       summary: Edit a list of Users' Group assignments.
       description: |
         Edit a list of Users' Group assignment.
+      consumes:
+      - application/json
       produces:
       - application/json
       security:
@@ -2800,10 +2840,101 @@ paths:
       - name: query
         in: query
         required: false
-        description: A stringified JSON array of search parameters.
+        description: Deprecated, use the q.<parameter> fields instead.
         type: string
         minLength: 2
         maxLength: 1800
+      - name: q.id
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+        description: A specific rule waiver ID.
+      - name: q.environment_id
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+        description: An environment ID associated with a rule waiver.
+      - name: q.name
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+        description: A name of a rule waiver.
+      - name: q.rule_id
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+        description: A rule ID associated with a rule waiver.
+      - name: q.resource_id
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+        description: A resource ID associated with a rule waiver.
+      - name: q.resource_type
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+        description: A resource ID associated with a rule waiver.
+      - name: q.resource_provider
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+        description: A resource provider associated with a rule waiver
+      - name: q.environment_name
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+        description: An environment name associated with a rule waiver.
+      - name: q.environment_provider
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+        description: An environment provider associated with a rule waiver
+      - name: q.provider
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        items:
+          type: string
+        description: Alias for q.environment_provider.
+      - name: q.status
+        in: query
+        required: false
+        type: array
+        collectionFormat: multi
+        enum:
+        - active
+        - expired
+        description: A current waiver status.
+        items:
+          type: string
       tags:
       - rule_waivers
       responses:
@@ -2844,6 +2975,8 @@ paths:
       summary: Creates a new rule waiver.
       description: Creates a new rule waiver.
       operationId: createRuleWaiver
+      consumes:
+      - application/json
       produces:
       - application/json
       x-amazon-apigateway-request-validator: all
@@ -2956,6 +3089,8 @@ paths:
       summary: Updates a rule waiver.
       description: Updates a rule waiver.
       operationId: updateRuleWaiver
+      consumes:
+      - application/json
       produces:
       - application/json
       security:
@@ -4761,6 +4896,20 @@ definitions:
         type: array
         items:
           type: string
+  Duration:
+    description: Defines a duration from the current time and date.
+    type: object
+    properties:
+      years:
+        type: integer
+      months:
+        type: integer
+      weeks:
+        type: integer
+      days:
+        type: integer
+      hours:
+        type: integer
   CreateRuleWaiverInput:
     description: Parameters for rule waiver creation.
     type: object
@@ -4787,6 +4936,21 @@ definitions:
       name:
         type: string
       comment:
+        type: string
+      expires_at:
+        description: |
+          Unix timestamp representation of the expiration date of this rule waiver.
+          Cannot be combined with `expires_at_duration` or `expires_at_ts`.
+        type: integer
+      expires_at_duration:
+        description: |
+          Duration object representation of the expiration date of this rule waiver.
+          Cannot be combined with `expires_at` or `expires_at_ts`.
+        $ref: '#/definitions/Duration'
+      expires_at_ts:
+        description: |
+          RFC3339 representation of the expiration date of this rule waiver.
+          Cannot be combined with `expires_at` or `expires_at_duration`.
         type: string
   RuleWaiver:
     description: Rule waiver
@@ -4829,6 +4993,15 @@ definitions:
       created_at:
         description: The date and time when the rule waiver was created.
         type: integer
+      expires_at:
+        description: The date and time when this rule waiver expires.
+        type: integer
+      status:
+        description: Enum for whether or not this waiver is active or expired.
+        type: string
+        enum:
+        - ACTIVE
+        - EXPIRED
       updated_by:
         description: Principal that last updated the rule waiver.
         type: string
@@ -4853,6 +5026,21 @@ definitions:
       name:
         type: string
       comment:
+        type: string
+      expires_at:
+        description: |
+          Unix timestamp representation of the expiration date of this rule waiver.
+          Cannot be combined with `expires_at_duration` or `expires_at_ts`.
+        type: integer
+      expires_at_duration:
+        description: |
+          Duration object representation of the expiration date of this rule waiver.
+          Cannot be combined with `expires_at` or `expires_at_ts`.
+        $ref: '#/definitions/Duration'
+      expires_at_ts:
+        description: |
+          RFC3339 representation of the expiration date of this rule waiver.
+          Cannot be combined with `expires_at` or `expires_at_duration`.
         type: string
   RuleWaivers:
     type: object

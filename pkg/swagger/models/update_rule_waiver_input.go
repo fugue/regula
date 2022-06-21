@@ -6,6 +6,7 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
@@ -18,12 +19,54 @@ type UpdateRuleWaiverInput struct {
 	// comment
 	Comment string `json:"comment,omitempty"`
 
+	// Unix timestamp representation of the expiration date of this rule waiver.
+	// Cannot be combined with `expires_at_duration` or `expires_at_ts`.
+	//
+	ExpiresAt int64 `json:"expires_at,omitempty"`
+
+	// Duration object representation of the expiration date of this rule waiver.
+	// Cannot be combined with `expires_at` or `expires_at_ts`.
+	//
+	ExpiresAtDuration *Duration `json:"expires_at_duration,omitempty"`
+
+	// RFC3339 representation of the expiration date of this rule waiver.
+	// Cannot be combined with `expires_at` or `expires_at_duration`.
+	//
+	ExpiresAtTs string `json:"expires_at_ts,omitempty"`
+
 	// name
 	Name string `json:"name,omitempty"`
 }
 
 // Validate validates this update rule waiver input
 func (m *UpdateRuleWaiverInput) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateExpiresAtDuration(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateRuleWaiverInput) validateExpiresAtDuration(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ExpiresAtDuration) { // not required
+		return nil
+	}
+
+	if m.ExpiresAtDuration != nil {
+		if err := m.ExpiresAtDuration.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("expires_at_duration")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

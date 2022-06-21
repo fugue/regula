@@ -24,6 +24,21 @@ type CreateRuleWaiverInput struct {
 	// Required: true
 	EnvironmentID *string `json:"environment_id"`
 
+	// Unix timestamp representation of the expiration date of this rule waiver.
+	// Cannot be combined with `expires_at_duration` or `expires_at_ts`.
+	//
+	ExpiresAt int64 `json:"expires_at,omitempty"`
+
+	// Duration object representation of the expiration date of this rule waiver.
+	// Cannot be combined with `expires_at` or `expires_at_ts`.
+	//
+	ExpiresAtDuration *Duration `json:"expires_at_duration,omitempty"`
+
+	// RFC3339 representation of the expiration date of this rule waiver.
+	// Cannot be combined with `expires_at` or `expires_at_duration`.
+	//
+	ExpiresAtTs string `json:"expires_at_ts,omitempty"`
+
 	// name
 	// Required: true
 	Name *string `json:"name"`
@@ -53,6 +68,10 @@ func (m *CreateRuleWaiverInput) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateEnvironmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExpiresAtDuration(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -86,6 +105,24 @@ func (m *CreateRuleWaiverInput) validateEnvironmentID(formats strfmt.Registry) e
 
 	if err := validate.Required("environment_id", "body", m.EnvironmentID); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreateRuleWaiverInput) validateExpiresAtDuration(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ExpiresAtDuration) { // not required
+		return nil
+	}
+
+	if m.ExpiresAtDuration != nil {
+		if err := m.ExpiresAtDuration.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("expires_at_duration")
+			}
+			return err
+		}
 	}
 
 	return nil

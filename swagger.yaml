@@ -3305,6 +3305,11 @@ paths:
         required: true
         description: The ID of the started scan
         type: string
+      - in: body
+        name: empty
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           description: A location to upload the regula scan view.

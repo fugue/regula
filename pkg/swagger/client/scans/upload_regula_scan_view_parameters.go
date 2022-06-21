@@ -60,6 +60,8 @@ for the upload regula scan view operation typically these are written to a http.
 */
 type UploadRegulaScanViewParams struct {
 
+	/*Empty*/
+	Empty string
 	/*ScanID
 	  The ID of the started scan
 
@@ -104,6 +106,17 @@ func (o *UploadRegulaScanViewParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithEmpty adds the empty to the upload regula scan view params
+func (o *UploadRegulaScanViewParams) WithEmpty(empty string) *UploadRegulaScanViewParams {
+	o.SetEmpty(empty)
+	return o
+}
+
+// SetEmpty adds the empty to the upload regula scan view params
+func (o *UploadRegulaScanViewParams) SetEmpty(empty string) {
+	o.Empty = empty
+}
+
 // WithScanID adds the scanID to the upload regula scan view params
 func (o *UploadRegulaScanViewParams) WithScanID(scanID string) *UploadRegulaScanViewParams {
 	o.SetScanID(scanID)
@@ -122,6 +135,10 @@ func (o *UploadRegulaScanViewParams) WriteToRequest(r runtime.ClientRequest, reg
 		return err
 	}
 	var res []error
+
+	if err := r.SetBodyParam(o.Empty); err != nil {
+		return err
+	}
 
 	// path param scan_id
 	if err := r.SetPathParam("scan_id", o.ScanID); err != nil {

@@ -105,7 +105,7 @@ $(MOCKGEN):
 	$(GO) install github.com/golang/mock/mockgen@v1.5.0
 
 $(CHANGIE):
-	$(GO) install github.com/miniscruff/changie@v0.5.0
+	$(GO) install github.com/miniscruff/changie@v1.7.0
 
 $(GORELEASER):
 	$(GO) install github.com/goreleaser/goreleaser@v0.183.0

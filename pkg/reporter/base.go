@@ -186,7 +186,10 @@ func (report *RegulaReport) RecomputeSummary() {
 			ruleResults[result.RuleResult] += 1
 		}
 		if _, ok := severities[result.RuleSeverity]; ok {
-			severities[result.RuleSeverity] += 1
+			// only failed results should be counted towards severity
+			if result.RuleResult == "FAIL" {
+				severities[result.RuleSeverity] += 1
+			}
 		}
 	}
 

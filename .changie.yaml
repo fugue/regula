@@ -8,11 +8,11 @@ versionFormat: '## {{.Version}} ({{.Time.Format "2006-01-02"}})'
 kindFormat: '### {{.Kind}}'
 changeFormat: '* {{.Body}}'
 kinds:
-- Added
-- Changed
-- Deprecated
-- Removed
-- Fixed
-- Security
-- Improved
-- Updated
+- label: Added
+- label: Changed
+- label: Deprecated
+- label: Removed
+- label: Fixed
+- label: Security
+- label: Improved
+- label: Updated

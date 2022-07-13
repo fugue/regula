@@ -73,7 +73,7 @@ func testOutput() RegulaReport {
 			},
 			Severities: map[string]int{
 				"Critical":      0,
-				"High":          2,
+				"High":          1,
 				"Informational": 0,
 				"Low":           0,
 				"Medium":        1,

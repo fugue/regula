@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v2.8.1 (2022-07-13)
+### Fixed
+* fix severities for passing rules
+
 ## v2.8.0 (2022-06-14)
 
 ### Added

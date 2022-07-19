@@ -406,6 +406,17 @@ func (r *RuleResult) EnrichRuleResult(conf loader.LoadedConfigurations) {
 	}
 }
 
+func (r *RuleResult) ExceedsSeverity(severity Severity) bool {
+	if !r.IsFail() {
+		return false
+	}
+	level, ok := regulaSeverities[r.RuleSeverity]
+	if !ok {
+		return false
+	}
+	return level >= severity
+}
+
 type Summary struct {
 	Filepaths   []string       `json:"filepaths"`
 	RuleResults map[string]int `json:"rule_results"`

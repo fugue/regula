@@ -38,6 +38,13 @@ func testOutput() RegulaReport {
 				RuleResult:   "FAIL",
 				RuleSeverity: "Medium",
 				RuleSummary:  "checks databases",
+				SourceLocation: []loader.Location{
+					{
+						Path: "src/infra/database.yaml",
+						Line: 20,
+						Col:  10,
+					},
+				},
 			},
 			{
 				Filepath:     "src/infra/network.yaml",
@@ -50,14 +57,22 @@ func testOutput() RegulaReport {
 				RuleSummary:  "checks tags",
 			},
 			{
-				Filepath:     "src/infra/compute.yaml",
-				ResourceID:   "r1",
-				ResourceType: "t1",
-				RuleID:       "RULE_001",
-				RuleName:     "myrule1",
-				RuleResult:   "FAIL",
-				RuleSeverity: "High",
-				RuleSummary:  "checks tags",
+				Filepath:           "src/infra/compute.yaml",
+				ResourceID:         "r1",
+				ResourceType:       "t1",
+				RuleID:             "RULE_001",
+				RuleName:           "myrule1",
+				RuleResult:         "FAIL",
+				RuleSeverity:       "High",
+				RuleSummary:        "checks tags",
+				RuleRemediationDoc: "https://example.com/RULE_001",
+				SourceLocation: []loader.Location{
+					{
+						Path: "src/infra/compute.yaml",
+						Line: 30,
+						Col:  5,
+					},
+				},
 			},
 		},
 		Summary: Summary{

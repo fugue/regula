@@ -162,16 +162,33 @@ func (c *runConfig) ResultProcessor() rego.RegoResultProcessor {
 				return err
 			}
 		}
-		reporter, err := reporter.GetReporter(c.format)
+		rep, err := reporter.GetReporter(c.format)
 		if err != nil {
 			return err
 		}
-		reportStr, err := reporter(report)
+		reportStr, err := rep(report)
 		if err != nil {
 			return err
 		}
 		if reportStr != "" {
-			fmt.Print(reportStr)
+			fmt.Println(reportStr)
+		}
+		if os.Getenv("REGULA_ACTION") == "true" {
+			workspaceDir := os.Getenv("GITHUB_WORKSPACE")
+			disableAnnotations := os.Getenv("INPUT_DISABLE_ANNOTATIONS") == "true"
+			annotationSeverity := c.severity
+			if s, err := reporter.SeverityFromString(os.Getenv("INPUT_ANNOTATION_SEVERITY")); err == nil {
+				annotationSeverity = s
+			}
+			actionOutput, _ := reporter.GHActionReporter(
+				workspaceDir,
+				disableAnnotations,
+				annotationSeverity,
+				report,
+			)
+			if actionOutput != "" {
+				fmt.Println(actionOutput)
+			}
 		}
 		if report.ExceedsSeverity(c.severity) {
 			return &ExceedsSeverityError{

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v2.9.0 (2022-08-01)
+### Fixed
+* Panic when using both Terraform and Regula as go libraries (#350 authored by @craigfurman)
+### Security
+* Updated OPA to v0.43.0
+* Updated alpine to v3.16 in Dockerfile
+
 ## v2.8.1 (2022-07-13)
 ### Fixed
 * fix severities for passing rules

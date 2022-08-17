@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v2.9.1 (2022-08-17)
+### Added
+* Support for remediation doc to regotools metadoc (#352 authored by @darrendao)
+
 ## v2.9.0 (2022-08-01)
 ### Fixed
 * Panic when using both Terraform and Regula as go libraries (#350 authored by @craigfurman)

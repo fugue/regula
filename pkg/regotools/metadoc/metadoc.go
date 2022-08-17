@@ -44,13 +44,14 @@ type RegoMeta struct {
 	metadocEndLine   int                    // End of metadoc, -1 if not present
 	metadoc          map[string]interface{} // Dynamic metadoc
 
-	Id          string
-	Title       string
-	Description string
-	Severity    string
-	Controls    map[string][]string
-	Families    []string
-	Providers   []string
+	Id                 string
+	Title              string
+	Description        string
+	Severity           string
+	Controls           map[string][]string
+	Families           []string
+	Providers          []string
+	RuleRemediationDoc string
 
 	ResourceType     string // Resource type
 	resourceTypeLine int
@@ -74,11 +75,12 @@ func RegoMetaFromPath(path string) (*RegoMeta, error) {
 }
 
 type metadocCustom struct {
-	Severity  string              `json:"severity"`
-	Controls  map[string][]string `json:"controls"`
-	Families  []string            `json:"families"`
-	Provider  string              `json:"provider"`
-	Providers []string            `json:"providers"`
+	Severity           string              `json:"severity"`
+	Controls           map[string][]string `json:"controls"`
+	Families           []string            `json:"families"`
+	Provider           string              `json:"provider"`
+	Providers          []string            `json:"providers"`
+	RuleRemediationDoc string              `json:"rule_remediation_doc"`
 }
 
 type metadoc struct {
@@ -193,6 +195,7 @@ func RegoMetaFromString(str string) (*RegoMeta, error) {
 			rego.Severity = metadoc.Custom.Severity
 			rego.Families = metadoc.Custom.Families
 			rego.Providers = metadoc.Custom.Providers
+			rego.RuleRemediationDoc = metadoc.Custom.RuleRemediationDoc
 
 			// Migrate old provider field.
 			if len(rego.Providers) == 0 && len(metadoc.Custom.Provider) != 0 {

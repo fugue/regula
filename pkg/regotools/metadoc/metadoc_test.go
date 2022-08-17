@@ -80,7 +80,8 @@ __rego__metadoc__ := {
       "MyCustomFamily",
       "1172ca4f-6d31-4c46-a085-54ff73c6ed27"
     ],
-    "provider": "AWS"
+    "provider": "AWS",
+    "rule_remediation_doc": "https://example.com/remediationdoc",
   },
   "description": "EBS volume encryption should be enabled. Enabling encryption on EBS volumes protects data at rest inside the volume, data in transit between the volume and the instance, snapshots created from the volume, and volumes created from those snapshots. EBS volumes are encrypted using KMS keys.",
   "id": "FG_R00016",
@@ -113,6 +114,7 @@ allow {
 					},
 					rego.Controls)
 				assert.Equal(t, []string{"AWS"}, rego.Providers)
+				assert.Equal(t, "https://example.com/remediationdoc", rego.RuleRemediationDoc)
 
 				rego.Description = "Updated description"
 				rego.Severity = "Low"
@@ -139,6 +141,7 @@ __rego__metadoc__ := {
       "AZURE",
       "REPOSITORY"
     ],
+    "rule_remediation_doc": "https://example.com/remediationdoc",
     "severity": "Low"
   },
   "description": "Updated description",

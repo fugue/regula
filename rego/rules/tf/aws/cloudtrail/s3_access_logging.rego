@@ -56,10 +56,10 @@ resource_type := "MULTIPLE"
 
 policy[j] {
 	ct = cloudtrails[_]
-	not target_has_access_logging(ct)
+	target_has_access_logging(ct)
 	j = fugue.allow_resource(ct)
 } {
 	ct = cloudtrails[_]
-	target_has_access_logging(ct)
+	not target_has_access_logging(ct)
 	j = fugue.deny_resource(ct)
 }

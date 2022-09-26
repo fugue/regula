@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v2.9.2 (2022-09-26)
+### Fixed
+* false positive for rule FG_R00031
+* panic on empty rego file
+### Security
+* bump OPA to v0.43.1
+
 ## v2.9.1 (2022-08-17)
 ### Added
 * Support for remediation doc to regotools metadoc (#352 authored by @darrendao)

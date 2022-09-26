@@ -56,8 +56,7 @@ func RunRules(ctx context.Context, options *RunRulesOptions) (RegoResult, error)
 		if regoErrors, ok := err.(rego.Errors); ok {
 			for _, e := range regoErrors {
 				if astError, ok := e.(*ast.Error); ok {
-					module := regoQuery.Modules()[astError.Location.File]
-					logrus.Info(module.String())
+					logrus.Error(astError.Error())
 				}
 			}
 		}

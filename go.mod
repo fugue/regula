@@ -30,7 +30,7 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/panicwrap v1.0.0
-	github.com/open-policy-agent/opa v0.43.0
+	github.com/open-policy-agent/opa v0.43.1
 	github.com/owenrumney/go-sarif/v2 v2.1.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.8.2

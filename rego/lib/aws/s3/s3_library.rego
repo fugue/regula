@@ -55,7 +55,7 @@ matches_bucket_or_id(val, bucket) {
 }
 
 bucket_name_or_id(bucket) = ret {
-  ret = bucket.name
-} {
+  ret = bucket.bucket
+} else = ret {
   ret = bucket.id
 }

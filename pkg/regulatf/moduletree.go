@@ -300,14 +300,27 @@ func walkResource(v Visitor, moduleName ModuleName, resource *configs.Resource, 
 		v.VisitExpr(name.AddKey("count"), resource.Count)
 	}
 
-	body, ok := resource.Config.(*hclsyntax.Body)
-	if !ok {
-		logrus.Warningf("Missing body for resource %s", name.ToString())
-		return
-	}
+	walkBody(v, name, resource.Config)
 
-	walkBlock(v, name, body)
 	v.LeaveResource()
+}
+
+func walkBody(v Visitor, name FullName, body hcl.Body) {
+	switch b := body.(type) {
+	case *hclsyntax.Body:
+		walkBlock(v, name, b)
+	default:
+		walkJustAttributes(v, name, body)
+	}
+}
+
+func walkJustAttributes(v Visitor, name FullName, body hcl.Body) {
+	v.VisitBlock(name)
+
+	attributes, _ := body.JustAttributes()
+	for _, attribute := range attributes {
+		v.VisitExpr(name.AddKey(attribute.Name), attribute.Expr)
+	}
 }
 
 func walkBlock(v Visitor, name FullName, body *hclsyntax.Body) {

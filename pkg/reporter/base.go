@@ -430,7 +430,7 @@ func (s *ScanInput) EnrichResources(conf loader.LoadedConfigurations) {
 			filepath = s.Filepath
 		}
 		location, err := conf.Location(filepath, []string{resourceId})
-		if err == nil && location != nil {
+		if err == nil && location != nil && s.Resources[resourceId] != nil {
 			s.Resources[resourceId]["_source_location"] = location
 		}
 	}

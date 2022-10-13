@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v2.9.3 (2022-10-13)
+### Fixed
+* fix panic in EnrichResources
+
 ## v2.9.2 (2022-09-26)
 ### Fixed
 * false positive for rule FG_R00031

@@ -35,7 +35,5 @@ resource_type := "azurerm_kubernetes_cluster"
 default deny = false
 
 deny {
-  not input.role_based_access_control
-} {
-  not all([r | r = input.role_based_access_control[_].enabled])
+  input.role_based_access_control_enabled == false
 }

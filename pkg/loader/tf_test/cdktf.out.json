@@ -1,0 +1,217 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_apigatewayv2_api.posts_api_api-gw_B6634897": {
+        "_filepath": "tf_test/cdktf.out/posts-dev.tf.json",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_apigatewayv2_api",
+        "cors_configuration": {
+          "allow_headers": [
+            "content-type"
+          ],
+          "allow_methods": [
+            "*"
+          ],
+          "allow_origins": [
+            "*"
+          ]
+        },
+        "id": "aws_apigatewayv2_api.posts_api_api-gw_B6634897",
+        "name": "sls-example-posts-development",
+        "protocol_type": "HTTP",
+        "target": "aws_lambda_function.posts_api_7D5242CA"
+      },
+      "aws_cloudfront_distribution.frontend_cf_6C82FC12": {
+        "_filepath": "tf_test/cdktf.out/frontend-dev.tf.json",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_cloudfront_distribution",
+        "comment": "Serverless example frontend for env=development",
+        "default_cache_behavior": {
+          "allowed_methods": [
+            "DELETE",
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "PATCH",
+            "POST",
+            "PUT"
+          ],
+          "cached_methods": [
+            "GET",
+            "HEAD"
+          ],
+          "forwarded_values": {
+            "cookies": {
+              "forward": "none"
+            },
+            "query_string": false
+          },
+          "target_origin_id": "s3Origin",
+          "viewer_protocol_policy": "redirect-to-https"
+        },
+        "default_root_object": "index.html",
+        "enabled": true,
+        "id": "aws_cloudfront_distribution.frontend_cf_6C82FC12",
+        "origin": [
+          {
+            "custom_origin_config": {
+              "http_port": 80,
+              "https_port": 443,
+              "origin_protocol_policy": "http-only",
+              "origin_ssl_protocols": [
+                "TLSv1.2",
+                "TLSv1.1",
+                "TLSv1"
+              ]
+            },
+            "domain_name": "aws_s3_bucket_website_configuration.frontend_website-configuration_53A72F76",
+            "origin_id": "s3Origin"
+          }
+        ],
+        "restrictions": {
+          "geo_restriction": {
+            "restriction_type": "none"
+          }
+        },
+        "viewer_certificate": {
+          "cloudfront_default_certificate": true
+        }
+      },
+      "aws_dynamodb_table.posts_storage_table_50F8EECB": {
+        "_filepath": "tf_test/cdktf.out/posts-dev.tf.json",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_dynamodb_table",
+        "attribute": [
+          {
+            "name": "id",
+            "type": "S"
+          },
+          {
+            "name": "postedAt",
+            "type": "S"
+          }
+        ],
+        "billing_mode": "PAY_PER_REQUEST",
+        "hash_key": "id",
+        "id": "aws_dynamodb_table.posts_storage_table_50F8EECB",
+        "name": "sls-posts-development",
+        "range_key": "postedAt"
+      },
+      "aws_iam_role.posts_api_lambda-exec_B42627E0": {
+        "_filepath": "tf_test/cdktf.out/posts-dev.tf.json",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_iam_role",
+        "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Effect\":\"Allow\",\"Sid\":\"\"}]}",
+        "id": "aws_iam_role.posts_api_lambda-exec_B42627E0",
+        "inline_policy": [
+          {
+            "name": "AllowDynamoDB",
+            "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"dynamodb:Scan\",\"dynamodb:Query\",\"dynamodb:BatchGetItem\",\"dynamodb:GetItem\",\"dynamodb:PutItem\"],\"Resource\":\"aws_dynamodb_table.posts_storage_table_50F8EECB\",\"Effect\":\"Allow\"}]}"
+          }
+        ],
+        "name": "sls-example-post-api-lambda-exec-development"
+      },
+      "aws_iam_role_policy_attachment.posts_api_lambda-managed-policy_460C9C52": {
+        "_filepath": "tf_test/cdktf.out/posts-dev.tf.json",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_iam_role_policy_attachment",
+        "id": "aws_iam_role_policy_attachment.posts_api_lambda-managed-policy_460C9C52",
+        "policy_arn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+        "role": "sls-example-post-api-lambda-exec-development"
+      },
+      "aws_lambda_function.posts_api_7D5242CA": {
+        "_filepath": "tf_test/cdktf.out/posts-dev.tf.json",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_lambda_function",
+        "environment": {
+          "variables": {
+            "DYNAMODB_TABLE_NAME": "sls-posts-development"
+          }
+        },
+        "filename": "assets/posts_api_code_lambda-asset_7F9E9FED/5C0604B46739D015AEDB1BA83362F19D/archive.zip",
+        "function_name": "sls-example-posts-api-development",
+        "handler": "index.handler",
+        "id": "aws_lambda_function.posts_api_7D5242CA",
+        "role": "aws_iam_role.posts_api_lambda-exec_B42627E0",
+        "runtime": "nodejs14.x",
+        "source_code_hash": "5C0604B46739D015AEDB1BA83362F19D"
+      },
+      "aws_lambda_permission.posts_api_apigw-lambda_02C673B9": {
+        "_filepath": "tf_test/cdktf.out/posts-dev.tf.json",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_lambda_permission",
+        "action": "lambda:InvokeFunction",
+        "function_name": "sls-example-posts-api-development",
+        "id": "aws_lambda_permission.posts_api_apigw-lambda_02C673B9",
+        "principal": "apigateway.amazonaws.com",
+        "source_arn": "aws_apigatewayv2_api.posts_api_api-gw_B6634897/*/*"
+      },
+      "aws_s3_bucket.frontend_bucket_EFDC2F3F": {
+        "_filepath": "tf_test/cdktf.out/frontend-dev.tf.json",
+        "_provider": "aws",
+        "_tags": {
+          "hc-internet-facing": "true"
+        },
+        "_type": "aws_s3_bucket",
+        "bucket_prefix": "sls-example-frontend-development",
+        "id": "aws_s3_bucket.frontend_bucket_EFDC2F3F",
+        "tags": {
+          "hc-internet-facing": "true"
+        }
+      },
+      "aws_s3_bucket_policy.frontend_s3_policy_42C30805": {
+        "_filepath": "tf_test/cdktf.out/frontend-dev.tf.json",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_s3_bucket_policy",
+        "bucket": "aws_s3_bucket.frontend_bucket_EFDC2F3F",
+        "id": "aws_s3_bucket_policy.frontend_s3_policy_42C30805",
+        "policy": "{\"Version\":\"2012-10-17\",\"Id\":\"PolicyForWebsiteEndpointsPublicContent\",\"Statement\":[{\"Sid\":\"PublicRead\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:GetObject\"],\"Resource\":[\"aws_s3_bucket.frontend_bucket_EFDC2F3F/*\",\"aws_s3_bucket.frontend_bucket_EFDC2F3F\"]}]}"
+      },
+      "aws_s3_bucket_website_configuration.frontend_website-configuration_53A72F76": {
+        "_filepath": "tf_test/cdktf.out/frontend-dev.tf.json",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_s3_bucket_website_configuration",
+        "bucket": "aws_s3_bucket.frontend_bucket_EFDC2F3F",
+        "error_document": {
+          "key": "index.html"
+        },
+        "id": "aws_s3_bucket_website_configuration.frontend_website-configuration_53A72F76",
+        "index_document": {
+          "suffix": "index.html"
+        }
+      },
+      "data.terraform_remote_state.cross-stack-reference-input-posts-dev": {
+        "_filepath": "tf_test/cdktf.out/frontend-dev.tf.json",
+        "_provider": "terraform",
+        "_tags": {},
+        "_type": "data.terraform_remote_state",
+        "backend": "local",
+        "config": {
+          "path": "cdktf-integration-serverless-example/terraform.posts-dev.tfstate"
+        },
+        "id": "data.terraform_remote_state.cross-stack-reference-input-posts-dev",
+        "workspace": "default"
+      },
+      "local_file.frontend_env_FADFC9DB": {
+        "_filepath": "tf_test/cdktf.out/frontend-dev.tf.json",
+        "_provider": "local",
+        "_tags": {},
+        "_type": "local_file",
+        "content": "S3_BUCKET_FRONTEND=aws_s3_bucket.frontend_bucket_EFDC2F3F\nREACT_APP_API_ENDPOINT=data.terraform_remote_state.cross-stack-reference-input-posts-dev",
+        "filename": "cdktf-integration-serverless-example/frontend/code/.env.production.local",
+        "id": "local_file.frontend_env_FADFC9DB"
+      }
+    }
+  },
+  "filepath": "tf_test/cdktf.out"
+}

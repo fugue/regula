@@ -17,6 +17,7 @@ package loader
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
@@ -31,7 +32,7 @@ import (
 type TfDetector struct{}
 
 func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfiguration, error) {
-	if !opts.IgnoreExt && i.Ext() != ".tf" {
+	if !opts.IgnoreExt && !hasTerraformExt(i.Path()) {
 		return nil, fmt.Errorf("Expected a .tf extension for %s", i.Path())
 	}
 	dir := filepath.Dir(i.Path())
@@ -70,7 +71,7 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 	// First check that a `.tf` file exists in the directory.
 	tfExists := false
 	for _, child := range i.Children() {
-		if c, ok := child.(InputFile); ok && c.Ext() == ".tf" {
+		if c, ok := child.(InputFile); ok && hasTerraformExt(c.Path()) {
 			tfExists = true
 		}
 	}
@@ -140,4 +141,8 @@ func (c *HclConfiguration) RegulaInput() RegulaInput {
 			"resources":                 c.evaluation.Resources(),
 		},
 	}
+}
+
+func hasTerraformExt(path string) bool {
+	return strings.HasSuffix(path, ".tf") || strings.HasSuffix(path, ".tf.json")
 }

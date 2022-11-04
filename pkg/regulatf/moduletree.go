@@ -35,7 +35,7 @@ type ResourceMeta struct {
 // We load the entire tree of submodules in one pass.
 type ModuleTree struct {
 	meta           *ModuleMeta
-	config         *hclsyntax.Body // Call to the module, nil if root.
+	config         hcl.Body // Call to the module, nil if root.
 	module         *configs.Module
 	variableValues map[string]cty.Value // Variables set
 	children       map[string]*ModuleTree
@@ -143,7 +143,7 @@ func ParseFiles(
 						child, err := ParseDirectory(moduleRegister, parserFs, childDir, []string{})
 						if err == nil {
 							child.meta.Location = &moduleCall.SourceAddrRange
-							child.config = body
+							child.config = moduleCall.Config
 							children[key] = child
 						} else {
 							logrus.Warnf("Error loading submodule '%s': %s", key, err)
@@ -239,7 +239,7 @@ func walkModuleTree(v Visitor, moduleName ModuleName, mtree *ModuleTree) {
 
 		// TODO: This is not good.  We end up walking child2 as it were child2.
 		configName := FullName{moduleName, LocalName{"input", key}}
-		walkBlock(v, configName, child.config)
+		walkBody(v, configName, child.config)
 
 		walkModuleTree(v, childModuleName, child)
 	}

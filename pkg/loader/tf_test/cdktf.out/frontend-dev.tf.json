@@ -1,0 +1,182 @@
+{
+  "//": {
+    "metadata": {
+      "backend": "local",
+      "overrides": {
+        "output": [
+          "value"
+        ]
+      },
+      "stackName": "frontend-dev",
+      "version": "0.12.1"
+    },
+    "outputs": {
+      "frontend-dev": {
+        "frontend": {
+          "frontend_domainname": "frontend_frontend_domainname_0AC0A4F3"
+        }
+      }
+    }
+  },
+  "data": {
+    "terraform_remote_state": {
+      "cross-stack-reference-input-posts-dev": {
+        "backend": "local",
+        "config": {
+          "path": "cdktf-integration-serverless-example/terraform.posts-dev.tfstate"
+        },
+        "workspace": "${terraform.workspace}"
+      }
+    }
+  },
+  "output": {
+    "frontend_frontend_domainname_0AC0A4F3": {
+      "value": "https://${aws_cloudfront_distribution.frontend_cf_6C82FC12.domain_name}"
+    }
+  },
+  "provider": {
+    "aws": [
+      {
+        "region": "eu-central-1"
+      }
+    ],
+    "local": [
+      {
+      }
+    ]
+  },
+  "resource": {
+    "aws_cloudfront_distribution": {
+      "frontend_cf_6C82FC12": {
+        "//": {
+          "metadata": {
+            "path": "frontend-dev/frontend/cf",
+            "uniqueId": "frontend_cf_6C82FC12"
+          }
+        },
+        "comment": "Serverless example frontend for env=development",
+        "default_cache_behavior": {
+          "allowed_methods": [
+            "DELETE",
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "PATCH",
+            "POST",
+            "PUT"
+          ],
+          "cached_methods": [
+            "GET",
+            "HEAD"
+          ],
+          "forwarded_values": {
+            "cookies": {
+              "forward": "none"
+            },
+            "query_string": false
+          },
+          "target_origin_id": "s3Origin",
+          "viewer_protocol_policy": "redirect-to-https"
+        },
+        "default_root_object": "index.html",
+        "enabled": true,
+        "origin": [
+          {
+            "custom_origin_config": {
+              "http_port": 80,
+              "https_port": 443,
+              "origin_protocol_policy": "http-only",
+              "origin_ssl_protocols": [
+                "TLSv1.2",
+                "TLSv1.1",
+                "TLSv1"
+              ]
+            },
+            "domain_name": "${aws_s3_bucket_website_configuration.frontend_website-configuration_53A72F76.website_endpoint}",
+            "origin_id": "s3Origin"
+          }
+        ],
+        "restrictions": {
+          "geo_restriction": {
+            "restriction_type": "none"
+          }
+        },
+        "viewer_certificate": {
+          "cloudfront_default_certificate": true
+        }
+      }
+    },
+    "aws_s3_bucket": {
+      "frontend_bucket_EFDC2F3F": {
+        "//": {
+          "metadata": {
+            "path": "frontend-dev/frontend/bucket",
+            "uniqueId": "frontend_bucket_EFDC2F3F"
+          }
+        },
+        "bucket_prefix": "sls-example-frontend-development",
+        "tags": {
+          "hc-internet-facing": "true"
+        }
+      }
+    },
+    "aws_s3_bucket_policy": {
+      "frontend_s3_policy_42C30805": {
+        "//": {
+          "metadata": {
+            "path": "frontend-dev/frontend/s3_policy",
+            "uniqueId": "frontend_s3_policy_42C30805"
+          }
+        },
+        "bucket": "${aws_s3_bucket.frontend_bucket_EFDC2F3F.id}",
+        "policy": "{\"Version\":\"2012-10-17\",\"Id\":\"PolicyForWebsiteEndpointsPublicContent\",\"Statement\":[{\"Sid\":\"PublicRead\",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:GetObject\"],\"Resource\":[\"${aws_s3_bucket.frontend_bucket_EFDC2F3F.arn}/*\",\"${aws_s3_bucket.frontend_bucket_EFDC2F3F.arn}\"]}]}"
+      }
+    },
+    "aws_s3_bucket_website_configuration": {
+      "frontend_website-configuration_53A72F76": {
+        "//": {
+          "metadata": {
+            "path": "frontend-dev/frontend/website-configuration",
+            "uniqueId": "frontend_website-configuration_53A72F76"
+          }
+        },
+        "bucket": "${aws_s3_bucket.frontend_bucket_EFDC2F3F.bucket}",
+        "error_document": {
+          "key": "index.html"
+        },
+        "index_document": {
+          "suffix": "index.html"
+        }
+      }
+    },
+    "local_file": {
+      "frontend_env_FADFC9DB": {
+        "//": {
+          "metadata": {
+            "path": "frontend-dev/frontend/env",
+            "uniqueId": "frontend_env_FADFC9DB"
+          }
+        },
+        "content": "S3_BUCKET_FRONTEND=${aws_s3_bucket.frontend_bucket_EFDC2F3F.bucket}\nREACT_APP_API_ENDPOINT=${data.terraform_remote_state.cross-stack-reference-input-posts-dev.outputs.cross-stack-output-aws_apigatewayv2_apiposts_api_api-gw_B6634897api_endpoint}",
+        "filename": "cdktf-integration-serverless-example/frontend/code/.env.production.local"
+      }
+    }
+  },
+  "terraform": {
+    "backend": {
+      "local": {
+        "path": "cdktf-integration-serverless-example/terraform.frontend-dev.tfstate"
+      }
+    },
+    "required_providers": {
+      "aws": {
+        "source": "aws",
+        "version": "4.27.0"
+      },
+      "local": {
+        "source": "hashicorp/local",
+        "version": "2.2.3"
+      }
+    }
+  }
+}

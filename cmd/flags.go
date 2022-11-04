@@ -51,7 +51,7 @@ Input types:
     auto        Automatically determine input types (default)
     tf-plan     Terraform plan JSON
     cfn         CloudFormation template in YAML or JSON format
-    tf          Terraform directory or file
+    tf          Terraform directory or file (either .tf or .tf.json format)
     k8s         Kubernetes manifest in YAML format
     arm         Azure Resource Manager (ARM) JSON templates (feature in preview)
 `

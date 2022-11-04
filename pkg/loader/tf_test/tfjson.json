@@ -1,0 +1,16 @@
+{
+  "content": {
+    "hcl_resource_view_version": "0.0.1",
+    "resources": {
+      "aws_s3_bucket.foo": {
+        "_filepath": "tf_test/tfjson/main.tf.json",
+        "_provider": "aws",
+        "_tags": {},
+        "_type": "aws_s3_bucket",
+        "bucket": "foo",
+        "id": "aws_s3_bucket.foo"
+      }
+    }
+  },
+  "filepath": "tf_test/tfjson"
+}

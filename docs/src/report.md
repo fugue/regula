@@ -153,7 +153,7 @@ Each rule result in the JSON report lists the following attributes:
 - `controls`: Compliance controls mapped to the rule
 - `families`: Compliance families associated with the rule
 - `filepath`: Filepath of the evaluated Terraform HCL file, Terraform JSON plan, CloudFormation template, Kubernetes manifest, or ARM template (_in preview_)
-- `input_type`: `tf` (Terraform HCL), `tf_plan` (Terraform JSON plan), `cfn` (CloudFormation), `k8s` (Kubernetes), `arm` (Azure Resource Manager JSON; _in preview_)
+- `input_type`: `tf` (Terraform source code), `tf_plan` (Terraform JSON plan), `cfn` (CloudFormation), `k8s` (Kubernetes), `arm` (Azure Resource Manager JSON; _in preview_)
 - `provider`: `aws`, `azurerm`, `google`, `kubernetes`, `arm`
 - `resource_id`: ID of the evaluated resource
 - `resource_type`: Type of the evaluated resource

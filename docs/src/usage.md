@@ -67,7 +67,7 @@ Global Flags:
 
 ### Input
 
-`regula run [input...]` supports passing in CloudFormation templates, Kubernetes manifests, Terraform HCL files, Terraform plan JSON files, and Azure ARM templates _(preview)_.
+`regula run [input...]` supports passing in CloudFormation templates, Kubernetes manifests, Terraform source files, Terraform plan JSON files, and Azure ARM templates _(preview)_.
 
 - **When run without any paths,** Regula will recursively search for IaC configurations within the working directory. Example:
 
@@ -95,7 +95,7 @@ If an [input type](#input-types) is set with `-t | --input-type`, Regula will on
 
 #### Terraform input
 
-Regula operates on Terraform HCL code and JSON plans.
+Regula operates on Terraform source code and JSON plans.
 
 You can pass in an HCL file or a directory containing an HCL file:
 
@@ -180,7 +180,7 @@ Regula operates on ARM templates formatted as JSON.
 - `auto` -- Automatically determine input types (default)
 - `tf-plan` -- Terraform plan JSON
 - `cfn` -- CloudFormation template in YAML or JSON format
-- `tf` -- Terraform directory or file
+- `tf` -- Terraform directory or file (either .tf or .tf.json format)
 - `k8s` -- Kubernetes manifest YAML
 - `arm` -- Azure Resource Manager JSON _(preview)_
 
@@ -239,6 +239,11 @@ Regula operates on ARM templates formatted as JSON.
 * Using stdin, check a CloudFormation stack defined in an AWS CDK app:
 
         cdk synth | regula run
+
+* Check Terraform CDK stacks using `cdktf synth`
+
+        cdktf synth
+        regula run cdktf.out/stacks/*
 
 * Recurse through the working directory and exclude rule FG_R00275:
 
@@ -1075,7 +1080,7 @@ Global Flags:
   -v, --verbose   verbose output
 ```
 
-`regula show input [file...]` accepts Terraform HCL files or directories, Terraform plan JSON, Kubernetes manifests, and CloudFormation templates in YAML or JSON. In all cases, Regula transforms the input file and displays the resulting JSON.
+`regula show input [file...]` accepts Terraform source files or directories, Terraform plan JSON, Kubernetes manifests, and CloudFormation templates in YAML or JSON. In all cases, Regula transforms the input file and displays the resulting JSON.
 
 This command is used to facilitate development of Regula itself. If you'd like to see the mock input, mock resources, or mock config for an IaC file so you can develop rules, see [`regula repl`](#repl) and [Test Inputs](development/test-inputs.md#viewing-test-inputs).
 
@@ -1150,7 +1155,7 @@ Example output, and comparison to original file:
 - `auto` -- Automatically determine input types (default)
 - `tf-plan` -- Terraform plan JSON
 - `cfn` -- CloudFormation template in YAML or JSON format
-- `tf` -- Terraform directory or file
+- `tf` -- Terraform directory or file (either .tf or .tf.json format)
 - `k8s` -- Kubernetes manifest YAML
 - `arm` -- Azure Resource Manager JSON _(preview)_
 
@@ -1243,7 +1248,7 @@ The input is saved as `<iac filename without extension>_<extension>.rego` in the
 - `auto` -- Automatically determine input types (default)
 - `tf-plan` -- Terraform plan JSON
 - `cfn` -- CloudFormation template in YAML or JSON format
-- `tf` -- Terraform directory or file
+- `tf` -- Terraform directory or file (either .tf or .tf.json format)
 - `k8s` -- Kubernetes manifest YAML
 - `arm` -- Azure Resource Manager JSON _(preview)_
 

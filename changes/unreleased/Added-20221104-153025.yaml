@@ -1,4 +1,0 @@
-kind: Added
-body: Support for .tf.json files - including those output by Terraform CDK's `cdktf
-  synth` command.
-time: 2022-11-04T15:30:25.460048-04:00

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v2.10.0 (2022-11-10)
+### Added
+* Support for .tf.json files - including those output by Terraform CDK's `cdktf synth` command.
+
 ## v2.9.3 (2022-10-13)
 ### Fixed
 * fix panic in EnrichResources

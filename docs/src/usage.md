@@ -95,7 +95,7 @@ If an [input type](#input-types) is set with `-t | --input-type`, Regula will on
 
 #### Terraform input
 
-Regula operates on Terraform HCL code and JSON plans.
+Regula operates on Terraform source code and JSON plans.
 
 You can pass in an HCL file or a directory containing an HCL file:
 
@@ -1080,7 +1080,7 @@ Global Flags:
   -v, --verbose   verbose output
 ```
 
-`regula show input [file...]` accepts Terraform HCL files or directories, Terraform plan JSON, Kubernetes manifests, and CloudFormation templates in YAML or JSON. In all cases, Regula transforms the input file and displays the resulting JSON.
+`regula show input [file...]` accepts Terraform source files or directories, Terraform plan JSON, Kubernetes manifests, and CloudFormation templates in YAML or JSON. In all cases, Regula transforms the input file and displays the resulting JSON.
 
 This command is used to facilitate development of Regula itself. If you'd like to see the mock input, mock resources, or mock config for an IaC file so you can develop rules, see [`regula repl`](#repl) and [Test Inputs](development/test-inputs.md#viewing-test-inputs).
 

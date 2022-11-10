@@ -19,7 +19,7 @@
 Regula supports the following file types:
 
 - CloudFormation JSON/YAML templates
-- Terraform HCL code
+- Terraform source code
 - Terraform JSON plans
 - Kubernetes YAML manifests
 - Azure Resource Manager (ARM) JSON templates _(in preview)_

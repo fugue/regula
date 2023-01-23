@@ -45,8 +45,7 @@ is_nonempty_string(str) {
 
 is_nonempty_array(arr) {
     is_array(arr)
-    element = arr[_]
-    is_nonempty_string(element)
+    count([element | element = arr[_]; is_nonempty_string(element)]) == count(arr)
 }
 
 valid_condition(condition) {

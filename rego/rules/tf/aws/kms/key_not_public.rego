@@ -43,10 +43,20 @@ is_nonempty_string(str) {
     count(str) > 1
 }
 
+is_nonempty_array(arr) {
+    is_array(arr)
+    element = arr[_]
+    is_nonempty_string(element)
+}
+
 valid_condition(condition) {
     is_nonempty_string(condition.StringEquals["kms:CallerAccount"])
 } {
     is_nonempty_string(condition.StringEquals["aws:PrincipalOrgID"])
+} {
+    is_nonempty_array(condition.StringEquals["kms:CallerAccount"])
+} {
+    is_nonempty_array(condition.StringEquals["aws:PrincipalOrgID"])
 }
 
 statement_conditions(statement) = ret {

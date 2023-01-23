@@ -2,7 +2,7 @@
   "content": {
     "hcl_resource_view_version": "0.0.1",
     "resources": {
-      "aws_s3_bucket.not_working_1": {
+      "aws_s3_bucket.not_working_1[0]": {
         "_filepath": "tf_test/count-ref/main.tf",
         "_provider": "aws",
         "_tags": {},
@@ -10,18 +10,18 @@
         "acl": "private",
         "bucket": "not-working-1-random-string",
         "count": 1,
-        "id": "aws_s3_bucket.not_working_1"
+        "id": "aws_s3_bucket.not_working_1[0]"
       },
-      "aws_s3_bucket_public_access_block.not_working_1_block": {
+      "aws_s3_bucket_public_access_block.not_working_1_block[0]": {
         "_filepath": "tf_test/count-ref/main.tf",
         "_provider": "aws",
         "_tags": {},
         "_type": "aws_s3_bucket_public_access_block",
         "block_public_acls": true,
         "block_public_policy": true,
-        "bucket": "aws_s3_bucket.not_working_1",
+        "bucket": "aws_s3_bucket.not_working_1[0]",
         "count": 1,
-        "id": "aws_s3_bucket_public_access_block.not_working_1_block",
+        "id": "aws_s3_bucket_public_access_block.not_working_1_block[0]",
         "ignore_public_acls": true,
         "restrict_public_buckets": true
       }

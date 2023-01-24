@@ -22,13 +22,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 
-	"github.com/fugue/regula/v2/pkg/regulatf"
+	"github.com/snyk/policy-engine/pkg/hcl_interpreter"
 )
 
 // This is the loader that supports reading files and directories of HCL (.tf)
-// files.  The implementation is in the `./pkg/regulatf/` package in this
-// repository: this file just wraps that.  That directory also contains a
-// README explaining how everything fits together.
+// files.  The implementation is in the `./pkg/hcl_interpreter/` package in the
+// upgraded policy engine: this file just wraps that.  That directory also
+// contains a README explaining how everything fits together.
 type TfDetector struct{}
 
 func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfiguration, error) {
@@ -46,7 +46,7 @@ func (t *TfDetector) DetectFile(i InputFile, opts DetectOptions) (IACConfigurati
 		}
 	}
 
-	moduleTree, err := regulatf.ParseFiles(nil, inputFs, false, dir, []string{i.Path()}, opts.VarFiles)
+	moduleTree, err := hcl_interpreter.ParseFiles(nil, inputFs, false, dir, []string{i.Path()}, opts.VarFiles)
 	if err != nil {
 		return nil, err
 	}
@@ -79,14 +79,15 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 		return nil, nil
 	}
 
-	moduleRegister := regulatf.NewTerraformRegister(i.Path())
-	moduleTree, err := regulatf.ParseDirectory(moduleRegister, nil, i.Path(), opts.VarFiles)
+	fs := &afero.OsFs{}
+	moduleRegister := hcl_interpreter.NewTerraformRegister(fs, i.Path())
+	moduleTree, err := hcl_interpreter.ParseDirectory(moduleRegister, fs, i.Path(), opts.VarFiles)
 	if err != nil {
 		return nil, err
 	}
 
 	if moduleTree != nil {
-		for _, warning := range moduleTree.Warnings() {
+		for _, warning := range moduleTree.Errors() {
 			logrus.Warn(warning)
 		}
 	}
@@ -95,13 +96,13 @@ func (t *TfDetector) DetectDirectory(i InputDirectory, opts DetectOptions) (IACC
 }
 
 type HclConfiguration struct {
-	moduleTree *regulatf.ModuleTree
-	evaluation *regulatf.Evaluation
+	moduleTree *hcl_interpreter.ModuleTree
+	evaluation *hcl_interpreter.Evaluation
 }
 
-func newHclConfiguration(moduleTree *regulatf.ModuleTree) (*HclConfiguration, error) {
-	analysis := regulatf.AnalyzeModuleTree(moduleTree)
-	evaluation, err := regulatf.EvaluateAnalysis(analysis)
+func newHclConfiguration(moduleTree *hcl_interpreter.ModuleTree) (*HclConfiguration, error) {
+	analysis := hcl_interpreter.AnalyzeModuleTree(moduleTree)
+	evaluation, err := hcl_interpreter.EvaluateAnalysis(analysis)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +122,13 @@ func (c *HclConfiguration) Location(path []string) (LocationStack, error) {
 		return nil, nil
 	}
 
-	ranges := c.evaluation.Location(path[0])
+	head := path[0]
+	tail := []interface{}{}
+	for _, part := range path[1:] {
+		tail = append(tail, part)
+	}
+
+	ranges := c.evaluation.Location(head, tail)
 	locs := LocationStack{}
 	for _, r := range ranges {
 		locs = append(locs, Location{
@@ -138,11 +145,94 @@ func (c *HclConfiguration) RegulaInput() RegulaInput {
 		"filepath": c.moduleTree.FilePath(),
 		"content": map[string]interface{}{
 			"hcl_resource_view_version": "0.0.1",
-			"resources":                 c.evaluation.Resources(),
+			"resources":                 adapter(c.evaluation.Resources()),
 		},
 	}
 }
 
 func hasTerraformExt(path string) bool {
 	return strings.HasSuffix(path, ".tf") || strings.HasSuffix(path, ".tf.json")
+}
+
+func adapter(resources []hcl_interpreter.Resource) map[string]interface{} {
+	out := map[string]interface{}{}
+	for _, model := range resources {
+		resource := map[string]interface{}{}
+		for k, attr := range model.Model.Attributes {
+			resource[k] = attr
+		}
+		resource["id"] = model.Model.Id
+		resource["_type"] = model.Model.ResourceType
+		resource["_filepath"] = model.Meta.Location.Filename
+		resource["_provider"] = model.Meta.ProviderName
+		tf_populateTags(resource)
+		out[model.Model.Id] = resource
+	}
+
+	return out
+}
+
+// tf_populateTags adds tags for terraform resources.  This code should be
+// ported to policy-engine when we want to support tags there.
+func tf_populateTags(resource interface{}) {
+	resourceObj := map[string]interface{}{}
+	if obj, ok := resource.(map[string]interface{}); ok {
+		resourceObj = obj
+	}
+
+	tagObj := map[string]interface{}{}
+
+	if typeStr, ok := resourceObj["_type"].(string); ok {
+		if typeStr == "aws_autoscaling_group" {
+			if arr, ok := resourceObj["tag"].([]interface{}); ok {
+				for i := range arr {
+					if obj, ok := arr[i].(map[string]interface{}); ok {
+						if key, ok := obj["key"].(string); ok {
+							if value, ok := obj["value"]; ok {
+								tagObj[key] = value
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if providerStr, ok := resourceObj["_provider"].(string); ok {
+		if provider := strings.SplitN(providerStr, ".", 2); len(provider) > 0 {
+			switch provider[0] {
+			case "google":
+				if tags, ok := resourceObj["labels"].(map[string]interface{}); ok {
+					for k, v := range tags {
+						tagObj[k] = v
+					}
+				}
+				if tags, ok := resourceObj["tags"].([]interface{}); ok {
+					for _, key := range tags {
+						if str, ok := key.(string); ok {
+							tagObj[str] = nil
+						}
+					}
+				}
+			default:
+				if tags, ok := resourceObj["tags"].(map[string]interface{}); ok {
+					for k, v := range tags {
+						tagObj[k] = v
+					}
+				}
+			}
+		}
+	}
+
+	// Keep only string and nil tags
+	tags := map[string]interface{}{}
+	for k, v := range tagObj {
+		if str, ok := v.(string); ok {
+			tags[k] = str
+		} else if v == nil {
+			tags[k] = nil
+		}
+	}
+
+	resourceObj["_tags"] = tags
 }

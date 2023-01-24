@@ -22,7 +22,7 @@
         ],
         "max_size": 1,
         "min_size": 1,
-        "provider": null,
+        "provider": "aws",
         "tag": [
           {
             "key": "Stage",
@@ -40,7 +40,7 @@
         "image_id": "ami-1a2b3c",
         "instance_type": "t2.micro",
         "name_prefix": "example",
-        "provider": null
+        "provider": "aws"
       },
       "aws_s3_bucket.example": {
         "_filepath": "tf_test/tags/main.tf",
@@ -51,7 +51,7 @@
         "_type": "aws_s3_bucket",
         "bucket_prefix": "example",
         "id": "aws_s3_bucket.example",
-        "provider": null,
+        "provider": "aws",
         "tags": {
           "Stage": "Prod"
         }
@@ -108,7 +108,7 @@
         },
         "location": "US",
         "name": "example",
-        "provider": null
+        "provider": "google"
       }
     }
   },

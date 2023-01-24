@@ -19,8 +19,8 @@ import (
 	_ "embed"
 	"os"
 
-	"github.com/fugue/regula/v2/pkg/loader"
-	"github.com/fugue/regula/v2/pkg/rego"
+	"github.com/fugue/regula/v3/pkg/loader"
+	"github.com/fugue/regula/v3/pkg/rego"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

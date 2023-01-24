@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/fugue/regula/v2/pkg/git"
+	"github.com/fugue/regula/v3/pkg/git"
 
 	"github.com/stretchr/testify/assert"
 )

@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/fugue/regula/v2/pkg/reporter"
-	"github.com/fugue/regula/v2/pkg/swagger/client/scans"
+	"github.com/fugue/regula/v3/pkg/reporter"
+	"github.com/fugue/regula/v3/pkg/swagger/client/scans"
 	"github.com/sirupsen/logrus"
 )
 

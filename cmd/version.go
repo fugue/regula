@@ -17,7 +17,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/fugue/regula/v2/pkg/version"
+	"github.com/fugue/regula/v3/pkg/version"
 	"github.com/spf13/cobra"
 )
 

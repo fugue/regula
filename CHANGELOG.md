@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v3.0.0 (2023-01-24)
+### Added
+* support for_each for resources in tf loader
+### Changed
+* switch to hcl_interpreter from policy-engine (#383)
+* resources IDs for tf resources that have count set now use the `aws_s3_bucket.my_bucket[0]` format
+### Fixed
+* FG_R00252 should support arrays for condition values (#380)
+* FG_R00329 has wrong property name (#368)
+
 ## v2.10.0 (2022-11-10)
 ### Added
 * Support for .tf.json files - including those output by Terraform CDK's `cdktf synth` command.

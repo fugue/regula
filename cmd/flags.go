@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fugue/regula/v2/pkg/loader"
-	"github.com/fugue/regula/v2/pkg/reporter"
+	"github.com/fugue/regula/v3/pkg/loader"
+	"github.com/fugue/regula/v3/pkg/reporter"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

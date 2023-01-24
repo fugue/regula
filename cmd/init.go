@@ -20,8 +20,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fugue/regula/v2/pkg/loader"
-	"github.com/fugue/regula/v2/pkg/reporter"
+	"github.com/fugue/regula/v3/pkg/loader"
+	"github.com/fugue/regula/v3/pkg/reporter"
 	"github.com/manifoldco/promptui"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

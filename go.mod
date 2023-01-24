@@ -1,4 +1,4 @@
-module github.com/fugue/regula/v2
+module github.com/fugue/regula/v3
 
 go 1.17
 

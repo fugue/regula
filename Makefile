@@ -10,8 +10,8 @@ REGO_RULES_SOURCE = $(shell find rego/rules -type f -name '*.rego')
 GITCOMMIT = $(shell git rev-parse --short HEAD 2> /dev/null || true)
 BUILD_TYPE ?= dev
 define LDFLAGS
-    -X \"github.com/fugue/regula/v2/pkg/version.Version=$(VERSION)-$(BUILD_TYPE)\" \
-    -X \"github.com/fugue/regula/v2/pkg/version.GitCommit=$(GITCOMMIT)\"
+    -X \"github.com/fugue/regula/v3/pkg/version.Version=$(VERSION)-$(BUILD_TYPE)\" \
+    -X \"github.com/fugue/regula/v3/pkg/version.GitCommit=$(GITCOMMIT)\"
 endef
 CLI_BUILD = go build -ldflags="$(LDFLAGS) -s -w"
 GO_BIN_DIR= $(shell go env GOPATH)/bin

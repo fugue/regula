@@ -18,8 +18,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/fugue/regula/v2/pkg/fugue"
-	"github.com/fugue/regula/v2/pkg/rego"
+	"github.com/fugue/regula/v3/pkg/fugue"
+	"github.com/fugue/regula/v3/pkg/rego"
 	"github.com/spf13/cobra"
 )
 

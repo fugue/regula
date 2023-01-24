@@ -17,8 +17,8 @@ package rule_waivers
 import (
 	"strings"
 
-	"github.com/fugue/regula/v2/pkg/loader"
-	"github.com/fugue/regula/v2/pkg/reporter"
+	"github.com/fugue/regula/v3/pkg/loader"
+	"github.com/fugue/regula/v3/pkg/reporter"
 )
 
 func ExactMatchOrWildcards(waiverElem string, resourceElem string) bool {

@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/fugue/regula/v2/pkg/swagger/models"
+	"github.com/fugue/regula/v3/pkg/swagger/models"
 )
 
 // NewUpdateCustomRuleParams creates a new UpdateCustomRuleParams object

@@ -33,9 +33,11 @@ resource_type := "aws_kms_key"
 default deny = false
 
 all_principals(statement) {
-    principals = as_array(statement.Principal)
-    principal = principals[_]
-    principal.AWS == "*"
+	principals = as_array(statement.Principal)
+    effects = as_array(statement.Effect)
+	principal = principals[_]
+    effect = effects[_]
+	principal.AWS == "*"; effect == "Allow"
 }
 
 is_nonempty_string(str) {

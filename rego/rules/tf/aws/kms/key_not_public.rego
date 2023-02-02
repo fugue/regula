@@ -34,9 +34,9 @@ default deny = false
 
 all_principals(statement) {
 	principals = as_array(statement.Principal)
-    effects = as_array(statement.Effect)
+	effects = as_array(statement.Effect)
 	principal = principals[_]
-    effect = effects[_]
+	effect = effects[_]
 	principal.AWS == "*"; effect == "Allow"
 }
 

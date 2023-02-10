@@ -7,13 +7,13 @@
         "_provider": "aws",
         "_tags": {
           "department": "engineering",
-          "environment": null
+          "environment": "var.environment"
         },
         "_type": "aws_s3_bucket",
         "id": "aws_s3_bucket.main",
         "tags": {
           "department": "engineering",
-          "environment": null
+          "environment": "var.environment"
         }
       }
     }

@@ -8,12 +8,12 @@ jobs:
     name: Test with Go ${{ matrix.go }}
     strategy:
       matrix:
-        go: ["1.17", "1.18"]
+        go: ["1.18", "1.19", "1.20"]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
-    - uses: actions/setup-go@v2
+    - uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go }}
     - name: Go test

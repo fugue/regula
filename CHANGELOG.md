@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v3.1.0 (2023-02-10)
+### Updated
+* policy-engine to fix panic from null variables (#389)
+* go version to 1.18
+
 ## v3.0.0 (2023-01-24)
 ### Added
 * support for_each for resources in tf loader

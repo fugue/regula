@@ -96,7 +96,7 @@ For usage, see [Running Regula with Docker](https://regula.dev/usage.html#runnin
 
 _macOS, Linux, and [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) only_
 
-1. [Install Go (v1.17+)](https://go.dev/doc/install)
+1. [Install Go (v1.18+)](https://go.dev/doc/install)
 
 2. Build binary and move to `/usr/local/bin/regula`:
 

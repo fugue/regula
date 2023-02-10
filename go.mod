@@ -1,6 +1,6 @@
 module github.com/fugue/regula/v3
 
-go 1.17
+go 1.18
 
 require (
 	github.com/alexeyco/simpletable v1.0.0
@@ -16,7 +16,7 @@ require (
 	github.com/open-policy-agent/opa v0.45.1-0.20221025141544-cdbe363e2136
 	github.com/owenrumney/go-sarif/v2 v2.1.1
 	github.com/sirupsen/logrus v1.9.0
-	github.com/snyk/policy-engine v0.15.0
+	github.com/snyk/policy-engine v0.17.0
 	github.com/spf13/afero v1.8.2
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5

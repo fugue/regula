@@ -36,7 +36,7 @@ theme:
   logo: img/favicon.ico
   icon:
     repo: fontawesome/brands/github
-copyright: Copyright &copy; 2021 <a href="https://www.fugue.co" target="_blank">Fugue, Inc.</a>
+copyright: Copyright &copy; 2023 <a href="https://www.fugue.co" target="_blank">Fugue, Inc.</a>
 repo_url: https://github.com/fugue/regula
 use_directory_urls: false
 extra_javascript:

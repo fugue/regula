@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v3.2.0 (2023-02-15)
+### Updated
+* policy-engine to v0.18.0 to add support for newer Terraform syntax (#388)
+
 ## v3.1.0 (2023-02-10)
 ### Updated
 * policy-engine to fix panic from null variables (#389)

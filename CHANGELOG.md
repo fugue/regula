@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v3.2.1 (2023-02-16)
+### Updated
+* policy-engine to v0.18.1
+
 ## v3.2.0 (2023-02-15)
 ### Updated
 * policy-engine to v0.18.0 to add support for newer Terraform syntax (#388)

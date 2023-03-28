@@ -1,0 +1,60 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  'snyk:lic:golang:github.com:hashicorp:errwrap:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:53:23.442Z
+  'snyk:lic:golang:github.com:hashicorp:go-cleanhttp:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:53:33.302Z
+  'snyk:lic:golang:github.com:hashicorp:go-getter:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:53:41.805Z
+  'snyk:lic:golang:github.com:hashicorp:go-multierror:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:53:52.816Z
+  'snyk:lic:golang:github.com:hashicorp:go-retryablehttp:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:54:01.575Z
+  'snyk:lic:golang:github.com:hashicorp:go-safetemp:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:54:11.037Z
+  'snyk:lic:golang:github.com:hashicorp:go-uuid:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:54:42.771Z
+  'snyk:lic:golang:github.com:hashicorp:go-version:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:54:49.300Z
+  'snyk:lic:golang:github.com:hashicorp:hcl:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:54:55.858Z
+  'snyk:lic:golang:github.com:hashicorp:hcl:v2:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:55:09.046Z
+  'snyk:lic:golang:github.com:hashicorp:terraform-registry-address:MPL-2.0':
+    - '*':
+        reason: Project is distributed with unmodified hashicorp/hcl dependency
+        expires: 2024-01-01T00:00:00.000Z
+        created: 2023-03-28T14:55:45.646Z
+patch: {}

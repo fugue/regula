@@ -29,8 +29,15 @@ resource_type := "MULTIPLE"
 
 buckets := fugue.resources("aws_s3_bucket")
 
+bucket_logging := fugue.resources("aws_s3_bucket_logging")
+
 bucket_has_logging(bucket) {
   _ = bucket.logging[_]
+}
+
+bucket_has_logging(bucket) {
+  bucket_logging_conf := bucket_logging[_]
+  bucket_logging_conf.bucket == bucket.id
 }
 
 bucket_has_logging(bucket) {

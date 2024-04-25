@@ -24,4 +24,4 @@ jobs:
       run: |
         cd rego
         ../bin/regula test examples rules tests
-        ../bin/regula test --no-test-inputs examples rules tests
+        ../bin/regula test --no-test-inputs examples rules tests # Failures here may indicate a problem with missing rego failures, try running `regula write-test-inputs tests/rules/...`

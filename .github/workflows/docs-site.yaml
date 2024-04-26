@@ -1,22 +1,22 @@
-name: docs-site
-
-on: [workflow_dispatch]
-
-jobs:
-  docs-site:
-    environment: release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-      - name: Docs site deploy
-        env:
-          DOCS_S3_BUCKET: ${{ secrets.DOCS_S3_BUCKET }}
-          DOCS_CF_DISTRIBUTION: ${{ secrets.DOCS_CF_DISTRIBUTION }}
-          DOCS_ACCESS_KEY_ID: ${{ secrets.DOCS_ACCESS_KEY_ID }}
-          DOCS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_SECRET_ACCESS_KEY }}
-        run: ./docs/scripts/deploy.sh
+#name: docs-site
+#
+#on: [workflow_dispatch]
+#
+#jobs:
+#  docs-site:
+#    environment: release
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Setup Python
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: '3.9'
+#      - name: Docs site deploy
+#        env:
+#          DOCS_S3_BUCKET: ${{ secrets.DOCS_S3_BUCKET }}
+#          DOCS_CF_DISTRIBUTION: ${{ secrets.DOCS_CF_DISTRIBUTION }}
+#          DOCS_ACCESS_KEY_ID: ${{ secrets.DOCS_ACCESS_KEY_ID }}
+#          DOCS_SECRET_ACCESS_KEY: ${{ secrets.DOCS_SECRET_ACCESS_KEY }}
+#        run: ./docs/scripts/deploy.sh

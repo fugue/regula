@@ -40,36 +40,31 @@ archives:
       wrap_in_directory: false
       files:
       - LICENSE
-      replacements:
-        darwin: macOS
-        linux: Linux
-        windows: Windows
-        amd64: x86_64
     format: tar.gz
   - id: windows
     builds: [windows]
     <<: *archive_defaults
     format: zip
 
-dockers:
-  - image_templates:
-    - "fugue/regula:{{ if .Prerelease }}preview{{ else }}latest{{ end }}"
-    - "fugue/regula:{{ .Tag }}"
-    - "fugue/regula:v{{ .Major }}{{ if .Prerelease }}-pre{{ end }}"
-    - "fugue/regula:v{{ .Major }}.{{ .Minor }}{{ if .Prerelease }}-pre{{ end }}"
+#dockers:
+#  - image_templates:
+#    - "fugue/regula:{{ if .Prerelease }}preview{{ else }}latest{{ end }}"
+#    - "fugue/regula:{{ .Tag }}"
+#    - "fugue/regula:v{{ .Major }}{{ if .Prerelease }}-pre{{ end }}"
+#    - "fugue/regula:v{{ .Major }}.{{ .Minor }}{{ if .Prerelease }}-pre{{ end }}"
 
-brews:
-  - skip_upload: auto
-    tap:
-      owner: fugue
-      name: homebrew-regula
-      token: "{{ .Env.BREW_TAP_GITHUB_TOKEN }}"
-    commit_author:
-      name: Fugue
-      email: regula@fugue.co
-    folder: Formula
-    homepage: "https://regula.dev"
-    description: "Evaluate infrastructure as code for security and compliance"
+#brews:
+#  - skip_upload: auto
+#    tap:
+#      owner: fugue
+#      name: homebrew-regula
+#      token: "{{ .Env.BREW_TAP_GITHUB_TOKEN }}"
+#    commit_author:
+#      name: Fugue
+#      email: regula@fugue.co
+#    folder: Formula
+#    homepage: "https://regula.dev"
+#    description: "Evaluate infrastructure as code for security and compliance"
 
 checksum:
   name_template: "checksums.txt"

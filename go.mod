@@ -22,7 +22,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.11.0
 	github.com/stretchr/testify v1.8.1
-	github.com/tailscale/hujson v0.0.0-20220506213045-af5ed07155e5
+	github.com/tailscale/hujson v0.0.0-20221223112325-20486734a56a
 	golang.org/x/tools v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
 )

@@ -14,7 +14,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/open-policy-agent/opa v0.45.1-0.20221025141544-cdbe363e2136
-	github.com/owenrumney/go-sarif/v2 v2.1.1
+	github.com/owenrumney/go-sarif/v2 v2.3.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/snyk/policy-engine v0.18.1
 	github.com/spf13/afero v1.8.2

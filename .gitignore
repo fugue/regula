@@ -5,6 +5,8 @@ venv/
 site/
 bin/
 dist/
+.idea/
 .vscode/
+*.code-workspace
 .scratch/
 .regula-history

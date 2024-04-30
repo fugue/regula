@@ -83,4 +83,4 @@ MkDocs generates the site in the `site` directory.
 python docs/scripts/rules_tables.py --provider k8s
 ```
 
-Providers: `aws`, `azurerm`, `google`, `cfn`, `arm`, `k8s`, `all` (default)
+Providers: `aws`, `azurerm`, `google`, `cfn`, `k8s`, `all` (default)

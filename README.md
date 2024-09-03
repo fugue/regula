@@ -1,3 +1,10 @@
+# Archival note
+
+**Regula is no longer actively maintained.  Most of the relevant code has been
+moved to [snyk/policy-engine](https://github.com/snyk/policy-engine/) which
+is the engine powering the new
+[Snyk IaC](https://snyk.io/product/infrastructure-as-code-security/).**
+
 # Regula
 
 **Tip: See all of our documentation at [regula.dev](https://regula.dev)!**

@@ -1,0 +1,440 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.5.7",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_s3_bucket.allow_attached_resource_logging",
+          "mode": "managed",
+          "type": "aws_s3_bucket",
+          "name": "allow_attached_resource_logging",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "allow-attached-resource-logging",
+            "force_destroy": false,
+            "tags": null,
+            "timeouts": null
+          },
+          "sensitive_values": {
+            "cors_rule": [],
+            "grant": [],
+            "lifecycle_rule": [],
+            "logging": [],
+            "object_lock_configuration": [],
+            "replication_configuration": [],
+            "server_side_encryption_configuration": [],
+            "tags_all": {},
+            "versioning": [],
+            "website": []
+          }
+        },
+        {
+          "address": "aws_s3_bucket.allow_inline_logging",
+          "mode": "managed",
+          "type": "aws_s3_bucket",
+          "name": "allow_inline_logging",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "allow-directly-attached-logging",
+            "force_destroy": false,
+            "logging": [
+              {
+                "target_prefix": "/allow_inline_logging/"
+              }
+            ],
+            "tags": null,
+            "timeouts": null
+          },
+          "sensitive_values": {
+            "cors_rule": [],
+            "grant": [],
+            "lifecycle_rule": [],
+            "logging": [
+              {}
+            ],
+            "object_lock_configuration": [],
+            "replication_configuration": [],
+            "server_side_encryption_configuration": [],
+            "tags_all": {},
+            "versioning": [],
+            "website": []
+          }
+        },
+        {
+          "address": "aws_s3_bucket.deny_no_logging",
+          "mode": "managed",
+          "type": "aws_s3_bucket",
+          "name": "deny_no_logging",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "allow-directly-attached-logging",
+            "force_destroy": false,
+            "tags": null,
+            "timeouts": null
+          },
+          "sensitive_values": {
+            "cors_rule": [],
+            "grant": [],
+            "lifecycle_rule": [],
+            "logging": [],
+            "object_lock_configuration": [],
+            "replication_configuration": [],
+            "server_side_encryption_configuration": [],
+            "tags_all": {},
+            "versioning": [],
+            "website": []
+          }
+        },
+        {
+          "address": "aws_s3_bucket_logging.allow_attached_resource_logging_name_does_not_match",
+          "mode": "managed",
+          "type": "aws_s3_bucket_logging",
+          "name": "allow_attached_resource_logging_name_does_not_match",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "expected_bucket_owner": null,
+            "target_grant": [],
+            "target_object_key_format": [],
+            "target_prefix": "/allow_attached_resource_logging/"
+          },
+          "sensitive_values": {
+            "target_grant": [],
+            "target_object_key_format": []
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "aws_s3_bucket.allow_attached_resource_logging",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "allow_attached_resource_logging",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "bucket": "allow-attached-resource-logging",
+          "force_destroy": false,
+          "tags": null,
+          "timeouts": null
+        },
+        "after_unknown": {
+          "acceleration_status": true,
+          "acl": true,
+          "arn": true,
+          "bucket_domain_name": true,
+          "bucket_prefix": true,
+          "bucket_regional_domain_name": true,
+          "cors_rule": true,
+          "grant": true,
+          "hosted_zone_id": true,
+          "id": true,
+          "lifecycle_rule": true,
+          "logging": true,
+          "object_lock_configuration": true,
+          "object_lock_enabled": true,
+          "policy": true,
+          "region": true,
+          "replication_configuration": true,
+          "request_payer": true,
+          "server_side_encryption_configuration": true,
+          "tags_all": true,
+          "versioning": true,
+          "website": true,
+          "website_domain": true,
+          "website_endpoint": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "cors_rule": [],
+          "grant": [],
+          "lifecycle_rule": [],
+          "logging": [],
+          "object_lock_configuration": [],
+          "replication_configuration": [],
+          "server_side_encryption_configuration": [],
+          "tags_all": {},
+          "versioning": [],
+          "website": []
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket.allow_inline_logging",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "allow_inline_logging",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "bucket": "allow-directly-attached-logging",
+          "force_destroy": false,
+          "logging": [
+            {
+              "target_prefix": "/allow_inline_logging/"
+            }
+          ],
+          "tags": null,
+          "timeouts": null
+        },
+        "after_unknown": {
+          "acceleration_status": true,
+          "acl": true,
+          "arn": true,
+          "bucket_domain_name": true,
+          "bucket_prefix": true,
+          "bucket_regional_domain_name": true,
+          "cors_rule": true,
+          "grant": true,
+          "hosted_zone_id": true,
+          "id": true,
+          "lifecycle_rule": true,
+          "logging": [
+            {
+              "target_bucket": true
+            }
+          ],
+          "object_lock_configuration": true,
+          "object_lock_enabled": true,
+          "policy": true,
+          "region": true,
+          "replication_configuration": true,
+          "request_payer": true,
+          "server_side_encryption_configuration": true,
+          "tags_all": true,
+          "versioning": true,
+          "website": true,
+          "website_domain": true,
+          "website_endpoint": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "cors_rule": [],
+          "grant": [],
+          "lifecycle_rule": [],
+          "logging": [
+            {}
+          ],
+          "object_lock_configuration": [],
+          "replication_configuration": [],
+          "server_side_encryption_configuration": [],
+          "tags_all": {},
+          "versioning": [],
+          "website": []
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket.deny_no_logging",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "deny_no_logging",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "bucket": "allow-directly-attached-logging",
+          "force_destroy": false,
+          "tags": null,
+          "timeouts": null
+        },
+        "after_unknown": {
+          "acceleration_status": true,
+          "acl": true,
+          "arn": true,
+          "bucket_domain_name": true,
+          "bucket_prefix": true,
+          "bucket_regional_domain_name": true,
+          "cors_rule": true,
+          "grant": true,
+          "hosted_zone_id": true,
+          "id": true,
+          "lifecycle_rule": true,
+          "logging": true,
+          "object_lock_configuration": true,
+          "object_lock_enabled": true,
+          "policy": true,
+          "region": true,
+          "replication_configuration": true,
+          "request_payer": true,
+          "server_side_encryption_configuration": true,
+          "tags_all": true,
+          "versioning": true,
+          "website": true,
+          "website_domain": true,
+          "website_endpoint": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "cors_rule": [],
+          "grant": [],
+          "lifecycle_rule": [],
+          "logging": [],
+          "object_lock_configuration": [],
+          "replication_configuration": [],
+          "server_side_encryption_configuration": [],
+          "tags_all": {},
+          "versioning": [],
+          "website": []
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket_logging.allow_attached_resource_logging_name_does_not_match",
+      "mode": "managed",
+      "type": "aws_s3_bucket_logging",
+      "name": "allow_attached_resource_logging_name_does_not_match",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "expected_bucket_owner": null,
+          "target_grant": [],
+          "target_object_key_format": [],
+          "target_prefix": "/allow_attached_resource_logging/"
+        },
+        "after_unknown": {
+          "bucket": true,
+          "id": true,
+          "target_bucket": true,
+          "target_grant": [],
+          "target_object_key_format": []
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "target_grant": [],
+          "target_object_key_format": []
+        }
+      }
+    }
+  ],
+  "configuration": {
+    "provider_config": {
+      "aws": {
+        "name": "aws",
+        "full_name": "registry.terraform.io/hashicorp/aws",
+        "expressions": {
+          "region": {
+            "constant_value": "us-east-1"
+          }
+        }
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_s3_bucket.allow_attached_resource_logging",
+          "mode": "managed",
+          "type": "aws_s3_bucket",
+          "name": "allow_attached_resource_logging",
+          "provider_config_key": "aws",
+          "expressions": {
+            "bucket": {
+              "constant_value": "allow-attached-resource-logging"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_s3_bucket.allow_inline_logging",
+          "mode": "managed",
+          "type": "aws_s3_bucket",
+          "name": "allow_inline_logging",
+          "provider_config_key": "aws",
+          "expressions": {
+            "bucket": {
+              "constant_value": "allow-directly-attached-logging"
+            },
+            "logging": [
+              {
+                "target_bucket": {
+                  "references": [
+                    "aws_s3_bucket.deny_no_logging.id",
+                    "aws_s3_bucket.deny_no_logging"
+                  ]
+                },
+                "target_prefix": {
+                  "constant_value": "/allow_inline_logging/"
+                }
+              }
+            ]
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_s3_bucket.deny_no_logging",
+          "mode": "managed",
+          "type": "aws_s3_bucket",
+          "name": "deny_no_logging",
+          "provider_config_key": "aws",
+          "expressions": {
+            "bucket": {
+              "constant_value": "allow-directly-attached-logging"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "aws_s3_bucket_logging.allow_attached_resource_logging_name_does_not_match",
+          "mode": "managed",
+          "type": "aws_s3_bucket_logging",
+          "name": "allow_attached_resource_logging_name_does_not_match",
+          "provider_config_key": "aws",
+          "expressions": {
+            "bucket": {
+              "references": [
+                "aws_s3_bucket.allow_attached_resource_logging.id",
+                "aws_s3_bucket.allow_attached_resource_logging"
+              ]
+            },
+            "target_bucket": {
+              "references": [
+                "aws_s3_bucket.deny_no_logging.id",
+                "aws_s3_bucket.deny_no_logging"
+              ]
+            },
+            "target_prefix": {
+              "constant_value": "/allow_attached_resource_logging/"
+            }
+          },
+          "schema_version": 0
+        }
+      ]
+    }
+  },
+  "relevant_attributes": [
+    {
+      "resource": "aws_s3_bucket.allow_attached_resource_logging",
+      "attribute": [
+        "id"
+      ]
+    },
+    {
+      "resource": "aws_s3_bucket.deny_no_logging",
+      "attribute": [
+        "id"
+      ]
+    }
+  ],
+  "timestamp": "2024-04-19T20:43:56Z"
+}
